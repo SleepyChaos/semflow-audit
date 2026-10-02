@@ -21,3 +21,6 @@ codeql-dbs/
 # OS / editor
 .DS_Store
 .idea/
+
+# Frontend production output
+/backend/app/frontend/

@@ -1,0 +1,43 @@
+name: Application checks
+on: [push, pull_request]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: audit
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: audit
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U audit" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PROJECT_NAME: AI Code Audit
+      SECRET_KEY: ci-only-key-not-for-production-123456789
+      DATABASE_URL: postgresql+psycopg://audit:ci-only-password@localhost:5432/audit
+      FIRST_SUPERUSER: admin@example.com
+      FIRST_SUPERUSER_PASSWORD: ci-only-admin-password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.14'
+      - run: uv sync --project backend --group dev --locked
+      - run: ../.venv/bin/alembic upgrade head
+        working-directory: backend
+      - run: .venv/bin/ruff check backend/app
+      - run: .venv/bin/pytest tests/test_audit_core.py tests/test_audit_api.py -q
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
