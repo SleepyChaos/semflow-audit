@@ -1,0 +1,23 @@
+# Secrets and local settings
+.env
+.env.*
+!.env.example
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+# Frontend
+node_modules/
+dist/
+# Local audit data and generated artifacts
+artifacts/
+uploads/
+codeql-dbs/
+*.sarif
+*.log
+# OS / editor
+.DS_Store
+.idea/
