@@ -19,7 +19,7 @@ Semgrep 维护的规则集与引擎许可证不同。官方规则从 2024 年起
 
 ## 2. 已实际收集的材料
 
-全部文件逐项 SHA256、字节数、来源 URL、固定 revision 和下载状态见 `artifacts/research-materials/manifest.json`。该清单保留失败记录；不存在的 `LICENSE.md` 备用路径不代表许可证缺失，实际 `LICENSE` 已下载。材料没有被执行或导入为 Python 模块。
+全部文件逐项 SHA256、字节数、来源 URL、固定 revision 和下载状态见 `artifacts/research-materials/manifest.json`。该清单保留失败记录；不存在的 `LICENSE.md` 备用路径不代表许可证缺失，实际 `LICENSE` 已下载。上游模块没有在宿主被导入或执行；复制包选出的8个Python/JS无依赖小例已在受限Docker中完成双oracle校准，结果见benchmark-results.md第8节。
 
 | 材料 | 本地文件 | 实际内容/用途 | 许可与限制 |
 | --- | --- | --- | --- |
@@ -29,7 +29,7 @@ Semgrep 维护的规则集与引擎许可证不同。官方规则从 2024 年起
 | AACR 当前语言子集 | `aacr-python-js-ts.json` | Python 151、JS 141、TS 422，共 714 条：531 正确评论、183 错误评论；适合复审接受/拒绝/弃权的质量评估 | 沿用原数据许可；不是完整漏洞清单，不直接用于漏洞召回率。 |
 | [Vul4Py](https://github.com/tabudz/vul4py) 索引 | `vul4py.csv`、`vul4py-README.md` | 固定 `2649d7b89e796738ebc2bc3fa9480dff5ae15898`；100 个 Python CVE/GHSA 与修复 commit 索引 | GitHub 未看到独立 LICENSE；仅本地研究参考，不宣称可再发布。完整快照与 oracle 尚未下载/执行。 |
 | [Execution-calibrated patching 复制包](https://zenodo.org/records/21645415) | `execution-patching-reproduction.zip`、`execution-patching-README.md` | 2026-07-28 归档，1,842,349 字节；74 文件，含 JS/Python/Go 小型 oracle 与作者历史实验 SQLite | Zenodo CC BY 4.0；不是 Vul4Py。作者运行结果不能写成本平台结果。 |
-| 复制包的 oracle 例源 | `execution-patching-examples/harness/oracle/examples/` | `py_benchmark.py`、`js_benchmark.py`、`path_traversal.py` 等纯文件提取；为修复的安全性与功能性双 oracle 设计提供材料 | 尚未运行、不保证可直接接入；先人工核实输入、期望与依赖，再在受限容器适配。 |
+| 复制包的 oracle 例源 | `execution-patching-examples/harness/oracle/examples/` | `py_benchmark.py`、`js_benchmark.py`、`path_traversal.py` 等纯文件提取；为修复的安全性与功能性双 oracle 设计提供材料 | 8个Python/JS无依赖小例已在隔离验证器各运行3轮；其他例源未运行，仍需核实输入、期望与依赖。 |
 | 阿里竞品源码说明 | `ocr-README.md`、`ocr-LICENSE` | 固定源码说明和 Apache-2.0 许可证 | 此前已本地构建并运行 preview/delegate；本轮未重新安装，未执行 OCR 内置真实模型评测，不能沿用官方性能宣传作为对比结果。 |
 
 复制包主 ZIP 的 SHA256：`daef48a2df80b798471d844578c4efc7b925819ad633e182d33d1dc52e073a62`。Vul4Py CSV SHA256：`38e3b3f595bcd0ebc7a3a7bbc5200026eee71ab45ff6b808b6ff5e8c39b17547`。
