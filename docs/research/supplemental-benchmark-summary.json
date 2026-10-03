@@ -1,0 +1,1144 @@
+{
+  "scope": "8 published miniature cases; supplied reference fixes, NOT platform-generated patches or full CVE repositories",
+  "source": "https://zenodo.org/records/21645415",
+  "license": "CC BY 4.0",
+  "material_sha256": {
+    "python": "5277e79984b0f226fce06eb41f8f3531b61a97b36381bab4d3d2c5f70ca58a2c",
+    "javascript": "bd69833b60cfc07773458e441ac0306e7cc38b365778a11f71ab01935d3276c0"
+  },
+  "external_oracles": [
+    {
+      "language": "python",
+      "case": "SQLI",
+      "cwe": "CWE-89",
+      "variant": "vulnerable",
+      "round": 1,
+      "seconds": 0.5104749579913914,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "SQLI",
+      "cwe": "CWE-89",
+      "variant": "vulnerable",
+      "round": 2,
+      "seconds": 0.3922684169956483,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "SQLI",
+      "cwe": "CWE-89",
+      "variant": "vulnerable",
+      "round": 3,
+      "seconds": 0.4173731670016423,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "SQLI",
+      "cwe": "CWE-89",
+      "variant": "reference_fix",
+      "round": 1,
+      "seconds": 0.37864450001507066,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "SQLI",
+      "cwe": "CWE-89",
+      "variant": "reference_fix",
+      "round": 2,
+      "seconds": 0.4032764169969596,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "SQLI",
+      "cwe": "CWE-89",
+      "variant": "reference_fix",
+      "round": 3,
+      "seconds": 0.3794142499973532,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "vulnerable",
+      "round": 1,
+      "seconds": 0.3713187920220662,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "vulnerable",
+      "round": 2,
+      "seconds": 0.3795740839850623,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "vulnerable",
+      "round": 3,
+      "seconds": 0.36952604199177586,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "reference_fix",
+      "round": 1,
+      "seconds": 0.3917947500012815,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "reference_fix",
+      "round": 2,
+      "seconds": 0.3756066659989301,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "reference_fix",
+      "round": 3,
+      "seconds": 0.3941771670070011,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "AUTHZ",
+      "cwe": "CWE-862",
+      "variant": "vulnerable",
+      "round": 1,
+      "seconds": 0.37117412500083447,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "AUTHZ",
+      "cwe": "CWE-862",
+      "variant": "vulnerable",
+      "round": 2,
+      "seconds": 0.38105791600537486,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "AUTHZ",
+      "cwe": "CWE-862",
+      "variant": "vulnerable",
+      "round": 3,
+      "seconds": 0.3827522079809569,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "AUTHZ",
+      "cwe": "CWE-862",
+      "variant": "reference_fix",
+      "round": 1,
+      "seconds": 0.37387433400726877,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "AUTHZ",
+      "cwe": "CWE-862",
+      "variant": "reference_fix",
+      "round": 2,
+      "seconds": 0.37303912499919534,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "AUTHZ",
+      "cwe": "CWE-862",
+      "variant": "reference_fix",
+      "round": 3,
+      "seconds": 0.3661894169927109,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "CRLF",
+      "cwe": "CWE-93",
+      "variant": "vulnerable",
+      "round": 1,
+      "seconds": 0.37617191701428965,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "CRLF",
+      "cwe": "CWE-93",
+      "variant": "vulnerable",
+      "round": 2,
+      "seconds": 0.37995458400109783,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "CRLF",
+      "cwe": "CWE-93",
+      "variant": "vulnerable",
+      "round": 3,
+      "seconds": 0.37833970799692906,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "CRLF",
+      "cwe": "CWE-93",
+      "variant": "reference_fix",
+      "round": 1,
+      "seconds": 0.3677451249968726,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "CRLF",
+      "cwe": "CWE-93",
+      "variant": "reference_fix",
+      "round": 2,
+      "seconds": 0.37085158299305476,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "python",
+      "case": "CRLF",
+      "cwe": "CWE-93",
+      "variant": "reference_fix",
+      "round": 3,
+      "seconds": 0.36816812501638196,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "language": "javascript",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "vulnerable",
+      "round": 1,
+      "seconds": 0.35398645800887607,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "vulnerable",
+      "round": 2,
+      "seconds": 0.33224141600658186,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "vulnerable",
+      "round": 3,
+      "seconds": 0.3380766250193119,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "reference_fix",
+      "round": 1,
+      "seconds": 0.3311728750122711,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "reference_fix",
+      "round": 2,
+      "seconds": 0.33586629197816364,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "XSS",
+      "cwe": "CWE-79",
+      "variant": "reference_fix",
+      "round": 3,
+      "seconds": 0.32571483301580884,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "PP",
+      "cwe": "CWE-1321",
+      "variant": "vulnerable",
+      "round": 1,
+      "seconds": 0.3304394579899963,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "PP",
+      "cwe": "CWE-1321",
+      "variant": "vulnerable",
+      "round": 2,
+      "seconds": 0.3456232500029728,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "PP",
+      "cwe": "CWE-1321",
+      "variant": "vulnerable",
+      "round": 3,
+      "seconds": 0.3345720419893041,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "PP",
+      "cwe": "CWE-1321",
+      "variant": "reference_fix",
+      "round": 1,
+      "seconds": 0.33314483298454434,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "PP",
+      "cwe": "CWE-1321",
+      "variant": "reference_fix",
+      "round": 2,
+      "seconds": 0.33771187500678934,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "PP",
+      "cwe": "CWE-1321",
+      "variant": "reference_fix",
+      "round": 3,
+      "seconds": 0.3322182910051197,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "OR",
+      "cwe": "CWE-601",
+      "variant": "vulnerable",
+      "round": 1,
+      "seconds": 0.32967445798567496,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "OR",
+      "cwe": "CWE-601",
+      "variant": "vulnerable",
+      "round": 2,
+      "seconds": 0.3302521670120768,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "OR",
+      "cwe": "CWE-601",
+      "variant": "vulnerable",
+      "round": 3,
+      "seconds": 0.32663841600879095,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "OR",
+      "cwe": "CWE-601",
+      "variant": "reference_fix",
+      "round": 1,
+      "seconds": 0.33642279100604355,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "OR",
+      "cwe": "CWE-601",
+      "variant": "reference_fix",
+      "round": 2,
+      "seconds": 0.3381799999915529,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "OR",
+      "cwe": "CWE-601",
+      "variant": "reference_fix",
+      "round": 3,
+      "seconds": 0.32947879200219177,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "CRLF",
+      "cwe": "CWE-74",
+      "variant": "vulnerable",
+      "round": 1,
+      "seconds": 0.34148145900689997,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "CRLF",
+      "cwe": "CWE-74",
+      "variant": "vulnerable",
+      "round": 2,
+      "seconds": 0.328889666008763,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "CRLF",
+      "cwe": "CWE-74",
+      "variant": "vulnerable",
+      "round": 3,
+      "seconds": 0.3396286670176778,
+      "outcomes": {
+        "security": 1,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "CRLF",
+      "cwe": "CWE-74",
+      "variant": "reference_fix",
+      "round": 1,
+      "seconds": 0.32537195802433416,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "CRLF",
+      "cwe": "CWE-74",
+      "variant": "reference_fix",
+      "round": 2,
+      "seconds": 0.3247089580108877,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    },
+    {
+      "language": "javascript",
+      "case": "CRLF",
+      "cwe": "CWE-74",
+      "variant": "reference_fix",
+      "round": 3,
+      "seconds": 0.3324839170090854,
+      "outcomes": {
+        "security": 0,
+        "functional": 0
+      },
+      "oracle_calibrated": true,
+      "source_unchanged": true,
+      "image_id": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c"
+    }
+  ],
+  "rule_holdout": {
+    "scope": "8 original independent examples; manually supplied seed anchor query, NOT AI generated rules",
+    "knowledge": "docs/knowledge/python-codeql.md",
+    "query_purpose": "review anchor; deliberately not a complete vulnerability detector",
+    "snapshot": "7f64103f58f1ff4ed011c491a240153349787190353a04a6b02a2cdfbfd7e940",
+    "dependencies": {
+      "codeql/dataflow": {
+        "version": "2.0.10"
+      },
+      "codeql/mad": {
+        "version": "1.0.26"
+      },
+      "codeql/python-all": {
+        "version": "4.0.10"
+      },
+      "codeql/regex": {
+        "version": "1.0.26"
+      },
+      "codeql/ssa": {
+        "version": "2.0.2"
+      },
+      "codeql/suite-helpers": {
+        "version": "1.0.26"
+      },
+      "codeql/threat-models": {
+        "version": "1.0.26"
+      },
+      "codeql/tutorial": {
+        "version": "1.0.26"
+      },
+      "codeql/typetracking": {
+        "version": "2.0.10"
+      },
+      "codeql/util": {
+        "version": "2.0.13"
+      },
+      "codeql/xml": {
+        "version": "1.0.26"
+      },
+      "codeql/yaml": {
+        "version": "1.0.26"
+      }
+    },
+    "compile_seconds": 1.6130359169910662,
+    "extract_seconds": 2.6138707920035813,
+    "baseline": {
+      "cases": [
+        {
+          "file": "direct.py",
+          "line": 5,
+          "vulnerable": true,
+          "predicted": true,
+          "classification": "TP",
+          "rules": [
+            "py/code-injection"
+          ]
+        },
+        {
+          "file": "propagated.py",
+          "line": 6,
+          "vulnerable": true,
+          "predicted": true,
+          "classification": "TP",
+          "rules": [
+            "py/code-injection"
+          ]
+        },
+        {
+          "file": "wrapper.py",
+          "line": 5,
+          "vulnerable": true,
+          "predicted": true,
+          "classification": "TP",
+          "rules": [
+            "py/code-injection"
+          ]
+        },
+        {
+          "file": "aliased.py",
+          "line": 6,
+          "vulnerable": true,
+          "predicted": true,
+          "classification": "TP",
+          "rules": [
+            "py/code-injection"
+          ]
+        },
+        {
+          "file": "constant.py",
+          "line": 5,
+          "vulnerable": false,
+          "predicted": false,
+          "classification": "TN",
+          "rules": []
+        },
+        {
+          "file": "sanitized_integer.py",
+          "line": 6,
+          "vulnerable": false,
+          "predicted": false,
+          "classification": "TN",
+          "rules": []
+        },
+        {
+          "file": "shadowed_function.py",
+          "line": 8,
+          "vulnerable": false,
+          "predicted": false,
+          "classification": "TN",
+          "rules": []
+        },
+        {
+          "file": "numeric_conversion.py",
+          "line": 5,
+          "vulnerable": false,
+          "predicted": false,
+          "classification": "TN",
+          "rules": []
+        }
+      ],
+      "counts": {
+        "TP": 4,
+        "FP": 0,
+        "FN": 0,
+        "TN": 4
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "all_alert_count": 4,
+      "scan_seconds": 9.087893750023795
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "seconds": 4.448680749977939,
+        "metrics": {
+          "cases": [
+            {
+              "file": "direct.py",
+              "line": 5,
+              "vulnerable": true,
+              "predicted": true,
+              "classification": "TP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "propagated.py",
+              "line": 6,
+              "vulnerable": true,
+              "predicted": true,
+              "classification": "TP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "wrapper.py",
+              "line": 5,
+              "vulnerable": true,
+              "predicted": true,
+              "classification": "TP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "aliased.py",
+              "line": 6,
+              "vulnerable": true,
+              "predicted": false,
+              "classification": "FN",
+              "rules": []
+            },
+            {
+              "file": "constant.py",
+              "line": 5,
+              "vulnerable": false,
+              "predicted": true,
+              "classification": "FP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "sanitized_integer.py",
+              "line": 6,
+              "vulnerable": false,
+              "predicted": true,
+              "classification": "FP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "shadowed_function.py",
+              "line": 8,
+              "vulnerable": false,
+              "predicted": true,
+              "classification": "FP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "numeric_conversion.py",
+              "line": 5,
+              "vulnerable": false,
+              "predicted": false,
+              "classification": "TN",
+              "rules": []
+            }
+          ],
+          "counts": {
+            "TP": 3,
+            "FP": 3,
+            "FN": 1,
+            "TN": 1
+          },
+          "precision": 0.5,
+          "recall": 0.75,
+          "all_alert_count": 6
+        }
+      },
+      {
+        "round": 2,
+        "seconds": 3.4640852919837926,
+        "metrics": {
+          "cases": [
+            {
+              "file": "direct.py",
+              "line": 5,
+              "vulnerable": true,
+              "predicted": true,
+              "classification": "TP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "propagated.py",
+              "line": 6,
+              "vulnerable": true,
+              "predicted": true,
+              "classification": "TP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "wrapper.py",
+              "line": 5,
+              "vulnerable": true,
+              "predicted": true,
+              "classification": "TP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "aliased.py",
+              "line": 6,
+              "vulnerable": true,
+              "predicted": false,
+              "classification": "FN",
+              "rules": []
+            },
+            {
+              "file": "constant.py",
+              "line": 5,
+              "vulnerable": false,
+              "predicted": true,
+              "classification": "FP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "sanitized_integer.py",
+              "line": 6,
+              "vulnerable": false,
+              "predicted": true,
+              "classification": "FP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "shadowed_function.py",
+              "line": 8,
+              "vulnerable": false,
+              "predicted": true,
+              "classification": "FP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "numeric_conversion.py",
+              "line": 5,
+              "vulnerable": false,
+              "predicted": false,
+              "classification": "TN",
+              "rules": []
+            }
+          ],
+          "counts": {
+            "TP": 3,
+            "FP": 3,
+            "FN": 1,
+            "TN": 1
+          },
+          "precision": 0.5,
+          "recall": 0.75,
+          "all_alert_count": 6
+        }
+      },
+      {
+        "round": 3,
+        "seconds": 3.5177934580133297,
+        "metrics": {
+          "cases": [
+            {
+              "file": "direct.py",
+              "line": 5,
+              "vulnerable": true,
+              "predicted": true,
+              "classification": "TP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "propagated.py",
+              "line": 6,
+              "vulnerable": true,
+              "predicted": true,
+              "classification": "TP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "wrapper.py",
+              "line": 5,
+              "vulnerable": true,
+              "predicted": true,
+              "classification": "TP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "aliased.py",
+              "line": 6,
+              "vulnerable": true,
+              "predicted": false,
+              "classification": "FN",
+              "rules": []
+            },
+            {
+              "file": "constant.py",
+              "line": 5,
+              "vulnerable": false,
+              "predicted": true,
+              "classification": "FP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "sanitized_integer.py",
+              "line": 6,
+              "vulnerable": false,
+              "predicted": true,
+              "classification": "FP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "shadowed_function.py",
+              "line": 8,
+              "vulnerable": false,
+              "predicted": true,
+              "classification": "FP",
+              "rules": [
+                "custom/dynamic-eval"
+              ]
+            },
+            {
+              "file": "numeric_conversion.py",
+              "line": 5,
+              "vulnerable": false,
+              "predicted": false,
+              "classification": "TN",
+              "rules": []
+            }
+          ],
+          "counts": {
+            "TP": 3,
+            "FP": 3,
+            "FN": 1,
+            "TN": 1
+          },
+          "precision": 0.5,
+          "recall": 0.75,
+          "all_alert_count": 6
+        }
+      }
+    ]
+  }
+}
