@@ -1,0 +1,229 @@
+{
+  "date": "2026-10-03",
+  "scope": "Phase-two first pilot; not completed thesis-scale evaluation",
+  "ordinary_tests": 87,
+  "integration_passed": 1,
+  "integration_seconds": 90.35,
+  "dataset_hash": "c234e2e63b87531813287c90f337e6af60bf923f48f7c0ad9e6231c0844721a8",
+  "independent_constructed_cases": 12,
+  "runtime_oracle": "12/12 Flask 3.1.2",
+  "generation": {
+    "free_ql": {
+      "requests": 3,
+      "generated": 0,
+      "strict_hidden_pass": 0,
+      "median_seconds": 16.816617875010706,
+      "model_calls": 6,
+      "input_tokens": 43468,
+      "output_tokens": 11673
+    },
+    "typed_route": {
+      "requests": 3,
+      "generated": 3,
+      "strict_hidden_pass": 0,
+      "median_seconds": 7.9261592920229305,
+      "model_calls": 3,
+      "input_tokens": 19161,
+      "output_tokens": 4015
+    },
+    "typed_route_dev": {
+      "requests": 3,
+      "generated": 3,
+      "strict_hidden_pass": 0,
+      "median_seconds": 26.23217916599242,
+      "model_calls": 3,
+      "input_tokens": 19161,
+      "output_tokens": 2976
+    }
+  },
+  "review": {
+    "fixed_context": {
+      "stages": 3,
+      "independent_alerts": 7,
+      "repeated_true_targets": 18,
+      "repeated_false_targets": 3,
+      "true_supported": 18,
+      "false_excluded": 3,
+      "false_supported": 0,
+      "median_seconds": 4.737435749993892,
+      "model_calls": 3,
+      "input_tokens": 15409,
+      "output_tokens": 3038
+    },
+    "active_evidence": {
+      "stages": 3,
+      "independent_alerts": 7,
+      "repeated_true_targets": 18,
+      "repeated_false_targets": 3,
+      "true_supported": 18,
+      "false_excluded": 2,
+      "false_supported": 1,
+      "median_seconds": 7.92022012497182,
+      "model_calls": 10,
+      "input_tokens": 54369,
+      "output_tokens": 3874
+    },
+    "dedup_v2": {
+      "stages": 3,
+      "independent_alerts": 7,
+      "repeated_true_targets": 18,
+      "repeated_false_targets": 3,
+      "true_supported": 18,
+      "false_excluded": 0,
+      "false_supported": 3,
+      "median_seconds": 6.152610083983745,
+      "model_calls": 3,
+      "input_tokens": 15316,
+      "output_tokens": 3251
+    },
+    "selective_v3": {
+      "stages": 3,
+      "independent_alerts": 7,
+      "repeated_true_targets": 18,
+      "repeated_false_targets": 3,
+      "true_supported": 18,
+      "false_excluded": 3,
+      "false_supported": 0,
+      "median_seconds": 5.281772791000549,
+      "model_calls": 3,
+      "input_tokens": 15705,
+      "output_tokens": 3072
+    }
+  },
+  "real_materials": {
+    "selected": 20,
+    "full_pairs": 19,
+    "failed": [
+      "CVE-2020-8205"
+    ]
+  },
+  "full_repo_pilot": {
+    "pairs": 4,
+    "default_profile_completed": 6,
+    "default_profile_failed": 2,
+    "resource_followup_completed": 2,
+    "root_truth": "not independently validated, no project-level precision/recall claim",
+    "times": [
+      {
+        "advisory": "CVE-2021-31712",
+        "variant": "pre",
+        "status": "failed",
+        "extract_seconds": 16.592935624998063,
+        "query_seconds": [],
+        "alert_counts": []
+      },
+      {
+        "advisory": "CVE-2021-31712",
+        "variant": "post",
+        "status": "failed",
+        "extract_seconds": 15.826935499993851,
+        "query_seconds": [],
+        "alert_counts": []
+      },
+      {
+        "advisory": "CVE-2021-23364",
+        "variant": "pre",
+        "status": "completed",
+        "extract_seconds": 5.590599624993047,
+        "query_seconds": [
+          18.580033750011353,
+          4.292104750027647,
+          4.181770458002575
+        ],
+        "alert_counts": [
+          5,
+          5,
+          5
+        ]
+      },
+      {
+        "advisory": "CVE-2021-23364",
+        "variant": "post",
+        "status": "completed",
+        "extract_seconds": 4.637011083017569,
+        "query_seconds": [
+          19.28744441701565,
+          4.142138291994343,
+          4.363898999989033
+        ],
+        "alert_counts": [
+          5,
+          5,
+          5
+        ]
+      },
+      {
+        "advisory": "GHSA-w235-7p84-xx57",
+        "variant": "pre",
+        "status": "completed",
+        "extract_seconds": 8.216274333011825,
+        "query_seconds": [
+          18.293298666976625,
+          4.428763500007335,
+          4.578891834011301
+        ],
+        "alert_counts": [
+          59,
+          59,
+          59
+        ]
+      },
+      {
+        "advisory": "GHSA-w235-7p84-xx57",
+        "variant": "post",
+        "status": "completed",
+        "extract_seconds": 7.378365124983247,
+        "query_seconds": [
+          17.56894037500024,
+          4.801999292016262,
+          4.712255582999205
+        ],
+        "alert_counts": [
+          59,
+          59,
+          59
+        ]
+      },
+      {
+        "advisory": "GHSA-vhmj-5q9r-mm9g",
+        "variant": "pre",
+        "status": "completed",
+        "extract_seconds": 15.228611500002444,
+        "query_seconds": [
+          39.42960358300479,
+          4.24193175000255,
+          4.269315167010063
+        ],
+        "alert_counts": [
+          63,
+          63,
+          63
+        ]
+      },
+      {
+        "advisory": "GHSA-vhmj-5q9r-mm9g",
+        "variant": "post",
+        "status": "completed",
+        "extract_seconds": 15.150508165999781,
+        "query_seconds": [
+          38.42961054199259,
+          4.722994874988217,
+          4.658380582986865
+        ],
+        "alert_counts": [
+          63,
+          63,
+          63
+        ]
+      }
+    ]
+  },
+  "actual_models": [
+    "deepseek-v4-1-flash-260910"
+  ],
+  "model_totals": {
+    "calls": 31,
+    "input_tokens": 182589,
+    "output_tokens": 31899
+  }
+}

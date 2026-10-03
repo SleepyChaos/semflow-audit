@@ -183,7 +183,7 @@ def test_benchmark_labels_align_with_source():
 
 
 def test_development_execution_enters_bounded_feedback(pipeline_context, monkeypatch):
-    import app.services.rules as module
+    import app.services.rule_synthesis as module
 
     stage = make_stage(pipeline_context, {"full_feedback": True, "execute_dev": True})
     identifier = uuid4()

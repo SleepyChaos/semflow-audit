@@ -56,7 +56,8 @@ class ReviewService:
                     if self.inputs.paths and not self.inputs.finding_ids:
                         continue
                     raise
-                collected.append(source)
+                if source["id"] not in {row["id"] for row in collected}:
+                    collected.append(source)
                 candidate = Candidate(
                     audit_id=audit.id,
                     stage_id=self.stage.id,
@@ -102,7 +103,9 @@ class ReviewService:
             raise AuditError("AI 取证步数预算耗尽；未自动排除或确认任何漏洞")
         self.repository.update(self.stage_id, phase="reason")
         schema = (
-            ReviewResponseV2 if self.stage.prompt_version == "2" else ReviewResponse
+            ReviewResponseV2
+            if self.stage.prompt_version in {"2", "3"}
+            else ReviewResponse
         )
         response = self.provider.generate("review", state["context"], schema)
         self.repository.update(self.stage_id, usage=self.provider.usage)
@@ -160,7 +163,9 @@ class ReviewService:
             raise AuditError("不支持的取证工具")
         context = {
             **state["context"],
-            "evidence": [*state["context"]["evidence"], data],
+            "evidence": state["context"]["evidence"]
+            if data["id"] in {row["id"] for row in state["context"]["evidence"]}
+            else [*state["context"]["evidence"], data],
             "tool_trace": [
                 *state["context"]["tool_trace"],
                 {"tool": name, "arguments": arguments, "evidence_id": data["id"]},
@@ -177,7 +182,7 @@ class ReviewService:
 
     def save(self, state: dict) -> dict:
         self.repository.active(self.stage_id)
-        if self.stage.prompt_version == "2":
+        if self.stage.prompt_version in {"2", "3"}:
             try:
                 return save_v2(self, state)
             except AuditError as exc:

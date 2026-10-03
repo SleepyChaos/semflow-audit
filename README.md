@@ -75,5 +75,7 @@ npm run build --prefix frontend
 - [实际基准结果](docs/research/benchmark-results.md)
 - [论文与三项贡献建议](docs/research/papers-and-innovations.md)
 - [竞品与下载材料](docs/research/competitors-and-materials.md)
+- [下一阶段总计划：规则生成、审计效果、速度](docs/research/phase-two-master-plan.md)
+- [第二阶段首批改进与真实模型/完整仓库基准](docs/research/phase-two-results.md)
 - [功能链路与 GUI 流程](docs/product-workflow.md)
 - [模块边界](docs/architecture.md)、[模板来源](docs/upstream.md)、[编码约束](AGENTS.md)

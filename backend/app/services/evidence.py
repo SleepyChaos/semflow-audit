@@ -62,6 +62,7 @@ class EvidenceService:
     def record(self, kind: str, content: str, reference: dict) -> dict:
         if snapshot_digest(self.root) != self.audit.snapshot_hash:
             raise AuditError("取证过程中源码快照发生变化")
+        digest = hashlib.sha256(content.encode()).hexdigest()
         evidence = Evidence(
             stage_id=self.stage_id,
             audit_id=self.audit.id,
@@ -69,12 +70,27 @@ class EvidenceService:
             snapshot_hash=self.audit.snapshot_hash,
             reference=reference,
             content=content,
-            digest=hashlib.sha256(content.encode()).hexdigest(),
+            digest=digest,
         )
         with Session(engine) as session:
-            session.add(evidence)
-            session.commit()
-            session.refresh(evidence)
+            existing = session.exec(
+                select(Evidence).where(
+                    Evidence.stage_id == self.stage_id,
+                    Evidence.audit_id == self.audit.id,
+                    Evidence.snapshot_hash == self.audit.snapshot_hash,
+                    Evidence.kind == kind,
+                    Evidence.digest == digest,
+                )
+            ).all()
+            same = next((row for row in existing if row.reference == reference), None)
+            if same is not None:
+                if same.content != content:
+                    raise AuditError("已保存的重复证据内容被修改")
+                evidence = same
+            else:
+                session.add(evidence)
+                session.commit()
+                session.refresh(evidence)
         return {
             "id": str(evidence.id),
             "kind": kind,

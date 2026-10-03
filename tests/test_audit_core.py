@@ -1,7 +1,8 @@
 import json
 import stat
-from pathlib import Path
+from types import SimpleNamespace
 from zipfile import ZipFile, ZipInfo
+
 import pytest
 from app.adapters.archive import extract_snapshot
 from app.adapters.codeql.sarif import parse_sarif
@@ -116,9 +117,10 @@ def test_successful_zero_results_is_supported(tmp_path):
 
 
 class Service:
-    def __init__(self, fail=False):
+    def __init__(self, directory, fail=False):
         self.calls = []
         self.fail = fail
+        self.artifacts = SimpleNamespace(directory=lambda _: directory)
 
     def create_database(self, run_id):
         self.calls.append(("database", run_id))
@@ -132,15 +134,23 @@ class Service:
         self.calls.append(("evidence", run_id))
 
 
-def test_graph_executes_real_stage_order():
-    service = Service()
+def test_graph_executes_real_stage_order(tmp_path):
+    service = Service(tmp_path)
     state = build_scan_graph(service).invoke({"run_id": "run"})
     assert service.calls == [("database", "run"), ("scan", "run"), ("evidence", "run")]
     assert state["findings_saved"]
+    records = [
+        json.loads(p.read_text()) for p in (tmp_path / "node-timings").glob("*.json")
+    ]
+    assert len(records) == 3 and all(r["status"] == "completed" for r in records)
 
 
-def test_graph_failure_prevents_publishing_findings():
-    service = Service(fail=True)
+def test_graph_failure_prevents_publishing_findings(tmp_path):
+    service = Service(tmp_path, fail=True)
     with pytest.raises(AuditError):
         build_scan_graph(service).invoke({"run_id": "run"})
     assert [step for step, _ in service.calls] == ["database", "scan"]
+    records = [
+        json.loads(p.read_text()) for p in (tmp_path / "node-timings").glob("*.json")
+    ]
+    assert len(records) == 2 and any(r["status"] == "failed" for r in records)

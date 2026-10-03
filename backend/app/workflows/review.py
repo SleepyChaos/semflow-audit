@@ -2,6 +2,8 @@ from typing import TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
+from app.adapters.artifacts import ArtifactStore
+from app.adapters.node_timing import timed_node
 from app.services.review import ReviewService
 
 
@@ -15,10 +17,14 @@ class ReviewState(TypedDict, total=False):
 
 def build_review_graph(service: ReviewService, checkpointer=None):
     graph = StateGraph(ReviewState)
-    graph.add_node("prepare_targets", lambda _: service.prepare())
-    graph.add_node("reason", service.reason)
-    graph.add_node("gather_evidence", service.gather)
-    graph.add_node("save_candidates", service.save)
+    directory = ArtifactStore().directory(service.stage_id)
+    for name, operation in {
+        "prepare_targets": lambda _: service.prepare(),
+        "reason": service.reason,
+        "gather_evidence": service.gather,
+        "save_candidates": service.save,
+    }.items():
+        graph.add_node(name, timed_node(directory, name, operation))
     graph.add_edge(START, "prepare_targets")
     graph.add_edge("prepare_targets", "reason")
     graph.add_conditional_edges(

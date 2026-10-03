@@ -1,5 +1,6 @@
 from langgraph.graph import END, START, StateGraph
 
+from app.adapters.node_timing import timed_node
 from app.services.scanning import ScanService
 from app.workflows.state import ScanState
 
@@ -18,9 +19,17 @@ def build_scan_graph(service: ScanService, checkpointer=None):
         return {"findings_saved": True}
 
     graph = StateGraph(ScanState)
-    graph.add_node("codeql_database", database)
-    graph.add_node("codeql_scan", scan)
-    graph.add_node("persist_evidence", evidence)
+
+    def measured(name, operation):
+        def invoke(state):
+            directory = service.artifacts.directory(state["run_id"])
+            return timed_node(directory, name, operation)(state)
+
+        return invoke
+
+    graph.add_node("codeql_database", measured("codeql_database", database))
+    graph.add_node("codeql_scan", measured("codeql_scan", scan))
+    graph.add_node("persist_evidence", measured("persist_evidence", evidence))
     graph.add_edge(START, "codeql_database")
     graph.add_edge("codeql_database", "codeql_scan")
     graph.add_edge("codeql_scan", "persist_evidence")
