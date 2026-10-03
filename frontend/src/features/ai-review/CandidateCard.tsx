@@ -53,6 +53,10 @@ export function CandidateCard({
         <Badge variant="outline">{candidate.status}</Badge>
       </header>
       <p>{candidate.description}</p>
+      <p>
+        弱点：{candidate.weakness} · 模型建议：{candidate.model_assessment} ·
+        人工状态：{candidate.status}
+      </p>
       <p className="text-sm text-muted-foreground">
         来源：{candidate.origin === "ai" ? "AI 补充候选" : "原始静态告警"} ·
         仅人工确认计入已确认发现

@@ -178,6 +178,24 @@ export function ReviewPanel({
           busy={busy}
         />
       ))}
+      <details>
+        <summary>锚点评价与未评估范围（不计为新增漏洞）</summary>
+        {stages
+          .filter((item) => item.kind === "review")
+          .map((item) => (
+            <pre className="source-code" key={item.id}>
+              {JSON.stringify(
+                {
+                  stage: item.id,
+                  assessments: item.result.anchor_assessments ?? [],
+                  unreviewed: item.result.unreviewed_anchor_ids ?? [],
+                },
+                null,
+                2,
+              )}
+            </pre>
+          ))}
+      </details>
       <StageHistory stages={stages} />
     </section>
   )

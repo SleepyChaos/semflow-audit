@@ -22,6 +22,9 @@ class KnowledgeChunk(SQLModel, table=True):
     position: int
     content: str
     digest: str
+    provenance: dict = Field(
+        default_factory=dict, sa_column=Column(JSON, nullable=False)
+    )
     embedding: list[float] | None = Field(
         default=None, sa_column=Column(Vector(), nullable=True)
     )
@@ -40,6 +43,8 @@ class RuleVersion(SQLModel, table=True):
     stage_id: UUID = Field(foreign_key="stage_run.id", index=True)
     language: str
     title: str
+    purpose: str = "unknown"
+    holdout_id: str | None = None
     strategy: str
     query: str
     modules: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))

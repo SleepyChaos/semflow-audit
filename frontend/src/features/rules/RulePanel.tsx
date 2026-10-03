@@ -5,6 +5,7 @@ import type { AuditRun } from "@/api/audits"
 import {
   type Capabilities,
   getCandidates,
+  getRuleHoldouts,
   getRules,
   type StageRun,
   startStage,
@@ -31,12 +32,18 @@ export function RulePanel({
 }) {
   const [requirement, setRequirement] = useState(""),
     [strategy, setStrategy] = useState("auto"),
+    [purpose, setPurpose] = useState("review_anchor"),
+    [holdout, setHoldout] = useState("none"),
     [candidate, setCandidate] = useState("none")
   const cache = useQueryClient(),
     busy = stages.some((item) => ["queued", "running"].includes(item.status))
   const candidates = useQuery({
     queryKey: ["candidates", run.id],
     queryFn: () => getCandidates(run.id),
+  })
+  const holdouts = useQuery({
+    queryKey: ["rule-holdouts"],
+    queryFn: getRuleHoldouts,
   })
   const rules = useQuery({
     queryKey: ["rules", run.language],
@@ -48,6 +55,8 @@ export function RulePanel({
       startStage(run.id, "rule", {
         requirement,
         strategy,
+        purpose,
+        holdout_id: holdout === "none" ? null : holdout,
         candidate_id: candidate === "none" ? null : candidate,
       }),
     onSuccess: () => cache.invalidateQueries(),
@@ -73,6 +82,45 @@ export function RulePanel({
             maxLength={5000}
           />
         </label>
+        <Select
+          value={purpose}
+          onValueChange={(value) => {
+            setPurpose(value)
+            setHoldout("none")
+          }}
+        >
+          <SelectTrigger aria-label="规则用途">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="review_anchor">
+              复审锚点（不证明漏洞）
+            </SelectItem>
+            <SelectItem value="vulnerability_detector">漏洞检测规则</SelectItem>
+            <SelectItem value="framework_model">框架建模与集成查询</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={holdout} onValueChange={setHoldout}>
+          <SelectTrigger aria-label="独立规则测试集">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">
+              未选择独立集（可生成，暂不能发布）
+            </SelectItem>
+            {holdouts.data
+              ?.filter(
+                (item) =>
+                  item.language === run.language && item.purpose === purpose,
+              )
+              .map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item.operation} · {item.id}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
+        {holdouts.error ? <p role="alert">{holdouts.error.message}</p> : null}
         <Select value={strategy} onValueChange={setStrategy}>
           <SelectTrigger aria-label="规则生成策略">
             <SelectValue />

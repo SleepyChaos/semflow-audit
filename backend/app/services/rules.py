@@ -21,6 +21,11 @@ from app.persistence.knowledge_models import RuleVersion
 from app.persistence.stage_models import Candidate
 from app.persistence.stage_repository import StageRepository
 from app.ports.model import ModelProvider
+from app.services.rule_holdouts import (
+    check_modern_validation,
+    evaluate_holdout,
+    validation_fingerprint,
+)
 
 
 class RuleService:
@@ -50,7 +55,19 @@ class RuleService:
                     "evidence_ids": row.evidence_ids,
                 }
         knowledge = KnowledgeRetriever().retrieve(
-            self.audit.owner_id, self.audit.language, self.inputs.requirement
+            self.audit.owner_id,
+            self.audit.language,
+            self.inputs.requirement,
+            api_version=fixed_dependencies(self.audit.language)[
+                "codeql/"
+                + (
+                    "python-all"
+                    if self.audit.language == "python"
+                    else "javascript-all"
+                )
+            ]["version"]
+            if self.stage.prompt_version == "2"
+            else None,
         )
         if not knowledge:
             raise AuditError("知识库没有相关检索证据；请导入语言/API/规则知识后再生成")
@@ -68,6 +85,7 @@ class RuleService:
         context = {
             "requirement": self.inputs.requirement,
             "strategy": self.inputs.strategy,
+            "purpose": self.inputs.purpose,
             "language": self.audit.language,
             "knowledge": state["knowledge"],
             "confirmed_target": state["target"],
@@ -96,7 +114,18 @@ class RuleService:
                 and response.strategy != self.inputs.strategy
             ):
                 raise AuditError("生成策略与用户选择不一致")
-            if response.strategy == "model" and not response.modules:
+            if (
+                self.stage.prompt_version == "2"
+                and response.purpose != self.inputs.purpose
+            ):
+                raise AuditError("规则用途与需求不一致")
+            if (
+                response.strategy == "model"
+                or (
+                    self.stage.prompt_version == "2"
+                    and self.inputs.purpose == "framework_model"
+                )
+            ) and not response.modules:
                 raise AuditError("模型补充策略必须包含 .qll 建模模块")
             pack = self.directory / f"draft-{attempt}"
             try:
@@ -141,6 +170,10 @@ class RuleService:
                 audit_id=self.audit.id,
                 stage_id=self.stage.id,
                 language=self.audit.language,
+                purpose=self.inputs.purpose
+                if self.stage.prompt_version == "2"
+                else "unknown",
+                holdout_id=self.inputs.holdout_id,
                 title=response.title,
                 strategy=response.strategy,
                 query=response.query,
@@ -204,25 +237,41 @@ class RuleService:
         validation = validate_fixtures(
             self.directory / "validation", pack, rule.language, rule.fixtures
         )
+        independent = (
+            evaluate_holdout(rule, self.directory / "independent", pack)
+            if rule.purpose != "unknown"
+            else {"status": "legacy_not_evaluated"}
+        )
         with Session(engine) as session:
             current = session.get(RuleVersion, rule.id)
             current.validation = {
                 **current.validation,
                 **validation,
                 "query_hash": current.query_hash,
+                "validation_fingerprint": validation_fingerprint(rule),
+                "independent_holdout": independent,
             }
             current.status = (
-                "validated" if validation["status"] == "passed" else "draft"
+                "validated"
+                if validation["status"] == "passed"
+                and (rule.purpose == "unknown" or independent.get("status") == "passed")
+                else "draft"
             )
+            final_status = current.status
             session.add(current)
             session.commit()
         self.repository.update(
             self.stage_id,
             status="completed",
-            phase="awaiting_rule_publication",
-            result={"rule_id": str(rule.id), "validation": validation},
+            phase="awaiting_rule_publication"
+            if final_status == "validated"
+            else "rule_revision_required",
+            result={
+                "rule_id": str(rule.id),
+                "validation": {**validation, "independent_holdout": independent},
+            },
         )
-        return {"validated": validation["status"] == "passed"}
+        return {"validated": final_status == "validated"}
 
 
 def publish_rule(rule: RuleVersion) -> None:
@@ -234,4 +283,5 @@ def publish_rule(rule: RuleVersion) -> None:
         raise AuditError("规则发布需要人工样本批准及正反例完整验收")
     if rule.validation.get("query_hash") != query_digest(rule.query, rule.modules):
         raise AuditError("规则内容已变化，必须重新验收")
+    check_modern_validation(rule)
     rule.status, rule.published_at = "published", get_datetime_utc()

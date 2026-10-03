@@ -22,6 +22,12 @@ class StageRun(SQLModel, table=True):
     model: str | None = None
     prompt_version: str = "1"
     usage: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
+    model_config_snapshot: dict = Field(
+        default_factory=dict, sa_column=Column(JSON, nullable=False)
+    )
+    model_calls: list[dict] = Field(
+        default_factory=list, sa_column=Column(JSON, nullable=False)
+    )
     created_at: datetime = Field(
         default_factory=get_datetime_utc, sa_type=DateTime(timezone=True)
     )
@@ -63,6 +69,8 @@ class Candidate(SQLModel, table=True):
     related_target: str | None = None
     identity_key: str = ""
     novelty: str = "unknown"
+    weakness: str = "unknown"
+    model_assessment: str = "unknown"
     location: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
     created_at: datetime = Field(
         default_factory=get_datetime_utc, sa_type=DateTime(timezone=True)

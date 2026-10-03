@@ -1,16 +1,15 @@
 """CLI integration uses scripted model responses, real graphs, CodeQL and Docker."""
 
 import os
-from uuid import UUID
+
 import pytest
-from sqlmodel import Session, select
 from app.adapters.artifacts import ArtifactStore
 from app.core.db import engine
 from app.jobs.scan import execute_scan
 from app.jobs.stages import execute_stage
 from app.persistence.audit_models import AuditRun
-from app.persistence.knowledge_models import RuleVersion
-from app.persistence.stage_models import StageRun
+from sqlmodel import Session
+
 from tests.model_fixtures import ScriptedModel
 
 pytestmark = [
@@ -87,6 +86,8 @@ def test_full_pipeline_with_real_codeql_docker_and_checkpoint_resume(
         json={
             "requirement": "Python eval 动态执行 CodeQL 自定义规则审计锚点",
             "strategy": "new_query",
+            "purpose": "review_anchor",
+            "holdout_id": "python-eval-review_anchor-v1",
             "candidate_id": candidate["id"],
         },
     )
@@ -133,8 +134,8 @@ def test_full_pipeline_with_real_codeql_docker_and_checkpoint_resume(
     assert any(row["origin"] == "baseline" for row in supplemented["findings"])
     assert (ArtifactStore().directory(supplemented["id"]) / "baseline.sarif").is_file()
     assert api.get(f"/api/v1/audits/{supplemented['id']}/sarif").status_code == 200
-    from app.services.rules_execution import execute_evidence_query
     from app.services.evidence import EvidenceService
+    from app.services.rules_execution import execute_evidence_query
 
     evidence = execute_evidence_query(
         EvidenceService(str(ctx["run_id"]), review["id"], []), rule["id"]

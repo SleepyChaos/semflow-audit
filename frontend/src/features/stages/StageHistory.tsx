@@ -83,7 +83,12 @@ export function StageHistory({ stages }: { stages: StageRun[] }) {
           {stage.error ? <p role="alert">{stage.error}</p> : null}
           <pre className="source-code">
             {JSON.stringify(
-              { result: stage.result, usage: stage.usage },
+              {
+                result: stage.result,
+                usage: stage.usage,
+                model_config: stage.model_config_snapshot,
+                model_calls: stage.model_calls,
+              },
               null,
               2,
             )}

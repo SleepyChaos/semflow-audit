@@ -30,6 +30,7 @@ class RepairRequest(StrictModel):
 
 
 class KnowledgeRequest(StrictModel):
+    provenance: dict = Field(default_factory=dict)
     title: str = Field(min_length=1, max_length=200)
     source: str = Field(min_length=1, max_length=500)
     language: Literal["python", "javascript", "any"]
@@ -37,6 +38,10 @@ class KnowledgeRequest(StrictModel):
 
 
 class RuleRequest(StrictModel):
+    purpose: Literal["review_anchor", "vulnerability_detector", "framework_model"] = (
+        "review_anchor"
+    )
+    holdout_id: str | None = Field(default=None, max_length=100)
     requirement: str = Field(min_length=10, max_length=5000)
     candidate_id: UUID | None = None
     strategy: Literal["auto", "model", "extend", "new_query"] = "auto"
@@ -93,6 +98,9 @@ class TestFixture(StrictModel):
 
 
 class RuleResponse(StrictModel):
+    purpose: Literal["review_anchor", "vulnerability_detector", "framework_model"] = (
+        "review_anchor"
+    )
     title: str = Field(min_length=1, max_length=200)
     strategy: Literal["model", "extend", "new_query"]
     coverage_analysis: str = Field(min_length=10, max_length=5000)

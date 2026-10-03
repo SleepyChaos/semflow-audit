@@ -1,6 +1,7 @@
 """Persistent, versioned knowledge with Haystack BM25 and optional pgvector fusion."""
 
 import hashlib
+import json
 import math
 import os
 from uuid import UUID, uuid4
@@ -12,6 +13,7 @@ from haystack.document_stores.in_memory import InMemoryDocumentStore
 from sqlmodel import Session, select
 
 from app.adapters.ai.provider import CompatibleModel
+from app.adapters.retrieval.chunking import semantic_chunks
 from app.core.audit_config import audit_settings
 from app.core.db import engine
 from app.domain.audit import AuditError
@@ -19,14 +21,44 @@ from app.persistence.knowledge_models import KnowledgeChunk
 
 
 def import_knowledge(
-    owner_id: UUID | None, title: str, source: str, language: str, content: str
+    owner_id: UUID | None,
+    title: str,
+    source: str,
+    language: str,
+    content: str,
+    provenance: dict | None = None,
 ) -> dict:
-    digest = hashlib.sha256(content.encode()).hexdigest()
+    provenance = provenance or {
+        "trust": "user_supplied",
+        "license": "unspecified",
+        "api_version": "unknown",
+    }
+    digest = hashlib.sha256(
+        json.dumps(
+            {"content": content, "provenance": provenance},
+            sort_keys=True,
+            ensure_ascii=False,
+        ).encode()
+    ).hexdigest()
+    with Session(engine) as session:
+        existing = session.exec(
+            select(KnowledgeChunk).where(
+                KnowledgeChunk.owner_id == owner_id,
+                KnowledgeChunk.source == source,
+                KnowledgeChunk.version == digest,
+            )
+        ).all()
+        if existing:
+            return {
+                "document_id": str(existing[0].document_id),
+                "version": digest,
+                "chunks": len(existing),
+                "deduplicated": True,
+            }
     document_id = uuid4()
     rows = []
     # Stable version hash; overlapping chunks retain their original exact text.
-    for position, start in enumerate(range(0, len(content), 1600)):
-        text = content[start : start + 1800]
+    for position, text in enumerate(semantic_chunks(content)):
         rows.append(
             KnowledgeChunk(
                 owner_id=owner_id,
@@ -36,6 +68,7 @@ def import_knowledge(
                 source=source,
                 language=language,
                 position=position,
+                provenance=provenance,
                 content=text,
                 digest=hashlib.sha256(text.encode()).hexdigest(),
             )
@@ -81,20 +114,38 @@ def index_document(document_id: UUID, owner_id: UUID) -> None:
 
 class KnowledgeRetriever:
     def retrieve(
-        self, owner_id: UUID, language: str, query: str, top_k: int = 6
+        self,
+        owner_id: UUID,
+        language: str,
+        query: str,
+        top_k: int = 6,
+        api_version: str | None = None,
+        mode: str = "auto",
     ) -> list[dict]:
+        if mode not in {"auto", "bm25", "vector", "hybrid"}:
+            raise AuditError("检索模式无效")
         if not query or len(query) > 5000:
             raise AuditError("知识检索请求无效")
         with Session(engine) as session:
             condition = (KnowledgeChunk.owner_id == owner_id) | (
                 KnowledgeChunk.owner_id.is_(None)
             )
+            if api_version:
+                condition = condition & (
+                    KnowledgeChunk.provenance["api_version"].as_string() == api_version
+                )
             rows = session.exec(
                 select(KnowledgeChunk)
                 .where(condition, KnowledgeChunk.language.in_([language, "any"]))
                 .order_by(KnowledgeChunk.created_at.desc())
                 .limit(1000)
             ).all()
+            if api_version:
+                rows = [
+                    row
+                    for row in rows
+                    if row.provenance.get("api_version") == api_version
+                ]
             if not rows:
                 return []
             store = InMemoryDocumentStore(
@@ -115,9 +166,17 @@ class KnowledgeRetriever:
             for rank, document in enumerate(lexical):
                 if (document.score or 0) > 0:
                     ranked[document.id] = 1 / (60 + rank)
-            if audit_settings.EMBEDDING_MODEL and any(
-                row.embedding_model == audit_settings.EMBEDDING_MODEL for row in rows
+            if (
+                mode != "bm25"
+                and audit_settings.EMBEDDING_MODEL
+                and any(
+                    row.embedding_model == audit_settings.EMBEDDING_MODEL
+                    for row in rows
+                )
             ):
+                if mode == "vector":
+                    ranked.clear()
+                    methods = []
                 vector = CompatibleModel().embed([query])[0]
                 if any(
                     len(row.embedding) != len(vector)
@@ -138,16 +197,30 @@ class KnowledgeRetriever:
                     .order_by(KnowledgeChunk.embedding.cosine_distance(vector))
                     .limit(top_k * 2)
                 ).all()
+                if api_version:
+                    semantic = [
+                        row
+                        for row in semantic
+                        if row.provenance.get("api_version") == api_version
+                    ]
                 for rank, row in enumerate(semantic):
                     ranked[str(row.id)] = ranked.get(str(row.id), 0) + 1 / (60 + rank)
                 methods.append("pgvector_cosine_rrf")
                 rows = list({row.id: row for row in [*rows, *semantic]}.values())
+            if mode in {"vector", "hybrid"} and "pgvector_cosine_rrf" not in methods:
+                raise AuditError("未配置或索引向量模型，不能宣称向量/混合检索")
             by_id = {str(row.id): row for row in rows}
+            selected = set()
             result = []
             for identifier, score in sorted(
                 ranked.items(), key=lambda item: item[1], reverse=True
-            )[:top_k]:
+            ):
                 row = by_id[identifier]
+                if row.digest in selected:
+                    continue
+                if len(result) >= top_k:
+                    break
+                selected.add(row.digest)
                 result.append(
                     {
                         "id": identifier,
@@ -155,6 +228,7 @@ class KnowledgeRetriever:
                         "version": row.version,
                         "title": row.title,
                         "source": row.source,
+                        "provenance": row.provenance,
                         "language": row.language,
                         "content": row.content,
                         "digest": row.digest,

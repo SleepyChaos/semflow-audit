@@ -1,0 +1,178 @@
+[
+  {
+    "language": "python",
+    "path": "semmle/python/security/dataflow/CodeInjectionQuery.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "4.0.10",
+      "source_sha256": "c2b3f41af402a20a48941b9fe19492d8672556a1879113e2a7b99678853a4e45",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "19286161-58de-45bf-97bd-5f1326f119fd",
+    "version": "df9e02bea9ca591fc1d8e430368070811fd2d8df9a0a7799b2e6237a758749ac",
+    "chunks": 1
+  },
+  {
+    "language": "python",
+    "path": "semmle/python/security/dataflow/CodeInjectionCustomizations.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "4.0.10",
+      "source_sha256": "e31cae77cee1aea17b5e78c2f62fa54449599ac9a23a838a4e35e2b1c4828923",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "8ef86d16-4e85-4280-8b31-b96e2e4620d8",
+    "version": "8fc470608b18a3392782432e59f1cb32e744a9b33c765a993d591cc9780586cb",
+    "chunks": 1
+  },
+  {
+    "language": "python",
+    "path": "semmle/python/security/dataflow/SqlInjectionQuery.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "4.0.10",
+      "source_sha256": "802b8be0dd2bda77f849b46a18cec97eabbb46775908c39d3550ca052f6a5e65",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "bf2dbfac-149d-4466-b657-29f3f43788e9",
+    "version": "ac732627e9aab622936d2c7c130f889efc8d696fa8da0b1f2345953c1bc7c1b4",
+    "chunks": 1
+  },
+  {
+    "language": "python",
+    "path": "semmle/python/security/dataflow/SqlInjectionCustomizations.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "4.0.10",
+      "source_sha256": "a8bf9456c90e681b0d35c8e3c638d231392632a5f658b21e999a54f031556b86",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "db9e5341-6bc4-4cf1-9e88-b0a2b49f458e",
+    "version": "7a4f1044d2e59e3218e9d6c6e8f04f3c1960ec5d81ae1ddc3391a1e5cd80f15e",
+    "chunks": 1
+  },
+  {
+    "language": "python",
+    "path": "semmle/python/security/dataflow/ReflectedXssQuery.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "4.0.10",
+      "source_sha256": "ef1dc4787de6ed14353088a4f808058b978b589ee677a2ce8d69b4e039beb759",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "bb05897e-f7a2-4ac4-a746-9ff557283202",
+    "version": "9903325e2d3290b5ba9bff82f88c705390d70f1a783de2bcc3780848809fe5e0",
+    "chunks": 1
+  },
+  {
+    "language": "python",
+    "path": "semmle/python/security/dataflow/ReflectedXssCustomizations.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "4.0.10",
+      "source_sha256": "b7fddec27ab73df49217f6ff300c426dac8bb99fd87ced7d952475a6df3fd152",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "f6538cb2-2cbe-42fe-bf7b-96ff44cfbbf6",
+    "version": "19e3ec6ce2aa7e945db9eacf700ec51b7c69b32c751016a1b38eddbdafedec35",
+    "chunks": 1
+  },
+  {
+    "language": "python",
+    "path": "semmle/python/dataflow/new/internal/DataFlowPublic.qll",
+    "source_lines": [
+      148,
+      294
+    ],
+    "document_id": "1544d418-2818-4d2f-9ce0-202037bf9597",
+    "version": "c1dce5b84447df850c78bce6bbbbeea4fc328a02af25409de0c6ec9f90d6fba1",
+    "chunks": 1
+  },
+  {
+    "language": "javascript",
+    "path": "semmle/javascript/security/dataflow/CodeInjectionQuery.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "2.4.0",
+      "source_sha256": "4d50ef7f3ca96167be2e0287200fa120eb75f946f70ae28d63bf51e75e9acd53",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "5881f5e0-1743-4527-9ba8-5e16999ab3c4",
+    "version": "687421c037a7f7cbbeb153ef0c7c4dacba1e00aa34fb8517dbc64f4f8dc8b459",
+    "chunks": 1
+  },
+  {
+    "language": "javascript",
+    "path": "semmle/javascript/security/dataflow/SqlInjectionQuery.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "2.4.0",
+      "source_sha256": "60d4343a3874f11a6f1f0f09ac39df55216fcbf2aa0d21b9a994c5ba1beb6cb8",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "8a3fe124-3ad1-4100-a8d7-aa128d470db7",
+    "version": "226435393811a866d36b23fd91ea3f6b6a99fb06ae43d1c1a65b8226fb3d108b",
+    "chunks": 1
+  },
+  {
+    "language": "javascript",
+    "path": "semmle/javascript/security/dataflow/SqlInjectionCustomizations.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "2.4.0",
+      "source_sha256": "7a7563960a5b7f6ec707f78ae00c873a21aed8610cefdb9eb1705b8643a1664f",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "aa97b426-0da7-474a-8c3b-714ac4284e36",
+    "version": "08b9c7ddc9e8428b48bb5e18ddcc749ee62d8a9228a8423993a6eb8749d971cc",
+    "chunks": 1
+  },
+  {
+    "language": "javascript",
+    "path": "semmle/javascript/security/dataflow/ReflectedXssQuery.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "2.4.0",
+      "source_sha256": "c361b78b43401d190a407b718a8e57aff2819f192292eb2bdcdc67bfc800d5db",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "809c9ea9-f87e-48a8-9609-4bcba4a7e9ea",
+    "version": "569abe5ea5a98c0a2adb5d2404e6120c5ec16cee5d05fc1568330b988e3b01c9",
+    "chunks": 1
+  },
+  {
+    "language": "javascript",
+    "path": "semmle/javascript/security/dataflow/ReflectedXssCustomizations.qll",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_library",
+      "api_version": "2.4.0",
+      "source_sha256": "94a95fe4c8f7b6231c308149e8a1a0301e6d17bf00b0545c476e893fd5ec6549",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "b7d509ea-f01a-4290-9388-716761a04d28",
+    "version": "5478f9eeaeedda24d3bb23d1df546da8a9f62a1fe239302a4654d6b5cf484410",
+    "chunks": 1
+  }
+]

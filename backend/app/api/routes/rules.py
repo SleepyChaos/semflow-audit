@@ -24,6 +24,13 @@ def owned_rule(identifier: UUID, session: SessionDep, user: CurrentUser) -> Rule
     return rule
 
 
+@router.get("/holdouts")
+def holdouts(_user: CurrentUser):
+    from app.services.rule_holdouts import catalog
+
+    return catalog()
+
+
 @router.get("/")
 def rules(
     session: SessionDep,

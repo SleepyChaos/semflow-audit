@@ -62,7 +62,12 @@ def create_stage(
     ).first()
     if active:
         raise HTTPException(409, "该阶段已有正在执行的任务")
-    stage = StageRun(audit_id=audit_id, kind=kind, inputs=inputs)
+    stage = StageRun(
+        audit_id=audit_id,
+        kind=kind,
+        inputs=inputs,
+        prompt_version="2" if kind in {"review", "rule"} else "1",
+    )
     session.add(stage)
     session.commit()
     session.refresh(stage)
@@ -102,6 +107,16 @@ def repair(audit_id: UUID, body: RepairRequest, session: SessionDep, user: Curre
 
 @router.post("/audits/{audit_id}/rule", status_code=201)
 def rule(audit_id: UUID, body: RuleRequest, session: SessionDep, user: CurrentUser):
+    if body.holdout_id:
+        from app.services.rule_holdouts import dataset
+
+        try:
+            data = dataset(body.holdout_id)
+            audit = owned_run(audit_id, session, user)
+            if (data["language"], data["purpose"]) != (audit.language, body.purpose):
+                raise AuditError("独立样本集语言或用途不匹配")
+        except AuditError as exc:
+            raise HTTPException(422, str(exc)) from exc
     return create_stage(audit_id, "rule", body.model_dump(mode="json"), session, user)
 
 

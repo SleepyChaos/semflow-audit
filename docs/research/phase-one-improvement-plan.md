@@ -1,7 +1,7 @@
 # 第一阶段改进计划：模型可靠性、复审契约与RAG规则
 
 日期：2026-10-03。
-状态：**计划待实施**。本文件对应上一轮结论的前三项建议，不代表已完成开发；只规划本轮范围，后续竞品/大规模实验另行推进。
+状态：**核心机制已实现、代码/API与真实模型校准完成，待GUI人工验收**。实施细节与条件增强见 [实施记录](phase-one-implementation.md)。本文件保留原计划与目标；完成情况见实施记录和[测试报告](phase-one-test-results.md)。向量消融、完整框架建模验收与大规模质量实验仍未完成。
 依据：[真实模型测试报告](live-model-results.md)、[原始汇总](live-model-summary.json)、[总体改进计划](improvement-plan.md)。
 
 ## 0. 范围、顺序与交付
@@ -31,10 +31,10 @@
 
 | ID | 修改内容 | 交付/标注 |
 |---|---|---|
-| M1.1 | 增加独立调用记录，关联stage、purpose、attempt、prompt/schema版本、请求模型、响应模型、预算、耗时、finish_reason、token细分与结构化error_code | proposed；未返回usage记录unknown，不填0假装免费；不保存密钥/请求头/默认完整代码 |
-| M1.2 | 配置按review/repair/rule区分预算与超时，并冻结每次stage的有效配置快照；保留全局默认兼容 | proposed；同阶段重试用显式覆盖配置并记录差异，不静默换模型 |
-| M1.3 | 输出截断允许最多一次显式恢复；上调预算必须受阶段总调用、总token、总时长上限约束 | proposed；从完整原输入重新生成，不拼接半段JSON，不合并两个不完整补丁 |
-| M1.4 | 区分length、timeout、provider_error、schema_invalid、evidence_invalid等；网络错误与结构纠错用不同策略 | proposed；认证/不支持参数等配置错误直接失败；证据伪造不自动补成真实证据 |
+| M1.1 | 增加独立调用记录，关联stage、purpose、attempt、prompt/schema版本、请求模型、响应模型、预算、耗时、finish_reason、token细分与结构化error_code | 已实现并验证；未返回usage记录unknown，不填0假装免费；不保存密钥/请求头/默认完整代码 |
+| M1.2 | 配置按review/repair/rule区分预算与超时，并冻结每次stage的有效配置快照；保留全局默认兼容 | 已实现并验证；同阶段重试用显式覆盖配置并记录差异，不静默换模型 |
+| M1.3 | 输出截断允许最多一次显式恢复；上调预算必须受阶段总调用、总token、总时长上限约束 | 已实现并验证；从完整原输入重新生成，不拼接半段JSON，不合并两个不完整补丁 |
+| M1.4 | 区分length、timeout、provider_error、schema_invalid、evidence_invalid等；网络错误与结构纠错用不同策略 | 已实现并验证；认证/不支持参数等配置错误直接失败；证据伪造不自动补成真实证据 |
 | M1.5 | 可选思考模式仅在该provider/model完成能力验证后启用；不向所有兼容接口统一发送特殊参数 | 条件增强；当前不假定用户端点支持哪些模式，也不先规定必须关闭思考 |
 
 修改范围：`adapters/ai/provider.py`、`core/audit_config.py`、调用记录持久化及迁移、阶段repository/API输出；通用调用策略留在适配器，图节点只消费结果。M2的结构纠错与M1的截断恢复共用总预算，不能形成两个独立循环。
@@ -68,12 +68,12 @@
 
 | ID | 修改内容 | 交付/标注 |
 |---|---|---|
-| M2.1 | 将最终响应拆为上述三类数组；新增严格位置结构；action=tool/final的互斥规则保持 | proposed；review.v2 prompt/schema，不覆盖历史v1 |
-| M2.2 | 锚点评价独立持久化；候选记录保存CWE、来源和模型建议；人工状态仍独立 | proposed；无静态告警的正常锚点可完成复审，不需要制造漏洞 |
-| M2.3 | 保存前一次性验证全部对象的ID归属、范围、证据引用和主位置；事务提交，避免半个成功结果 | proposed；未知/遗漏对象标记未评估，不能自动excluded |
-| M2.4 | 仅格式或缺字段错误允许一次明确反馈纠错；不自动补造位置、不批准跨任务证据 | proposed；反馈包含受限契约错误，重新校验完整响应；预算由M1统一控制 |
-| M2.5 | 报告/API区分已评估锚点、待确认新发现、模型建议与人工决定；按CWE评价 | proposed；同名eval可excluded，同时单独报告XSS supported |
-| M2.6 | Alembic向前迁移及v1读取兼容；历史字段缺失记legacy/unknown | proposed；不凭标题自动猜历史CWE，不修改原始历史/已有确认 |
+| M2.1 | 将最终响应拆为上述三类数组；新增严格位置结构；action=tool/final的互斥规则保持 | 已实现并验证；review.v2 prompt/schema，不覆盖历史v1 |
+| M2.2 | 锚点评价独立持久化；候选记录保存CWE、来源和模型建议；人工状态仍独立 | 已实现并验证；无静态告警的正常锚点可完成复审，不需要制造漏洞 |
+| M2.3 | 保存前一次性验证全部对象的ID归属、范围、证据引用和主位置；事务提交，避免半个成功结果 | 已实现并验证；未知/遗漏对象标记未评估，不能自动excluded |
+| M2.4 | 仅格式或缺字段错误允许一次明确反馈纠错；不自动补造位置、不批准跨任务证据 | 已实现并验证；反馈包含受限契约错误，重新校验完整响应；预算由M1统一控制 |
+| M2.5 | 报告/API区分已评估锚点、待确认新发现、模型建议与人工决定；按CWE评价 | 已实现并验证；同名eval可excluded，同时单独报告XSS supported |
+| M2.6 | Alembic向前迁移及v1读取兼容；历史字段缺失记legacy/unknown | 已实现并验证；不凭标题自动猜历史CWE，不修改原始历史/已有确认 |
 
 修改范围：`contracts/stages.py`按职责拆分、`services/review.py`拆出校验/保存职责、`workflows/review.py`有限反馈分支、`prompts/review.v2.txt`、`persistence/stage_models.py`及迁移、报告/API；GUI仅增列后续验收，不运行GUI测试。
 
@@ -101,12 +101,12 @@
 
 | ID | 修改内容 | 交付/标注 |
 |---|---|---|
-| M3.1 | 增加purpose：review_anchor / vulnerability_detector / framework_model；purpose与生成strategy（model/extend/new_query）分别保存 | proposed；锚点覆盖、漏洞P/R、框架建模单测分别评价 |
-| M3.2 | 创建知识清单与导入管线：来源、许可、语言、框架、CWE、CodeQL依赖版本、hash、更新时间、可信级别 | proposed；优先固定版本官方API/查询源码与合法框架文档，项目自维护知识明确标注 |
-| M3.3 | 按章节、API签名、完整示例及限制一起切块；版本/语言过滤、索引去重、检索上下文去重 | proposed；复用现有Haystack/pgvector，不自研检索引擎 |
+| M3.1 | 增加purpose：review_anchor / vulnerability_detector / framework_model；purpose与生成strategy（model/extend/new_query）分别保存 | 已实现并验证；锚点覆盖、漏洞P/R、框架建模单测分别评价 |
+| M3.2 | 创建知识清单与导入管线：来源、许可、语言、框架、CWE、CodeQL依赖版本、hash、更新时间、可信级别 | 已实现并验证；优先固定版本官方API/查询源码与合法框架文档，项目自维护知识明确标注 |
+| M3.3 | 按章节、API签名、完整示例及限制一起切块；版本/语言过滤、索引去重、检索上下文去重 | 已实现并验证；复用现有Haystack/pgvector，不自研检索引擎 |
 | M3.4 | 在BM25之上启用已验证的embedding，再比较向量/融合；重排仅在融合基线确有不足后引入 | 条件增强；当前凭据不等于已提供embedding服务，缺配置保持真实BM25标签 |
-| M3.5 | 输出coverage_gap、purpose、知识引用与限制；执行编译反馈、人工样本门、独立holdout、发布门 | proposed；knowledge引用必须匹配真实检索条目，拒绝未知固定版本API |
-| M3.6 | 验收结果拆成compile/generated_fixture/independent_holdout三层；绑定query/modules/dependencies与数据集版本hash | proposed；只有自生成样本通过时标未独立评估；模块或依赖变化使旧验收失效 |
+| M3.5 | 输出coverage_gap、purpose、知识引用与限制；执行编译反馈、人工样本门、独立holdout、发布门 | 已实现并验证；knowledge引用必须匹配真实检索条目，拒绝未知固定版本API |
+| M3.6 | 验收结果拆成compile/generated_fixture/independent_holdout三层；绑定query/modules/dependencies与数据集版本hash | 已实现并验证；只有自生成样本通过时标未独立评估；模块或依赖变化使旧验收失效 |
 
 知识初批目标：不少于20个有来源和固定版本标注的条目，涵盖Python/JS常见source、sink、sanitizer和框架建模；每条完整性优先于数量。试验需求至少12项，覆盖动态执行、SQL注入、XSS及自定义框架source/sink；各自准备含别名、遮蔽、净化、跨文件包装器的独立正反例。知识库不得包含测试项目修复答案或目标位置金标。
 

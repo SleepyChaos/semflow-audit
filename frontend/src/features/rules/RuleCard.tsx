@@ -36,7 +36,7 @@ export function RuleCard({
         <Badge variant="outline">{rule.status}</Badge>
       </header>
       <p>
-        策略 {rule.strategy} · 版本 {rule.id}
+        用途 {rule.purpose} · 策略 {rule.strategy} · 版本 {rule.id}
       </p>
       <details>
         <summary>查询与模型模块</summary>
@@ -65,6 +65,10 @@ export function RuleCard({
           {JSON.stringify(rule.fixtures, null, 2)}
         </pre>
       </details>
+      <p>
+        独立测试集：{rule.holdout_id ?? "未选择"}
+        。自生成样本通过与独立验收分别记录。
+      </p>
       <details>
         <summary>规则验收与覆盖分析</summary>
         <pre className="source-code">

@@ -1,7 +1,6 @@
 """Explicit test doubles only: deterministic responses do not measure model quality."""
 
 from pathlib import Path
-from app.contracts.stages import ReviewResponse, RepairResponse, RuleResponse
 
 
 class ScriptedModel:
@@ -51,6 +50,17 @@ class ScriptedModel:
                     ],
                     "summary": "Evidence supports manual review; no automatic confirmation.",
                 }
+            if schema.__name__ == "ReviewResponseV2":
+                findings = result.pop("findings", [])
+                result["candidate_assessments"] = [
+                    {
+                        "candidate_id": row["candidate_id"],
+                        "assessment": row["assessment"],
+                        "reason": row["description"],
+                        "evidence_ids": row["evidence_ids"],
+                    }
+                    for row in findings
+                ]
             return schema.model_validate(result)
         if purpose == "repair":
             contents = "\n".join(payload["allowed_files"].values())

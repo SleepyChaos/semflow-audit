@@ -22,15 +22,26 @@ def capabilities(_user: CurrentUser):
         ),
         "model": audit_settings.AI_MODEL or None,
         "embedding_model": audit_settings.EMBEDDING_MODEL or None,
-        "retrieval": "haystack_bm25+optional_pgvector",
-        "prompt_version": "1",
+        "retrieval": "haystack_bm25"
+        if not audit_settings.EMBEDDING_MODEL
+        else "haystack_bm25+optional_pgvector",
+        "thinking_mode": audit_settings.AI_THINKING_MODE,
+        "prompt_version": "2",
     }
 
 
 @router.post("/", status_code=201)
 def add(body: KnowledgeRequest, user: CurrentUser):
+    metadata = {
+        key: value
+        for key, value in body.provenance.items()
+        if key in {"api_version", "license", "framework", "cwe"}
+        and isinstance(value, str)
+        and len(value) <= 500
+    }
+    metadata["trust"] = "user_supplied"
     return import_knowledge(
-        user.id, body.title, body.source, body.language, body.content
+        user.id, body.title, body.source, body.language, body.content, metadata
     )
 
 
@@ -55,6 +66,7 @@ def documents(session: SessionDep, user: CurrentUser):
                 "source": row.source,
                 "version": row.version,
                 "language": row.language,
+                "provenance": row.provenance,
                 "shared": row.owner_id is None,
                 "chunks": 0,
                 "indexed_chunks": 0,
@@ -72,11 +84,15 @@ def search(
     user: CurrentUser,
     query: str = Query(min_length=1, max_length=5000),
     language: str = "python",
+    mode: str = "auto",
+    api_version: str | None = None,
 ):
     if language not in {"python", "javascript"}:
         raise HTTPException(422, "知识检索语言无效")
     try:
-        return KnowledgeRetriever().retrieve(user.id, language, query)
+        return KnowledgeRetriever().retrieve(
+            user.id, language, query, mode=mode, api_version=api_version
+        )
     except AuditError as exc:
         raise HTTPException(422, str(exc))
 

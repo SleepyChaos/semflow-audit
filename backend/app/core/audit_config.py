@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -26,6 +27,13 @@ class AuditSettings(BaseSettings):
     AI_MODEL: str = ""
     AI_TIMEOUT: int = 90
     AI_MAX_OUTPUT_TOKENS: int = 6000
+    AI_REVIEW_TOKENS: int = 0
+    AI_REPAIR_TOKENS: int = 0
+    AI_RULE_TOKENS: int = 0
+    AI_THINKING_MODE: Literal["enabled", "disabled"] | None = None
+    AI_STAGE_MAX_CALLS: int = 24
+    AI_STAGE_MAX_TOKENS: int = 100000
+    AI_STAGE_MAX_SECONDS: int = 300
     EMBEDDING_MODEL: str = ""
     VALIDATOR_PYTHON_IMAGE: str = "ai-code-audit-validator:local"
     VALIDATOR_JS_IMAGE: str = "node:22-bookworm-slim"

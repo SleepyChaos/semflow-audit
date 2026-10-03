@@ -1,0 +1,224 @@
+{
+  "date": "2026-10-03",
+  "scope": "Small synthetic calibration; repeated requests are not independent projects; all failures included",
+  "raw_report": "artifacts/benchmarks/phase-one-f143a708-97fc-4290-976d-f6d9a984fb0f/report.json",
+  "groups": {
+    "review": {
+      "runs": 12,
+      "statuses": {
+        "completed": 12
+      },
+      "p50_seconds": 7.209653020996484,
+      "p95_seconds_nearest_rank": 12.188671792013338,
+      "model_calls": 24,
+      "finish_reasons": {
+        "stop": 24
+      },
+      "input_tokens": 43164,
+      "output_tokens": 13325,
+      "reasoning_tokens": 7160,
+      "unknown_usage_calls": 0
+    },
+    "repair": {
+      "runs": 3,
+      "statuses": {
+        "completed": 3
+      },
+      "p50_seconds": 67.62685587498709,
+      "p95_seconds_nearest_rank": 74.84143129197764,
+      "model_calls": 3,
+      "finish_reasons": {
+        "stop": 3
+      },
+      "input_tokens": 2466,
+      "output_tokens": 6114,
+      "reasoning_tokens": 4913,
+      "unknown_usage_calls": 0
+    },
+    "rule": {
+      "runs": 36,
+      "statuses": {
+        "awaiting_confirmation": 8,
+        "failed": 28
+      },
+      "p50_seconds": 88.03520975001447,
+      "p95_seconds_nearest_rank": 168.96977991698077,
+      "model_calls": 80,
+      "finish_reasons": {
+        "stop": 16,
+        "length": 64
+      },
+      "input_tokens": 506240,
+      "output_tokens": 665432,
+      "reasoning_tokens": 638845,
+      "unknown_usage_calls": 0
+    }
+  },
+  "cases": {
+    "shadowed_function.py": {
+      "runs": 6,
+      "statuses": {
+        "completed": 6
+      }
+    },
+    "shadowed_json.js": {
+      "runs": 6,
+      "statuses": {
+        "completed": 6
+      }
+    },
+    "javascript-pp": {
+      "runs": 3,
+      "statuses": {
+        "completed": 3
+      }
+    },
+    "python-eval-review_anchor-v1": {
+      "runs": 3,
+      "statuses": {
+        "awaiting_confirmation": 3
+      }
+    },
+    "python-eval-vulnerability_detector-v1": {
+      "runs": 3,
+      "statuses": {
+        "failed": 3
+      }
+    },
+    "python-sql-review_anchor-v1": {
+      "runs": 3,
+      "statuses": {
+        "failed": 2,
+        "awaiting_confirmation": 1
+      }
+    },
+    "python-sql-vulnerability_detector-v1": {
+      "runs": 3,
+      "statuses": {
+        "failed": 3
+      }
+    },
+    "python-xss-review_anchor-v1": {
+      "runs": 3,
+      "statuses": {
+        "awaiting_confirmation": 2,
+        "failed": 1
+      }
+    },
+    "python-xss-vulnerability_detector-v1": {
+      "runs": 3,
+      "statuses": {
+        "failed": 3
+      }
+    },
+    "javascript-eval-review_anchor-v1": {
+      "runs": 3,
+      "statuses": {
+        "failed": 3
+      }
+    },
+    "javascript-eval-vulnerability_detector-v1": {
+      "runs": 3,
+      "statuses": {
+        "failed": 3
+      }
+    },
+    "javascript-sql-review_anchor-v1": {
+      "runs": 3,
+      "statuses": {
+        "failed": 3
+      }
+    },
+    "javascript-sql-vulnerability_detector-v1": {
+      "runs": 3,
+      "statuses": {
+        "awaiting_confirmation": 2,
+        "failed": 1
+      }
+    },
+    "javascript-xss-review_anchor-v1": {
+      "runs": 3,
+      "statuses": {
+        "failed": 3
+      }
+    },
+    "javascript-xss-vulnerability_detector-v1": {
+      "runs": 3,
+      "statuses": {
+        "failed": 3
+      }
+    }
+  },
+  "rule_errors": {
+    "模型输出不完整；结论未知": 27,
+    "两次规则编译/契约验证均未通过；草稿与日志已保留": 1
+  },
+  "repair_oracles": [
+    {
+      "round": 1,
+      "independent_security_functional_passed": true,
+      "status": "needs_review"
+    },
+    {
+      "round": 2,
+      "independent_security_functional_passed": true,
+      "status": "needs_review"
+    },
+    {
+      "round": 3,
+      "independent_security_functional_passed": true,
+      "status": "needs_review"
+    }
+  ],
+  "original_snapshots_unchanged": {
+    "b31eb46f-ebb9-4982-b1da-6169f2cfefef": true,
+    "1b8b03d9-1bba-4910-bb2a-908f6c788ce5": true
+  },
+  "independent_anchor_acceptance": [
+    {
+      "rule_id": "89b64108-87c7-4697-bed6-1361b53966ae",
+      "status": "validated",
+      "independent_status": "passed",
+      "usage_retained": true,
+      "published": false
+    },
+    {
+      "rule_id": "39990c12-5ff9-4f59-bff2-0b25cd5a74c0",
+      "status": "validated",
+      "independent_status": "passed",
+      "usage_retained": true,
+      "published": false
+    },
+    {
+      "rule_id": "f3350828-e2a5-4896-9a2e-1e029703d3fc",
+      "status": "validated",
+      "independent_status": "passed",
+      "usage_retained": true,
+      "published": false
+    }
+  ],
+  "thinking_disabled": {
+    "runs": 3,
+    "statuses": {
+      "failed": 3
+    },
+    "finish_reasons": {
+      "stop": 6
+    },
+    "reasoning_tokens": 0,
+    "meaning": "Truncation avoided in these runs, all failed compilation; not a quality improvement"
+  },
+  "library_control": {
+    "runs": 3,
+    "statuses": {
+      "failed": 3
+    },
+    "scope": "Exploratory: corpus and thinking both changed; not a RAG causal ablation",
+    "raw_report": "artifacts/benchmarks/library-control-30ebb7a7-6489-4c36-b3ed-07b23eabe50c/report.json",
+    "model_calls": 6,
+    "finish_reasons": [
+      "stop"
+    ],
+    "meaning": "Additional library declarations did not produce a compiled detector in three runs; do not attribute quality gain to RAG"
+  }
+}

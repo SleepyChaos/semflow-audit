@@ -9,6 +9,8 @@ export interface StageRun {
   result: Record<string, unknown>
   error: string | null
   model: string | null
+  model_config_snapshot: Record<string, unknown>
+  model_calls: Record<string, unknown>[]
   usage: Record<string, number>
   created_at: string
 }
@@ -23,6 +25,8 @@ export interface Candidate {
   evidence_ids: string[]
   static_finding_id: string | null
   related_target: string | null
+  weakness: string
+  model_assessment: string
   novelty: string
   identity_key: string
   location: { file?: string; line?: number }
@@ -56,6 +60,8 @@ export interface RuleVersion {
   stage_id: string
   title: string
   language: string
+  purpose: string
+  holdout_id: string | null
   strategy: string
   query: string
   modules: Record<string, string>
@@ -141,3 +147,12 @@ export const downloadReportJson = (id: string) =>
   downloadArtifact(`/audits/${id}/report`, `${id}-report.json`)
 export const downloadQuery = (id: string) =>
   downloadArtifact(`/rules/${id}/query`, `${id}.ql`)
+
+export interface RuleHoldout {
+  id: string
+  language: string
+  purpose: string
+  operation: string
+  hash: string
+}
+export const getRuleHoldouts = () => apiJson<RuleHoldout[]>("/rules/holdouts")

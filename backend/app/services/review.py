@@ -6,6 +6,7 @@ import json
 from sqlmodel import Session, select
 
 from app.adapters.retrieval.knowledge import KnowledgeRetriever
+from app.contracts.review import ReviewResponseV2
 from app.contracts.stages import ReviewRequest, ReviewResponse
 from app.core.db import engine
 from app.domain.audit import AuditError
@@ -13,6 +14,7 @@ from app.persistence.stage_models import Candidate
 from app.persistence.stage_repository import StageRepository
 from app.ports.model import ModelProvider
 from app.services.evidence import EvidenceService, valid_evidence
+from app.services.review_results import save_v2
 
 
 class ReviewService:
@@ -99,9 +101,16 @@ class ReviewService:
         if state["steps"] >= self.inputs.max_steps:
             raise AuditError("AI 取证步数预算耗尽；未自动排除或确认任何漏洞")
         self.repository.update(self.stage_id, phase="reason")
-        response = self.provider.generate("review", state["context"], ReviewResponse)
+        schema = (
+            ReviewResponseV2 if self.stage.prompt_version == "2" else ReviewResponse
+        )
+        response = self.provider.generate("review", state["context"], schema)
         self.repository.update(self.stage_id, usage=self.provider.usage)
-        if response.action == "tool" and (response.tool is None or response.findings):
+        if (
+            self.stage.prompt_version == "1"
+            and response.action == "tool"
+            and (response.tool is None or response.findings)
+        ):
             raise AuditError("模型工具请求契约无效")
         if response.action == "final" and response.tool is not None:
             raise AuditError("模型最终结论不能包含未执行的工具请求")
@@ -168,6 +177,12 @@ class ReviewService:
 
     def save(self, state: dict) -> dict:
         self.repository.active(self.stage_id)
+        if self.stage.prompt_version == "2":
+            try:
+                return save_v2(self, state)
+            except AuditError as exc:
+                exc.code = "evidence_invalid"
+                raise
         response = ReviewResponse.model_validate(state["response"])
         evidence_ids = {row["id"] for row in state["context"]["evidence"]}
         target_ids = {row["candidate_id"] for row in state["context"]["targets"]}

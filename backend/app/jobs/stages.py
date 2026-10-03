@@ -31,6 +31,8 @@ def execute_stage(stage_id: str, resume: bool = False) -> None:
     try:
         stage = repository.get(stage_id)
         provider = CompatibleModel()
+        if hasattr(provider, "bind_stage"):
+            provider.bind_stage(stage_id, stage.prompt_version)
         services = {
             "review": (ReviewService, build_review_graph),
             "repair": (RepairService, build_repair_graph),
@@ -64,6 +66,10 @@ def execute_stage(stage_id: str, resume: bool = False) -> None:
                 stage_id,
                 status="failed",
                 error=str(exc)[:1000],
+                result={
+                    **repository.get(stage_id).result,
+                    "failure": {"code": getattr(exc, "code", "internal_error")},
+                },
                 usage=provider.usage if provider else {},
             )
         except StageCancelled:

@@ -1,0 +1,354 @@
+[
+  {
+    "language": "python",
+    "path": "Security/CWE-094/CodeInjection.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "4.0.10",
+      "query_pack": "codeql/python-queries@1.6.0",
+      "source_sha256": "454599756d9c545c41ed8bf209694b1789ed3dd6529fb33bb48188c8c9c599f7",
+      "cwe": "CWE-094",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "7be170f9-f3d1-4f60-8852-682a3c510886",
+    "version": "2959ccc9c682b430ad90a9509029ea13cbe7d8a463da62b9d3e5ace86239d181",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "python",
+    "path": "Security/CWE-089/SqlInjection.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "4.0.10",
+      "query_pack": "codeql/python-queries@1.6.0",
+      "source_sha256": "e8324e568041a22d5d3a4ea21ef52ef791d67a699352273edda350caeca84964",
+      "cwe": "CWE-089",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "709094c5-1c49-4a0e-b34b-b58ee86961fa",
+    "version": "a751aa2a4004c870183a933aeb5b7f583f8395e1277dd9b6e670b115dc53f9c3",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "python",
+    "path": "Security/CWE-079/Jinja2WithoutEscaping.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "4.0.10",
+      "query_pack": "codeql/python-queries@1.6.0",
+      "source_sha256": "266a53963fbaea8ae44d1366567893a8a9838ae71a0a70d9f3e8768a023c1de4",
+      "cwe": "CWE-079",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "f2d763b8-1850-48d7-9024-afb6a0ed6698",
+    "version": "e7d8865f1e24500ebdcdd8d1f18137db8105d951f59fb57df3ba236c111b9f31",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "python",
+    "path": "Security/CWE-078/CommandInjection.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "4.0.10",
+      "query_pack": "codeql/python-queries@1.6.0",
+      "source_sha256": "aaa9684ea22778f9bd8e032dc825adb7cf48f01203174c6e0b014b9d9ba1922c",
+      "cwe": "CWE-078",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "e1a7c939-dbb6-4ce2-846e-4c98121a2efa",
+    "version": "de5db85834cdc5cff91db971bab8edfbc57660d06fc3fcfe727d023efbda34ac",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "python",
+    "path": "Security/CWE-022/PathInjection.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "4.0.10",
+      "query_pack": "codeql/python-queries@1.6.0",
+      "source_sha256": "c17ed4b748e8439666371723d7400aa6ae255219e20aedee73cd51f765505a74",
+      "cwe": "CWE-022",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "b5f2f492-0da2-4a9b-908d-2e4d06c80fb6",
+    "version": "7f27117753bf30c83836ebde62f3951f6b8c3f78822369197a7f982ed03ce893",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "python",
+    "path": "Security/CWE-502/UnsafeDeserialization.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "4.0.10",
+      "query_pack": "codeql/python-queries@1.6.0",
+      "source_sha256": "a9cfa1e6383c3ef48e0591a9d045747ead0ab3015fc689f7f1f3a19a79dda78f",
+      "cwe": "CWE-502",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "33cab4eb-c727-4602-a10b-4dc7b0c5b643",
+    "version": "3410fe9baa1328e2cd558b80a875bb44e429abddc66e672cd3c9ed5191882ef6",
+    "chunks": 1
+  },
+  {
+    "language": "python",
+    "path": "Security/CWE-918/FullServerSideRequestForgery.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "4.0.10",
+      "query_pack": "codeql/python-queries@1.6.0",
+      "source_sha256": "f48ee50c0ccbce0df4f11d65b8db32851fc5baa9dc83150da02f190d67263cef",
+      "cwe": "CWE-918",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "9baf0e93-d27c-49e4-a3ef-961e710c5ca0",
+    "version": "b2b360ee73d6ac01cc0f091a8d95584773e83f6b84f46675d7741234255149ce",
+    "chunks": 1
+  },
+  {
+    "language": "python",
+    "path": "Security/CWE-798/HardcodedCredentials.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "4.0.10",
+      "query_pack": "codeql/python-queries@1.6.0",
+      "source_sha256": "2a968bc0a95f5f265a022c86588b3ed7a6c98ec286c56dd58bf7ce4fc1ee5c6b",
+      "cwe": "CWE-798",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "744868ba-4f93-41f7-a6c3-895118954bab",
+    "version": "368ebfc2ada4e70bfe9ba7b212e046b407e1fbd1e022f59bb91ea851021999de",
+    "chunks": 1
+  },
+  {
+    "language": "python",
+    "path": "Security/CWE-020/CookieInjection.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "4.0.10",
+      "query_pack": "codeql/python-queries@1.6.0",
+      "source_sha256": "a70232fea749c9f35b1e820446b56f032b12bb9b40cb8e46e4b2f7ffc0e43b51",
+      "cwe": "CWE-020",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "aecf1e83-ec08-4135-b1e4-6cf93b9404fc",
+    "version": "90a00f068db9c3f19f783f5d493492e1cad08681fd7a1750c62b46428ac654e5",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "python",
+    "path": "Security/CWE-601/UrlRedirect.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "4.0.10",
+      "query_pack": "codeql/python-queries@1.6.0",
+      "source_sha256": "8fdc0bbe2c9ef375ef2d4c91cd96e2f43023b6718623696f245ca454f8de9d65",
+      "cwe": "CWE-601",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "d0627665-4f04-41cf-86b5-d6d081d4693a",
+    "version": "4b5457a02c50170a3030ed638213bb2a64128ee3dc62bb583095dc70e87b7c65",
+    "chunks": 1
+  },
+  {
+    "language": "javascript",
+    "path": "Security/CWE-094/CodeInjection.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "2.4.0",
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "source_sha256": "8ddfcc38e1d4c4d215b438844b9f362a1271f233051d76b2f3e3dafcf16c39cb",
+      "cwe": "CWE-094",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "5dd6248e-9033-456a-8af3-efd78c419b0e",
+    "version": "8fd7766e64f944a97979879691ff62f0a9fd7d4a03893bb73338ce200abe0bf4",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "javascript",
+    "path": "Security/CWE-089/SqlInjection.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "2.4.0",
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "source_sha256": "38c79ee799144a8c9fe4ca5c933d74dfdba98f1e5b898b36ea173af4fefbbd91",
+      "cwe": "CWE-089",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "e08108a4-ca0b-49d1-a5bc-6e6020f05543",
+    "version": "32b78bfdf05c9d7b963d5412dbd4ad1da941e971c94ccd6006d35219a92a3d02",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "javascript",
+    "path": "Security/CWE-079/ExceptionXss.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "2.4.0",
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "source_sha256": "c6db7547b03624fd3a5e00cdb306428496d126cc443699b9cae96f5bd4d641dd",
+      "cwe": "CWE-079",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "bd20c3ea-3cfd-43ad-8996-ea4df266d26c",
+    "version": "02af96c4a392aa79c1bc41ccddfa5f4112df7d4a7f9f4b01387d9307ec6284c5",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "javascript",
+    "path": "Security/CWE-078/CommandInjection.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "2.4.0",
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "source_sha256": "bb85242cf730c85b04826ce914862872c0f83d58540750ae69b1f6a0951bd45c",
+      "cwe": "CWE-078",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "38b3066a-9f1a-4e5f-aa57-1199796a6efe",
+    "version": "5c1dee02e7f001684ffbea38b84b5478bcaddcbc913933b46f3c6a422899df80",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "javascript",
+    "path": "Security/CWE-022/TaintedPath.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "2.4.0",
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "source_sha256": "c6892a8f9b9dd4d0404f26407c4b58a6a5a8c2a5e7191106ccee4c46a3e03964",
+      "cwe": "CWE-022",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "0f67677a-0659-4437-b55d-4fcb0fa756ea",
+    "version": "4029c3704cd0870af00e8e9316c077b4de02182f046f4268c0191ef413a2e8ad",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "javascript",
+    "path": "Security/CWE-502/UnsafeDeserialization.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "2.4.0",
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "source_sha256": "420c1dbce886c45522722a4228a193fa4d65f26108d782e560e544d03c5f6c4d",
+      "cwe": "CWE-502",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "01927bed-29e0-43a5-a1d5-7246a79fe6f8",
+    "version": "34f45fe720c68be52487c340b79a922ac4c38b2534aa9d8a0bea5535cd851ad4",
+    "chunks": 1
+  },
+  {
+    "language": "javascript",
+    "path": "Security/CWE-918/ClientSideRequestForgery.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "2.4.0",
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "source_sha256": "bb78efff244fc7561f3ad5ed96a2181f726e032a555d1569d7b2a2984ef33f57",
+      "cwe": "CWE-918",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "66ed701a-be22-46b1-8e16-51471f2250ed",
+    "version": "887d24e4327451f734954ec3ffa088d176981140e3b47fba700446645ea4ae85",
+    "chunks": 1
+  },
+  {
+    "language": "javascript",
+    "path": "Security/CWE-798/HardcodedCredentials.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "2.4.0",
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "source_sha256": "bb5b8857d542e5be3a7b651172b18c64e8f5e8cf9573f93e7bccae41a928079e",
+      "cwe": "CWE-798",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "3ca96b32-2490-400b-9a9f-4241a59220b0",
+    "version": "f5168e9cdf2eed0638c43644d862faa1ba4e41acae00195d0f2e144e62755fcc",
+    "chunks": 1
+  },
+  {
+    "language": "javascript",
+    "path": "Security/CWE-020/ExternalAPIsUsedWithUntrustedData.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "2.4.0",
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "source_sha256": "68e4ebbc68f59fd36c7602a3214acb5f596a5910658f7775e5d51333501800a0",
+      "cwe": "CWE-020",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "fdf1f78a-65f6-4e13-8d4b-8594e7a44e2f",
+    "version": "263f4ad4b90dbd94b0cac73934bd8a392e5345200a03505cc6d996f8a3002dbc",
+    "chunks": 1,
+    "deduplicated": true
+  },
+  {
+    "language": "javascript",
+    "path": "Security/CWE-601/ClientSideUrlRedirect.ql",
+    "provenance": {
+      "license": "MIT",
+      "license_source": "https://github.com/github/codeql/blob/main/LICENSE",
+      "trust": "pinned_codeql_source",
+      "api_version": "2.4.0",
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "source_sha256": "d460a5f58765a1dd7c757181b808764f707f06c091fd45aa4acdf3a7cd9a823f",
+      "cwe": "CWE-601",
+      "collected_date": "2026-10-03"
+    },
+    "document_id": "d2a0f642-459f-4837-82ae-da6be9ec0a02",
+    "version": "190d745ddfb1ac685893ceb1384f0de10850d292ed6ce2402bece4214f780f1e",
+    "chunks": 1
+  }
+]

@@ -13,7 +13,9 @@ export function KnowledgePanel({
 }) {
   const [title, setTitle] = useState(""),
     [source, setSource] = useState(""),
-    [content, setContent] = useState("")
+    [content, setContent] = useState(""),
+    [apiVersion, setApiVersion] = useState(""),
+    [license, setLicense] = useState("")
   const cache = useQueryClient()
   const documents = useQuery({
     queryKey: ["knowledge"],
@@ -21,7 +23,18 @@ export function KnowledgePanel({
     refetchInterval: 15000,
   })
   const add = useMutation({
-    mutationFn: () => importKnowledge({ title, source, content, language }),
+    mutationFn: () =>
+      importKnowledge({
+        title,
+        source,
+        content,
+        language,
+        provenance: {
+          api_version: apiVersion || "unknown",
+          license: license || "unspecified",
+          trust: "user_supplied",
+        },
+      }),
     onSuccess: async () => {
       await cache.invalidateQueries()
       setContent("")
@@ -55,6 +68,23 @@ export function KnowledgePanel({
             value={source}
             onChange={(event) => setSource(event.target.value)}
             maxLength={500}
+          />
+        </label>
+        <label htmlFor="knowledge-api-version">
+          CodeQL语言库版本（规则生成按此过滤）
+          <Input
+            id="knowledge-api-version"
+            value={apiVersion}
+            onChange={(event) => setApiVersion(event.target.value)}
+            placeholder="例如 4.0.10"
+          />
+        </label>
+        <label htmlFor="knowledge-license">
+          资料许可证
+          <Input
+            id="knowledge-license"
+            value={license}
+            onChange={(event) => setLicense(event.target.value)}
           />
         </label>
         <label>

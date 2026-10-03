@@ -63,7 +63,7 @@ def build_report(session: Session, audit: AuditRun) -> dict:
         for status in ["confirmed", "excluded", "pending", "insufficient"]
     }
     return {
-        "schema_version": "1",
+        "schema_version": "2",
         "audit": audit.model_dump(mode="json"),
         "summary": {
             "static_alerts": len(audit.findings),
@@ -77,6 +77,15 @@ def build_report(session: Session, audit: AuditRun) -> dict:
             "meaning": "AI recommendations are not counted as confirmed detection gains",
         },
         "stages": dump(stages),
+        "anchor_assessments": [
+            {
+                "stage_id": str(stage.id),
+                "assessments": stage.result.get("anchor_assessments", []),
+                "unreviewed": stage.result.get("unreviewed_anchor_ids", []),
+            }
+            for stage in stages
+            if stage.kind == "review"
+        ],
         "candidates": dump(candidates),
         "decisions": dump(decisions),
         "evidence": dump(evidence),
@@ -108,6 +117,7 @@ def markdown_report(report: dict) -> str:
     for title, key in [
         ("原始静态告警", None),
         ("阶段执行与版本", "stages"),
+        ("锚点评价与未评估范围", "anchor_assessments"),
         ("候选与人工判断", "candidates"),
         ("判断历史", "decisions"),
         ("取证证据", "evidence"),

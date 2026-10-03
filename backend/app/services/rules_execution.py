@@ -8,6 +8,7 @@ from app.adapters.codeql.custom import prepare_query, query_digest, run_query
 from app.core.db import engine
 from app.domain.audit import AuditError
 from app.persistence.knowledge_models import RuleVersion
+from app.services.rule_holdouts import check_modern_validation
 
 
 def owned_published_rule(
@@ -25,6 +26,7 @@ def owned_published_rule(
             raise AuditError("规则版本不存在、未发布或语言不匹配")
         if query_digest(rule.query, rule.modules) != rule.query_hash:
             raise AuditError("已发布规则版本完整性检查失败")
+        check_modern_validation(rule)
         session.expunge(rule)
         return rule
 

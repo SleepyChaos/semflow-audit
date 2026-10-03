@@ -1,8 +1,8 @@
 # 真实模型测试后的改进计划
 
-日期：2026-10-03。依据：`live-model-results.md`、既有 `benchmark-results.md`，以及保存的不可变阶段、证据、补丁和测试日志。此文是下一轮实施计划，不能当作已实现功能。
+日期：2026-10-03。依据：`live-model-results.md`、既有 `benchmark-results.md`，以及保存的不可变阶段、证据、补丁和测试日志。本文件保留最初改进目标；最新完成状态与仍待实施范围见下方交付记录。
 
-前三项的具体执行拆分、原因、目标、依赖及验收见 [第一阶段改进计划](phase-one-improvement-plan.md)。所有条目当前为计划待实施。
+前三项的具体执行拆分、原因、目标、依赖及验收见 [第一阶段改进计划](phase-one-improvement-plan.md)。M1/M2/M3核心机制现已实现，代码/API与真实模型校准完成，见[实施记录](phase-one-implementation.md)及[测试结果](phase-one-test-results.md)。向量消融、完整框架验证、成熟符号解析、竞品大规模实验与增量身份仍待实施；规则检测质量尚未达到目标。
 
 ## 优先级与验收
 

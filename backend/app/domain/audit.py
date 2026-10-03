@@ -13,6 +13,10 @@ class RunStatus(StrEnum):
 class AuditError(Exception):
     """A stage failed; never interpret this as zero findings."""
 
+    def __init__(self, message: str, code: str = "audit_error"):
+        super().__init__(message)
+        self.code = code
+
 
 class AuditCancelled(AuditError):
     """Execution stopped at a stage boundary after cancellation."""
