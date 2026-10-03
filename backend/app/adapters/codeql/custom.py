@@ -112,6 +112,7 @@ def run_query(
             audit_settings.CODEQL_BIN,
             "database",
             "analyze",
+            "--rerun",
             str(database),
             str(pack / "generated.ql"),
             f"--additional-packs={search_paths(pack)}",

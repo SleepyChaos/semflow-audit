@@ -30,7 +30,7 @@ class CodeQLScanner:
             interpreter = shutil.which(audit_settings.CODEQL_PYTHON_BIN)
             if interpreter is None:
                 raise AuditError("找不到配置的 Python 抽取解释器")
-            runtime = log.parent / "runtime"
+            runtime = (log.parent / "runtime").resolve()
             runtime.mkdir(exist_ok=True)
             alias = runtime / "python3"
             if not alias.exists():

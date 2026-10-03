@@ -149,3 +149,7 @@ LangGraph拆成 `specify → route → retrieve → model_or_predicates → chec
 把第一个创新点收敛为“**基于版本化知识与类型/执行反馈的组合式静态规则合成**”。RAG、LSP、模板及组件验证分别已有先例，不能声称首次提出。潜在贡献应来自：对本项目框架缺口的可验证建模、共同预算内的选择性生成，以及跨项目根因增益。是否构成论文贡献，以消融和外部集结果及进一步文献比对为准。
 
 推荐先落地R0/R1，再测R2；暂不把向量库、重排、多个代理、微调一起引入，以免无法判断改进来源。
+
+## 2026-10-03 原型验证更新
+
+已完成受限 DetectorSpec / Python sink FrameworkSpec、完整候选反馈、真实生成样例反馈原型及 162 次可比较生成请求的消融。详见 [真实消融结果](rule-generation-ablation-results.md) 和 [协议](rule-generation-ablation-protocol.md)。框架端到端从 3/9 提高到 8/9；检索分路未呈现一致收益。通用 source/summary 与兼容 LSP、项目级 API 绑定仍未完成，不应把整个 R1/R2 宣称已实现。

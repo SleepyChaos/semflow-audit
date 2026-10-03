@@ -11,7 +11,11 @@ from app.adapters.codeql.custom import (
     validate_fixtures,
     write_fixtures,
 )
+from app.adapters.codeql.model_spec import generate_framework_spec
+from app.adapters.codeql.rule_spec import generate_from_spec
+from app.adapters.codeql.type_probe import probe_types
 from app.adapters.retrieval.knowledge import KnowledgeRetriever
+from app.adapters.retrieval.rule_routing import retrieve_rule_roles
 from app.contracts.stages import RuleRequest, RuleResponse
 from app.core.db import engine
 from app.domain.audit import AuditError
@@ -21,6 +25,7 @@ from app.persistence.knowledge_models import RuleVersion
 from app.persistence.stage_models import Candidate
 from app.persistence.stage_repository import StageRepository
 from app.ports.model import ModelProvider
+from app.services.rule_drafts import confirmed_evidence, save_candidate, save_diagnostic
 from app.services.rule_holdouts import (
     check_modern_validation,
     evaluate_holdout,
@@ -36,6 +41,12 @@ class RuleService:
         self.inputs = RuleRequest.model_validate(self.stage.inputs)
         self.audit = AuditRepository().get(str(self.stage.audit_id))
         self.directory = ArtifactStore().directory(stage_id)
+        self.modern = self.stage.prompt_version in {"2", "3", "4"}
+        self.experiment = (
+            self.stage.model_config_snapshot.get("rule_experiment", {})
+            if self.stage.prompt_version in {"3", "4"}
+            else {}
+        )
 
     def retrieve(self) -> dict:
         self.repository.active(self.stage_id)
@@ -53,8 +64,22 @@ class RuleService:
                     "title": row.title,
                     "description": row.description,
                     "evidence_ids": row.evidence_ids,
+                    **(
+                        {
+                            "weakness": row.weakness,
+                            "location": row.location,
+                            "evidence": confirmed_evidence(row, self.audit),
+                        }
+                        if self.stage.prompt_version in {"3", "4"}
+                        else {}
+                    ),
                 }
-        knowledge = KnowledgeRetriever().retrieve(
+        retriever = (
+            retrieve_rule_roles
+            if self.experiment.get("routing")
+            else KnowledgeRetriever().retrieve
+        )
+        knowledge = retriever(
             self.audit.owner_id,
             self.audit.language,
             self.inputs.requirement,
@@ -66,9 +91,26 @@ class RuleService:
                     else "javascript-all"
                 )
             ]["version"]
-            if self.stage.prompt_version == "2"
+            if self.modern
             else None,
         )
+        if self.experiment.get("framework_knowledge"):
+            domain = KnowledgeRetriever().retrieve(
+                self.audit.owner_id,
+                self.audit.language,
+                self.inputs.requirement,
+                top_k=8,
+                api_version=fixed_dependencies(self.audit.language)[
+                    "codeql/python-all"
+                ]["version"],
+                mode="bm25",
+            )
+            domain = [
+                {**row, "roles": ["framework_api"]}
+                for row in domain
+                if row["source"].startswith("framework-api:")
+            ]
+            knowledge = knowledge[:4] + domain[:2]
         if not knowledge:
             raise AuditError("知识库没有相关检索证据；请导入语言/API/规则知识后再生成")
         self.repository.update(
@@ -101,34 +143,43 @@ class RuleService:
         # A bounded compiler feedback loop, before any human fixture approval.
         for attempt in range(2):
             context["compiler_feedback"] = last_error
-            response = self.provider.generate("rule", context, RuleResponse)
+            if self.stage.prompt_version in {"3", "4"} and self.experiment.get(
+                "full_feedback", True
+            ):
+                context["previous_candidate"] = (
+                    response.model_dump(mode="json") if response else None
+                )
+            if self.experiment.get("framework_spec"):
+                response, template = generate_framework_spec(
+                    self.provider, context, self.directory / f"spec-{attempt}.json"
+                )
+                context["template_provenance"] = template
+            elif self.experiment.get("spec"):
+                response, template = generate_from_spec(self.provider, context)
+                context["template_provenance"] = template
+            else:
+                response = self.provider.generate("rule", context, RuleResponse)
+            pack = save_candidate(self.directory, attempt, response)
             self.repository.update(
                 self.stage_id, usage=self.provider.usage, phase="compile_draft"
             )
-            if not set(map(str, response.knowledge_ids)).issubset(
-                {row["id"] for row in state["knowledge"]}
-            ):
-                raise AuditError("模型引用了未检索到的知识片段")
-            if (
-                self.inputs.strategy != "auto"
-                and response.strategy != self.inputs.strategy
-            ):
-                raise AuditError("生成策略与用户选择不一致")
-            if (
-                self.stage.prompt_version == "2"
-                and response.purpose != self.inputs.purpose
-            ):
-                raise AuditError("规则用途与需求不一致")
-            if (
-                response.strategy == "model"
-                or (
-                    self.stage.prompt_version == "2"
-                    and self.inputs.purpose == "framework_model"
-                )
-            ) and not response.modules:
-                raise AuditError("模型补充策略必须包含 .qll 建模模块")
-            pack = self.directory / f"draft-{attempt}"
             try:
+                if not set(map(str, response.knowledge_ids)).issubset(
+                    {row["id"] for row in state["knowledge"]}
+                ):
+                    raise AuditError("模型引用了未检索到的知识片段")
+                if (
+                    self.inputs.strategy != "auto"
+                    and response.strategy != self.inputs.strategy
+                ):
+                    raise AuditError("生成策略与用户选择不一致")
+                if self.modern and response.purpose != self.inputs.purpose:
+                    raise AuditError("规则用途与需求不一致")
+                if (
+                    response.strategy == "model"
+                    or (self.modern and self.inputs.purpose == "framework_model")
+                ) and not response.modules:
+                    raise AuditError("模型补充策略必须包含 .qll 建模模块")
                 prepare_query(
                     pack,
                     self.audit.language,
@@ -156,11 +207,46 @@ class RuleService:
                 ):
                     raise AuditError("生成样本必须具有正例预期和空反例预期")
                 compile_query(pack, self.directory / "execution.log")
+                if self.experiment.get("execute_dev"):
+                    development = validate_fixtures(
+                        self.directory / f"development-{attempt}",
+                        pack,
+                        self.audit.language,
+                        fixtures,
+                    )
+                    context["development_feedback"] = development
+                    if development["status"] != "passed":
+                        raise AuditError(
+                            "生成样例真实执行不匹配；依据 development_feedback 修正样例或模型"
+                        )
                 last_error = None
                 break
             except AuditError as exc:
+                if self.experiment.get("lsp") and (pack / "qlpack.yml").exists():
+                    context["type_feedback"] = probe_types(pack)
+                development_log = (
+                    self.directory / f"development-{attempt}" / "execution.log"
+                )
+                diagnostic = save_diagnostic(
+                    pack,
+                    exc,
+                    development_log
+                    if development_log.exists()
+                    else self.directory / "execution.log",
+                )
                 last_error = (
-                    str(exc) + "\n" + ArtifactStore().log_tail(self.stage_id)[-5000:]
+                    diagnostic
+                    if self.stage.prompt_version in {"3", "4"}
+                    and self.experiment.get("full_feedback", True)
+                    else diagnostic["message"] + "\n" + diagnostic["log_tail"][-5000:]
+                )
+                self.repository.update(
+                    self.stage_id,
+                    result={
+                        **self.repository.get(self.stage_id).result,
+                        "last_diagnostic": diagnostic,
+                        "draft_attempts": attempt + 1,
+                    },
                 )
         if last_error:
             raise AuditError("两次规则编译/契约验证均未通过；草稿与日志已保留")
@@ -170,9 +256,7 @@ class RuleService:
                 audit_id=self.audit.id,
                 stage_id=self.stage.id,
                 language=self.audit.language,
-                purpose=self.inputs.purpose
-                if self.stage.prompt_version == "2"
-                else "unknown",
+                purpose=self.inputs.purpose if self.modern else "unknown",
                 holdout_id=self.inputs.holdout_id,
                 title=response.title,
                 strategy=response.strategy,
@@ -190,6 +274,8 @@ class RuleService:
                     "compile": "passed",
                     "coverage_analysis": response.coverage_analysis,
                     "attempts": attempt + 1,
+                    "template_provenance": context.get("template_provenance"),
+                    "development": context.get("development_feedback"),
                 },
             )
             session.add(rule)

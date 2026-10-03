@@ -1,12 +1,13 @@
 import json
+
 import httpx
 import pytest
-from openai import OpenAI
-from pydantic import SecretStr
 from app.adapters.ai.provider import CompatibleModel
 from app.contracts.stages import ReviewResponse
 from app.core.audit_config import audit_settings
 from app.domain.audit import AuditError
+from openai import OpenAI
+from pydantic import SecretStr
 
 
 def configured(monkeypatch, handler):
@@ -101,3 +102,55 @@ def test_provider_error_does_not_disclose_credential(monkeypatch):
     with pytest.raises(AuditError) as error:
         provider.generate("review", {}, ReviewResponse)
     assert "test-only-not-a-real-key" not in str(error.value)
+
+
+def test_invalid_response_candidate_is_retained(monkeypatch, tmp_path):
+    content = '{"action":"confirmed","untrusted":"invalid schema candidate"}'
+    provider = configured(
+        monkeypatch, lambda _: httpx.Response(200, json=completion(content))
+    )
+    provider.response_directory = tmp_path
+    with pytest.raises(AuditError):
+        provider.generate("review", {}, ReviewResponse)
+    assert len(provider.records) == 2
+    for row in provider.records:
+        assert row["error_code"] == "schema_invalid"
+        assert (tmp_path / row["response_artifact"]).read_text() == content
+        assert row["response_artifact_truncated"] is False
+
+
+def test_bound_stage_prompt_is_frozen(pipeline_context, monkeypatch, tmp_path):
+    import app.adapters.ai.provider as module
+    from app.core.db import engine
+    from app.persistence.stage_models import StageRun
+    from sqlmodel import Session
+
+    calls = []
+
+    def handler(request):
+        calls.append(json.loads(request.content))
+        return httpx.Response(
+            200, json=completion('{"action":"final","findings":[],"summary":"unknown"}')
+        )
+
+    provider = configured(monkeypatch, handler)
+    with Session(engine) as db:
+        stage = StageRun(
+            audit_id=pipeline_context["run_id"], kind="review", prompt_version="1"
+        )
+        db.add(stage)
+        db.commit()
+        db.refresh(stage)
+        identifier = stage.id
+    prompts = tmp_path / "prompts"
+    prompts.mkdir()
+    path = prompts / "review.v1.txt"
+    path.write_text("Frozen original UNTRUSTED instruction")
+    monkeypatch.setattr(module, "PROMPTS", prompts)
+    provider.bind_stage(str(identifier), "1")
+    path.write_text("Edited instruction must not affect this stage")
+    provider.generate("review", {}, ReviewResponse)
+    assert calls[0]["messages"][0]["content"].startswith("Frozen original")
+    with Session(engine) as db:
+        snapshot = db.get(StageRun, identifier).model_config_snapshot["prompt_snapshot"]
+        assert snapshot["content"] == "Frozen original UNTRUSTED instruction"

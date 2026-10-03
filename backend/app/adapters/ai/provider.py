@@ -28,6 +28,8 @@ class CompatibleModel:
         self.prompt_version = "1"
         self.budget = CallBudget(self.policy, self.records)
         self.persist = lambda: None
+        self.response_directory = None
+        self.prompt_snapshot = None
         self.client = OpenAI(
             base_url=audit_settings.AI_BASE_URL,
             api_key=audit_settings.AI_API_KEY.get_secret_value() or "local-provider",
@@ -39,8 +41,29 @@ class CompatibleModel:
         from app.persistence.stage_repository import StageRepository
 
         repository = StageRepository()
+        from app.adapters.artifacts import ArtifactStore
+
+        self.response_directory = ArtifactStore().directory(stage_id)
         stage = repository.get(stage_id)
         self.policy = stage.model_config_snapshot or policy_snapshot()
+        version = prompt_version if stage.kind in {"rule", "review"} else "1"
+        self.prompt_snapshot = self.policy.get("prompt_snapshot")
+        if self.prompt_snapshot is None:
+            prompt = (PROMPTS / f"{stage.kind}.v{version}.txt").read_text()
+            self.prompt_snapshot = {
+                "purpose": stage.kind,
+                "version": version,
+                "content": prompt,
+                "sha256": sha256(prompt.encode()).hexdigest(),
+            }
+            self.policy = {**self.policy, "prompt_snapshot": self.prompt_snapshot}
+        if (
+            self.prompt_snapshot["purpose"] != stage.kind
+            or self.prompt_snapshot["version"] != version
+            or sha256(self.prompt_snapshot["content"].encode()).hexdigest()
+            != self.prompt_snapshot["sha256"]
+        ):
+            raise AuditError("阶段提示词快照不匹配，不能恢复生成")
         self.model = self.policy["model"]
         self.client.base_url = self.policy["base_url"]
         if stage.usage:
@@ -60,7 +83,15 @@ class CompatibleModel:
         if not self.model:
             raise AuditError("未配置 AI_MODEL")
         version = self.prompt_version if purpose in {"review", "rule"} else "1"
-        prompt = (PROMPTS / f"{purpose}.v{version}.txt").read_text()
+        if self.prompt_snapshot is not None:
+            if (purpose, version) != (
+                self.prompt_snapshot["purpose"],
+                self.prompt_snapshot["version"],
+            ):
+                raise AuditError("阶段模型调用越过提示词范围")
+            prompt = self.prompt_snapshot["content"]
+        else:
+            prompt = (PROMPTS / f"{purpose}.v{version}.txt").read_text()
         messages = [
             {
                 "role": "system",
@@ -117,6 +148,18 @@ class CompatibleModel:
                     response_format={"type": "json_object"},
                     messages=messages,
                 )
+                if self.response_directory is not None:
+                    content = (
+                        completion.choices[0].message.content
+                        if completion.choices
+                        else None
+                    )
+                    if content is not None:
+                        # Preserve incomplete/schema-invalid candidates privately, never log raw output.
+                        name = f"model-call-{record['call_index']}.response.txt"
+                        (self.response_directory / name).write_text(content[:200000])
+                        record["response_artifact"] = name
+                        record["response_artifact_truncated"] = len(content) > 200000
                 record["response_model"] = completion.model
                 if completion.usage:
                     record["input_tokens"] = completion.usage.prompt_tokens

@@ -1,0 +1,1457 @@
+{
+  "scope": "Small calibration, not publication-grade cross-project proof",
+  "requests": 162,
+  "protocol_deviation_requests": 4,
+  "model_calls": 254,
+  "model_calls_with_deviations": 262,
+  "input_tokens": 1686793,
+  "output_tokens": 285032,
+  "response_models": {
+    "deepseek-v4-1-flash-260910": 254
+  },
+  "studies": {
+    "rule-ablation-b7077f7e-6895-4fdc-af7a-60a6a9f248e7": {
+      "groups": {
+        "A_bm25_log": {
+          "requests": 18,
+          "generated": 1,
+          "independent_executed": 0,
+          "independent_pass": 0,
+          "dev_pass": 0,
+          "end_to_end_pass": 0,
+          "conditional_tp": 0,
+          "conditional_fp": 0,
+          "conditional_fn": 0,
+          "conditional_precision": null,
+          "conditional_recall": null,
+          "generation_median_seconds": 12.538447708488093,
+          "model_calls": 37,
+          "input_tokens": 287921,
+          "output_tokens": 50077,
+          "finish_reasons": {
+            "stop": 36,
+            "length": 1
+          },
+          "failure_codes": {
+            "两次规则编译/契约验证均未通过；草稿与日志已保留": 17
+          },
+          "per_case": {
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            }
+          }
+        },
+        "B_routed_log": {
+          "requests": 18,
+          "generated": 4,
+          "independent_executed": 2,
+          "independent_pass": 2,
+          "dev_pass": 1,
+          "end_to_end_pass": 1,
+          "conditional_tp": 2,
+          "conditional_fp": 0,
+          "conditional_fn": 0,
+          "conditional_precision": 1.0,
+          "conditional_recall": 1.0,
+          "generation_median_seconds": 12.866678896010853,
+          "model_calls": 36,
+          "input_tokens": 181434,
+          "output_tokens": 44866,
+          "finish_reasons": {
+            "stop": 36
+          },
+          "failure_codes": {
+            "两次规则编译/契约验证均未通过；草稿与日志已保留": 14
+          },
+          "per_case": {
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "independent_pass": 2,
+              "dev_pass": 1,
+              "end_to_end_pass": 1
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            }
+          }
+        },
+        "C_bm25_candidate": {
+          "requests": 18,
+          "generated": 12,
+          "independent_executed": 7,
+          "independent_pass": 7,
+          "dev_pass": 7,
+          "end_to_end_pass": 7,
+          "conditional_tp": 8,
+          "conditional_fp": 0,
+          "conditional_fn": 0,
+          "conditional_precision": 1.0,
+          "conditional_recall": 1.0,
+          "generation_median_seconds": 18.455252396001015,
+          "model_calls": 36,
+          "input_tokens": 299819,
+          "output_tokens": 41828,
+          "finish_reasons": {
+            "stop": 36
+          },
+          "failure_codes": {
+            "两次规则编译/契约验证均未通过；草稿与日志已保留": 6
+          },
+          "per_case": {
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "independent_pass": 2,
+              "dev_pass": 2,
+              "end_to_end_pass": 2
+            },
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "independent_pass": 1,
+              "dev_pass": 1,
+              "end_to_end_pass": 1
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "independent_pass": 1,
+              "dev_pass": 1,
+              "end_to_end_pass": 1
+            }
+          }
+        },
+        "D_routed_candidate": {
+          "requests": 18,
+          "generated": 11,
+          "independent_executed": 8,
+          "independent_pass": 8,
+          "dev_pass": 6,
+          "end_to_end_pass": 6,
+          "conditional_tp": 10,
+          "conditional_fp": 0,
+          "conditional_fn": 0,
+          "conditional_precision": 1.0,
+          "conditional_recall": 1.0,
+          "generation_median_seconds": 19.69955966650741,
+          "model_calls": 36,
+          "input_tokens": 205354,
+          "output_tokens": 48850,
+          "finish_reasons": {
+            "stop": 36
+          },
+          "failure_codes": {
+            "两次规则编译/契约验证均未通过；草稿与日志已保留": 7
+          },
+          "per_case": {
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 2,
+              "end_to_end_pass": 2
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "independent_pass": 2,
+              "dev_pass": 1,
+              "end_to_end_pass": 1
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            }
+          }
+        },
+        "E_spec_bm25": {
+          "requests": 18,
+          "generated": 18,
+          "independent_executed": 18,
+          "independent_pass": 15,
+          "dev_pass": 14,
+          "end_to_end_pass": 12,
+          "conditional_tp": 21,
+          "conditional_fp": 0,
+          "conditional_fn": 3,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.875,
+          "generation_median_seconds": 13.820089458007715,
+          "model_calls": 18,
+          "input_tokens": 141138,
+          "output_tokens": 15177,
+          "finish_reasons": {
+            "stop": 18
+          },
+          "failure_codes": {},
+          "per_case": {
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 2,
+              "end_to_end_pass": 2
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 2,
+              "end_to_end_pass": 2
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 0,
+              "dev_pass": 2,
+              "end_to_end_pass": 0
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 2,
+              "end_to_end_pass": 2
+            }
+          }
+        },
+        "F_spec_routed": {
+          "requests": 18,
+          "generated": 18,
+          "independent_executed": 18,
+          "independent_pass": 15,
+          "dev_pass": 12,
+          "end_to_end_pass": 9,
+          "conditional_tp": 21,
+          "conditional_fp": 0,
+          "conditional_fn": 3,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.875,
+          "generation_median_seconds": 13.231312479503686,
+          "model_calls": 18,
+          "input_tokens": 92154,
+          "output_tokens": 15243,
+          "finish_reasons": {
+            "stop": 18
+          },
+          "failure_codes": {},
+          "per_case": {
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 1,
+              "end_to_end_pass": 1
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 2,
+              "end_to_end_pass": 2
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 0,
+              "dev_pass": 3,
+              "end_to_end_pass": 0
+            },
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 2,
+              "end_to_end_pass": 2
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 1,
+              "end_to_end_pass": 1
+            }
+          }
+        }
+      },
+      "paired_task_differences": {
+        "A_bm25_log -> B_routed_log": {
+          "generated": {
+            "mean_task_difference": 0.16666666666666666,
+            "task_differences": [
+              0.0,
+              0.0,
+              0.6666666666666666,
+              0.0,
+              0.0,
+              0.3333333333333333
+            ],
+            "right_better_tasks": 2,
+            "left_better_tasks": 0,
+            "tied_tasks": 4
+          },
+          "independent_pass": {
+            "mean_task_difference": 0.1111111111111111,
+            "task_differences": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.6666666666666666
+            ],
+            "right_better_tasks": 1,
+            "left_better_tasks": 0,
+            "tied_tasks": 5
+          },
+          "end_to_end_pass": {
+            "mean_task_difference": 0.05555555555555555,
+            "task_differences": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.3333333333333333
+            ],
+            "right_better_tasks": 1,
+            "left_better_tasks": 0,
+            "tied_tasks": 5
+          }
+        },
+        "C_bm25_candidate -> D_routed_candidate": {
+          "generated": {
+            "mean_task_difference": -0.055555555555555546,
+            "task_differences": [
+              0.0,
+              0.0,
+              0.0,
+              -0.6666666666666666,
+              0.0,
+              0.33333333333333337
+            ],
+            "right_better_tasks": 1,
+            "left_better_tasks": 1,
+            "tied_tasks": 4
+          },
+          "independent_pass": {
+            "mean_task_difference": 0.05555555555555557,
+            "task_differences": [
+              0.0,
+              0.0,
+              0.0,
+              -0.6666666666666666,
+              0.3333333333333333,
+              0.6666666666666667
+            ],
+            "right_better_tasks": 2,
+            "left_better_tasks": 1,
+            "tied_tasks": 3
+          },
+          "end_to_end_pass": {
+            "mean_task_difference": -0.055555555555555546,
+            "task_differences": [
+              -0.33333333333333337,
+              0.0,
+              0.0,
+              -0.6666666666666666,
+              0.0,
+              0.6666666666666667
+            ],
+            "right_better_tasks": 1,
+            "left_better_tasks": 2,
+            "tied_tasks": 3
+          }
+        },
+        "A_bm25_log -> C_bm25_candidate": {
+          "generated": {
+            "mean_task_difference": 0.611111111111111,
+            "task_differences": [
+              0.6666666666666666,
+              0.6666666666666666,
+              1.0,
+              0.6666666666666666,
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "right_better_tasks": 6,
+            "left_better_tasks": 0,
+            "tied_tasks": 0
+          },
+          "independent_pass": {
+            "mean_task_difference": 0.3888888888888889,
+            "task_differences": [
+              0.0,
+              0.6666666666666666,
+              1.0,
+              0.3333333333333333,
+              0.0,
+              0.3333333333333333
+            ],
+            "right_better_tasks": 4,
+            "left_better_tasks": 0,
+            "tied_tasks": 2
+          },
+          "end_to_end_pass": {
+            "mean_task_difference": 0.3888888888888889,
+            "task_differences": [
+              0.0,
+              0.6666666666666666,
+              1.0,
+              0.3333333333333333,
+              0.0,
+              0.3333333333333333
+            ],
+            "right_better_tasks": 4,
+            "left_better_tasks": 0,
+            "tied_tasks": 2
+          }
+        },
+        "B_routed_log -> D_routed_candidate": {
+          "generated": {
+            "mean_task_difference": 0.3888888888888889,
+            "task_differences": [
+              0.33333333333333337,
+              0.33333333333333337,
+              0.6666666666666666,
+              0.6666666666666666,
+              0.3333333333333333,
+              0.0
+            ],
+            "right_better_tasks": 5,
+            "left_better_tasks": 0,
+            "tied_tasks": 1
+          },
+          "independent_pass": {
+            "mean_task_difference": 0.3333333333333333,
+            "task_differences": [
+              0.33333333333333337,
+              1.0,
+              0.0,
+              0.6666666666666666,
+              0.0,
+              0.0
+            ],
+            "right_better_tasks": 3,
+            "left_better_tasks": 0,
+            "tied_tasks": 3
+          },
+          "end_to_end_pass": {
+            "mean_task_difference": 0.2777777777777778,
+            "task_differences": [
+              0.6666666666666667,
+              0.6666666666666666,
+              0.0,
+              0.3333333333333333,
+              0.0,
+              0.0
+            ],
+            "right_better_tasks": 3,
+            "left_better_tasks": 0,
+            "tied_tasks": 3
+          }
+        },
+        "C_bm25_candidate -> E_spec_bm25": {
+          "generated": {
+            "mean_task_difference": 0.33333333333333337,
+            "task_differences": [
+              0.0,
+              0.33333333333333337,
+              0.6666666666666667,
+              0.33333333333333337,
+              0.33333333333333337,
+              0.33333333333333337
+            ],
+            "right_better_tasks": 5,
+            "left_better_tasks": 0,
+            "tied_tasks": 1
+          },
+          "independent_pass": {
+            "mean_task_difference": 0.4444444444444445,
+            "task_differences": [
+              0.0,
+              0.0,
+              1.0,
+              0.33333333333333337,
+              0.6666666666666667,
+              0.6666666666666667
+            ],
+            "right_better_tasks": 4,
+            "left_better_tasks": 0,
+            "tied_tasks": 2
+          },
+          "end_to_end_pass": {
+            "mean_task_difference": 0.2777777777777778,
+            "task_differences": [
+              -0.33333333333333337,
+              0.0,
+              0.6666666666666666,
+              0.33333333333333337,
+              0.6666666666666667,
+              0.3333333333333333
+            ],
+            "right_better_tasks": 4,
+            "left_better_tasks": 1,
+            "tied_tasks": 1
+          }
+        },
+        "D_routed_candidate -> F_spec_routed": {
+          "generated": {
+            "mean_task_difference": 0.3888888888888889,
+            "task_differences": [
+              0.0,
+              0.0,
+              1.0,
+              0.33333333333333337,
+              0.33333333333333337,
+              0.6666666666666667
+            ],
+            "right_better_tasks": 4,
+            "left_better_tasks": 0,
+            "tied_tasks": 2
+          },
+          "independent_pass": {
+            "mean_task_difference": 0.3888888888888889,
+            "task_differences": [
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.33333333333333337,
+              1.0
+            ],
+            "right_better_tasks": 3,
+            "left_better_tasks": 0,
+            "tied_tasks": 3
+          },
+          "end_to_end_pass": {
+            "mean_task_difference": 0.16666666666666666,
+            "task_differences": [
+              -0.3333333333333333,
+              -0.33333333333333337,
+              0.3333333333333333,
+              0.0,
+              0.6666666666666667,
+              0.6666666666666666
+            ],
+            "right_better_tasks": 3,
+            "left_better_tasks": 2,
+            "tied_tasks": 1
+          }
+        },
+        "E_spec_bm25 -> F_spec_routed": {
+          "generated": {
+            "mean_task_difference": 0.0,
+            "task_differences": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "right_better_tasks": 0,
+            "left_better_tasks": 0,
+            "tied_tasks": 6
+          },
+          "independent_pass": {
+            "mean_task_difference": 0.0,
+            "task_differences": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "right_better_tasks": 0,
+            "left_better_tasks": 0,
+            "tied_tasks": 6
+          },
+          "end_to_end_pass": {
+            "mean_task_difference": -0.16666666666666669,
+            "task_differences": [
+              0.0,
+              0.0,
+              0.0,
+              -0.6666666666666667,
+              0.0,
+              -0.3333333333333333
+            ],
+            "right_better_tasks": 0,
+            "left_better_tasks": 2,
+            "tied_tasks": 4
+          }
+        }
+      },
+      "baseline": [
+        {
+          "case": "python-eval-vulnerability_detector-v1",
+          "result": {
+            "status": "passed",
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "checks": {
+              "positive": {
+                "expected": [
+                  [
+                    "variant_positive_0.py",
+                    7
+                  ],
+                  [
+                    "variant_positive_1.py",
+                    8
+                  ]
+                ],
+                "actual": [
+                  [
+                    "variant_positive_0.py",
+                    7
+                  ],
+                  [
+                    "variant_positive_1.py",
+                    8
+                  ]
+                ]
+              },
+              "negative": {
+                "expected": [],
+                "actual": []
+              }
+            },
+            "dataset_hash": "9cf154952c1270c32c3543aca57651aa57bfdf67406afbcfd97c139c9dd811f5"
+          },
+          "provenance": {
+            "source": "codeql-pack:codeql/python-queries@1.6.0/Security/CWE-094/CodeInjection.ql",
+            "sha256": "454599756d9c545c41ed8bf209694b1789ed3dd6529fb33bb48188c8c9c599f7",
+            "coverage": "baseline_reuse",
+            "license": "MIT"
+          },
+          "evaluation_seconds": 9.337434499990195
+        },
+        {
+          "case": "python-sql-vulnerability_detector-v1",
+          "result": {
+            "status": "passed",
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "checks": {
+              "positive": {
+                "expected": [
+                  [
+                    "variant_positive_0.py",
+                    8
+                  ]
+                ],
+                "actual": [
+                  [
+                    "variant_positive_0.py",
+                    8
+                  ]
+                ]
+              },
+              "negative": {
+                "expected": [],
+                "actual": []
+              }
+            },
+            "dataset_hash": "b1622f2885cc628f3cd208b8035da636b4088fe17c9fe7b25c4e366b92d24b95"
+          },
+          "provenance": {
+            "source": "codeql-pack:codeql/python-queries@1.6.0/Security/CWE-089/SqlInjection.ql",
+            "sha256": "e8324e568041a22d5d3a4ea21ef52ef791d67a699352273edda350caeca84964",
+            "coverage": "baseline_reuse",
+            "license": "MIT"
+          },
+          "evaluation_seconds": 9.216906416986603
+        },
+        {
+          "case": "python-xss-vulnerability_detector-v1",
+          "result": {
+            "status": "failed",
+            "tp": 0,
+            "fp": 0,
+            "fn": 1,
+            "checks": {
+              "positive": {
+                "expected": [
+                  [
+                    "variant_positive_0.py",
+                    7
+                  ]
+                ],
+                "actual": []
+              },
+              "negative": {
+                "expected": [],
+                "actual": []
+              }
+            },
+            "dataset_hash": "97d154f2efe8919e32281b6fd2bd40d555d77aa93ff7cf51c032132ca5857b03"
+          },
+          "provenance": {
+            "source": "codeql-pack:codeql/python-queries@1.6.0/Security/CWE-079/ReflectedXss.ql",
+            "sha256": "67850777bf3fd13f926f00afa782237f73975d6bdaa9913353bb4522ef3efc7c",
+            "coverage": "baseline_reuse",
+            "license": "MIT"
+          },
+          "evaluation_seconds": 8.989100375009002
+        },
+        {
+          "case": "javascript-eval-vulnerability_detector-v1",
+          "result": {
+            "status": "passed",
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "checks": {
+              "positive": {
+                "expected": [
+                  [
+                    "variant_positive_0.js",
+                    5
+                  ],
+                  [
+                    "variant_positive_1.js",
+                    6
+                  ]
+                ],
+                "actual": [
+                  [
+                    "variant_positive_0.js",
+                    5
+                  ],
+                  [
+                    "variant_positive_1.js",
+                    6
+                  ]
+                ]
+              },
+              "negative": {
+                "expected": [],
+                "actual": []
+              }
+            },
+            "dataset_hash": "e022495bd9720ab1ae90f6fc5f4a091e6cfb431101aac4131a6997b514b8b831"
+          },
+          "provenance": {
+            "source": "codeql-pack:codeql/javascript-queries@1.4.0/Security/CWE-094/CodeInjection.ql",
+            "sha256": "8ddfcc38e1d4c4d215b438844b9f362a1271f233051d76b2f3e3dafcf16c39cb",
+            "coverage": "baseline_reuse",
+            "license": "MIT"
+          },
+          "evaluation_seconds": 8.789056875015376
+        },
+        {
+          "case": "javascript-sql-vulnerability_detector-v1",
+          "result": {
+            "status": "passed",
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "checks": {
+              "positive": {
+                "expected": [
+                  [
+                    "variant_positive_0.js",
+                    6
+                  ]
+                ],
+                "actual": [
+                  [
+                    "variant_positive_0.js",
+                    6
+                  ]
+                ]
+              },
+              "negative": {
+                "expected": [],
+                "actual": []
+              }
+            },
+            "dataset_hash": "0487407a4266f58be0662a8beaedbcc3b904acfa37600e109801f4455c24f55f"
+          },
+          "provenance": {
+            "source": "codeql-pack:codeql/javascript-queries@1.4.0/Security/CWE-089/SqlInjection.ql",
+            "sha256": "38c79ee799144a8c9fe4ca5c933d74dfdba98f1e5b898b36ea173af4fefbbd91",
+            "coverage": "baseline_reuse",
+            "license": "MIT"
+          },
+          "evaluation_seconds": 9.360843665985158
+        },
+        {
+          "case": "javascript-xss-vulnerability_detector-v1",
+          "result": {
+            "status": "passed",
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "checks": {
+              "positive": {
+                "expected": [
+                  [
+                    "variant_positive_0.js",
+                    5
+                  ]
+                ],
+                "actual": [
+                  [
+                    "variant_positive_0.js",
+                    5
+                  ]
+                ]
+              },
+              "negative": {
+                "expected": [],
+                "actual": []
+              }
+            },
+            "dataset_hash": "e68128fbfd6e6e297bf597bfb01e733ef19fe15fc3032eb860c5fa9981537795"
+          },
+          "provenance": {
+            "source": "codeql-pack:codeql/javascript-queries@1.4.0/Security/CWE-079/ReflectedXss.ql",
+            "sha256": "9c4044e96f2af9a8bd8db123628d91d7895be8fe15b56a533c9943be3d440498",
+            "coverage": "baseline_reuse",
+            "license": "MIT"
+          },
+          "evaluation_seconds": 13.442956415994558
+        }
+      ],
+      "interpretation": "Small repeated-task calibration. Conditional precision/recall only for completed tools. No population confidence claims; repeated runs are not independent vulnerabilities.",
+      "protocol_deviation_requests": 4
+    },
+    "framework-ablation-2a29b068-9e95-453d-8e02-31b8172def2b": {
+      "groups": {
+        "H_free_grounded": {
+          "requests": 9,
+          "generated": 1,
+          "independent_executed": 1,
+          "independent_pass": 0,
+          "dev_pass": 0,
+          "end_to_end_pass": 0,
+          "conditional_tp": 0,
+          "conditional_fp": 0,
+          "conditional_fn": 1,
+          "conditional_precision": null,
+          "conditional_recall": 0.0,
+          "generation_median_seconds": 13.333757582993712,
+          "model_calls": 18,
+          "input_tokens": 130800,
+          "output_tokens": 25405,
+          "finish_reasons": {
+            "stop": 18
+          },
+          "failure_codes": {
+            "两次规则编译/契约验证均未通过；草稿与日志已保留": 8
+          },
+          "per_case": {
+            "opaque-python-exec-0": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "opaque-python-exec-1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "opaque-python-exec-2": {
+              "requests": 3,
+              "generated": 1,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            }
+          }
+        },
+        "I_spec_grounded": {
+          "requests": 9,
+          "generated": 9,
+          "independent_executed": 9,
+          "independent_pass": 9,
+          "dev_pass": 3,
+          "end_to_end_pass": 3,
+          "conditional_tp": 9,
+          "conditional_fp": 0,
+          "conditional_fn": 0,
+          "conditional_precision": 1.0,
+          "conditional_recall": 1.0,
+          "generation_median_seconds": 11.87806966700009,
+          "model_calls": 9,
+          "input_tokens": 61122,
+          "output_tokens": 6554,
+          "finish_reasons": {
+            "stop": 9
+          },
+          "failure_codes": {},
+          "per_case": {
+            "opaque-python-exec-0": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 1,
+              "end_to_end_pass": 1
+            },
+            "opaque-python-exec-1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 2,
+              "end_to_end_pass": 2
+            },
+            "opaque-python-exec-2": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            }
+          }
+        },
+        "J_spec_no_domain": {
+          "requests": 9,
+          "generated": 0,
+          "independent_executed": 0,
+          "independent_pass": 0,
+          "dev_pass": 0,
+          "end_to_end_pass": 0,
+          "conditional_tp": 0,
+          "conditional_fp": 0,
+          "conditional_fn": 0,
+          "conditional_precision": null,
+          "conditional_recall": null,
+          "generation_median_seconds": 3.5567047910008114,
+          "model_calls": 9,
+          "input_tokens": 54927,
+          "output_tokens": 5829,
+          "finish_reasons": {
+            "stop": 9
+          },
+          "failure_codes": {
+            "框架模型符号没有实际检索证据": 9
+          },
+          "per_case": {
+            "opaque-python-exec-0": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "opaque-python-exec-1": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            },
+            "opaque-python-exec-2": {
+              "requests": 3,
+              "generated": 0,
+              "independent_pass": 0,
+              "dev_pass": 0,
+              "end_to_end_pass": 0
+            }
+          }
+        }
+      },
+      "paired_task_differences": {
+        "I_spec_grounded -> J_spec_no_domain": {
+          "generated": {
+            "mean_task_difference": -1.0,
+            "task_differences": [
+              -1.0,
+              -1.0,
+              -1.0
+            ],
+            "right_better_tasks": 0,
+            "left_better_tasks": 3,
+            "tied_tasks": 0
+          },
+          "independent_pass": {
+            "mean_task_difference": -1.0,
+            "task_differences": [
+              -1.0,
+              -1.0,
+              -1.0
+            ],
+            "right_better_tasks": 0,
+            "left_better_tasks": 3,
+            "tied_tasks": 0
+          },
+          "end_to_end_pass": {
+            "mean_task_difference": -0.3333333333333333,
+            "task_differences": [
+              -0.3333333333333333,
+              -0.6666666666666666,
+              0.0
+            ],
+            "right_better_tasks": 0,
+            "left_better_tasks": 2,
+            "tied_tasks": 1
+          }
+        }
+      },
+      "baseline": [
+        {
+          "case": "opaque-python-exec-0",
+          "oracle": {
+            "status": "failed",
+            "tp": 0,
+            "fp": 0,
+            "fn": 1,
+            "checks": {
+              "positive": {
+                "expected": [
+                  [
+                    "case.py",
+                    6
+                  ]
+                ],
+                "actual": []
+              },
+              "negative": {
+                "expected": [],
+                "actual": []
+              }
+            },
+            "dataset_hash": "c0efa15aff766b9b870afb4a5f488401bdcd1b40052001cf743881b4067d1b09"
+          },
+          "provenance": {
+            "source": "codeql-pack:codeql/python-queries@1.6.0/Security/CWE-094/CodeInjection.ql",
+            "sha256": "454599756d9c545c41ed8bf209694b1789ed3dd6529fb33bb48188c8c9c599f7",
+            "coverage": "baseline_reuse",
+            "license": "MIT"
+          }
+        },
+        {
+          "case": "opaque-python-exec-1",
+          "oracle": {
+            "status": "failed",
+            "tp": 0,
+            "fp": 0,
+            "fn": 1,
+            "checks": {
+              "positive": {
+                "expected": [
+                  [
+                    "case.py",
+                    6
+                  ]
+                ],
+                "actual": []
+              },
+              "negative": {
+                "expected": [],
+                "actual": []
+              }
+            },
+            "dataset_hash": "0421153572dae082e5aafa81fa7ba6b5889b95c9a45917b852ffe8dfa8513d12"
+          },
+          "provenance": {
+            "source": "codeql-pack:codeql/python-queries@1.6.0/Security/CWE-094/CodeInjection.ql",
+            "sha256": "454599756d9c545c41ed8bf209694b1789ed3dd6529fb33bb48188c8c9c599f7",
+            "coverage": "baseline_reuse",
+            "license": "MIT"
+          }
+        },
+        {
+          "case": "opaque-python-exec-2",
+          "oracle": {
+            "status": "failed",
+            "tp": 0,
+            "fp": 0,
+            "fn": 1,
+            "checks": {
+              "positive": {
+                "expected": [
+                  [
+                    "case.py",
+                    6
+                  ]
+                ],
+                "actual": []
+              },
+              "negative": {
+                "expected": [],
+                "actual": []
+              }
+            },
+            "dataset_hash": "2448af3a34d428f9747902083f1ceb5be94da587ddec58be4f23fc9a95865e84"
+          },
+          "provenance": {
+            "source": "codeql-pack:codeql/python-queries@1.6.0/Security/CWE-094/CodeInjection.ql",
+            "sha256": "454599756d9c545c41ed8bf209694b1789ed3dd6529fb33bb48188c8c9c599f7",
+            "coverage": "baseline_reuse",
+            "license": "MIT"
+          }
+        }
+      ],
+      "interpretation": "Small repeated-task calibration. Conditional precision/recall only for completed tools. No population confidence claims; repeated runs are not independent vulnerabilities.",
+      "protocol_deviation_requests": 0
+    },
+    "dev-feedback-ablation-6c579229-399b-44a5-829d-055bcaf650d7": {
+      "groups": {
+        "K_spec_routed_dev": {
+          "requests": 18,
+          "generated": 18,
+          "independent_executed": 18,
+          "independent_pass": 15,
+          "dev_pass": 18,
+          "end_to_end_pass": 15,
+          "conditional_tp": 21,
+          "conditional_fp": 0,
+          "conditional_fn": 3,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.875,
+          "generation_median_seconds": 50.71841104149644,
+          "model_calls": 24,
+          "input_tokens": 133821,
+          "output_tokens": 21185,
+          "finish_reasons": {
+            "stop": 24
+          },
+          "failure_codes": {},
+          "per_case": {
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 0,
+              "dev_pass": 3,
+              "end_to_end_pass": 0
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            }
+          }
+        },
+        "L_framework_grounded_dev": {
+          "requests": 9,
+          "generated": 8,
+          "independent_executed": 8,
+          "independent_pass": 8,
+          "dev_pass": 8,
+          "end_to_end_pass": 8,
+          "conditional_tp": 8,
+          "conditional_fp": 0,
+          "conditional_fn": 0,
+          "conditional_precision": 1.0,
+          "conditional_recall": 1.0,
+          "generation_median_seconds": 53.447588833019836,
+          "model_calls": 13,
+          "input_tokens": 98303,
+          "output_tokens": 10018,
+          "finish_reasons": {
+            "stop": 13
+          },
+          "failure_codes": {
+            "两次规则编译/契约验证均未通过；草稿与日志已保留": 1
+          },
+          "per_case": {
+            "opaque-python-exec-0": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "opaque-python-exec-2": {
+              "requests": 3,
+              "generated": 3,
+              "independent_pass": 3,
+              "dev_pass": 3,
+              "end_to_end_pass": 3
+            },
+            "opaque-python-exec-1": {
+              "requests": 3,
+              "generated": 2,
+              "independent_pass": 2,
+              "dev_pass": 2,
+              "end_to_end_pass": 2
+            }
+          }
+        }
+      },
+      "paired_task_differences": {},
+      "baseline": [],
+      "interpretation": "Small repeated-task calibration. Conditional precision/recall only for completed tools. No population confidence claims; repeated runs are not independent vulnerabilities.",
+      "protocol_deviation_requests": 0
+    }
+  },
+  "manual_model_baseline": [
+    {
+      "case": "opaque-python-exec-0",
+      "result": {
+        "status": "passed",
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "checks": {
+          "positive": {
+            "expected": [
+              [
+                "case.py",
+                6
+              ]
+            ],
+            "actual": [
+              [
+                "case.py",
+                6
+              ]
+            ]
+          },
+          "negative": {
+            "expected": [],
+            "actual": []
+          }
+        },
+        "dataset_hash": "c0efa15aff766b9b870afb4a5f488401bdcd1b40052001cf743881b4067d1b09"
+      },
+      "meaning": "Human-specified golden sink mapping; template upper bound, not automatic discovery"
+    },
+    {
+      "case": "opaque-python-exec-1",
+      "result": {
+        "status": "passed",
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "checks": {
+          "positive": {
+            "expected": [
+              [
+                "case.py",
+                6
+              ]
+            ],
+            "actual": [
+              [
+                "case.py",
+                6
+              ]
+            ]
+          },
+          "negative": {
+            "expected": [],
+            "actual": []
+          }
+        },
+        "dataset_hash": "0421153572dae082e5aafa81fa7ba6b5889b95c9a45917b852ffe8dfa8513d12"
+      },
+      "meaning": "Human-specified golden sink mapping; template upper bound, not automatic discovery"
+    },
+    {
+      "case": "opaque-python-exec-2",
+      "result": {
+        "status": "passed",
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "checks": {
+          "positive": {
+            "expected": [
+              [
+                "case.py",
+                6
+              ]
+            ],
+            "actual": [
+              [
+                "case.py",
+                6
+              ]
+            ]
+          },
+          "negative": {
+            "expected": [],
+            "actual": []
+          }
+        },
+        "dataset_hash": "2448af3a34d428f9747902083f1ceb5be94da587ddec58be4f23fc9a95865e84"
+      },
+      "meaning": "Human-specified golden sink mapping; template upper bound, not automatic discovery"
+    }
+  ],
+  "artifact_reports": [
+    "/Users/chaos/Documents/Codex/2026-09-29/xin-j/ai-code-audit/artifacts/benchmarks/rule-ablation-b7077f7e-6895-4fdc-af7a-60a6a9f248e7/report.json",
+    "/Users/chaos/Documents/Codex/2026-09-29/xin-j/ai-code-audit/artifacts/benchmarks/framework-ablation-2a29b068-9e95-453d-8e02-31b8172def2b/report.json",
+    "/Users/chaos/Documents/Codex/2026-09-29/xin-j/ai-code-audit/artifacts/benchmarks/dev-feedback-ablation-6c579229-399b-44a5-829d-055bcaf650d7/report.json"
+  ]
+}
