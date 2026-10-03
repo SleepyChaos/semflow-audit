@@ -1,0 +1,320 @@
+{
+  "scope": "Small-sample real-model calibration; repeat runs are not independent samples",
+  "model": "deepseek-v4.1-flash",
+  "actual_smoke_model": "deepseek-v4-1-flash-260910",
+  "max_output_tokens": 6000,
+  "embedding_configured": false,
+  "raw_report": "artifacts/benchmarks/live-model-859c5f0f-a059-4d79-acd5-6f00712628d9/report.json",
+  "stage_count": 30,
+  "usage": {
+    "calls": 63,
+    "input_tokens": 93484,
+    "output_tokens": 64541
+  },
+  "failures": [
+    {
+      "case": "shadowed_function.py",
+      "round": 1,
+      "kind": "review",
+      "error": "模型输出不完整；请减少范围或提高输出预算",
+      "stage_id": "fce23973-f5bb-4cdb-bb0d-b4ee5608739f"
+    },
+    {
+      "case": "javascript-pp",
+      "round": 1,
+      "kind": "repair",
+      "error": "模型输出不完整；请减少范围或提高输出预算",
+      "stage_id": "683dafde-689f-41a1-92f7-09c740ad2883"
+    },
+    {
+      "case": "shadowed_json.js",
+      "round": 1,
+      "kind": "review",
+      "error": "补充发现需要真实的主位置 file/line",
+      "stage_id": "97f3e4ed-c3ae-4d5c-ba50-6ca403bf0871"
+    }
+  ],
+  "repairs": [
+    {
+      "case": "python-sqli",
+      "round": 1,
+      "stage_status": "completed",
+      "oracle": {
+        "security": 0,
+        "functional": 0
+      },
+      "both_passed": true,
+      "original_unchanged": true,
+      "acceptance": "needs_review",
+      "stage_id": "23646e65-9588-49ee-8f2b-c51a565fd6ac"
+    },
+    {
+      "case": "python-sqli",
+      "round": 2,
+      "stage_status": "completed",
+      "oracle": {
+        "security": 0,
+        "functional": 0
+      },
+      "both_passed": true,
+      "original_unchanged": true,
+      "acceptance": "needs_review",
+      "stage_id": "1837a54b-062e-4e87-85f3-4a6a8fe5c4cb"
+    },
+    {
+      "case": "python-sqli",
+      "round": 3,
+      "stage_status": "completed",
+      "oracle": {
+        "security": 0,
+        "functional": 0
+      },
+      "both_passed": true,
+      "original_unchanged": true,
+      "acceptance": "needs_review",
+      "stage_id": "a743166c-58eb-4439-af66-7d32672d6e9e"
+    },
+    {
+      "case": "javascript-pp",
+      "round": 1,
+      "stage_status": "failed",
+      "oracle": null,
+      "both_passed": false,
+      "original_unchanged": null,
+      "acceptance": null,
+      "stage_id": "683dafde-689f-41a1-92f7-09c740ad2883"
+    },
+    {
+      "case": "javascript-pp",
+      "round": 2,
+      "stage_status": "completed",
+      "oracle": {
+        "security": 0,
+        "functional": 0
+      },
+      "both_passed": true,
+      "original_unchanged": true,
+      "acceptance": "needs_review",
+      "stage_id": "3aad6a92-aeea-4ce1-9e5f-0c47625a71f1"
+    },
+    {
+      "case": "javascript-pp",
+      "round": 3,
+      "stage_status": "completed",
+      "oracle": {
+        "security": 0,
+        "functional": 0
+      },
+      "both_passed": true,
+      "original_unchanged": true,
+      "acceptance": "needs_review",
+      "stage_id": "6be9ce8e-edc0-4af9-be8b-0fc973361ff6"
+    }
+  ],
+  "repair_all_attempt_success_rate": 0.8333333333333334,
+  "audit_timings": [
+    {
+      "id": "b31eb46f-ebb9-4982-b1da-6169f2cfefef",
+      "language": "python",
+      "static_seconds": 14.836678791005397
+    },
+    {
+      "id": "c951f6da-6bd9-4f11-ba7c-8992e48a12e6",
+      "language": "javascript",
+      "static_seconds": 23.586516042007133
+    },
+    {
+      "id": "3a7d2ddf-29de-4e85-aa38-ad34713f069c",
+      "language": "python",
+      "static_seconds": 13.737126416992396
+    },
+    {
+      "id": "e44e7d2b-d1c1-448c-a12a-3ad053db9598",
+      "language": "javascript",
+      "static_seconds": 24.242888583015883
+    },
+    {
+      "id": "1b8b03d9-1bba-4910-bb2a-908f6c788ce5",
+      "language": "javascript",
+      "static_seconds": 24.37651708300109,
+      "phase": "corrected-negative-followup"
+    }
+  ],
+  "timing": {
+    "review": {
+      "attempts": 18,
+      "median_seconds": 9.026186207993305,
+      "min_seconds": 5.733879249979509,
+      "max_seconds": 31.969549915986136
+    },
+    "repair": {
+      "attempts": 6,
+      "median_seconds": 22.024904666497605,
+      "min_seconds": 16.495532208995428,
+      "max_seconds": 41.287395000021206
+    },
+    "rule": {
+      "attempts": 3,
+      "median_seconds": 32.30274704200565,
+      "min_seconds": 32.028151499980595,
+      "max_seconds": 33.42946383400704
+    }
+  },
+  "review_target_scope": {
+    "cwe": "094/095 eval code execution only; not all-CWE accuracy",
+    "baseline_attempts": 18,
+    "baseline_completed": 17,
+    "followup_attempts": 3,
+    "followup_completed": 2,
+    "target_positive_supported": 6,
+    "target_negative_semantically_excluded": 13,
+    "failed_unknown": 2,
+    "grade_method": "Evaluator checked recommendations plus candidate descriptions. JS shadowed.js supported XSS is a separate finding, and explicitly excludes built-in eval; not a code-execution FP. No completed target-eval misclassification found. Full-scope alerts are not completely annotated."
+  },
+  "rules": [
+    {
+      "id": "9ea44c60-2238-4097-984d-0056690e2197",
+      "hash": "9c77ffac4ce5f39f2ff27a9b1a659c731618a9a29d87170ee064a065357fc4c9",
+      "stage_status": "completed",
+      "validation": "passed",
+      "validation_seconds": 38.8848790829943,
+      "holdout_seconds": 5.332982250023633,
+      "holdout_locations": [
+        {
+          "file": "constant.py",
+          "line": 5,
+          "column": 16,
+          "end_line": 5
+        },
+        {
+          "file": "direct.py",
+          "line": 5,
+          "column": 16,
+          "end_line": 5
+        },
+        {
+          "file": "propagated.py",
+          "line": 6,
+          "column": 16,
+          "end_line": 6
+        },
+        {
+          "file": "sanitized_integer.py",
+          "line": 6,
+          "column": 16,
+          "end_line": 6
+        },
+        {
+          "file": "shadowed_function.py",
+          "line": 8,
+          "column": 12,
+          "end_line": 8
+        },
+        {
+          "file": "wrapper.py",
+          "line": 5,
+          "column": 12,
+          "end_line": 5
+        }
+      ],
+      "published": false,
+      "meaning": "Independent 8-case review-anchor coverage. Locations are not vulnerability predictions; aliases missed and constant/shadowed names matched."
+    },
+    {
+      "id": "8c2c87a1-d381-47c2-a170-6392e955ac5c",
+      "hash": "e44a6f28714d2ef4c4cf4598e5b16c4b7e0f664ecd4dfd7f82cd56ccf1a9de71",
+      "stage_status": "completed",
+      "validation": "passed",
+      "validation_seconds": 36.95707816697541,
+      "holdout_seconds": 7.238103542011231,
+      "holdout_locations": [
+        {
+          "file": "constant.py",
+          "line": 5,
+          "column": 16,
+          "end_line": 5
+        },
+        {
+          "file": "direct.py",
+          "line": 5,
+          "column": 16,
+          "end_line": 5
+        },
+        {
+          "file": "propagated.py",
+          "line": 6,
+          "column": 16,
+          "end_line": 6
+        },
+        {
+          "file": "sanitized_integer.py",
+          "line": 6,
+          "column": 16,
+          "end_line": 6
+        },
+        {
+          "file": "shadowed_function.py",
+          "line": 8,
+          "column": 12,
+          "end_line": 8
+        },
+        {
+          "file": "wrapper.py",
+          "line": 5,
+          "column": 12,
+          "end_line": 5
+        }
+      ],
+      "published": false,
+      "meaning": "Independent 8-case review-anchor coverage. Locations are not vulnerability predictions; aliases missed and constant/shadowed names matched."
+    },
+    {
+      "id": "67fb9690-9bad-428f-921b-647b430d2ad0",
+      "hash": "fe9cd44364e0161fa80ac1eeb9caf7aa70323ea55bc57e89a3f646d448760eab",
+      "stage_status": "completed",
+      "validation": "passed",
+      "validation_seconds": 41.271126792009454,
+      "holdout_seconds": 7.587756209017243,
+      "holdout_locations": [
+        {
+          "file": "constant.py",
+          "line": 5,
+          "column": 16,
+          "end_line": 5
+        },
+        {
+          "file": "direct.py",
+          "line": 5,
+          "column": 16,
+          "end_line": 5
+        },
+        {
+          "file": "propagated.py",
+          "line": 6,
+          "column": 16,
+          "end_line": 6
+        },
+        {
+          "file": "sanitized_integer.py",
+          "line": 6,
+          "column": 16,
+          "end_line": 6
+        },
+        {
+          "file": "shadowed_function.py",
+          "line": 8,
+          "column": 12,
+          "end_line": 8
+        },
+        {
+          "file": "wrapper.py",
+          "line": 5,
+          "column": 12,
+          "end_line": 5
+        }
+      ],
+      "published": false,
+      "meaning": "Independent 8-case review-anchor coverage. Locations are not vulnerability predictions; aliases missed and constant/shadowed names matched."
+    }
+  ]
+}

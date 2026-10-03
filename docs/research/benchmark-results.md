@@ -124,3 +124,8 @@ QL编译1.613s、共享数据库抽取2.614s；三轮复用同一数据库，不
 ```
 
 原始材料需要先保存在材料manifest指定路径，Docker验证镜像与固定CodeQL包需要已安装。完整材料收集状态见 competitors-and-materials.md；63份材料文件及7份论文PDF已记录hash。
+
+
+## 真实模型追加校准（2026-10-03）
+
+已完成用户指定Ark模型的30次真实模型阶段尝试，另恢复3次规则验收。完整分母、失败、独立修复oracle、目标CWE范围和规则holdout见 [live-model-results.md](live-model-results.md)；后续方案见 [improvement-plan.md](improvement-plan.md)。此前使用scripted model的集成测试与作者参考补丁结果仍不能计作真实模型准确率。
