@@ -70,6 +70,7 @@ npm run build --prefix frontend
 ## 交付文档
 
 - [用户校准清单](docs/acceptance-checklist.md)
+- [早期聊天回顾](docs/research/history-review.md)
 - [完整论文与竞品实验方案](docs/research/experiment-plan.md)
 - [实际基准结果](docs/research/benchmark-results.md)
 - [论文与三项贡献建议](docs/research/papers-and-innovations.md)

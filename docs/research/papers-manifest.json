@@ -12,7 +12,8 @@
     "status": "downloaded",
     "file": "2511.08462v5.pdf",
     "bytes": 1656927,
-    "sha256": "c9e6b28b94264236c7d990014e1cf3f140bf68d5d7d2e06e31535086dfbe84fe"
+    "sha256": "c9e6b28b94264236c7d990014e1cf3f140bf68d5d7d2e06e31535086dfbe84fe",
+    "license": "author/arXiv terms; local research only, not redistributed in repo"
   },
   {
     "url": "https://arxiv.org/pdf/2601.19494",
@@ -36,6 +37,22 @@
     "bytes": 1931947,
     "sha256": "b8410dd88194df835f2010f245d8d10c3e57f803b78fed32d5a1281c2745f431",
     "status": "downloaded",
+    "license": "author/arXiv terms; local research only, not redistributed in repo"
+  },
+  {
+    "url": "https://arxiv.org/pdf/2601.10865",
+    "file": "2601.10865.pdf",
+    "bytes": 3793889,
+    "sha256": "becaeb4bd7911e292f2a5ebfc4ad9b40dadbf0d1cd813b4a22d977032ae1bb9c",
+    "status": "downloaded",
+    "license": "author/arXiv terms; local research only, not redistributed in repo"
+  },
+  {
+    "url": "https://arxiv.org/pdf/2601.02941v1",
+    "status": "downloaded",
+    "file": "2601.02941v1.pdf",
+    "bytes": 994585,
+    "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
     "license": "author/arXiv terms; local research only, not redistributed in repo"
   }
 ]

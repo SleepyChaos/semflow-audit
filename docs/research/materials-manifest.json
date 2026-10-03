@@ -263,6 +263,320 @@
       "sha256": "d23b6c0c1e2595b04cf497440b34ad1d618fd6633637880da5de8979c8486a1a",
       "status": "local_metadata",
       "license": "Metadata copied/derived from retained source archive"
+    },
+    {
+      "file": "early-discussion/sastbench/README.md",
+      "url": "https://raw.githubusercontent.com/RivalSecurity/sastbench/b8d95b7720491b21d039b7504999577ba7ebb12b/README.md",
+      "revision": "b8d95b7720491b21d039b7504999577ba7ebb12b",
+      "bytes": 9073,
+      "sha256": "6b9ac0b23d9eb9f5837a6ac85b79447cef6e8af15856ff93acd3136d4792071d",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/sastbench/LICENSE",
+      "url": "https://raw.githubusercontent.com/RivalSecurity/sastbench/b8d95b7720491b21d039b7504999577ba7ebb12b/LICENSE",
+      "revision": "b8d95b7720491b21d039b7504999577ba7ebb12b",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/sastbench/data/sastbench-v0.1-original.json",
+      "url": "https://raw.githubusercontent.com/RivalSecurity/sastbench/b8d95b7720491b21d039b7504999577ba7ebb12b/data/sastbench-v0.1-original.json",
+      "revision": "b8d95b7720491b21d039b7504999577ba7ebb12b",
+      "bytes": 7607502,
+      "sha256": "57c765633bdefc2130d3725dd9648bc49b85456e4dd733c55f49d44d883c9487",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/Real-Vuln-Benchmark/README.md",
+      "url": "https://raw.githubusercontent.com/kolega-ai/Real-Vuln-Benchmark/7a710251f55c17d32d3adcb13d37468e2e3b9e4a/README.md",
+      "revision": "7a710251f55c17d32d3adcb13d37468e2e3b9e4a",
+      "bytes": 27894,
+      "sha256": "77af349a85ad8e36064c1d2327d209b6ac3182dd75c790793571d317fe4c5af2",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/Real-Vuln-Benchmark/LICENSE",
+      "url": "https://raw.githubusercontent.com/kolega-ai/Real-Vuln-Benchmark/7a710251f55c17d32d3adcb13d37468e2e3b9e4a/LICENSE",
+      "revision": "7a710251f55c17d32d3adcb13d37468e2e3b9e4a",
+      "bytes": 11336,
+      "sha256": "f866bb59b021877f3c1e765d9d087fd28f54bee4263091c6c681227e89df19d3",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/Real-Vuln-Benchmark/CHANGELOG.md",
+      "url": "https://raw.githubusercontent.com/kolega-ai/Real-Vuln-Benchmark/7a710251f55c17d32d3adcb13d37468e2e3b9e4a/CHANGELOG.md",
+      "revision": "7a710251f55c17d32d3adcb13d37468e2e3b9e4a",
+      "bytes": 8459,
+      "sha256": "b6a817c0d02ff8317a970a36fbce1432c3543126e2a1b546b890154302143684",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/Real-Vuln-Benchmark/benchmark-manifest.json",
+      "url": "https://raw.githubusercontent.com/kolega-ai/Real-Vuln-Benchmark/7a710251f55c17d32d3adcb13d37468e2e3b9e4a/benchmark-manifest.json",
+      "status": "downloaded",
+      "bytes": 66584,
+      "sha256": "fd16106dec8065b3d6f7fe7a97226b80a6ec11522a666d980ae423ea30e26556",
+      "revision": "7a710251f55c17d32d3adcb13d37468e2e3b9e4a",
+      "license": "See retained RealVuln LICENSE and data metadata"
+    },
+    {
+      "file": "early-discussion/Real-Vuln-Benchmark/ground-truth/realvuln-damn-vulnerable-flask-application/ground-truth.json",
+      "url": "https://raw.githubusercontent.com/kolega-ai/Real-Vuln-Benchmark/7a710251f55c17d32d3adcb13d37468e2e3b9e4a/ground-truth/realvuln-damn-vulnerable-flask-application/ground-truth.json",
+      "revision": "7a710251f55c17d32d3adcb13d37468e2e3b9e4a",
+      "bytes": 21286,
+      "sha256": "c084f59ceb6de8173d30515ebb64a0d6a3364072e14c5495c9ed985d2e3c36d2",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/Real-Vuln-Benchmark/ground-truth/realvuln-dvna/ground-truth.json",
+      "url": "https://raw.githubusercontent.com/kolega-ai/Real-Vuln-Benchmark/7a710251f55c17d32d3adcb13d37468e2e3b9e4a/ground-truth/realvuln-dvna/ground-truth.json",
+      "revision": "7a710251f55c17d32d3adcb13d37468e2e3b9e4a",
+      "bytes": 13979,
+      "sha256": "bde1b486409a6030a3400776d67baf44140d5dc8e188d9ac64b8bf5706b71383",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/VulnGym/README.md",
+      "url": "https://raw.githubusercontent.com/Tencent/VulnGym/cd69f7e163e08485ab5496115ae03439cda6e27e/README.md",
+      "revision": "cd69f7e163e08485ab5496115ae03439cda6e27e",
+      "bytes": 15778,
+      "sha256": "70130844ca29b14c8d5054b6435c8c98dd19cf9874f376f68b12029e15aa2e28",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/VulnGym/LICENSE",
+      "url": "https://raw.githubusercontent.com/Tencent/VulnGym/cd69f7e163e08485ab5496115ae03439cda6e27e/LICENSE",
+      "revision": "cd69f7e163e08485ab5496115ae03439cda6e27e",
+      "bytes": 34579,
+      "sha256": "61d25b1e7ece1aa7253dcd160c258a5e7af698f2f1c4c9082ad8deeb5e735ea8",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/VulnGym/SCHEMA.md",
+      "url": "https://raw.githubusercontent.com/Tencent/VulnGym/cd69f7e163e08485ab5496115ae03439cda6e27e/SCHEMA.md",
+      "revision": "cd69f7e163e08485ab5496115ae03439cda6e27e",
+      "bytes": 9279,
+      "sha256": "e0bb1b2db531cd1e51f770d55e98fff4f799a9eb974cd1829b677c37e69bcc88",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/VulnGym/data/entries.jsonl",
+      "url": "https://raw.githubusercontent.com/Tencent/VulnGym/cd69f7e163e08485ab5496115ae03439cda6e27e/data/entries.jsonl",
+      "revision": "cd69f7e163e08485ab5496115ae03439cda6e27e",
+      "bytes": 1831577,
+      "sha256": "8a0385a987dbad8e573ad06aec1b6b05367dd783b28f3bbf1ce2464aef851bf2",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/VulnGym/data/reports.jsonl",
+      "url": "https://raw.githubusercontent.com/Tencent/VulnGym/cd69f7e163e08485ab5496115ae03439cda6e27e/data/reports.jsonl",
+      "revision": "cd69f7e163e08485ab5496115ae03439cda6e27e",
+      "bytes": 91777,
+      "sha256": "d888554691393d4456bb36547ed18d12801ff54004e7d1edacc0205c21beadf9",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/README.md",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/README.md",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 6187,
+      "sha256": "7841c3d4c0b4bad46713c7609f4005ba5003bba9c0b093cb9fd20edad1f8d47f",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/LICENSE_annotations",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/LICENSE_annotations",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 638,
+      "sha256": "608bd81a6c271204381d722a9f29a97be79a7bd851c48c483d4a3150828fd3b4",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/LICENSE_scripts",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/LICENSE_scripts",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 1137,
+      "sha256": "3a4140207bbf8a5f9a8741998a993c789a37edfdb4dbe99f6029f539af274e1c",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/DATASHEET.md",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/DATASHEET.md",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 15574,
+      "sha256": "48a71829e96cbc4cec23a9e06969a387e91266d9472827d0cd7b3c83b93cfc92",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2025-10155/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2025-10155/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 9690,
+      "sha256": "3ec5c437642d7606450ea8a507feb9b33cee485827f928ac3129d5d2fa753f78",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2025-10283/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2025-10283/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 5730,
+      "sha256": "b56f218cd7aeffe57184ecf608b9e2bc636ca48af2250f53ab7e800342d6a92d",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2025-46724/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2025-46724/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 8340,
+      "sha256": "165ca84064296a7bb5ee26809af0c282a97b97461c84db0f4bc941b1650a11b7",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2025-5120/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2025-5120/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 6377,
+      "sha256": "4f3cd11f51f6bf6dbbd809effe852491a4c4d206c9d52eb34ac337a1ffff9faa",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2025-55449/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2025-55449/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 5472,
+      "sha256": "6ee009f85c8ac6c692dc5e231049baef825d75cfa881decdbf7947538bf96efe",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2025-61622/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2025-61622/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 8997,
+      "sha256": "08f1e6e98ebcce09b57195be3abba434ff5aa3d3e815241b9781cb365933ba86",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2026-22584/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2026-22584/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 14158,
+      "sha256": "539d0ef0090564005bac4752a8b95f4f93e49975ce2fd120c71ec2e178c7a1f7",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2026-2472/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2026-2472/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 7652,
+      "sha256": "91195d859dca8302d63d7d8e7a5ddb55e2d7b8113f6673341ddca81c17e5dd26",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2026-25505/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2026-25505/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 12182,
+      "sha256": "d5af875d63d9181f13c3bedfbf4102e094b33ae8262bd2d20214b46731a24173",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2026-27602/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2026-27602/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 4148,
+      "sha256": "6a15231b9c8bbbfb27fe7fb51ac2aebc4407267b128f50e38621fdf9b19ead0f",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2026-27825/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2026-27825/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 8485,
+      "sha256": "65bde82a44f78fd7fb399339d9f2887b1c7a5d2f9662abcf87d7361b21ab1946",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2026-28490/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2026-28490/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 6487,
+      "sha256": "5b2574891d61dda30e8bcdd31916ba5a010be27b7d3aa64253404d4435c0a106",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2026-29065/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2026-29065/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 4510,
+      "sha256": "1be4a6a16a2eb856bf7ecbb20e679ecee4ba614231e06e31c91c3f5bdc723874",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2026-32247/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2026-32247/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 4964,
+      "sha256": "2adf180d799e34cb46648dc51d065fe8dbe98f684df571b99e59b1ca80707bfa",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/crosscommitvuln-bench/dataset/CVE-2026-33154/annotation.json",
+      "url": "https://raw.githubusercontent.com/motornomad/crosscommitvuln-bench/e544e645fe164d62e5cbd5241ad49707ea786c73/dataset/CVE-2026-33154/annotation.json",
+      "revision": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "bytes": 5610,
+      "sha256": "dfcf1162324e9a65d432f6799b9322d5eb690280cab331980d51831cc8f617fb",
+      "status": "downloaded",
+      "license": "See downloaded repository LICENSE; upstream sources retain own license"
+    },
+    {
+      "file": "early-discussion/repository-inventory.json",
+      "bytes": 1498279,
+      "sha256": "b4596bdb8245a3d130b75f5e00455ac51962a67d5d1428840f1e41dc979b866a",
+      "status": "local_metadata",
+      "license": "GitHub API metadata"
+    },
+    {
+      "file": "early-discussion/sastbench/python-js-ts-candidate-subset.json",
+      "derived_from": "early-discussion/sastbench/data/sastbench-v0.1-original.json",
+      "filter": "At least one location file extension in .py/.js/.jsx/.ts/.tsx/.mjs/.cjs; mixed-language cases require review",
+      "rows": 1313,
+      "bytes": 3924042,
+      "sha256": "4990fb9fc916d65e27028cb5be55298587557a5b34c0b87e59a420ec710eb13d",
+      "license": "Apache-2.0 repository",
+      "status": "local_derived"
     }
   ]
 }

@@ -7,6 +7,7 @@
 - 普通测试：**50 passed, 1 deselected**（排除真实工具集成项）。覆盖任务隔离、失败/取消/重试、证据真实性、候选确认、快照篡改、补丁范围、规则正反例/发布门槛、实际 BM25/pgvector 存取与模型协议。
 - 真实四阶段集成：**1 passed，60.49s**。CodeQL真实扫描→测试替身AI复审→人工确认→隔离补丁→Docker验证与CodeQL复扫→实际知识检索→QL编译→LangGraph人工暂停/恢复→真实正反例查询→发布→新上传冻结补充规则→报告。
 - 集成中的模型回复为明确测试替身，不证明真实 LLM 审计/生成质量。生产适配器没有假模型模式。
+- GitHub CI：代码提交 `f584399` 的 push/PR 两次 Application checks 均成功，backend/frontend通过；[执行记录](https://github.com/SleepyChaos/ai-code-audit/actions/runs/37093614320)。
 - Ruff通过；Biome检查通过；TypeScript/Vite生产构建通过（macOS使用可写SWC缓存）。Alembic check 无遗漏迁移。
 - JS Docker独立验收：JS语法通过；TS跳过编译与0条测试进入 needs_review；实际Node测试通过。Python验证镜像已经按锁定Dockerfile重建。
 
@@ -67,6 +68,8 @@ OpenSSF三个pre/post配对，固定commit，未运行第三方代码。建库�
 - benchmark-summary.json：可随Git提交的原创样本结果与统计副本；第三方源码/论文保持artifacts中，许可与hash独立保存。
 
 ```sh
+uv venv --python python3.11 artifacts/competitors/bandit-venv
+uv pip install --python artifacts/competitors/bandit-venv/bin/python -r docs/research/bandit-requirements.txt
 .venv/bin/python scripts/benchmarks/run_local.py --rounds 3
 .venv/bin/python scripts/benchmarks/bandit_baseline.py artifacts/benchmarks/<运行ID>/report.json
 .venv/bin/python scripts/benchmarks/rag_retrieval.py

@@ -30,7 +30,7 @@ Semgrep 维护的规则集与引擎许可证不同。官方规则从 2024 年起
 | [Vul4Py](https://github.com/tabudz/vul4py) 索引 | `vul4py.csv`、`vul4py-README.md` | 固定 `2649d7b89e796738ebc2bc3fa9480dff5ae15898`；100 个 Python CVE/GHSA 与修复 commit 索引 | GitHub 未看到独立 LICENSE；仅本地研究参考，不宣称可再发布。完整快照与 oracle 尚未下载/执行。 |
 | [Execution-calibrated patching 复制包](https://zenodo.org/records/21645415) | `execution-patching-reproduction.zip`、`execution-patching-README.md` | 2026-07-28 归档，1,842,349 字节；74 文件，含 JS/Python/Go 小型 oracle 与作者历史实验 SQLite | Zenodo CC BY 4.0；不是 Vul4Py。作者运行结果不能写成本平台结果。 |
 | 复制包的 oracle 例源 | `execution-patching-examples/harness/oracle/examples/` | `py_benchmark.py`、`js_benchmark.py`、`path_traversal.py` 等纯文件提取；为修复的安全性与功能性双 oracle 设计提供材料 | 尚未运行、不保证可直接接入；先人工核实输入、期望与依赖，再在受限容器适配。 |
-| 阿里竞品源码说明 | `ocr-README.md`、`ocr-LICENSE` | 固定源码说明和 Apache-2.0 许可证 | 尚未安装或实测，不能沿用官方性能宣传作为对比结果。 |
+| 阿里竞品源码说明 | `ocr-README.md`、`ocr-LICENSE` | 固定源码说明和 Apache-2.0 许可证 | 此前已本地构建并运行 preview/delegate；本轮未重新安装，未执行 OCR 内置真实模型评测，不能沿用官方性能宣传作为对比结果。 |
 
 复制包主 ZIP 的 SHA256：`daef48a2df80b798471d844578c4efc7b925819ad633e182d33d1dc52e073a62`。Vul4Py CSV SHA256：`38e3b3f595bcd0ebc7a3a7bbc5200026eee71ab45ff6b808b6ff5e8c39b17547`。
 
@@ -49,8 +49,27 @@ Semgrep 维护的规则集与引擎许可证不同。官方规则从 2024 年起
 | 材料/论文 | 时间 | 当前价值 | 可得性结论 |
 | --- | --- | --- | --- |
 | [AACR-Bench: Evaluating Automatic Code Review with Holistic Repository-Level Context](https://arxiv.org/abs/2601.19494) | 2026 | 国内阿里团队参与；仓库上下文与真假评论复审 | 官方 HF 数据已下载；源代码上下文需要 PR 快照。 |
-| [CrossCommitVuln-Bench](https://arxiv.org/abs/2604.21917) | 2026-04，arXiv 页面称 AIware 2026 接收 | 15 个真实 Python 跨提交漏洞；说明只看 diff 的锚点局限 | 本轮核实摘要和提交日期，未找到并下载可固定的数据 artifact，不列为已准备就绪。 |
+| [CrossCommitVuln-Bench](https://arxiv.org/abs/2604.21917) | 2026-04，arXiv 页面称 AIware 2026 接收 | 15 个真实 Python 跨提交漏洞；说明只看 diff 的锚点局限 | 已找到官方 motornomad/crosscommitvuln-bench；固定版本元数据与原始15项论文集已归档，见下面的早期讨论材料复核。 |
 | [SecJS Benchmark](https://github.com/SecJS-Vuln-Benchmark/SecJS-Benchmark) | 当前官方 artifact | JavaScript 项目级漏洞/修复快照与标签采集框架 | Apache-2.0 框架；README 明确 ArenaJS 数据未随仓库发布，不声称数据已经下载。 |
 | [SecurityEval](https://github.com/s2e-lab/SecurityEval) | 2022 标准材料补充 | 小型 Python CWE 示例；主要原任务是代码生成安全评估 | 最新 README 为 121 prompts/69 CWE，而论文原版 130/75；许可未明确，本轮不下载为主材料，不用作2025/26主引用。 |
 
 不要为满足“论文新”而把旧成熟基准全部排除。建议方法与竞品文献主要采用 2025/2026，数据则采用近期真实 CVE 与成熟公开配对基准，清楚列出年代、选样标准与泄漏控制。
+
+
+阿里已有本地部署记录：`../outputs/open-code-review-demo.md`。源码与二进制在 `../work/open-code-review/`，此前实际执行了 `version`、`delegate preview`、`delegate rule app.py`、`scan --preview --format json`。文件选取/规则解析是 CLI 真实输出，SQL 注入审查文字由当时 Codex 委托完成，不是 OCR 内置 LLM 的正式扫描结果。
+
+
+## 5. 回顾最早论文/测试讨论后的补充核实
+
+早期提过的四个基准已重新核实。实际材料位于 `artifacts/research-materials/early-discussion/`，固定 HEAD 版本为下表提交，而不是未经固定的 `main`；最新版与论文原始版本分开写。
+
+| 基准与论文 | 当前官方版本/范围 | 已收集与适用链路 |
+| --- | --- | --- |
+| [SastBench](https://github.com/RivalSecurity/sastbench)，[2026 论文](https://arxiv.org/abs/2601.02941) | `b8d95b7720491b21d039b7504999577ba7ebb12b`；Apache-2.0；多语言 SAST 告警 triage | README、LICENSE、`data/sastbench-v0.1-original.json`：实际解析 2,737 条（299 TP、2,438 FP）。已按含 Python/JS/TS 文件位置提取候选子集1,313条（90TP/1,223FP），混合语言项仍需人工筛选、按repo切分；这是候选真假复审数据，不是新漏洞发现召回数据。 |
+| [RealVuln](https://github.com/kolega-ai/Real-Vuln-Benchmark)，[2026 论文](https://arxiv.org/abs/2604.13764) | HEAD `7a710251f55c17d32d3adcb13d37468e2e3b9e4a`，manifest 内 benchmark **3.1.0，2026-09-10** / ground_truth **3.0.0**（README/CHANGELOG仍显示3.0.0/2026-09-02）；140 repo（66 Python、74 TS/JS），4,138 漏洞、280 FP traps、176 non-scoring。框架 Apache-2.0，数据发行需核对各来源许可 | README、LICENSE、CHANGELOG、benchmark manifest 与 Flask/DVNA 两份 ground-truth。早期“26 Python/796标签”是原论文 v1，不代表最新版；3.0 TS/JS 尚无FP traps，需另补安全负例。优先用于项目级审计召回与业务逻辑漏洞验证。 |
+| [Tencent VulnGym](https://github.com/Tencent/VulnGym)，[2026 论文](https://arxiv.org/abs/2608.02001) | **v0.1.4** `cd69f7e163e08485ab5496115ae03439cda6e27e`；CC BY 4.0；184 advisories、408 entry chains，实际文件393条 verify=1 | README、LICENSE、SCHEMA、entries/reports JSONL。人工确认子集适合主动取证：检验 entry point→critical operation→trace 是否对应实际代码；多语言项目要按文件/完整项目语言筛选，不能把全部408当Python/JS。 |
+| [CrossCommitVuln-Bench](https://github.com/motornomad/crosscommitvuln-bench)，[2026 论文](https://arxiv.org/abs/2604.21917) | HEAD `e544e645fe164d62e5cbd5241ad49707ea786c73`；annotations CC BY 4.0、scripts MIT；论文15个Python CVE，当前扩展55个完整项但新项人工复核未完 | README、DATASHEET、两份许可与原论文15项annotation。适合验证早期增量锚点问题；当前平台上传完整快照，不宣称已实现跨提交威胁图。扩展项单列探索集，不能混入15项论文主集。 |
+
+RealVuln 的 F3 强调召回，与本平台低噪声复审目标不同：同时报告 precision/recall/F1/F3，不能只取最有利的一个数字。其“未匹配告警一律算FP”的默认规则可能惩罚真实的新发现；主表保留原基准评分，另提供盲审复核表，不能直接改ground truth后覆盖原分数。VulnGym trace 与 CrossCommit rationale 是评价标签，只交给评测器，不放进模型输入或 RAG 库。
+
+版本一致性提醒：RealVuln同一固定commit的README版本3.0.0与manifest benchmark_version=3.1.0不同；数据量一致，ground_truth_version=3.0.0。实验必须引用manifest和固定commit，报告这一元数据差异，避免把文档展示版本当唯一版本来源。

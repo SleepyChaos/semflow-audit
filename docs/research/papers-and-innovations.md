@@ -27,11 +27,21 @@
 | **Persistent Human Feedback, LLMs, and Static Analyzers for Secure Code Generation and Vulnerability Detection**；2026-02-05；预印本 | TU Clausthal；[论文](https://arxiv.org/abs/2602.05868) | 人工真值与 CodeQL/Semgrep 逐例不一致；提出持久化反馈 RAG 的概念框架。说明不能把 CodeQL 当唯一安全真值，也说明“反馈闭环”已有相关设计，需进一步具体化。本次未核实完整开放数据。 |
 | **Reducing False Positives in Static Bug Detection with LLMs: An Empirical Study in Industry**；2026-01-26；预印本 | 国内腾讯工业场景，作者 Xueying Du 等；[论文](https://arxiv.org/abs/2601.18844) | 433 告警、三类 bug，适合引用工业复审成本与召回保护；属于静态 bug 误报复审，不可把其效果直接推广到全部安全 CWE。企业数据公开程度需按原文另查，不能默认可下载。 |
 
+### 从早期聊天补回的重点论文（2026-10-03 复核）
+
+| 论文与核实状态 | 一手资料、适配性及需要注意的问题 |
+|---|---|
+| **Multi-Agent Taint Specification Extraction for Vulnerability Detection（系统名 SemTaint）**；2026-01-15；预印本 | NC State、UCSB、Boston University；[原文](https://arxiv.org/abs/2601.10865)、[HTML](https://arxiv.org/html/2601.10865v1)。直接面向 JavaScript/npm，以 LLM 推断 source/sink、未解析调用边和库摘要后交给 CodeQL。论文报告对 CodeQL 原先漏检的 162 个样本检出 106 个，因此这一分数属于预选漏检子集，不能作为所有项目总召回。非常适合本项目源/汇模型增强和主动取证方法对比，但当前平台并未实现其调用图修补。未核实此 JS 论文独立公开源码。**GitHub Spr1n9T1me/SemTaint 是 JavaWeb/Tai-e 的同名另一工作，禁止误认作此论文复现仓库。** |
+| **SastBench: A Benchmark for Testing Agentic SAST Triage**；2026-01-06；预印本 | Rival Labs；[论文](https://arxiv.org/abs/2601.02941)、[官方框架与数据](https://github.com/RivalSecurity/sastbench)，仓库 Apache-2.0。有 Python、JS/TS 等语言，REST/Docker 代理接口，适合第二阶段复审。正类来自真实 CVE，负类是过滤后的 Semgrep **近似误报**，不能当全部经专家证实的安全真值；正式论文实验应人工重标抽样。向模型仅传 `to_analyzer`，排除 `ground_truth`、`source` 等标签，固定版本和 commit。它评价既有告警裁决，不评价从零扫描召回或修复准确率。 |
+| **Friends or Foes? Combining Static Analysis Tools and LLMs for Vulnerability Detection**；ICST Workshops 2026 / ITEQS；正式 workshop 记录 | LASIGE/Universidade de Lisboa、RISE Sweden；[IEEE 条目](https://ieeexplore.ieee.org/document/11600417)、[机构公开全文](https://www.es.mdh.se/pdf_publications/7373.pdf)。IEEE 页面本次抓取失败，机构全文已成功核实方法与作者；会议页码 163–172 由书目记录交叉核对，精确上线日未核实。研究两 SAST 与两 LLM 的输出组合，数据是 PHP SQLi 七个子集。适合综合检测融合/简单投票基线的文献依据，不适配当前 Python/JS 主榜；不能把它的融合性能当本平台性能。 |
+
+QLCoder 的正式状态已新增核实：ICLR 自有 proceedings 明确标为 **ICLR 2026 Conference**。引用正式论文时用 `wang2026qlcoder`，引用后续 v5 的变更时注明 arXiv 版本；不要把 v5 内容或指标自动归到 camera-ready 正式版本。
+
 ### 2025 核心相关工作及较新正式版本
 
 | 论文与状态 | 来源 | 建议用途与新意风险 |
 |---|---|---|
-| **QLCoder: A Query Synthesizer for Static Analysis of Security Vulnerabilities**；2025-11-11 首投，2026-08-26 v5 | UPenn、Johns Hopkins、Cornell；[论文及版本](https://arxiv.org/abs/2511.08462)、[代码](https://github.com/neuralprogram/qlcoder) | 已使用 RAG、LSP/MCP 和执行反馈合成 QL，在 Java vulnerable/fixed 版本评价。是规则生成最重要近邻。“使用 RAG 生成 CodeQL”单独不够新。优先复现相同预算下无检索／文档检索／版本与项目知识检索。 |
+| **QLCoder: A Query Synthesizer for Static Analysis of Security Vulnerabilities**；2025-11-11 首投，ICLR 2026 正式论文；arXiv 2026-08-26 v5 | UPenn、Johns Hopkins、Cornell；[ICLR 官方 proceedings](https://proceedings.iclr.cc/paper_files/paper/2026/hash/2adf01ab15adde8820622f7f24bd516b-Abstract-Conference.html)、[论文及版本](https://arxiv.org/abs/2511.08462)、[代码](https://github.com/neuralprogram/qlcoder) | 已使用 RAG、LSP/MCP 和执行反馈合成 QL，在 Java vulnerable/fixed 版本评价。是规则生成最重要近邻。“使用 RAG 生成 CodeQL”单独不够新。优先复现相同预算下无检索／文档检索／版本与项目知识检索。 |
 | **IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities**；ICLR 2025 正式论文；预印本始于 2024 | UPenn、Cornell；[ICLR 正式论文](https://openreview.net/pdf?id=9LdJDU7E91)、[代码与数据](https://github.com/iris-sast/iris) | 源/汇规范补全 + CodeQL + 上下文误报过滤，直接对应 AI 介入边界。正式实验为 Java，仓库后续增加数据；引用应固定论文版本与数据版本，不能把当前 213 CVE 与论文原始 120 混为一谈。 |
 | **QLPro: Automated Code Vulnerability Discovery via LLM and Static Code Analysis Integration**；2025-06-30；预印本 | 中科院信工所、国科大；[论文](https://arxiv.org/abs/2506.23644) | 国内近邻，污点规格分类配对、投票与规则生成；JavaTest 10 项目/62 漏洞。本次未在原文核实公开独立仓库，先作论文对比而非声称已经复现的竞品。 |
 | **Minimizing False Positives in Static Bug Detection via LLM-Enhanced Path Feasibility Analysis**；2025-06-12；预印本 | Xueying Du 等；[论文](https://arxiv.org/abs/2506.10322) | LLM4PFA 按需上下文与路径可行性推理，是语义复审近邻。需比较静态告警复审的 TP 保留、FP 降低和取证预算，而不是只比较答案文本。 |
@@ -82,3 +92,7 @@
 - 当前不应说：“已证明全面准确”“RAG 天然提高安全性”“三个功能就是三个学术创新”“所有静态未发现的位置都是增量漏洞”。
 
 最终论文推荐聚焦 **证据约束的混合审计方法及可验证反馈**，以规则知识与修复闭环为两个可消融支撑机制。这样比把三个平行功能强行包装成三项原创更稳健。
+
+## 本地已收集的论文PDF
+
+Vul4Py、QLCoder arXiv v5、AACR-Bench、JIT修复流水线、QLPro、SemTaint、SastBench v1 共7份，保存于 `artifacts/papers/`。逐文件URL/版本、字节数、SHA256与下载状态见 `papers-manifest.json`。仅作本地研究阅读，不将PDF随代码仓库再发布；正式会议版本和后续预印本指标仍按前述边界区分。
