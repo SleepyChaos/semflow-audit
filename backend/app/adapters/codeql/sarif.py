@@ -83,6 +83,12 @@ def parse_sarif(path: Path, snapshot_hash: str) -> list[dict]:
                         "locations": locations,
                         "code_flows": flows,
                         "assessment": "unreviewed",
+                        "rule_version": run.get("properties", {}).get(
+                            "audit_rule_version"
+                        ),
+                        "origin": "custom_rule"
+                        if run.get("properties", {}).get("audit_rule_version")
+                        else "baseline",
                     }
                 )
         return findings

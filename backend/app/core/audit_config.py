@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -20,6 +21,16 @@ class AuditSettings(BaseSettings):
     SCAN_TIMEOUT: int = 900
     CODEQL_THREADS: int = 2
     CODEQL_RAM: int = 2048
+    AI_BASE_URL: str = ""
+    AI_API_KEY: SecretStr = SecretStr("")
+    AI_MODEL: str = ""
+    AI_TIMEOUT: int = 90
+    AI_MAX_OUTPUT_TOKENS: int = 6000
+    EMBEDDING_MODEL: str = ""
+    VALIDATOR_PYTHON_IMAGE: str = "ai-code-audit-validator:local"
+    VALIDATOR_JS_IMAGE: str = "node:22-bookworm-slim"
+    VALIDATOR_TIMEOUT: int = 120
+    REVIEW_QUERY_LIMIT: int = 3
 
 
 audit_settings = AuditSettings()

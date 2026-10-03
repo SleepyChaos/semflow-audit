@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:17
+        image: pgvector/pgvector:pg17
         env:
           POSTGRES_USER: audit
           POSTGRES_PASSWORD: ci-only-password
@@ -27,7 +27,7 @@ jobs:
       - run: ../.venv/bin/alembic upgrade head
         working-directory: backend
       - run: .venv/bin/ruff check backend/app
-      - run: .venv/bin/pytest tests/test_audit_core.py tests/test_audit_api.py -q
+      - run: .venv/bin/pytest -m "not integration" -q
   frontend:
     runs-on: ubuntu-latest
     steps:
@@ -38,6 +38,8 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+        working-directory: frontend
+      - run: ./node_modules/.bin/biome check src/api src/features
         working-directory: frontend
       - run: npm run build
         working-directory: frontend

@@ -19,6 +19,7 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
+from app.persistence import knowledge_models, stage_models  # noqa: F401
 from app.persistence import audit_models  # noqa
 from app.models import SQLModel  # noqa
 from app.core.config import settings # noqa

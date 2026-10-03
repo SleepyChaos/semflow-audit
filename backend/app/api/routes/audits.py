@@ -1,4 +1,5 @@
 import tempfile
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Annotated, Literal
 from uuid import UUID
@@ -50,10 +51,18 @@ def environment(_user: CurrentUser) -> dict:
         queue = True
     except Exception:
         queue = False
-    packs = (
-        any(audit_settings.CODEQL_PACK_PATH.rglob("qlpack.yml"))
-        if audit_settings.CODEQL_PACK_PATH.exists()
-        else False
+    packs = all(
+        (
+            audit_settings.CODEQL_PACK_PATH
+            / name
+            / version
+            / f"codeql-suites/{language}-security-extended.qls"
+        ).is_file()
+        for specification, language in [
+            (audit_settings.PYTHON_QUERY_PACK, "python"),
+            (audit_settings.JAVASCRIPT_QUERY_PACK, "javascript"),
+        ]
+        for name, version in [specification.split("@", 1)]
     )
     return {
         "codeql_version": version,
@@ -82,9 +91,20 @@ async def upload_run(
     file: Annotated[UploadFile, File()],
     language: Annotated[Literal["python", "javascript"], Form()],
     project_name: Annotated[str, Form(max_length=120)] = "",
+    rule_ids: Annotated[str, Form(max_length=1000)] = "",
 ):
     if not (file.filename or "").lower().endswith(".zip"):
         raise HTTPException(422, "目前支持 ZIP 代码包")
+    selected_rules = [item.strip() for item in rule_ids.split(",") if item.strip()]
+    if len(set(selected_rules)) != len(selected_rules) or len(selected_rules) > 4:
+        raise HTTPException(422, "每次最多选择 4 个互不重复的已发布规则版本")
+    from app.services.rules_execution import owned_published_rule
+
+    try:
+        for rule_id in selected_rules:
+            owned_published_rule(UUID(rule_id), user.id, language)
+    except (ValueError, AuditError) as exc:
+        raise HTTPException(422, str(exc))
     name = project_name.strip() or Path(file.filename or "project.zip").stem[:120]
     audit_settings.ARTIFACT_ROOT.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=audit_settings.ARTIFACT_ROOT) as temporary:
@@ -97,7 +117,7 @@ async def upload_run(
                     raise HTTPException(413, "代码包超过 20 MB 限制")
                 stream.write(chunk)
         try:
-            run = create_run(session, user.id, archive, name, language)
+            run = create_run(session, user.id, archive, name, language, selected_rules)
         except AuditError as exc:
             raise HTTPException(422, str(exc))
     dispatch(run, session)
@@ -112,13 +132,54 @@ def detail(identifier: UUID, session: SessionDep, user: CurrentUser):
 @router.post("/{identifier}/retry", response_model=AuditPublic, status_code=201)
 def retry(identifier: UUID, session: SessionDep, user: CurrentUser):
     previous = owned_run(identifier, session, user)
-    if previous.status != "failed":
-        raise HTTPException(409, "仅失败任务可创建重试执行")
+    if previous.status not in {"failed", "cancelled"}:
+        raise HTTPException(409, "仅失败或取消任务可创建重试执行")
     archive = ArtifactStore().directory(str(previous.source_run_id)) / "upload.zip"
     run = create_run(
-        session, user.id, archive, previous.project_name, previous.language
+        session,
+        user.id,
+        archive,
+        previous.project_name,
+        previous.language,
+        previous.custom_rule_ids,
     )
     dispatch(run, session)
+    return run
+
+
+@router.post("/{identifier}/cancel", response_model=AuditPublic)
+def cancel(identifier: UUID, session: SessionDep, user: CurrentUser):
+    owned_run(identifier, session, user)
+    run = session.exec(
+        select(AuditRun).where(AuditRun.id == identifier).with_for_update()
+    ).one()
+    if run.status not in {"queued", "running"}:
+        raise HTTPException(409, "任务当前不可取消")
+    run.status, run.phase = "cancelled", "cancelled"
+    run.error = "用户取消；当前外部命令结束后停止后续阶段"
+    run.updated_at = datetime.now(UTC)
+    session.add(run)
+    session.commit()
+    session.refresh(run)
+    return run
+
+
+@router.post("/{identifier}/recover", response_model=AuditPublic)
+def recover(identifier: UUID, session: SessionDep, user: CurrentUser):
+    owned_run(identifier, session, user)
+    run = session.exec(
+        select(AuditRun).where(AuditRun.id == identifier).with_for_update()
+    ).one()
+    if run.status != "running" or run.updated_at > datetime.now(UTC) - timedelta(
+        minutes=45
+    ):
+        raise HTTPException(409, "仅 45 分钟无进展的运行任务可回收")
+    run.status, run.phase = "cancelled", "cancelled"
+    run.error = "用户回收长期无进展的执行；可新建重试，保留原执行历史"
+    run.updated_at = datetime.now(UTC)
+    session.add(run)
+    session.commit()
+    session.refresh(run)
     return run
 
 

@@ -2,9 +2,10 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import update
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.core.db import engine
+from app.domain.audit import AuditCancelled
 from app.persistence.audit_models import AuditRun
 
 
@@ -29,9 +30,13 @@ class AuditRepository:
 
     def update(self, run_id: str, **changes: object) -> None:
         with Session(engine) as session:
-            run = session.get(AuditRun, UUID(run_id))
+            run = session.exec(
+                select(AuditRun).where(AuditRun.id == UUID(run_id)).with_for_update()
+            ).one_or_none()
             if run is None:
                 raise ValueError("Audit run not found")
+            if run.status == "cancelled":
+                raise AuditCancelled("扫描已取消")
             for key, value in changes.items():
                 setattr(run, key, value)
             run.updated_at = datetime.now(UTC)

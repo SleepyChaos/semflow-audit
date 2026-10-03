@@ -1,0 +1,1905 @@
+{
+  "date": "2026-10-03",
+  "codeql_version": "2.23.5",
+  "host": "macOS-15.7.2-arm64-arm-64bit-Mach-O",
+  "scope": "original micro-corpus v1; no training or standard-dataset claim",
+  "audit": [
+    {
+      "language": "python",
+      "round": 1,
+      "query_pack": "codeql/python-queries@1.6.0",
+      "snapshot": "b602ed240f0f5ea2177443d110e69290a7ef239d37addf63d83cf9d46f970566",
+      "status": "completed",
+      "extract_seconds": 2.974534000008134,
+      "scan_seconds": 10.052928832999896,
+      "metrics": {
+        "counts": {
+          "TP": 3,
+          "FP": 0,
+          "FN": 0,
+          "TN": 3
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "cases": [
+          {
+            "file": "eval_positive.py",
+            "line": 7,
+            "cwe": "094",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "py/code-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "eval_negative.py",
+            "line": 7,
+            "cwe": "094",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "command_positive.py",
+            "line": 7,
+            "cwe": "078",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "py/command-line-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "command_negative.py",
+            "line": 7,
+            "cwe": "078",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "sql_positive.py",
+            "line": 7,
+            "cwe": "089",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "py/sql-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "sql_negative.py",
+            "line": 7,
+            "cwe": "089",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          }
+        ],
+        "all_alert_count": 3
+      },
+      "total_seconds": 13.028186417010147
+    },
+    {
+      "language": "python",
+      "round": 2,
+      "query_pack": "codeql/python-queries@1.6.0",
+      "snapshot": "b602ed240f0f5ea2177443d110e69290a7ef239d37addf63d83cf9d46f970566",
+      "status": "completed",
+      "extract_seconds": 2.56183674998465,
+      "scan_seconds": 8.184876042010728,
+      "metrics": {
+        "counts": {
+          "TP": 3,
+          "FP": 0,
+          "FN": 0,
+          "TN": 3
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "cases": [
+          {
+            "file": "eval_positive.py",
+            "line": 7,
+            "cwe": "094",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "py/code-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "eval_negative.py",
+            "line": 7,
+            "cwe": "094",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "command_positive.py",
+            "line": 7,
+            "cwe": "078",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "py/command-line-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "command_negative.py",
+            "line": 7,
+            "cwe": "078",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "sql_positive.py",
+            "line": 7,
+            "cwe": "089",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "py/sql-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "sql_negative.py",
+            "line": 7,
+            "cwe": "089",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          }
+        ],
+        "all_alert_count": 3
+      },
+      "total_seconds": 10.747422207990894
+    },
+    {
+      "language": "python",
+      "round": 3,
+      "query_pack": "codeql/python-queries@1.6.0",
+      "snapshot": "b602ed240f0f5ea2177443d110e69290a7ef239d37addf63d83cf9d46f970566",
+      "status": "completed",
+      "extract_seconds": 2.373862166015897,
+      "scan_seconds": 7.960801375011215,
+      "metrics": {
+        "counts": {
+          "TP": 3,
+          "FP": 0,
+          "FN": 0,
+          "TN": 3
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "cases": [
+          {
+            "file": "eval_positive.py",
+            "line": 7,
+            "cwe": "094",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "py/code-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "eval_negative.py",
+            "line": 7,
+            "cwe": "094",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "command_positive.py",
+            "line": 7,
+            "cwe": "078",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "py/command-line-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "command_negative.py",
+            "line": 7,
+            "cwe": "078",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "sql_positive.py",
+            "line": 7,
+            "cwe": "089",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "py/sql-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "sql_negative.py",
+            "line": 7,
+            "cwe": "089",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          }
+        ],
+        "all_alert_count": 3
+      },
+      "total_seconds": 10.335339207988
+    },
+    {
+      "language": "javascript",
+      "round": 1,
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "snapshot": "a3080bdb97b06e51ac1df2953aefd5dd89ae6f49fb7bc2f709cb480c9d969f90",
+      "status": "completed",
+      "extract_seconds": 3.2126709580188617,
+      "scan_seconds": 14.08853325000382,
+      "metrics": {
+        "counts": {
+          "TP": 3,
+          "FP": 0,
+          "FN": 0,
+          "TN": 3
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "cases": [
+          {
+            "file": "eval_positive.js",
+            "line": 8,
+            "cwe": "094",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "js/code-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "eval_negative.js",
+            "line": 8,
+            "cwe": "094",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "command_positive.js",
+            "line": 8,
+            "cwe": "078",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "js/command-line-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "command_negative.js",
+            "line": 8,
+            "cwe": "078",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "sql_positive.js",
+            "line": 8,
+            "cwe": "089",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "js/sql-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "sql_negative.js",
+            "line": 8,
+            "cwe": "089",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          }
+        ],
+        "all_alert_count": 8
+      },
+      "total_seconds": 17.302955582999857
+    },
+    {
+      "language": "javascript",
+      "round": 2,
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "snapshot": "a3080bdb97b06e51ac1df2953aefd5dd89ae6f49fb7bc2f709cb480c9d969f90",
+      "status": "completed",
+      "extract_seconds": 3.256666250003036,
+      "scan_seconds": 13.791242791019613,
+      "metrics": {
+        "counts": {
+          "TP": 3,
+          "FP": 0,
+          "FN": 0,
+          "TN": 3
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "cases": [
+          {
+            "file": "eval_positive.js",
+            "line": 8,
+            "cwe": "094",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "js/code-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "eval_negative.js",
+            "line": 8,
+            "cwe": "094",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "command_positive.js",
+            "line": 8,
+            "cwe": "078",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "js/command-line-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "command_negative.js",
+            "line": 8,
+            "cwe": "078",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "sql_positive.js",
+            "line": 8,
+            "cwe": "089",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "js/sql-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "sql_negative.js",
+            "line": 8,
+            "cwe": "089",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          }
+        ],
+        "all_alert_count": 8
+      },
+      "total_seconds": 17.04932779201772
+    },
+    {
+      "language": "javascript",
+      "round": 3,
+      "query_pack": "codeql/javascript-queries@1.4.0",
+      "snapshot": "a3080bdb97b06e51ac1df2953aefd5dd89ae6f49fb7bc2f709cb480c9d969f90",
+      "status": "completed",
+      "extract_seconds": 3.204743749985937,
+      "scan_seconds": 14.51356166601181,
+      "metrics": {
+        "counts": {
+          "TP": 3,
+          "FP": 0,
+          "FN": 0,
+          "TN": 3
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "cases": [
+          {
+            "file": "eval_positive.js",
+            "line": 8,
+            "cwe": "094",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "js/code-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "eval_negative.js",
+            "line": 8,
+            "cwe": "094",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "command_positive.js",
+            "line": 8,
+            "cwe": "078",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "js/command-line-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "command_negative.js",
+            "line": 8,
+            "cwe": "078",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          },
+          {
+            "file": "sql_positive.js",
+            "line": 8,
+            "cwe": "089",
+            "vulnerable": true,
+            "predicted": true,
+            "rules": [
+              "js/sql-injection"
+            ],
+            "classification": "TP"
+          },
+          {
+            "file": "sql_negative.js",
+            "line": 8,
+            "cwe": "089",
+            "vulnerable": false,
+            "predicted": false,
+            "rules": [],
+            "classification": "TN"
+          }
+        ],
+        "all_alert_count": 8
+      },
+      "total_seconds": 17.719732915982604
+    }
+  ],
+  "bandit": {
+    "tool": "Bandit 1.9.4",
+    "mapping": {
+      "B307": "094",
+      "B605": "078",
+      "B607": "078",
+      "B608": "089"
+    },
+    "mapping_note": "map known eval/command/sql checks by semantic purpose; Bandit B307 issue_cwe differs from this corpus CWE-094",
+    "rounds": [
+      {
+        "round": 1,
+        "seconds": 0.15690962501685135,
+        "exit_code": 1,
+        "status": "completed",
+        "metrics": {
+          "counts": {
+            "TP": 3,
+            "FP": 0,
+            "FN": 0,
+            "TN": 3
+          },
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "cases": [
+            {
+              "file": "eval_positive.py",
+              "line": 7,
+              "cwe": "094",
+              "vulnerable": true,
+              "predicted": true,
+              "rules": [
+                "B307"
+              ],
+              "classification": "TP"
+            },
+            {
+              "file": "eval_negative.py",
+              "line": 7,
+              "cwe": "094",
+              "vulnerable": false,
+              "predicted": false,
+              "rules": [],
+              "classification": "TN"
+            },
+            {
+              "file": "command_positive.py",
+              "line": 7,
+              "cwe": "078",
+              "vulnerable": true,
+              "predicted": true,
+              "rules": [
+                "B605"
+              ],
+              "classification": "TP"
+            },
+            {
+              "file": "command_negative.py",
+              "line": 7,
+              "cwe": "078",
+              "vulnerable": false,
+              "predicted": false,
+              "rules": [],
+              "classification": "TN"
+            },
+            {
+              "file": "sql_positive.py",
+              "line": 7,
+              "cwe": "089",
+              "vulnerable": true,
+              "predicted": true,
+              "rules": [
+                "B608"
+              ],
+              "classification": "TP"
+            },
+            {
+              "file": "sql_negative.py",
+              "line": 7,
+              "cwe": "089",
+              "vulnerable": false,
+              "predicted": false,
+              "rules": [],
+              "classification": "TN"
+            }
+          ],
+          "all_alert_count": 3
+        }
+      },
+      {
+        "round": 2,
+        "seconds": 0.10779433301649988,
+        "exit_code": 1,
+        "status": "completed",
+        "metrics": {
+          "counts": {
+            "TP": 3,
+            "FP": 0,
+            "FN": 0,
+            "TN": 3
+          },
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "cases": [
+            {
+              "file": "eval_positive.py",
+              "line": 7,
+              "cwe": "094",
+              "vulnerable": true,
+              "predicted": true,
+              "rules": [
+                "B307"
+              ],
+              "classification": "TP"
+            },
+            {
+              "file": "eval_negative.py",
+              "line": 7,
+              "cwe": "094",
+              "vulnerable": false,
+              "predicted": false,
+              "rules": [],
+              "classification": "TN"
+            },
+            {
+              "file": "command_positive.py",
+              "line": 7,
+              "cwe": "078",
+              "vulnerable": true,
+              "predicted": true,
+              "rules": [
+                "B605"
+              ],
+              "classification": "TP"
+            },
+            {
+              "file": "command_negative.py",
+              "line": 7,
+              "cwe": "078",
+              "vulnerable": false,
+              "predicted": false,
+              "rules": [],
+              "classification": "TN"
+            },
+            {
+              "file": "sql_positive.py",
+              "line": 7,
+              "cwe": "089",
+              "vulnerable": true,
+              "predicted": true,
+              "rules": [
+                "B608"
+              ],
+              "classification": "TP"
+            },
+            {
+              "file": "sql_negative.py",
+              "line": 7,
+              "cwe": "089",
+              "vulnerable": false,
+              "predicted": false,
+              "rules": [],
+              "classification": "TN"
+            }
+          ],
+          "all_alert_count": 3
+        }
+      },
+      {
+        "round": 3,
+        "seconds": 0.10839016700629145,
+        "exit_code": 1,
+        "status": "completed",
+        "metrics": {
+          "counts": {
+            "TP": 3,
+            "FP": 0,
+            "FN": 0,
+            "TN": 3
+          },
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "cases": [
+            {
+              "file": "eval_positive.py",
+              "line": 7,
+              "cwe": "094",
+              "vulnerable": true,
+              "predicted": true,
+              "rules": [
+                "B307"
+              ],
+              "classification": "TP"
+            },
+            {
+              "file": "eval_negative.py",
+              "line": 7,
+              "cwe": "094",
+              "vulnerable": false,
+              "predicted": false,
+              "rules": [],
+              "classification": "TN"
+            },
+            {
+              "file": "command_positive.py",
+              "line": 7,
+              "cwe": "078",
+              "vulnerable": true,
+              "predicted": true,
+              "rules": [
+                "B605"
+              ],
+              "classification": "TP"
+            },
+            {
+              "file": "command_negative.py",
+              "line": 7,
+              "cwe": "078",
+              "vulnerable": false,
+              "predicted": false,
+              "rules": [],
+              "classification": "TN"
+            },
+            {
+              "file": "sql_positive.py",
+              "line": 7,
+              "cwe": "089",
+              "vulnerable": true,
+              "predicted": true,
+              "rules": [
+                "B608"
+              ],
+              "classification": "TP"
+            },
+            {
+              "file": "sql_negative.py",
+              "line": 7,
+              "cwe": "089",
+              "vulnerable": false,
+              "predicted": false,
+              "rules": [],
+              "classification": "TN"
+            }
+          ],
+          "all_alert_count": 3
+        }
+      }
+    ],
+    "median_seconds": 0.10839016700629145
+  },
+  "rag": {
+    "dataset": "original retrieval micro-benchmark v1, 8 documents and 8 independently phrased queries; not standard data",
+    "retrieval": "actual Haystack BM25 with persisted PostgreSQL chunks; shared seed documents remain eligible",
+    "embedding": "not configured; vector quality not measured",
+    "rule_generation": "not measured without real model",
+    "rounds": [
+      {
+        "round": 1,
+        "recall_at_3": 1.0,
+        "mrr_at_3": 0.9375,
+        "median_seconds": 0.0029991454939590767,
+        "cases": [
+          {
+            "expected": "py-eval",
+            "query": "python 如何追踪用户输入进入动态求值函数 eval",
+            "rank": 1,
+            "seconds": 0.050664667011005804,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-eval",
+                "version": "f70ef99acd191ee627e2da886e2ec6c80cf681aae79e588a644e4102a0a847ce",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-sql",
+                "version": "2818942133f94637f197ddc157ea4ddb9d1f864b1035bf0ccd289803dc34e297",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "py-sql",
+            "query": "python sqlite3 拼接查询 SQL 注入怎样给出安全负例",
+            "rank": 1,
+            "seconds": 0.0040712920017540455,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-sql",
+                "version": "2818942133f94637f197ddc157ea4ddb9d1f864b1035bf0ccd289803dc34e297",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-shell",
+                "version": "09bc8b9e68a7a98936ca0a351a9251bb2ad5d607e7faddbb713d108480916a5f",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "py-shell",
+            "query": "python subprocess shell=True 命令注入 CWE-078",
+            "rank": 1,
+            "seconds": 0.0036780409864149988,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-shell",
+                "version": "09bc8b9e68a7a98936ca0a351a9251bb2ad5d607e7faddbb713d108480916a5f",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-sql",
+                "version": "2818942133f94637f197ddc157ea4ddb9d1f864b1035bf0ccd289803dc34e297",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "py-ql",
+            "query": "python CodeQL 规则编译依赖锁文件 additional-packs",
+            "rank": 1,
+            "seconds": 0.002988958003697917,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-ql",
+                "version": "e17b72603f24bacefad4781fe35a0a9d8fee863bdad524d1e4d425f23e215379",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-eval",
+                "version": "f70ef99acd191ee627e2da886e2ec6c80cf681aae79e588a644e4102a0a847ce",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-eval",
+            "query": "javascript Express req.query 到 eval 污点审计",
+            "rank": 2,
+            "seconds": 0.002231083024526015,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-shell",
+                "version": "81e9e7ca8b9e4e7fdda032ccb2050a3ff2f5d660a7c1b5dbbd5b5b207fb632c7",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-sql",
+            "query": "javascript mysql SQL 注入 参数化 query 负例",
+            "rank": 1,
+            "seconds": 0.0027110000082757324,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "js-sql",
+                "version": "8d093e1655a5fba4188a5374a4f9bed962d93e39093863b365383f821eac91ab",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-shell",
+            "query": "javascript child_process.exec 外部参数命令注入",
+            "rank": 1,
+            "seconds": 0.0027525420009624213,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "js-shell",
+                "version": "81e9e7ca8b9e4e7fdda032ccb2050a3ff2f5d660a7c1b5dbbd5b5b207fb632c7",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-ql",
+            "query": "javascript CodeQL TypeScript 规则正例负例验证",
+            "rank": 1,
+            "seconds": 0.0030093329842202365,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "js-ql",
+                "version": "c63e00e2016db150484fbe3eae483378601e1ca387aa5c924a3ba8f6374a325b",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "recall_at_3": 1.0,
+        "mrr_at_3": 0.9375,
+        "median_seconds": 0.0024759380030445755,
+        "cases": [
+          {
+            "expected": "py-eval",
+            "query": "python 如何追踪用户输入进入动态求值函数 eval",
+            "rank": 1,
+            "seconds": 0.0025052920100279152,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-eval",
+                "version": "f70ef99acd191ee627e2da886e2ec6c80cf681aae79e588a644e4102a0a847ce",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-sql",
+                "version": "2818942133f94637f197ddc157ea4ddb9d1f864b1035bf0ccd289803dc34e297",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "py-sql",
+            "query": "python sqlite3 拼接查询 SQL 注入怎样给出安全负例",
+            "rank": 1,
+            "seconds": 0.002515000000130385,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-sql",
+                "version": "2818942133f94637f197ddc157ea4ddb9d1f864b1035bf0ccd289803dc34e297",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-shell",
+                "version": "09bc8b9e68a7a98936ca0a351a9251bb2ad5d607e7faddbb713d108480916a5f",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "py-shell",
+            "query": "python subprocess shell=True 命令注入 CWE-078",
+            "rank": 1,
+            "seconds": 0.002695666014915332,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-shell",
+                "version": "09bc8b9e68a7a98936ca0a351a9251bb2ad5d607e7faddbb713d108480916a5f",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-sql",
+                "version": "2818942133f94637f197ddc157ea4ddb9d1f864b1035bf0ccd289803dc34e297",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "py-ql",
+            "query": "python CodeQL 规则编译依赖锁文件 additional-packs",
+            "rank": 1,
+            "seconds": 0.0024465839960612357,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-ql",
+                "version": "e17b72603f24bacefad4781fe35a0a9d8fee863bdad524d1e4d425f23e215379",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-eval",
+                "version": "f70ef99acd191ee627e2da886e2ec6c80cf681aae79e588a644e4102a0a847ce",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-eval",
+            "query": "javascript Express req.query 到 eval 污点审计",
+            "rank": 2,
+            "seconds": 0.0024036249960772693,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-shell",
+                "version": "81e9e7ca8b9e4e7fdda032ccb2050a3ff2f5d660a7c1b5dbbd5b5b207fb632c7",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-sql",
+            "query": "javascript mysql SQL 注入 参数化 query 负例",
+            "rank": 1,
+            "seconds": 0.0025272500060964376,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "js-sql",
+                "version": "8d093e1655a5fba4188a5374a4f9bed962d93e39093863b365383f821eac91ab",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-shell",
+            "query": "javascript child_process.exec 外部参数命令注入",
+            "rank": 1,
+            "seconds": 0.0023706660140305758,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "js-shell",
+                "version": "81e9e7ca8b9e4e7fdda032ccb2050a3ff2f5d660a7c1b5dbbd5b5b207fb632c7",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-ql",
+            "query": "javascript CodeQL TypeScript 规则正例负例验证",
+            "rank": 1,
+            "seconds": 0.0023105420114006847,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "js-ql",
+                "version": "c63e00e2016db150484fbe3eae483378601e1ca387aa5c924a3ba8f6374a325b",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "round": 3,
+        "recall_at_3": 1.0,
+        "mrr_at_3": 0.9375,
+        "median_seconds": 0.0029011250007897615,
+        "cases": [
+          {
+            "expected": "py-eval",
+            "query": "python 如何追踪用户输入进入动态求值函数 eval",
+            "rank": 1,
+            "seconds": 0.0029240000003483146,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-eval",
+                "version": "f70ef99acd191ee627e2da886e2ec6c80cf681aae79e588a644e4102a0a847ce",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-sql",
+                "version": "2818942133f94637f197ddc157ea4ddb9d1f864b1035bf0ccd289803dc34e297",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "py-sql",
+            "query": "python sqlite3 拼接查询 SQL 注入怎样给出安全负例",
+            "rank": 1,
+            "seconds": 0.002529499994125217,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-sql",
+                "version": "2818942133f94637f197ddc157ea4ddb9d1f864b1035bf0ccd289803dc34e297",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-shell",
+                "version": "09bc8b9e68a7a98936ca0a351a9251bb2ad5d607e7faddbb713d108480916a5f",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "py-shell",
+            "query": "python subprocess shell=True 命令注入 CWE-078",
+            "rank": 1,
+            "seconds": 0.003250875015510246,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-shell",
+                "version": "09bc8b9e68a7a98936ca0a351a9251bb2ad5d607e7faddbb713d108480916a5f",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-sql",
+                "version": "2818942133f94637f197ddc157ea4ddb9d1f864b1035bf0ccd289803dc34e297",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "py-ql",
+            "query": "python CodeQL 规则编译依赖锁文件 additional-packs",
+            "rank": 1,
+            "seconds": 0.003842832986265421,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "py-ql",
+                "version": "e17b72603f24bacefad4781fe35a0a9d8fee863bdad524d1e4d425f23e215379",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "Python CodeQL 规则与动态执行审计知识",
+                "version": "e3247d759a75a02d903c86a6360a470b8aba6f45fe124deca3c046fefbf93759",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "py-eval",
+                "version": "f70ef99acd191ee627e2da886e2ec6c80cf681aae79e588a644e4102a0a847ce",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-eval",
+            "query": "javascript Express req.query 到 eval 污点审计",
+            "rank": 2,
+            "seconds": 0.003980500012403354,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-shell",
+                "version": "81e9e7ca8b9e4e7fdda032ccb2050a3ff2f5d660a7c1b5dbbd5b5b207fb632c7",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-sql",
+            "query": "javascript mysql SQL 注入 参数化 query 负例",
+            "rank": 1,
+            "seconds": 0.0028782500012312084,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "js-sql",
+                "version": "8d093e1655a5fba4188a5374a4f9bed962d93e39093863b365383f821eac91ab",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-shell",
+            "query": "javascript child_process.exec 外部参数命令注入",
+            "rank": 1,
+            "seconds": 0.0026015829935204238,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "js-shell",
+                "version": "81e9e7ca8b9e4e7fdda032ccb2050a3ff2f5d660a7c1b5dbbd5b5b207fb632c7",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          },
+          {
+            "expected": "js-ql",
+            "query": "javascript CodeQL TypeScript 规则正例负例验证",
+            "rank": 1,
+            "seconds": 0.0026602089928928763,
+            "citations_valid": true,
+            "retrieved": [
+              {
+                "title": "js-ql",
+                "version": "c63e00e2016db150484fbe3eae483378601e1ca387aa5c924a3ba8f6374a325b",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "JavaScript / TypeScript CodeQL 动态执行审计",
+                "version": "397cc75b01133d106a96f49dff5af0e143c89463ff53378151258ad952184600",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              },
+              {
+                "title": "js-eval",
+                "version": "692317a260723812987b9b91089b6263e99592cb08116af4b8066e7b29df4062",
+                "methods": [
+                  "haystack_bm25"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "repair_validation": [
+    {
+      "name": "unsafe_eval",
+      "round": 1,
+      "seconds": 0.5301860000181478,
+      "status": "failed",
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "name": "unsafe_eval",
+      "round": 2,
+      "seconds": 0.3682706250110641,
+      "status": "failed",
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "name": "unsafe_eval",
+      "round": 3,
+      "seconds": 0.3694630420068279,
+      "status": "failed",
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "name": "secure_but_breaks_behavior",
+      "round": 1,
+      "seconds": 0.3712135839741677,
+      "status": "failed",
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "name": "secure_but_breaks_behavior",
+      "round": 2,
+      "seconds": 0.36715287499828264,
+      "status": "failed",
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "name": "secure_but_breaks_behavior",
+      "round": 3,
+      "seconds": 0.36653041699901223,
+      "status": "failed",
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "name": "bounded_arithmetic",
+      "round": 1,
+      "seconds": 0.3623002080130391,
+      "status": "passed",
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "name": "bounded_arithmetic",
+      "round": 2,
+      "seconds": 0.3579489999974612,
+      "status": "passed",
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    },
+    {
+      "name": "bounded_arithmetic",
+      "round": 3,
+      "seconds": 0.35571866598911583,
+      "status": "passed",
+      "source_unchanged": true,
+      "image_id": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77"
+    }
+  ],
+  "real_cve_scan": [
+    {
+      "variant": "prePatch",
+      "round": 1,
+      "seconds": 17.065951458993368,
+      "extract_seconds_once": 4.856823499983875,
+      "alerts": [
+        {
+          "rule": "js/incomplete-url-scheme-check",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 878,
+              "column": 9,
+              "end_line": 878
+            }
+          ]
+        },
+        {
+          "rule": "js/incomplete-url-scheme-check",
+          "locations": [
+            {
+              "file": "CVE-2017-1000427/lib/marked.js",
+              "line": 878,
+              "column": 9,
+              "end_line": 878
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 459,
+              "column": 13,
+              "end_line": 459
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-1000427/lib/marked.js",
+              "line": 459,
+              "column": 35,
+              "end_line": 459
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 459,
+              "column": 37,
+              "end_line": 459
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "prePatch",
+      "round": 2,
+      "seconds": 3.3636019160039723,
+      "extract_seconds_once": 4.856823499983875,
+      "alerts": [
+        {
+          "rule": "js/incomplete-url-scheme-check",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 878,
+              "column": 9,
+              "end_line": 878
+            }
+          ]
+        },
+        {
+          "rule": "js/incomplete-url-scheme-check",
+          "locations": [
+            {
+              "file": "CVE-2017-1000427/lib/marked.js",
+              "line": 878,
+              "column": 9,
+              "end_line": 878
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 459,
+              "column": 13,
+              "end_line": 459
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-1000427/lib/marked.js",
+              "line": 459,
+              "column": 35,
+              "end_line": 459
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 459,
+              "column": 37,
+              "end_line": 459
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "prePatch",
+      "round": 3,
+      "seconds": 3.459821416006889,
+      "extract_seconds_once": 4.856823499983875,
+      "alerts": [
+        {
+          "rule": "js/incomplete-url-scheme-check",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 878,
+              "column": 9,
+              "end_line": 878
+            }
+          ]
+        },
+        {
+          "rule": "js/incomplete-url-scheme-check",
+          "locations": [
+            {
+              "file": "CVE-2017-1000427/lib/marked.js",
+              "line": 878,
+              "column": 9,
+              "end_line": 878
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 459,
+              "column": 13,
+              "end_line": 459
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-1000427/lib/marked.js",
+              "line": 459,
+              "column": 35,
+              "end_line": 459
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 459,
+              "column": 37,
+              "end_line": 459
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "postPatch",
+      "round": 1,
+      "seconds": 17.45151979100774,
+      "extract_seconds_once": 4.897278749995166,
+      "alerts": [
+        {
+          "rule": "js/incomplete-url-scheme-check",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 878,
+              "column": 9,
+              "end_line": 878
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-1000427/lib/marked.js",
+              "line": 459,
+              "column": 35,
+              "end_line": 459
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 459,
+              "column": 35,
+              "end_line": 459
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "postPatch",
+      "round": 2,
+      "seconds": 3.463411750009982,
+      "extract_seconds_once": 4.897278749995166,
+      "alerts": [
+        {
+          "rule": "js/incomplete-url-scheme-check",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 878,
+              "column": 9,
+              "end_line": 878
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-1000427/lib/marked.js",
+              "line": 459,
+              "column": 35,
+              "end_line": 459
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 459,
+              "column": 35,
+              "end_line": 459
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "postPatch",
+      "round": 3,
+      "seconds": 3.4380848750006407,
+      "extract_seconds_once": 4.897278749995166,
+      "alerts": [
+        {
+          "rule": "js/incomplete-url-scheme-check",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 878,
+              "column": 9,
+              "end_line": 878
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-1000427/lib/marked.js",
+              "line": 459,
+              "column": 35,
+              "end_line": 459
+            }
+          ]
+        },
+        {
+          "rule": "js/redos",
+          "locations": [
+            {
+              "file": "CVE-2017-16114/lib/marked.js",
+              "line": 459,
+              "column": 35,
+              "end_line": 459
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -5,6 +5,7 @@ from langgraph.checkpoint.postgres import PostgresSaver
 from app.adapters.artifacts import ArtifactStore
 from app.adapters.codeql.scanner import CodeQLScanner
 from app.core.config import settings
+from app.domain.audit import AuditCancelled
 from app.jobs.celery_app import celery_app
 from app.persistence.audit_repository import AuditRepository
 from app.services.scanning import ScanService
@@ -28,6 +29,11 @@ def execute_scan(run_id: str) -> None:
             graph.invoke(
                 {"run_id": run_id}, config={"configurable": {"thread_id": run_id}}
             )
+    except AuditCancelled:
+        logger.info("Scan cancelled at stage boundary: %s", run_id)
     except Exception as exc:
         logger.exception("Scan stage failed: %s", run_id)
-        repository.update(run_id, status="failed", error=str(exc)[:1000])
+        try:
+            repository.update(run_id, status="failed", error=str(exc)[:1000])
+        except AuditCancelled:
+            pass

@@ -1,22 +1,29 @@
-import { useRef, useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { LoaderCircle, Upload } from "lucide-react"
+import { useRef, useState } from "react"
 import { toast } from "sonner"
 import { uploadRun } from "@/api/audits"
+import { getRules } from "@/api/stages"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 export function UploadForm({ onCreated }: { onCreated: (id: string) => void }) {
   const [file, setFile] = useState<File | null>(null)
   const [name, setName] = useState("")
   const [language, setLanguage] = useState("python")
+  const [ruleIds, setRuleIds] = useState<string[]>([])
+  const rules = useQuery({
+    queryKey: ["published-rules", language],
+    queryFn: () => getRules(language, true),
+  })
   const input = useRef<HTMLInputElement>(null)
   const cache = useQueryClient()
   const mutation = useMutation({
-    mutationFn: () => uploadRun(file!, name, language),
+    mutationFn: () => uploadRun(file!, name, language, ruleIds),
     onSuccess: async (run) => {
       await cache.invalidateQueries({ queryKey: ["audits"] })
       onCreated(run.id)
@@ -90,7 +97,10 @@ export function UploadForm({ onCreated }: { onCreated: (id: string) => void }) {
             <FieldLabel>编程语言</FieldLabel>
             <RadioGroup
               value={language}
-              onValueChange={setLanguage}
+              onValueChange={(value) => {
+                setLanguage(value)
+                setRuleIds([])
+              }}
               className="flex flex-wrap gap-6"
             >
               <div className="flex items-center gap-2">
@@ -114,6 +124,37 @@ export function UploadForm({ onCreated }: { onCreated: (id: string) => void }) {
             {mutation.isPending ? "上传中" : "开始审计"}
           </Button>
         </div>
+        <details>
+          <summary>补充已发布规则（最多 4 个版本）</summary>
+          {rules.error ? <p role="alert">{rules.error.message}</p> : null}
+          {rules.data?.length ? (
+            rules.data.map((rule) => (
+              <label
+                className="stage-check"
+                key={rule.id}
+                htmlFor={`upload-rule-${rule.id}`}
+              >
+                <Checkbox
+                  id={`upload-rule-${rule.id}`}
+                  checked={ruleIds.includes(rule.id)}
+                  disabled={!ruleIds.includes(rule.id) && ruleIds.length >= 4}
+                  onCheckedChange={(checked) =>
+                    setRuleIds(
+                      checked
+                        ? [...ruleIds, rule.id]
+                        : ruleIds.filter((id) => id !== rule.id),
+                    )
+                  }
+                />
+                {rule.title} · {rule.id.slice(0, 8)}
+              </label>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              没有可选发布规则，使用固定 CodeQL 基线。
+            </p>
+          )}
+        </details>
       </FieldGroup>
     </form>
   )

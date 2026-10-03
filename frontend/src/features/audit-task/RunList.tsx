@@ -1,5 +1,14 @@
 import { FileText } from "lucide-react"
-import { type AuditRun } from "@/api/audits"
+import type { AuditRun } from "@/api/audits"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import {
   Table,
   TableBody,
@@ -8,20 +17,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
-import { Button } from "@/components/ui/button"
+
 const statuses: Record<string, string> = {
   queued: "等待执行",
   running: "审计中",
   completed: "已完成",
   failed: "失败",
+  cancelled: "已取消",
 }
 export function RunList({
   runs,

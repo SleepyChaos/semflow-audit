@@ -117,3 +117,48 @@ def test_malformed_archive_does_not_create_a_run(client):
     )
     assert response.status_code == 422
     assert api.get("/api/v1/audits/").json() == []
+
+
+def test_cancel_prevents_claim_and_completion_and_retry_is_independent(
+    client, monkeypatch
+):
+    from app.persistence.audit_repository import AuditRepository
+    from app.domain.audit import AuditCancelled
+
+    api, _ = client
+    monkeypatch.setattr(execute_scan, "delay", lambda _: None)
+    original = upload(api).json()
+    identifier = original["id"]
+    cancelled = api.post(f"/api/v1/audits/{identifier}/cancel")
+    assert cancelled.status_code == 200
+    assert cancelled.json()["status"] == "cancelled"
+    repository = AuditRepository()
+    assert not repository.claim(identifier)
+    with pytest.raises(AuditCancelled):
+        repository.update(identifier, status="completed", findings=[])
+    retried = api.post(f"/api/v1/audits/{identifier}/retry")
+    assert retried.status_code == 201
+    assert retried.json()["id"] != identifier
+    assert retried.json()["snapshot_hash"] == original["snapshot_hash"]
+
+
+def test_recover_rejects_recent_execution_and_stops_stale_execution(
+    client, monkeypatch
+):
+    from datetime import UTC, datetime
+    from uuid import UUID
+    from app.persistence.audit_repository import AuditRepository
+
+    api, _ = client
+    monkeypatch.setattr(execute_scan, "delay", lambda _: None)
+    identifier = upload(api).json()["id"]
+    assert AuditRepository().claim(identifier)
+    assert api.post(f"/api/v1/audits/{identifier}/recover").status_code == 409
+    with Session(engine) as session:
+        run = session.get(AuditRun, UUID(identifier))
+        run.updated_at = datetime.now(UTC) - timedelta(minutes=46)
+        session.add(run)
+        session.commit()
+    response = api.post(f"/api/v1/audits/{identifier}/recover")
+    assert response.status_code == 200
+    assert response.json()["status"] == "cancelled"

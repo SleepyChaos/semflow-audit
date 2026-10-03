@@ -3,7 +3,11 @@ from sqlmodel import Session, create_engine, select
 from app import crud
 from app.core.config import settings
 from app.models import User, UserCreate
-from app.persistence import audit_models  # noqa: F401
+from app.persistence import (  # noqa: F401
+    audit_models,  # noqa: F401
+    knowledge_models,
+    stage_models,
+)
 
 engine = create_engine(str(settings.DATABASE_URL), pool_pre_ping=True)
 

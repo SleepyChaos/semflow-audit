@@ -1,16 +1,33 @@
-import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { CircleCheck, CircleAlert, LoaderCircle, RefreshCw } from "lucide-react"
+import { CircleAlert, CircleCheck, LoaderCircle, RefreshCw } from "lucide-react"
+import { useState } from "react"
 import { getEnvironment, getRuns } from "@/api/audits"
-import { Button } from "@/components/ui/button"
+import { getStages } from "@/api/stages"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { UploadForm } from "@/features/upload/UploadForm"
 import { RunDetails } from "@/features/codeql-stage/RunDetails"
+import { UploadForm } from "@/features/upload/UploadForm"
 import { Pipeline } from "./Pipeline"
 import { RunList } from "./RunList"
 export function Workbench() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [activeStage, setActiveStage] = useState("codeql")
+  const selectRun = (id: string) => {
+    setSelectedId(id)
+    setActiveStage("codeql")
+  }
+  const history = useQuery({
+    queryKey: ["stages", selectedId],
+    queryFn: () => getStages(selectedId!),
+    enabled: Boolean(selectedId),
+    refetchInterval: (query) =>
+      query.state.data?.some((item) =>
+        ["queued", "running"].includes(item.status),
+      )
+        ? 2500
+        : false,
+  })
   const runs = useQuery({
     queryKey: ["audits"],
     queryFn: getRuns,
@@ -51,8 +68,13 @@ export function Workbench() {
             刷新
           </Button>
         </header>
-        <Pipeline completed={selected?.status === "completed"} />
-        <UploadForm onCreated={setSelectedId} />
+        <Pipeline
+          completed={selected?.status === "completed"}
+          active={activeStage}
+          history={history.data ?? []}
+          onSelect={selected ? setActiveStage : undefined}
+        />
+        <UploadForm onCreated={selectRun} />
         {runs.error ? (
           <Alert variant="destructive">
             <AlertTitle>无法读取审计任务</AlertTitle>
@@ -64,7 +86,7 @@ export function Workbench() {
         ) : (
           <RunList
             runs={runs.data ?? []}
-            onSelect={setSelectedId}
+            onSelect={selectRun}
             selected={selectedId}
           />
         )}
@@ -72,7 +94,9 @@ export function Workbench() {
           <RunDetails
             key={selected.id}
             run={selected}
-            onCreated={setSelectedId}
+            activeStage={activeStage}
+            onStageChange={setActiveStage}
+            onCreated={selectRun}
           />
         ) : null}
       </div>

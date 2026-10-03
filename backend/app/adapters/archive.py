@@ -61,7 +61,9 @@ def extract_snapshot(
                 target.parent.mkdir(parents=True, exist_ok=True)
                 content = bundle.read(member)
                 target.write_bytes(content)
-                digest.update(name.encode() + b"\0" + hashlib.sha256(content).digest())
+                digest.update(
+                    path.as_posix().encode() + b"\0" + hashlib.sha256(content).digest()
+                )
                 counts[EXTENSIONS.get(target.suffix.lower(), "other")] += 1
         if not counts[language]:
             raise AuditError("压缩包中没有所选语言的源码")

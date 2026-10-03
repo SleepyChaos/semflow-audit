@@ -1,0 +1,159 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { toast } from "sonner"
+import type { AuditRun } from "@/api/audits"
+import {
+  downloadReport,
+  downloadReportJson,
+  getCandidates,
+  getRepairs,
+  type StageRun,
+  startStage,
+} from "@/api/stages"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { StageHistory } from "@/features/stages/StageHistory"
+import { RepairCard } from "./RepairCard"
+export function RepairPanel({
+  run,
+  stages,
+  modelReady,
+}: {
+  run: AuditRun
+  stages: StageRun[]
+  modelReady: boolean
+}) {
+  const [selected, setSelected] = useState<string[]>([]),
+    [paths, setPaths] = useState(""),
+    [profile, setProfile] = useState("syntax"),
+    [rescan, setRescan] = useState(true)
+  const cache = useQueryClient(),
+    busy = stages.some((item) => ["queued", "running"].includes(item.status))
+  const candidates = useQuery({
+    queryKey: ["candidates", run.id],
+    queryFn: () => getCandidates(run.id),
+  })
+  const repairs = useQuery({
+    queryKey: ["repairs", run.id],
+    queryFn: () => getRepairs(run.id),
+    refetchInterval: busy ? 3000 : false,
+  })
+  const confirmed = (candidates.data ?? []).filter(
+    (item) => item.status === "confirmed",
+  )
+  const start = useMutation({
+    mutationFn: () =>
+      startStage(run.id, "repair", {
+        candidate_ids: selected,
+        allowed_paths: paths
+          .split("\n")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        validation_profile: profile,
+        rescan,
+      }),
+    onSuccess: () => cache.invalidateQueries(),
+    onError: (error: Error) => toast.error(error.message),
+  })
+  return (
+    <section className="stage-section">
+      <h3>修复 Diff 与报告</h3>
+      <div className="stage-row">
+        <Button
+          variant="outline"
+          onClick={() =>
+            downloadReport(run.id).catch((error: Error) =>
+              toast.error(error.message),
+            )
+          }
+        >
+          导出 Markdown 报告
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            downloadReportJson(run.id).catch((error: Error) =>
+              toast.error(error.message),
+            )
+          }
+        >
+          导出 JSON 报告
+        </Button>
+      </div>
+      <p>报告可在修复前导出。修复只针对已确认缺陷，在隔离副本应用并验证。</p>
+      <div className="stage-form">
+        {confirmed.length ? (
+          confirmed.map((item) => (
+            <label
+              className="stage-check"
+              key={item.id}
+              htmlFor={`repair-${run.id}-${item.id}`}
+            >
+              <Checkbox
+                id={`repair-${run.id}-${item.id}`}
+                checked={selected.includes(item.id)}
+                onCheckedChange={(checked) =>
+                  setSelected(
+                    checked
+                      ? [...selected, item.id]
+                      : selected.filter((id) => id !== item.id),
+                  )
+                }
+              />
+              {item.title}
+            </label>
+          ))
+        ) : (
+          <p>暂无人工确认的缺陷。</p>
+        )}
+        <label>
+          允许修改的关联文件（每行一个；源码证据文件自动加入）
+          <textarea
+            className="audit-textarea"
+            value={paths}
+            onChange={(event) => setPaths(event.target.value)}
+          />
+        </label>
+        <Select value={profile} onValueChange={setProfile}>
+          <SelectTrigger aria-label="补丁验证配置">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="syntax">隔离语法检查</SelectItem>
+            {run.language === "python" ? (
+              <SelectItem value="python_pytest">隔离 pytest</SelectItem>
+            ) : (
+              <SelectItem value="javascript_test">隔离 Node.js 测试</SelectItem>
+            )}
+          </SelectContent>
+        </Select>
+        <label className="stage-check" htmlFor={`rescan-${run.id}`}>
+          <Checkbox
+            id={`rescan-${run.id}`}
+            checked={rescan}
+            onCheckedChange={(checked) => setRescan(Boolean(checked))}
+          />
+          执行 CodeQL 复扫
+        </label>
+        <Button
+          disabled={!modelReady || !selected.length || busy || start.isPending}
+          onClick={() => start.mutate()}
+        >
+          生成并验证修复 Diff
+        </Button>
+      </div>
+      {repairs.error ? <p role="alert">{repairs.error.message}</p> : null}
+      {repairs.data?.map((record) => (
+        <RepairCard key={record.id} record={record} />
+      ))}
+      <StageHistory stages={stages} />
+    </section>
+  )
+}

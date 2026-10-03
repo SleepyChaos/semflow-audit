@@ -20,3 +20,5 @@ class AuditPublic(BaseModel):
     created_at: datetime
     updated_at: datetime
     findings: list[dict]
+
+    custom_rule_ids: list[str]

@@ -1,0 +1,268 @@
+{
+  "collected_date": "2026-10-03",
+  "files": [
+    {
+      "file": "ossf-benchmark.tar.gz",
+      "url": "https://codeload.github.com/ossf-cve-benchmark/ossf-cve-benchmark/tar.gz/91c59fd54b2b768c0f310bb0027d2ac59cdf74d4",
+      "revision": "91c59fd54b2b768c0f310bb0027d2ac59cdf74d4",
+      "license": "MIT (benchmark); upstream project licenses separate",
+      "bytes": 386549,
+      "sha256": "df695d19e1779804b4e526f78d4b76c2917be0da2b8ba2c8ffeb2e64b38d20ae",
+      "status": "downloaded"
+    },
+    {
+      "file": "aacr-dataset.json",
+      "url": "https://huggingface.co/datasets/Alibaba-Aone/aacr-bench/resolve/47be1d6df1e7faf222cf531587772d92f79fe6b2/dataset.json",
+      "revision": "47be1d6df1e7faf222cf531587772d92f79fe6b2",
+      "license": "Apache-2.0 dataset card",
+      "bytes": 2101497,
+      "sha256": "0804505f0a474765ce2840c832cfeaa6c4f0250dd6ccb169fe73c6758b245a86",
+      "status": "downloaded"
+    },
+    {
+      "file": "aacr-README.md",
+      "url": "https://huggingface.co/datasets/Alibaba-Aone/aacr-bench/resolve/47be1d6df1e7faf222cf531587772d92f79fe6b2/README.md",
+      "revision": "47be1d6df1e7faf222cf531587772d92f79fe6b2",
+      "license": "Apache-2.0 dataset card",
+      "bytes": 2422,
+      "sha256": "0fdabc165cc3d6b9fe622a18c0ff1daf1a2e587f8e2ef382a98845321d8da49e",
+      "status": "downloaded"
+    },
+    {
+      "file": "ocr-README.md",
+      "url": "https://raw.githubusercontent.com/alibaba/open-code-review/a758d9cbfb689937c7857ad64b2dd66adb58c0c2/README.md",
+      "revision": "a758d9cbfb689937c7857ad64b2dd66adb58c0c2",
+      "license": "Apache-2.0",
+      "bytes": 13413,
+      "sha256": "76228cb397c4e64a13fa03ee893ae8a46df310f7073bd690e7ad0dc6cfc1aa43",
+      "status": "downloaded"
+    },
+    {
+      "file": "ocr-LICENSE",
+      "url": "https://raw.githubusercontent.com/alibaba/open-code-review/a758d9cbfb689937c7857ad64b2dd66adb58c0c2/LICENSE",
+      "revision": "a758d9cbfb689937c7857ad64b2dd66adb58c0c2",
+      "license": "Apache-2.0",
+      "bytes": 11356,
+      "sha256": "1945665fdb6968a66ea29438ddee0aee23035365c862e5c4a75b62b303340acf",
+      "status": "downloaded"
+    },
+    {
+      "file": "execution-patching-reproduction.zip",
+      "url": "https://zenodo.org/api/records/21645415/files/reproduction.zip/content",
+      "license": "{'id': 'cc-by-4.0'}",
+      "revision": "Zenodo21645415",
+      "bytes": 1842349,
+      "sha256": "daef48a2df80b798471d844578c4efc7b925819ad633e182d33d1dc52e073a62",
+      "status": "downloaded"
+    },
+    {
+      "file": "execution-patching-README.md",
+      "url": "https://zenodo.org/api/records/21645415/files/README.md/content",
+      "license": "{'id': 'cc-by-4.0'}",
+      "revision": "Zenodo21645415",
+      "bytes": 11644,
+      "sha256": "b7a5464dd3e05291d60385a6c7e104b08a6a25585922085e80a8eec9524d1b71",
+      "status": "downloaded"
+    },
+    {
+      "file": "vul4py.csv",
+      "url": "https://raw.githubusercontent.com/tabudz/vul4py/2649d7b89e796738ebc2bc3fa9480dff5ae15898/dataset/vul4py.csv",
+      "license": "No repo LICENSE visible; research reference only",
+      "revision": "2649d7b89e796738ebc2bc3fa9480dff5ae15898",
+      "bytes": 9766,
+      "sha256": "38e3b3f595bcd0ebc7a3a7bbc5200026eee71ab45ff6b808b6ff5e8c39b17547",
+      "status": "downloaded"
+    },
+    {
+      "file": "vul4py-README.md",
+      "url": "https://raw.githubusercontent.com/tabudz/vul4py/2649d7b89e796738ebc2bc3fa9480dff5ae15898/README.md",
+      "license": "No repo LICENSE visible; research reference only",
+      "revision": "2649d7b89e796738ebc2bc3fa9480dff5ae15898",
+      "bytes": 4205,
+      "sha256": "ff4d1f3df47678e68459d603f6bf31ad1cea9c3d1f8ad3484a6cf06ced301e52",
+      "status": "downloaded"
+    },
+    {
+      "file": "execution-patching-examples/harness/oracle/examples/__init__.py",
+      "derived_from": "execution-patching-reproduction.zip",
+      "source_archive_path": "harness/oracle/examples/__init__.py",
+      "license": "CC-BY-4.0 archive",
+      "bytes": 79,
+      "sha256": "c4f7dddb75545cf3453a1777d3c476c9aa20286e29f991da85d94041a74a38e0",
+      "status": "downloaded"
+    },
+    {
+      "file": "execution-patching-examples/harness/oracle/examples/go_benchmark.py",
+      "derived_from": "execution-patching-reproduction.zip",
+      "source_archive_path": "harness/oracle/examples/go_benchmark.py",
+      "license": "CC-BY-4.0 archive",
+      "bytes": 12076,
+      "sha256": "bf4eb978396415bbab42ac5b5f3077dab758ffda748308a8769f4519c123e722",
+      "status": "downloaded"
+    },
+    {
+      "file": "execution-patching-examples/harness/oracle/examples/js_benchmark.py",
+      "derived_from": "execution-patching-reproduction.zip",
+      "source_archive_path": "harness/oracle/examples/js_benchmark.py",
+      "license": "CC-BY-4.0 archive",
+      "bytes": 15284,
+      "sha256": "bd69833b60cfc07773458e441ac0306e7cc38b365778a11f71ab01935d3276c0",
+      "status": "downloaded"
+    },
+    {
+      "file": "execution-patching-examples/harness/oracle/examples/path_traversal.py",
+      "derived_from": "execution-patching-reproduction.zip",
+      "source_archive_path": "harness/oracle/examples/path_traversal.py",
+      "license": "CC-BY-4.0 archive",
+      "bytes": 2700,
+      "sha256": "3f26edfcad9c9d01265c58783618e9a35ad387543b19345de53fbb7a80108a6d",
+      "status": "downloaded"
+    },
+    {
+      "file": "execution-patching-examples/harness/oracle/examples/py_benchmark.py",
+      "derived_from": "execution-patching-reproduction.zip",
+      "source_archive_path": "harness/oracle/examples/py_benchmark.py",
+      "license": "CC-BY-4.0 archive",
+      "bytes": 12129,
+      "sha256": "5277e79984b0f226fce06eb41f8f3531b61a97b36381bab4d3d2c5f70ca58a2c",
+      "status": "downloaded"
+    },
+    {
+      "file": "aacr-python-js-ts.json",
+      "derived_from": "aacr-dataset.json",
+      "filter": "project_main_language in Python/JavaScript/TypeScript",
+      "license": "Apache-2.0",
+      "rows": 714,
+      "sha256": "18d39e679f2575d8c0b993f00df5552726858c81908b955811844480d9e25932",
+      "bytes": 691003,
+      "status": "downloaded"
+    },
+    {
+      "file": "js-real-cve/CVE-2017-1000427/prePatch/lib/marked.js",
+      "url": "https://raw.githubusercontent.com/markedjs/marked/38f1727ffee0820975677027b8968bc1954e6637/lib/marked.js",
+      "status": "downloaded",
+      "bytes": 28664,
+      "sha256": "2693c7729e0319e7388ab001d70bf8e8af65ff2cd41220ac12b7547be85599f1",
+      "revision": "38f1727ffee0820975677027b8968bc1954e6637",
+      "license": "MIT"
+    },
+    {
+      "file": "js-real-cve/CVE-2017-1000427/postPatch/lib/marked.js",
+      "url": "https://raw.githubusercontent.com/markedjs/marked/cd2f6f5b7091154c5526e79b5f3bfb4d15995a51/lib/marked.js",
+      "revision": "cd2f6f5b7091154c5526e79b5f3bfb4d15995a51",
+      "bytes": 28695,
+      "sha256": "9793281ef3a7b5f45434a912e1fb68603a6fd2c47f3920ce50d85e9e79ea1c0c",
+      "status": "downloaded",
+      "license": "Upstream license retained; verify LICENSE file"
+    },
+    {
+      "file": "js-real-cve/CVE-2017-1000427/LICENSE",
+      "url": "https://raw.githubusercontent.com/markedjs/marked/38f1727ffee0820975677027b8968bc1954e6637/LICENSE",
+      "revision": "38f1727ffee0820975677027b8968bc1954e6637",
+      "bytes": 1096,
+      "sha256": "6ab3a4a6a465cf7dc4185d0befb57a8b6a3227f7425a1f2a7336b682139e421a",
+      "status": "downloaded",
+      "license": "Upstream license retained; verify LICENSE file"
+    },
+    {
+      "file": "js-real-cve/CVE-2017-1000427/LICENSE.md",
+      "url": "https://raw.githubusercontent.com/markedjs/marked/38f1727ffee0820975677027b8968bc1954e6637/LICENSE.md",
+      "status": "failed",
+      "error": "<HTTPError 404: 'Not Found'>"
+    },
+    {
+      "file": "js-real-cve/CVE-2017-16114/prePatch/lib/marked.js",
+      "url": "https://raw.githubusercontent.com/markedjs/marked/49b7eaca76d14ccd91f87decc11bbe213a6e0af4/lib/marked.js",
+      "revision": "49b7eaca76d14ccd91f87decc11bbe213a6e0af4",
+      "bytes": 28570,
+      "sha256": "3b2a90200ea0b14bd613ff098b55ab777e052841c00a160f682b5b1cadc71c5d",
+      "status": "downloaded",
+      "license": "Upstream license retained; verify LICENSE file"
+    },
+    {
+      "file": "js-real-cve/CVE-2017-16114/postPatch/lib/marked.js",
+      "url": "https://raw.githubusercontent.com/markedjs/marked/a37bd643f05bf95ff18cafa2b06e7d741d2e2157/lib/marked.js",
+      "revision": "a37bd643f05bf95ff18cafa2b06e7d741d2e2157",
+      "bytes": 28568,
+      "sha256": "c6d26686c1e340176b8bd7cf61771b01d419dd35fa26724bc48c5c0728fba400",
+      "status": "downloaded",
+      "license": "Upstream license retained; verify LICENSE file"
+    },
+    {
+      "file": "js-real-cve/CVE-2017-16114/LICENSE",
+      "url": "https://raw.githubusercontent.com/markedjs/marked/49b7eaca76d14ccd91f87decc11bbe213a6e0af4/LICENSE",
+      "revision": "49b7eaca76d14ccd91f87decc11bbe213a6e0af4",
+      "bytes": 1096,
+      "sha256": "6ab3a4a6a465cf7dc4185d0befb57a8b6a3227f7425a1f2a7336b682139e421a",
+      "status": "downloaded",
+      "license": "Upstream license retained; verify LICENSE file"
+    },
+    {
+      "file": "js-real-cve/CVE-2017-16114/LICENSE.md",
+      "url": "https://raw.githubusercontent.com/markedjs/marked/49b7eaca76d14ccd91f87decc11bbe213a6e0af4/LICENSE.md",
+      "status": "failed",
+      "error": "<HTTPError 404: 'Not Found'>"
+    },
+    {
+      "file": "js-real-cve/CVE-2018-16487/prePatch/lodash.js",
+      "url": "https://raw.githubusercontent.com/lodash/lodash/67389a8c78975d97505fa15aa79bec6397749807/lodash.js",
+      "revision": "67389a8c78975d97505fa15aa79bec6397749807",
+      "bytes": 539838,
+      "sha256": "ab06c398d54b882aa4a91069178eaae5b8d81f5d63e5c77e2be63a0f7fe36b6f",
+      "status": "downloaded",
+      "license": "Upstream license retained; verify LICENSE file"
+    },
+    {
+      "file": "js-real-cve/CVE-2018-16487/postPatch/lodash.js",
+      "url": "https://raw.githubusercontent.com/lodash/lodash/90e6199a161b6445b01454517b40ef65ebecd2ad/lodash.js",
+      "revision": "90e6199a161b6445b01454517b40ef65ebecd2ad",
+      "bytes": 540005,
+      "sha256": "12ed4a8009a8869fe7337cae5289e8f4942fbd7d047a41160bb09b3adf593938",
+      "status": "downloaded",
+      "license": "Upstream license retained; verify LICENSE file"
+    },
+    {
+      "file": "js-real-cve/CVE-2018-16487/LICENSE",
+      "url": "https://raw.githubusercontent.com/lodash/lodash/67389a8c78975d97505fa15aa79bec6397749807/LICENSE",
+      "revision": "67389a8c78975d97505fa15aa79bec6397749807",
+      "bytes": 1950,
+      "sha256": "e159c6d48c989185448658f276375bfb2300362ec6d4ae5525a2d49c4bcb947d",
+      "status": "downloaded",
+      "license": "Upstream license retained; verify LICENSE file"
+    },
+    {
+      "file": "js-real-cve/CVE-2018-16487/LICENSE.md",
+      "url": "https://raw.githubusercontent.com/lodash/lodash/67389a8c78975d97505fa15aa79bec6397749807/LICENSE.md",
+      "status": "failed",
+      "error": "<HTTPError 404: 'Not Found'>"
+    },
+    {
+      "file": "execution-patching-zenodo-record.json",
+      "bytes": 5991,
+      "sha256": "8687548a2dc5f445d4db7e1928d9f3fb50cabf6aff8dca04f77bcc32a9b4afe7",
+      "status": "local_metadata",
+      "license": "Metadata copied/derived from retained source archive"
+    },
+    {
+      "file": "js-real-cve/CVE-2017-1000427/label.json",
+      "bytes": 487,
+      "sha256": "46473803b9f0e6caa73871aad464b6d0c67e94e5527b18702bd77d596ff3b954",
+      "status": "local_metadata",
+      "license": "Metadata copied/derived from retained source archive"
+    },
+    {
+      "file": "js-real-cve/CVE-2017-16114/label.json",
+      "bytes": 503,
+      "sha256": "b87d8b9290a7604ae1d70a9353a57f206960eae74e6ef400d5b9845bb056e107",
+      "status": "local_metadata",
+      "license": "Metadata copied/derived from retained source archive"
+    },
+    {
+      "file": "js-real-cve/CVE-2018-16487/label.json",
+      "bytes": 541,
+      "sha256": "d23b6c0c1e2595b04cf497440b34ad1d618fd6633637880da5de8979c8486a1a",
+      "status": "local_metadata",
+      "license": "Metadata copied/derived from retained source archive"
+    }
+  ]
+}

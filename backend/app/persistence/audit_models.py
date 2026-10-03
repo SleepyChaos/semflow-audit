@@ -25,6 +25,9 @@ class AuditRun(SQLModel, table=True):
         default_factory=list, sa_column=Column(JSON, nullable=False)
     )
     coverage: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
+    custom_rule_ids: list[str] = Field(
+        default_factory=list, sa_column=Column(JSON, nullable=False)
+    )
     created_at: datetime = Field(
         default_factory=get_datetime_utc, sa_type=DateTime(timezone=True)
     )

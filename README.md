@@ -1,22 +1,17 @@
 # AI Code Audit
 
-结合 CodeQL 静态分析、AI 主动取证、修复验证和 RAG 规则生成的代码审计平台。
+结合 CodeQL 静态分析、AI 取证复审、隔离修复验证与 RAG 规则生成的四阶段审计原型。当前支持 Python 与 JavaScript/TypeScript 的 CodeQL 扫描。
 
-## 已实现：第一阶段
+## 四阶段能力
 
-- 登录、ZIP 上传和 Python / JavaScript / TypeScript 语言选择。
-- 上传安全检查、不可变快照哈希、用户任务隔离。
-- Celery 调度 LangGraph：CodeQL 建库 → 扫描 → 保存原始告警和证据。
-- 任务状态、日志、失败重试（创建独立执行记录）、漏洞位置、源码与数据流展示、SARIF 下载。
-- PostgreSQL 保存业务记录与 LangGraph 检查点。
-
-Python 和 JavaScript 漏洞样本已完成真实端到端扫描，分别检出 `py/code-injection` 和 `js/code-injection`。TypeScript 使用相同抽取器，尚未单独验收。AI 复审、修复与报告、RAG 规则三个阶段当前仅展示功能边界，尚未调用模型或实现业务。
+1. **CodeQL 审计**：ZIP 上传检查、不可变快照、固定查询包、原始 SARIF/源码/数据流、独立重试与取消、长期无进展执行回收。可选冻结最多 4 个已发布补充规则版本。
+2. **AI 复审**：按告警/路径选择范围，有限预算读取源码、搜索/调用线索、检索知识与执行已批准查询。所有结论关联真实证据；模型建议与人工确认分离，证据不足可弃权。
+3. **修复与报告**：只处理人工确认目标，限定文件，隔离副本精确补丁与 diff，Docker 语法/项目测试与冻结规则复扫。检查通过后人工接受；不会直接改写原上传源码。JSON/Markdown 报告保留历史与版本。
+4. **RAG 规则**：持久化、版本化知识块，实际 Haystack BM25 与可选 pgvector 混合检索，引用来源/版本/digest。策略选择、固定依赖、有限编译反馈、人工批准正反例、真实 CodeQL 验收后发布或退役。人工等待通过 LangGraph interrupt 释放 Worker。
 
 ## 本地启动
 
-需要 Docker Desktop、uv、Node.js 22+、CodeQL CLI 2.23.5、Python 3.11（CodeQL 抽取器）。API 使用 Python 3.14，依赖由 uv 安装。CodeQL 使用前请确认其许可适用于目标代码。
-
-在仓库根目录执行：
+需要 Docker Desktop、uv、Node.js 22+、CodeQL CLI 2.23.5、Python 3.11（抽取器）；API 使用 Python 3.14。依赖与模板提交均已锁定。CodeQL 的使用需符合其许可。
 
 ```sh
 python3 scripts/init_local.py
@@ -25,18 +20,23 @@ npm ci --prefix frontend
 docker compose up -d --wait
 mkdir -p artifacts/packs
 codeql pack download --dir "$PWD/artifacts/packs" codeql/python-queries@1.6.0 codeql/javascript-queries@1.4.0
+.venv/bin/python scripts/install_query_sources.py
+docker build -t ai-code-audit-validator:local -f runners/Dockerfile.python runners
+docker pull node:22-bookworm-slim
 ```
 
-初始化数据库：
+初始化数据库及知识（在 backend 目录）：
 
 ```sh
-cd backend
 ../.venv/bin/alembic upgrade head
 ../.venv/bin/python -m app.initial_data
 ../.venv/bin/python -m app.jobs.bootstrap
+../.venv/bin/python ../scripts/seed_knowledge.py
 ```
 
-三个终端分别启动（前两条从 backend 目录执行，第三条从仓库根目录执行）：
+设置根目录 `.env` 中的 `AI_BASE_URL`、`AI_MODEL`、`AI_API_KEY`（OpenAI 兼容服务）。可选 `EMBEDDING_MODEL` 需要同一网关支持 embeddings；没有配置向量服务仍支持实际 BM25。重启 API 与 Worker 后配置生效；生产模块没有假模型降级。
+
+三个终端启动，前两条从 backend 目录、第三条从仓库根目录：
 
 ```sh
 ../.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
@@ -44,26 +44,35 @@ cd backend
 npm run dev --prefix frontend -- --host 127.0.0.1
 ```
 
-打开 http://localhost:5173。管理员账号、随机密码保存在本地 `.env`，初始化脚本不会覆盖已有设置。配置选项见 `.env.example` 与 `backend/app/core/audit_config.py`。
+打开 http://localhost:5173；随机管理员密码保存在 `.env`。初始化脚本不覆盖已有配置。macOS 沙箱若限制 SWC 缓存，可设置 `SWC_NATIVE_BINDING_CACHE` 到仓库 `artifacts/swc`。
 
-## 验证
+## 代码与 CLI 验证
 
 ```sh
-.venv/bin/pytest tests/test_audit_core.py tests/test_audit_api.py -q
+.venv/bin/pytest -m 'not integration' -q
+AUDIT_RUN_REAL_TOOLS=1 .venv/bin/pytest tests/test_pipeline_live.py -q
 npm run build --prefix frontend
+.venv/bin/python scripts/benchmarks/run_local.py --rounds 3
+.venv/bin/python scripts/benchmarks/rag_retrieval.py
 ```
 
-API 测试需要数据库已初始化；使用独立临时用户并清理自己的记录。真实扫描验收可运行 `.venv/bin/python scripts/verify_live.py`，需 API、Worker 与 CodeQL 已启动；JavaScript 验收增加 `--language javascript`。开发服务器可能需要设置 `SWC_NATIVE_BINDING_CACHE` 到可写目录。
+普通测试需本地数据库已初始化。集成测试使用真实 CodeQL、Docker、PostgreSQL、LangGraph 检查点；模型回复为明确标注的测试替身，因此验证流程，不证明 LLM 准确率。测试只清理自己临时用户和线程记录。按照用户要求没有执行 GUI 测试。
 
-## 运行边界
+## 实际边界
 
-当前为本地开发版本，只审计可信代码。扫描进程无 shell、清理敏感环境变量并限制时间/内存，但尚未实现每任务容器隔离。Worker 异常退出后的运行中任务恢复、取消、产物过期清理及完整生产部署属于后续工作。检查点已保存，不代表外部命令自动恢复或恰好执行一次。
+- 这是可信本地代码的研究原型。CodeQL 仍运行在主机，尚未做逐任务扫描容器隔离；修复运行验证有 Docker 限制。
+- 没有真实模型配置时，AI 阶段不能执行。已有流程测试不等于真实审计/修复生成质量实验。
+- 调用者工具为语法/文本线索；`new_location` 表示不同位置，不证明独立漏洞根因。新增漏洞需人工确认和根因去重。
+- 通用验证镜像不自动安装项目依赖；TS/JSX 编译需要项目专用验证器，不能以跳过编译算通过。语法、复扫和模型自生成例不构成正确性证明。
+- 暂不包含自动 exploit 注册、反馈知识自动发布、完整生产部署/清理策略。知识来源 URL 仅记录，不自动访问。
+- 取消在当前外部调用结束后于阶段边界生效。回收阈值 45 分钟；旧执行保留，新重试创建独立快照记录。
 
-## 设计文档
+## 交付文档
 
+- [用户校准清单](docs/acceptance-checklist.md)
+- [完整论文与竞品实验方案](docs/research/experiment-plan.md)
+- [实际基准结果](docs/research/benchmark-results.md)
+- [论文与三项贡献建议](docs/research/papers-and-innovations.md)
+- [竞品与下载材料](docs/research/competitors-and-materials.md)
 - [功能链路与 GUI 流程](docs/product-workflow.md)
-- [技术栈与模块边界](docs/architecture.md)
-- [模板来源](docs/upstream.md)
-- [编码与解耦规范](AGENTS.md)
-
-后续顺序：AI 复审与取证 → 确认机制 → 修复与报告 → RAG 规则验收。
+- [模块边界](docs/architecture.md)、[模板来源](docs/upstream.md)、[编码约束](AGENTS.md)

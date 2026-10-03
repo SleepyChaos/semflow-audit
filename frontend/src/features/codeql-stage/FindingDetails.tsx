@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { getSource, type Finding } from "@/api/audits"
+import { type Finding, getSource } from "@/api/audits"
 export function FindingDetails({
   finding,
   runId,

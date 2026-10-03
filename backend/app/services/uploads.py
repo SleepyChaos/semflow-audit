@@ -11,7 +11,12 @@ from app.persistence.audit_models import AuditRun
 
 
 def create_run(
-    session: Session, owner_id, archive: Path, name: str, language: str
+    session: Session,
+    owner_id,
+    archive: Path,
+    name: str,
+    language: str,
+    custom_rule_ids: list[str] | None = None,
 ) -> AuditRun:
     identifier = uuid4()
     store = ArtifactStore()
@@ -37,6 +42,7 @@ def create_run(
             query_pack=pack,
             suite=f"codeql-suites/{prefix}-security-extended.qls",
             coverage=coverage,
+            custom_rule_ids=custom_rule_ids or [],
         )
         session.add(run)
         session.commit()

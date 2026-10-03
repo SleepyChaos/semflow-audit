@@ -34,3 +34,7 @@ extend-ignore-re = [
 
 [tool.typos.default.extend-identifiers]
 alls = "alls"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: requires actual CodeQL and Docker; enable AUDIT_RUN_REAL_TOOLS=1"]
