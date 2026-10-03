@@ -35,4 +35,4 @@
 
 GUI未测试，界面只经过静态检查和构建；手动校准条目见 `docs/acceptance-checklist.md`。
 
-补充库API语料通过 `scripts/curate_codeql_library.py` 导入隔离实验owner，清单见 `codeql-library-manifest.json`；三轮关闭思考的库知识实验仍编译失败，未提升生产默认效果。
+补充库API语料通过 `scripts/curate_codeql_library.py` 导入隔离实验owner，清单见 `codeql-library-manifest.json`；三轮关闭思考的库知识实验仍为编译/契约失败，未提升生产默认效果。2026-10-03复查显示该组候选/详细诊断留存不足，具体失败步骤不可还原；详见[论文与新方案](rule-generation-redesign-plan.md)。

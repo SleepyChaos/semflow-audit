@@ -1,0 +1,130 @@
+{
+  "accessed": "2026-10-03",
+  "papers": [
+    {
+      "id": "qlcoder2026",
+      "title": "QLCoder: A Query Synthesizer for Static Analysis of Security Vulnerabilities",
+      "year": 2026,
+      "status": "ICLR 2026; first preprint 2025",
+      "version": "2511.08462v3, 2026-03-19",
+      "url": "https://arxiv.org/html/2511.08462v3",
+      "read_scope": "methods, evaluation, ablations, discussion, LSP appendix",
+      "full_text_read": true
+    },
+    {
+      "id": "iris2025",
+      "title": "IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities",
+      "year": 2025,
+      "status": "ICLR 2025; first preprint 2024",
+      "version": "2405.17238v3",
+      "url": "https://arxiv.org/html/2405.17238v3",
+      "read_scope": "methods, evaluation, templates and error analysis",
+      "full_text_read": true
+    },
+    {
+      "id": "cqllm2026",
+      "title": "CQLLM: A Framework for Generating CodeQL Security Vulnerability Detection Code Based on Large Language Model",
+      "year": 2026,
+      "status": "Applied Sciences 16(1),517; published 2026-01-04",
+      "doi": "10.3390/app16010517",
+      "url": "https://www.mdpi.com/2076-3417/16/1/517",
+      "read_version_url": "https://www.preprints.org/manuscript/202510.1458/v1/download",
+      "read_scope": "publisher indexed text; author 2025 preprint methods, implementation, ablation and limitations",
+      "full_text_read": "2025 preprint only; final PDF unavailable"
+    },
+    {
+      "id": "qrs2026",
+      "title": "QRS: A Rule-Synthesizing Neuro-Symbolic Triad for Autonomous Vulnerability Discovery",
+      "year": 2026,
+      "status": "arXiv preprint",
+      "version": "2602.09774v1",
+      "url": "https://arxiv.org/html/2602.09774v1",
+      "read_scope": "methods, metrics, model observations and limitations",
+      "full_text_read": true
+    },
+    {
+      "id": "querygeneration2026",
+      "title": "Towards Scalable and Cost-Efficient Vulnerability Detection: A Study on Automatic Query Generation",
+      "year": 2026,
+      "status": "arXiv preprint, 2026-09-09",
+      "version": "2609.10412v1",
+      "url": "https://arxiv.org/html/2609.10412v1",
+      "read_scope": "method, data splits, syntax refiner, evaluation and false-positive discussion",
+      "full_text_read": true
+    },
+    {
+      "id": "coderag2025",
+      "title": "CodeRAG-Bench: Can Retrieval Augment Code Generation?",
+      "year": 2025,
+      "status": "Findings of NAACL 2025",
+      "doi": "10.18653/v1/2025.findings-naacl.176",
+      "url": "https://aclanthology.org/2025.findings-naacl.176.pdf",
+      "read_scope": "datasets, retrieval/generation evaluation, context experiments and limitations",
+      "full_text_read": true
+    },
+    {
+      "id": "qlm2026",
+      "title": "QLM: CodeQL Query Synthesis with Compositional PoC Validation",
+      "year": 2026,
+      "status": "ICSE 2026 Journal Ahead Workshop presentation",
+      "url": "https://conf.researchr.org/details/icse-2026/jaws-2026-papers/56/QLM-CodeQL-Query-Synthesis-with-Compositional-PoC-Validation",
+      "read_scope": "official conference abstract only",
+      "full_text_read": false
+    }
+  ],
+  "local_materials": "artifacts/research/rule-generation-2026-10-03",
+  "downloads": [
+    {
+      "file": "qlcoder-2511.08462v2.pdf",
+      "url": "https://arxiv.org/pdf/2511.08462v2",
+      "status": "unavailable",
+      "error": "URLError"
+    },
+    {
+      "file": "iris-2405.17238v3.pdf",
+      "url": "https://arxiv.org/pdf/2405.17238v3",
+      "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+      "bytes": 1888032,
+      "status": "downloaded"
+    },
+    {
+      "file": "qrs-2602.09774v1.pdf",
+      "url": "https://arxiv.org/pdf/2602.09774v1",
+      "sha256": "5a37521be0a66654ea098a9dbaf6b20c7f0819df98b953649313dbc91519c6c3",
+      "bytes": 1488276,
+      "status": "downloaded"
+    },
+    {
+      "file": "query-generation-2609.10412v1.pdf",
+      "url": "https://arxiv.org/pdf/2609.10412v1",
+      "sha256": "b3ead496ba1a43e3666bb5bb320cc7d5084d82144f79df4aab7e611566d7b8b6",
+      "bytes": 1079427,
+      "status": "downloaded"
+    },
+    {
+      "file": "coderag-2025.pdf",
+      "url": "https://aclanthology.org/2025.findings-naacl.176.pdf",
+      "sha256": "edc8bb5feee4b2ca802ae8a95bce8ba072f3a7b6b43ce0472730a8a97b9c266d",
+      "bytes": 1184477,
+      "status": "downloaded"
+    },
+    {
+      "file": "cqllm-2026.pdf",
+      "url": "https://mdpi-res.com/d_attachment/applsci/applsci-16-00517/article_deploy/applsci-16-00517.pdf",
+      "status": "unavailable",
+      "error": "URLError"
+    },
+    {
+      "file": "qlcoder-2511.08462v3.pdf",
+      "url": "https://arxiv.org/pdf/2511.08462v3",
+      "status": "unavailable",
+      "error": "IncompleteRead"
+    },
+    {
+      "file": "cqllm-preprint-2025.pdf",
+      "url": "https://www.preprints.org/manuscript/202510.1458/v1/download",
+      "status": "unavailable",
+      "error": "HTTPError"
+    }
+  ]
+}
