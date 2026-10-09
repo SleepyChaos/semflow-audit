@@ -15,9 +15,11 @@ from app.persistence.stage_repository import StageCancelled, StageRepository
 from app.services.repair import RepairService
 from app.services.review import ReviewService
 from app.services.rules import RuleService
+from app.services.scouting import ScoutService
 from app.workflows.repair import build_repair_graph
 from app.workflows.review import build_review_graph
 from app.workflows.rules import build_rule_graph
+from app.workflows.scouting import build_scout_graph
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +39,7 @@ def execute_stage(stage_id: str, resume: bool = False) -> None:
             "review": (ReviewService, build_review_graph),
             "repair": (RepairService, build_repair_graph),
             "rule": (RuleService, build_rule_graph),
+            "scout": (ScoutService, build_scout_graph),
         }
         service_type, graph_builder = services[stage.kind]
         service = service_type(stage_id, provider)

@@ -1,10 +1,8 @@
-import io
 from datetime import timedelta
 from uuid import uuid4
 from zipfile import ZipFile
+
 import pytest
-from fastapi.testclient import TestClient
-from sqlmodel import Session, delete, select
 from app.core.audit_config import audit_settings
 from app.core.db import engine
 from app.core.security import create_access_token
@@ -20,11 +18,16 @@ from app.persistence.stage_models import (
     StageRun,
 )
 from app.services.uploads import create_run
+from fastapi.testclient import TestClient
+from sqlmodel import Session, delete, select
 
 
 @pytest.fixture
 def pipeline_context(monkeypatch, tmp_path, request):
     monkeypatch.setattr(audit_settings, "ARTIFACT_ROOT", tmp_path)
+    # Ordinary tests must not inherit a real embedding gateway from local .env.
+    # Vector integration tests opt in explicitly with their deterministic embedder.
+    monkeypatch.setattr(audit_settings, "EMBEDDING_MODEL", "")
     user_id = uuid4()
     with Session(engine) as session:
         session.add(

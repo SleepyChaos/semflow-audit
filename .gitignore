@@ -18,9 +18,18 @@ uploads/
 codeql-dbs/
 *.sarif
 *.log
+# Migrated local dependencies, comparison checkouts and session outputs
+/.local-workspace/
 # OS / editor
 .DS_Store
 .idea/
 
 # Frontend production output
 /backend/app/frontend/
+
+# Local evaluation source, gold labels and third-party reading material
+/benchmark-data/raw/
+/benchmark-data/papers/
+/benchmark-data/evaluator-only/
+/benchmark-data/model-inputs/
+/benchmark-data/manifests/local-*.json

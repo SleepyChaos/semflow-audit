@@ -1,0 +1,35 @@
+{
+  "collected_at": "2026-10-05",
+  "stage": "collection_and_format_validation_only",
+  "catalog_dataset_entries": 29,
+  "catalog_literature_entries": 24,
+  "local_files": 10908,
+  "local_bytes": 292105947,
+  "pdf_files_including_upstream_docs": 48,
+  "paper_pdf_files": 18,
+  "valid_archive_files": 28,
+  "invalid_files": [
+    {
+      "file": "raw/rules/querygen-replication-63158995.zip",
+      "status": "invalid_empty"
+    },
+    {
+      "file": "raw/rules/source-metadata/querygen-code-page.html",
+      "status": "invalid_empty"
+    },
+    {
+      "file": "raw/rules/source-metadata/querygen-data-page.html",
+      "status": "invalid_empty"
+    }
+  ],
+  "project_pairs_downloaded": 6,
+  "project_pairs_requested": 6,
+  "not_done": [
+    "full prior-exposure audit",
+    "model input sanitization",
+    "target dependency setup",
+    "security/function oracle calibration",
+    "formal model evaluation"
+  ],
+  "runtime_tests_executed": false
+}

@@ -88,6 +88,7 @@ export interface KnowledgeDocument {
   indexed_chunks: number
   shared: boolean
   index_error: string | null
+  corpus: string
 }
 export interface Capabilities {
   model_configured: boolean
@@ -156,3 +157,14 @@ export interface RuleHoldout {
   hash: string
 }
 export const getRuleHoldouts = () => apiJson<RuleHoldout[]>("/rules/holdouts")
+export const confirmProjectMatch = (
+  id: string,
+  findingId: string,
+  reason: string,
+  baselineExclusionReason?: string,
+) =>
+  post<RuleVersion>(`/rules/${id}/confirm-project-match`, {
+    finding_id: findingId,
+    reason,
+    baseline_exclusion_reason: baselineExclusionReason,
+  })

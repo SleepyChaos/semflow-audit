@@ -66,6 +66,9 @@ def test_real_pgvector_cosine_retrieval_and_owner_filter(pipeline_context, monke
         for row in rows:
             row.embedding = [1.0, 0.0, 0.0]
             row.embedding_model = "test-vector-3d"
+            from app.adapters.retrieval.embedding_identity import embedding_identity
+            monkeypatch.setattr(audit_settings, "EMBEDDING_MODEL", "test-vector-3d")
+            row.embedding_identity = embedding_identity()
             session.add(row)
         session.commit()
 

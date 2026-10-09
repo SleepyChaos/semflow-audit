@@ -1,0 +1,1018 @@
+{
+  "date": "2026-10-04",
+  "experiments": {
+    "v7": {
+      "artifact": "/Users/chaos/Documents/Codex/2026-09-29/xin-j/ai-code-audit/artifacts/benchmarks/rag-stabilization-20261004",
+      "fresh_requests": 108,
+      "reused_controls": 0,
+      "groups": {
+        "bm25_v7": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 18,
+          "generated": 17,
+          "development_passed": 17,
+          "hidden_executed": 17,
+          "hidden_passed": 15,
+          "end_to_end_passed": 15,
+          "conditional_tp": 21,
+          "conditional_fp": 0,
+          "conditional_fn": 2,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.9130434782608695,
+          "generation_median_seconds": 43.07643795850163,
+          "total_median_seconds": 55.33295633249509,
+          "model_calls": 36,
+          "input_tokens": 227664,
+          "output_tokens": 26717,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "hidden_mismatch": 2,
+            "context_budget": 1
+          },
+          "successful_generation_median_seconds": 45.26064349999069,
+          "successful_total_median_seconds": 57.067459626006894,
+          "successful_unique_query_hashes": 5
+        },
+        "free_ql": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 12,
+          "generated": 8,
+          "development_passed": 8,
+          "hidden_executed": 8,
+          "hidden_passed": 8,
+          "end_to_end_passed": 8,
+          "conditional_tp": 11,
+          "conditional_fp": 0,
+          "conditional_fn": 0,
+          "conditional_precision": 1.0,
+          "conditional_recall": 1.0,
+          "generation_median_seconds": 64.85132904149941,
+          "total_median_seconds": 72.0192150829971,
+          "model_calls": 42,
+          "input_tokens": 290570,
+          "output_tokens": 47853,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "hidden_passed": 2,
+              "end_to_end_passed": 2
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "hidden_passed": 1,
+              "end_to_end_passed": 1
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "hidden_passed": 2,
+              "end_to_end_passed": 2
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "context_budget": 5,
+            "audit_error": 5
+          },
+          "successful_generation_median_seconds": 75.21925737449783,
+          "successful_total_median_seconds": 87.72074533299019,
+          "successful_unique_query_hashes": 8
+        },
+        "full_v7": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 16,
+          "generated": 15,
+          "development_passed": 15,
+          "hidden_executed": 15,
+          "hidden_passed": 12,
+          "end_to_end_passed": 12,
+          "conditional_tp": 16,
+          "conditional_fp": 0,
+          "conditional_fn": 3,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.8421052631578947,
+          "generation_median_seconds": 40.70904939599859,
+          "total_median_seconds": 53.32410408349824,
+          "model_calls": 34,
+          "input_tokens": 204011,
+          "output_tokens": 27338,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "hidden_passed": 1,
+              "end_to_end_passed": 1
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "hidden_passed": 2,
+              "end_to_end_passed": 2
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "context_budget": 1,
+            "hidden_mismatch": 3,
+            "evidence_insufficient": 2
+          },
+          "successful_generation_median_seconds": 43.81615647950093,
+          "successful_total_median_seconds": 56.294755270995665,
+          "successful_unique_query_hashes": 5
+        },
+        "no_compact": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 7,
+          "generated": 6,
+          "development_passed": 6,
+          "hidden_executed": 6,
+          "hidden_passed": 5,
+          "end_to_end_passed": 5,
+          "conditional_tp": 8,
+          "conditional_fp": 0,
+          "conditional_fn": 1,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.8888888888888888,
+          "generation_median_seconds": 5.9327035210008034,
+          "total_median_seconds": 5.9327035210008034,
+          "model_calls": 25,
+          "input_tokens": 126606,
+          "output_tokens": 19270,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "hidden_passed": 2,
+              "end_to_end_passed": 2
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "context_budget": 11,
+            "hidden_mismatch": 1,
+            "evidence_insufficient": 1
+          },
+          "successful_generation_median_seconds": 41.73013599999831,
+          "successful_total_median_seconds": 53.45556895900518,
+          "successful_unique_query_hashes": 2
+        },
+        "no_progress": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 18,
+          "generated": 17,
+          "development_passed": 17,
+          "hidden_executed": 17,
+          "hidden_passed": 15,
+          "end_to_end_passed": 15,
+          "conditional_tp": 21,
+          "conditional_fp": 0,
+          "conditional_fn": 2,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.9130434782608695,
+          "generation_median_seconds": 43.43513860399253,
+          "total_median_seconds": 56.187411291495664,
+          "model_calls": 38,
+          "input_tokens": 247440,
+          "output_tokens": 29501,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "hidden_mismatch": 2,
+            "context_budget": 1
+          },
+          "successful_generation_median_seconds": 43.840083457995206,
+          "successful_total_median_seconds": 56.616898541979026,
+          "successful_unique_query_hashes": 5
+        },
+        "old_K": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 18,
+          "generated": 18,
+          "development_passed": 18,
+          "hidden_executed": 18,
+          "hidden_passed": 15,
+          "end_to_end_passed": 15,
+          "conditional_tp": 21,
+          "conditional_fp": 0,
+          "conditional_fn": 3,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.875,
+          "generation_median_seconds": 33.8772739374981,
+          "total_median_seconds": 44.48369495900988,
+          "model_calls": 20,
+          "input_tokens": 98292,
+          "output_tokens": 15877,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "hidden_mismatch": 3
+          },
+          "successful_generation_median_seconds": 34.619871374976356,
+          "successful_total_median_seconds": 45.02468658401631,
+          "successful_unique_query_hashes": 5
+        }
+      },
+      "prompt_hashes": {
+        "3": "a066db137854c5cf20f86697185bc4befa61264e1a7ae4d349fece9c1df4342e",
+        "6": "4b2c849bc7ad8073c007c009d871836b0cdbf77b71c2bf95f346585cbce1bf1a",
+        "7": "b473ffbc75cc0305ea5f3235c30f562486a128213308de8c6acf8adb4f687ada"
+      },
+      "corpus_hash": "3af40f1e249a052fae3e1f6bd241e18b6fc72ff5694a7473a4abc97847ff5cc2",
+      "hidden_hash": "2778f39326b5b1c6e908fc3a43898026e7ad9b6739b1a68490b1d6ba901ce6f5",
+      "implementation_hashes": {
+        "backend/app/services/rule_synthesis.py": "8fda96685a14a69f465e84f43a24a64c7f7a6c515e0af5c715c92ade9fba0edb",
+        "backend/app/services/rule_context.py": "cf321dbfe17b954c55c161a99e2e5495b78285c7cf74b2d3afe916dddef5766c",
+        "backend/app/services/semantic_inspection.py": "06e93e04c02e7b5725cbbdd0652a51dace9aed98dc6d741a1c6af2a111334874",
+        "backend/app/services/inspection_progress.py": "1ef9c0dca3b07c8d573f8318b506c8e7701d625c59961fa96b037b96731bb1ca",
+        "backend/app/services/rule_materials.py": "424c62b6cdf4f5175c32337742e2b1b58aa8ffd28dd47968754e9bf47f1121d1",
+        "backend/app/adapters/codeql/grounded_spec.py": "5bc4edfa8d281dbc6e48a1a96db63d65543ec62eebf74c54f0f98b2c97759bc1",
+        "backend/app/adapters/retrieval/dual_corpus.py": "e9f8350f2c49f29be8f67a910ef15cd255b7e99a96b21864fe8c66c6b8053266",
+        "backend/app/adapters/retrieval/knowledge.py": "00efda5b994507bea06cbb2070c73a594e2159defc123f70247b1ab0a48033ee",
+        "backend/app/adapters/retrieval/quality.py": "06eb94fed9f320d997e4cebf485a561d52e0b69b3b6e6db75cb0d82f814437b1",
+        "backend/app/workflows/rules.py": "c82b4e814e9c784ff78021e46cc0e90c460a0d1e1f0287d31ad9b562721dd2f1"
+      },
+      "freeze_verification": {
+        "status": "passed",
+        "implementation_hashes": {
+          "backend/app/services/rule_synthesis.py": "8fda96685a14a69f465e84f43a24a64c7f7a6c515e0af5c715c92ade9fba0edb",
+          "backend/app/services/rule_context.py": "cf321dbfe17b954c55c161a99e2e5495b78285c7cf74b2d3afe916dddef5766c",
+          "backend/app/services/semantic_inspection.py": "06e93e04c02e7b5725cbbdd0652a51dace9aed98dc6d741a1c6af2a111334874",
+          "backend/app/services/inspection_progress.py": "1ef9c0dca3b07c8d573f8318b506c8e7701d625c59961fa96b037b96731bb1ca",
+          "backend/app/services/rule_materials.py": "424c62b6cdf4f5175c32337742e2b1b58aa8ffd28dd47968754e9bf47f1121d1",
+          "backend/app/adapters/codeql/grounded_spec.py": "5bc4edfa8d281dbc6e48a1a96db63d65543ec62eebf74c54f0f98b2c97759bc1",
+          "backend/app/adapters/retrieval/dual_corpus.py": "e9f8350f2c49f29be8f67a910ef15cd255b7e99a96b21864fe8c66c6b8053266",
+          "backend/app/adapters/retrieval/knowledge.py": "00efda5b994507bea06cbb2070c73a594e2159defc123f70247b1ab0a48033ee",
+          "backend/app/adapters/retrieval/quality.py": "06eb94fed9f320d997e4cebf485a561d52e0b69b3b6e6db75cb0d82f814437b1",
+          "backend/app/workflows/rules.py": "c82b4e814e9c784ff78021e46cc0e90c460a0d1e1f0287d31ad9b562721dd2f1"
+        },
+        "complete_records": 108
+      }
+    },
+    "v8": {
+      "artifact": "/Users/chaos/Documents/Codex/2026-09-29/xin-j/ai-code-audit/artifacts/benchmarks/rag-stabilization-v8-20261004",
+      "fresh_requests": 90,
+      "reused_controls": 18,
+      "groups": {
+        "bm25_v8": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 18,
+          "generated": 17,
+          "development_passed": 17,
+          "hidden_executed": 17,
+          "hidden_passed": 15,
+          "end_to_end_passed": 15,
+          "conditional_tp": 21,
+          "conditional_fp": 0,
+          "conditional_fn": 2,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.9130434782608695,
+          "generation_median_seconds": 49.046312541511725,
+          "total_median_seconds": 62.03547918700497,
+          "model_calls": 40,
+          "input_tokens": 298721,
+          "output_tokens": 34759,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "hidden_mismatch": 2,
+            "audit_error": 1
+          },
+          "successful_generation_median_seconds": 47.62074891701923,
+          "successful_total_median_seconds": 60.88687383403885,
+          "successful_unique_query_hashes": 5
+        },
+        "early_rag": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 18,
+          "generated": 17,
+          "development_passed": 17,
+          "hidden_executed": 17,
+          "hidden_passed": 15,
+          "end_to_end_passed": 15,
+          "conditional_tp": 21,
+          "conditional_fp": 0,
+          "conditional_fn": 2,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.9130434782608695,
+          "generation_median_seconds": 46.230973646001075,
+          "total_median_seconds": 59.17774183349684,
+          "model_calls": 39,
+          "input_tokens": 399783,
+          "output_tokens": 34681,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "audit_error": 1,
+            "hidden_mismatch": 2
+          },
+          "successful_generation_median_seconds": 45.994961791991955,
+          "successful_total_median_seconds": 58.85240691702347,
+          "successful_unique_query_hashes": 5
+        },
+        "free_ql": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 10,
+          "generated": 8,
+          "development_passed": 8,
+          "hidden_executed": 8,
+          "hidden_passed": 8,
+          "end_to_end_passed": 8,
+          "conditional_tp": 10,
+          "conditional_fp": 0,
+          "conditional_fn": 0,
+          "conditional_precision": 1.0,
+          "conditional_recall": 1.0,
+          "generation_median_seconds": 68.38982735450554,
+          "total_median_seconds": 80.21735183350393,
+          "model_calls": 45,
+          "input_tokens": 355229,
+          "output_tokens": 61820,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "hidden_passed": 1,
+              "end_to_end_passed": 1
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 2,
+              "hidden_passed": 2,
+              "end_to_end_passed": 2
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "hidden_passed": 1,
+              "end_to_end_passed": 1
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "hidden_passed": 1,
+              "end_to_end_passed": 1
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 0,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "audit_error": 8,
+            "context_budget": 2
+          },
+          "successful_generation_median_seconds": 81.60262297900044,
+          "successful_total_median_seconds": 94.18672502100526,
+          "successful_unique_query_hashes": 8
+        },
+        "full_v8": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 18,
+          "generated": 18,
+          "development_passed": 18,
+          "hidden_executed": 18,
+          "hidden_passed": 15,
+          "end_to_end_passed": 15,
+          "conditional_tp": 21,
+          "conditional_fp": 0,
+          "conditional_fn": 3,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.875,
+          "generation_median_seconds": 47.63895706200856,
+          "total_median_seconds": 60.297978312009946,
+          "model_calls": 39,
+          "input_tokens": 278145,
+          "output_tokens": 33605,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "hidden_mismatch": 3
+          },
+          "successful_generation_median_seconds": 47.44368941601715,
+          "successful_total_median_seconds": 60.2329147499986,
+          "successful_unique_query_hashes": 5
+        },
+        "no_scope_context": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 17,
+          "generated": 14,
+          "development_passed": 14,
+          "hidden_executed": 14,
+          "hidden_passed": 13,
+          "end_to_end_passed": 13,
+          "conditional_tp": 19,
+          "conditional_fp": 0,
+          "conditional_fn": 1,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.95,
+          "generation_median_seconds": 46.491336500504985,
+          "total_median_seconds": 58.809207562488155,
+          "model_calls": 40,
+          "input_tokens": 281202,
+          "output_tokens": 32700,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "hidden_passed": 1,
+              "end_to_end_passed": 1
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 1,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "hidden_mismatch": 1,
+            "context_budget": 1,
+            "schema_invalid": 1,
+            "audit_error": 2
+          },
+          "successful_generation_median_seconds": 46.47923870899831,
+          "successful_total_median_seconds": 59.39706379198469,
+          "successful_unique_query_hashes": 5
+        },
+        "old_K": {
+          "requests": 18,
+          "independent_tasks": 6,
+          "observed_compile_passed": 18,
+          "generated": 18,
+          "development_passed": 18,
+          "hidden_executed": 18,
+          "hidden_passed": 15,
+          "end_to_end_passed": 15,
+          "conditional_tp": 21,
+          "conditional_fp": 0,
+          "conditional_fn": 3,
+          "conditional_precision": 1.0,
+          "conditional_recall": 0.875,
+          "generation_median_seconds": 33.8772739374981,
+          "total_median_seconds": 44.48369495900988,
+          "model_calls": 20,
+          "input_tokens": 98292,
+          "output_tokens": 15877,
+          "response_models": [
+            "deepseek-v4-1-flash-260910"
+          ],
+          "per_case": {
+            "javascript-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "javascript-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-eval-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-sql-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 3,
+              "end_to_end_passed": 3
+            },
+            "python-xss-vulnerability_detector-v1": {
+              "requests": 3,
+              "generated": 3,
+              "hidden_passed": 0,
+              "end_to_end_passed": 0
+            }
+          },
+          "failure_codes": {
+            "hidden_mismatch": 3
+          },
+          "successful_generation_median_seconds": 34.619871374976356,
+          "successful_total_median_seconds": 45.02468658401631,
+          "successful_unique_query_hashes": 5
+        }
+      },
+      "prompt_hashes": {
+        "3": "a066db137854c5cf20f86697185bc4befa61264e1a7ae4d349fece9c1df4342e",
+        "6": "4b2c849bc7ad8073c007c009d871836b0cdbf77b71c2bf95f346585cbce1bf1a",
+        "8": "cc5f3cfe9212b5129f89efb7ed33dd16497281643e863ff6643f8d8d2eb8ec98"
+      },
+      "corpus_hash": "3af40f1e249a052fae3e1f6bd241e18b6fc72ff5694a7473a4abc97847ff5cc2",
+      "hidden_hash": "2778f39326b5b1c6e908fc3a43898026e7ad9b6739b1a68490b1d6ba901ce6f5",
+      "implementation_hashes": {
+        "backend/app/services/rule_synthesis.py": "9dfcedf038e10e9d3e8614e4a4daac718676ed1cae9a767c7cd787a8109bfaf3",
+        "backend/app/services/rule_context.py": "f5a54be4a50679f8a9bdaa5541a21b22a0b5ded7ee9c2e678769da8874190b95",
+        "backend/app/services/semantic_inspection.py": "64c3144445f0410a3edc0e3827c8e99b890badc68b679f999ba164fb2eb2093f",
+        "backend/app/services/inspection_progress.py": "1ef9c0dca3b07c8d573f8318b506c8e7701d625c59961fa96b037b96731bb1ca",
+        "backend/app/services/rule_materials.py": "e82740bb82c0b973387a93f1275e16a9de554912e187af73cbf2f7baaf0c2635",
+        "backend/app/adapters/codeql/grounded_spec.py": "5bc4edfa8d281dbc6e48a1a96db63d65543ec62eebf74c54f0f98b2c97759bc1",
+        "backend/app/adapters/retrieval/dual_corpus.py": "15abb078c83aa2580e605946d10343ed5d7b53518d44d0cce73934c125bed705",
+        "backend/app/adapters/retrieval/knowledge.py": "00efda5b994507bea06cbb2070c73a594e2159defc123f70247b1ab0a48033ee",
+        "backend/app/adapters/retrieval/quality.py": "06eb94fed9f320d997e4cebf485a561d52e0b69b3b6e6db75cb0d82f814437b1",
+        "backend/app/workflows/rules.py": "17966ccd1895d20f989d40a7cab66df176fced5e0536167ec5e3622463df937d",
+        "backend/app/services/rule_feedback.py": "4f3fb40e7a12dc182b4aa9dde190050b984bdc8321201cfedcbd8d347d281894",
+        "backend/app/services/rule_preparation_context.py": "752282d40b70ba69150b2d3e1d9fe35f67da43cf604bcb9dfd6fc5513297a815",
+        "backend/app/services/rule_output.py": "471fccabd61ef47b82effe3e0d922e778980b9a220eba73b1e0a1adf2d8d1038",
+        "backend/app/services/rules.py": "4ddcdc360159e4bce650afe204734c928325c8447f2959189737adb43917ae90",
+        "backend/app/services/rules_execution.py": "8a6992fa58248e08faedfd4a4a9d6a0802c9b151cf1bee4e8595c8d3061c93e9",
+        "backend/app/adapters/ai/provider.py": "cdddfc3dcd2ec61046c6b63fa1defa4367641a92471c149045331bf2f8336587",
+        "backend/app/services/context_materials.py": "194df41b20aa3596355157f5b6fa708f10b678059e437b33772ca62032a3636c",
+        "scripts/benchmarks/legacy_rag_scoring.py": "1d60fde3a6d06782fda1329b27ee9c829243e1bf455df3181b17ea2e3fabdfb8",
+        "scripts/benchmarks/legacy_rag_comparison.py": "058f92d64c2bba380613c2c6a93aa0f0fec6fd7b4008e47f69657c21363613ae"
+      },
+      "freeze_verification": {
+        "status": "passed",
+        "implementation_hashes": {
+          "backend/app/services/rule_synthesis.py": "9dfcedf038e10e9d3e8614e4a4daac718676ed1cae9a767c7cd787a8109bfaf3",
+          "backend/app/services/rule_context.py": "f5a54be4a50679f8a9bdaa5541a21b22a0b5ded7ee9c2e678769da8874190b95",
+          "backend/app/services/semantic_inspection.py": "64c3144445f0410a3edc0e3827c8e99b890badc68b679f999ba164fb2eb2093f",
+          "backend/app/services/inspection_progress.py": "1ef9c0dca3b07c8d573f8318b506c8e7701d625c59961fa96b037b96731bb1ca",
+          "backend/app/services/rule_materials.py": "e82740bb82c0b973387a93f1275e16a9de554912e187af73cbf2f7baaf0c2635",
+          "backend/app/adapters/codeql/grounded_spec.py": "5bc4edfa8d281dbc6e48a1a96db63d65543ec62eebf74c54f0f98b2c97759bc1",
+          "backend/app/adapters/retrieval/dual_corpus.py": "15abb078c83aa2580e605946d10343ed5d7b53518d44d0cce73934c125bed705",
+          "backend/app/adapters/retrieval/knowledge.py": "00efda5b994507bea06cbb2070c73a594e2159defc123f70247b1ab0a48033ee",
+          "backend/app/adapters/retrieval/quality.py": "06eb94fed9f320d997e4cebf485a561d52e0b69b3b6e6db75cb0d82f814437b1",
+          "backend/app/workflows/rules.py": "17966ccd1895d20f989d40a7cab66df176fced5e0536167ec5e3622463df937d",
+          "backend/app/services/rule_feedback.py": "4f3fb40e7a12dc182b4aa9dde190050b984bdc8321201cfedcbd8d347d281894",
+          "backend/app/services/rule_preparation_context.py": "752282d40b70ba69150b2d3e1d9fe35f67da43cf604bcb9dfd6fc5513297a815",
+          "backend/app/services/rule_output.py": "471fccabd61ef47b82effe3e0d922e778980b9a220eba73b1e0a1adf2d8d1038",
+          "backend/app/services/rules.py": "4ddcdc360159e4bce650afe204734c928325c8447f2959189737adb43917ae90",
+          "backend/app/services/rules_execution.py": "8a6992fa58248e08faedfd4a4a9d6a0802c9b151cf1bee4e8595c8d3061c93e9",
+          "backend/app/adapters/ai/provider.py": "cdddfc3dcd2ec61046c6b63fa1defa4367641a92471c149045331bf2f8336587",
+          "backend/app/services/context_materials.py": "194df41b20aa3596355157f5b6fa708f10b678059e437b33772ca62032a3636c",
+          "scripts/benchmarks/legacy_rag_scoring.py": "1d60fde3a6d06782fda1329b27ee9c829243e1bf455df3181b17ea2e3fabdfb8",
+          "scripts/benchmarks/legacy_rag_comparison.py": "058f92d64c2bba380613c2c6a93aa0f0fec6fd7b4008e47f69657c21363613ae"
+        },
+        "complete_records": 108
+      }
+    }
+  },
+  "source_extension": {
+    "requests": 3,
+    "compiled": 3,
+    "development_passed": 3,
+    "project_replay_statuses": {
+      "candidate_match_needs_confirmation": 3
+    },
+    "holdout_passed": 3,
+    "additional_passed": 3,
+    "unique_rule_hashes": 1,
+    "seconds": [
+      118.8910175000201,
+      77.6904778330063,
+      87.39566820798791
+    ],
+    "budget_rule_tokens": 8000
+  },
+  "corpus": {
+    "reference_sources": 271,
+    "examples": 141,
+    "official_examples_passed": 130,
+    "official_tests_passed": 133,
+    "official_tests_failed": 3
+  },
+  "availability_checks": {
+    "checks": 40,
+    "statuses": {
+      "passed": 40
+    }
+  },
+  "limitations": [
+    "Six task families repeated three times, not eighteen independent vulnerabilities",
+    "Old v8 controls are referenced, not regenerated",
+    "FP/TP/FN conditioned on executed generated rules; failures remain in end-to-end denominator",
+    "Hand-authored external API cases are not a public benchmark and repeated rules may have identical hashes",
+    "Embedding costs are excluded from chat usage, included in generation wall time",
+    "Local caches, interleaving and supplementary tests limit speed inference"
+  ],
+  "acceptance": {
+    "status": "complete",
+    "ordinary_tests_passed": 136,
+    "real_cli_integration_passed": 2,
+    "api_prompt_version": "8",
+    "api_rule_output_tokens": 6000,
+    "worker_reload": {
+      "old_pid": 547,
+      "new_pid": 70337,
+      "status": "ready",
+      "warm_shutdown": "idle_worker_only",
+      "rule_prompt_version": "8",
+      "rule_output_tokens": 6000,
+      "log": "/Users/chaos/Documents/Codex/2026-09-29/xin-j/ai-code-audit/artifacts/runtime/worker-v8-20261004.log",
+      "worker": "audit-local@ChaosdeMacBook-Pro.local"
+    },
+    "runtime_health": {
+      "api_health_status": 200,
+      "configured_account_login_status": 200,
+      "capability_status": 200,
+      "capabilities": {
+        "model_configured": true,
+        "prompt_version": "8",
+        "rule_output_tokens": 6000,
+        "rule_generation": {
+          "stable_detector_families": [
+            "eval",
+            "sql",
+            "reflected_xss"
+          ],
+          "source_extension_scope": "python_eval_external_call_return",
+          "other_purposes_and_strategies": "experimental_free_ql_draft",
+          "project_confirmation": "human_required"
+        },
+        "embedding_model": "doubao-embedding-vision",
+        "embedding_revision": "doubao-embedding-vision-251215",
+        "reranker": null
+      }
+    },
+    "product_retrieval_initial": {
+      "checks": 20,
+      "passed": 16
+    },
+    "product_retrieval_final": {
+      "checks": 20,
+      "passed": 20
+    },
+    "default_retrieval_identity_checks": {
+      "checks": 12,
+      "passed": 12
+    },
+    "postfreeze_delta_artifact": "artifacts/research/rag-v8-postfreeze-deployment-delta.json",
+    "gui_tests": "not_run",
+    "exploit_replay": "not_added",
+    "frontend": "No new frontend edits in this stabilization phase; prior TypeScript/Vite build passed"
+  }
+}

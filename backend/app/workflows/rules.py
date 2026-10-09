@@ -18,6 +18,8 @@ class RuleState(TypedDict, total=False):
     draft_ok: bool
     draft_path: str
     candidate_digest: str
+    materials_id: str
+    materials_digest: str
 
 
 def add_generation_nodes(graph, service):
@@ -44,9 +46,28 @@ def add_generation_nodes(graph, service):
     )
     graph.add_conditional_edges(
         "execute_development",
-        lambda s: retry_or(s, "save_rule"),
-        ["save_rule", "generate_rule", "attempts_exhausted"],
+        lambda s: retry_or(
+            s,
+            "project_single_rule"
+            if service.stage.prompt_version in {"6", "7", "8"}
+            else "save_rule",
+        ),
+        ["project_single_rule", "save_rule", "generate_rule", "attempts_exhausted"]
+        if service.stage.prompt_version in {"6", "7", "8"}
+        else ["save_rule", "generate_rule", "attempts_exhausted"],
     )
+    if service.stage.prompt_version in {"6", "7", "8"}:
+        graph.add_node(
+            "project_single_rule",
+            timed_node(
+                service.directory, "project_single_rule", synthesis.replay_project
+            ),
+        )
+        graph.add_conditional_edges(
+            "project_single_rule",
+            lambda s: retry_or(s, "save_rule"),
+            ["save_rule", "generate_rule", "attempts_exhausted"],
+        )
     graph.add_edge("attempts_exhausted", END)
 
 

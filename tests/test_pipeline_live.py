@@ -1,6 +1,8 @@
 """CLI integration uses scripted model responses, real graphs, CodeQL and Docker."""
 
+import json
 import os
+import re
 
 import pytest
 from app.adapters.artifacts import ArtifactStore
@@ -36,8 +38,17 @@ def test_full_pipeline_with_real_codeql_docker_and_checkpoint_resume(
     assert audit["status"] == "completed", audit.get("error")
     assert any(row["rule"] == "py/code-injection" for row in audit["findings"])
     import app.jobs.stages as tasks
+    import app.services.dual_scanning as dual_tasks
 
     monkeypatch.setattr(tasks, "CompatibleModel", ScriptedModel)
+    original_factory = dual_tasks.DualScanService.__init__
+    monkeypatch.setattr(
+        dual_tasks.DualScanService,
+        "__init__",
+        lambda self, scanner_service: original_factory(
+            self, scanner_service, ScriptedModel
+        ),
+    )
     monkeypatch.setattr(
         execute_stage,
         "delay",
@@ -81,6 +92,33 @@ def test_full_pipeline_with_real_codeql_docker_and_checkpoint_resume(
         ).status_code
         == 200
     )
+    from pathlib import Path
+
+    from app.adapters.codeql.custom import fixed_dependencies
+    from app.adapters.retrieval.knowledge import import_knowledge
+
+    version = fixed_dependencies("python")["codeql/python-all"]["version"]
+    content = Path("docs/knowledge/python-codeql.md").read_text()
+    for title in ("CodeInjectionQuery", "CodeInjectionCustomizations", "ApiGraphs"):
+        import_knowledge(
+            ctx["owner"],
+            title,
+            "integration:" + title,
+            "python",
+            content,
+            {"api_version": version},
+            corpus="reference",
+        )
+    for corpus in ("reference", "rule_example"):
+        import_knowledge(
+            ctx["owner"],
+            "Python eval fixture",
+            "integration:" + corpus,
+            "python",
+            content,
+            {"api_version": version, "cwe": "CWE-094"},
+            corpus=corpus,
+        )
     response = api.post(
         f"/api/v1/audits/{ctx['run_id']}/rule",
         json={
@@ -88,7 +126,7 @@ def test_full_pipeline_with_real_codeql_docker_and_checkpoint_resume(
             "strategy": "new_query",
             "purpose": "review_anchor",
             "holdout_id": "python-eval-review_anchor-v1",
-            "candidate_id": candidate["id"],
+            "source_paths": ["app.py"],
         },
     )
     assert response.status_code == 201, response.text
@@ -140,7 +178,10 @@ def test_full_pipeline_with_real_codeql_docker_and_checkpoint_resume(
     evidence = execute_evidence_query(
         EvidenceService(str(ctx["run_id"]), review["id"], []), rule["id"]
     )
-    assert evidence["kind"] == "query" and "custom/dynamic-eval" in evidence["content"]
+    assert evidence["kind"] == "query"
+    identifier = re.search(r"@id\s+(\S+)", rule["query"])[1]
+    assert any(f["rule"] == identifier for f in json.loads(evidence["content"]))
+    assert evidence["reference"]["query_hash"] == rule["query_hash"]
     report = api.get(f"/api/v1/audits/{ctx['run_id']}/report").json()
     assert report["repairs"][0]["status"] == "accepted"
     assert report["rules"][0]["status"] == "published"

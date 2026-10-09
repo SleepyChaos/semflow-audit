@@ -1,6 +1,7 @@
 """Configured OpenAI-compatible provider. No simulated responses in application code."""
 
 import json
+import math
 from hashlib import sha256
 from pathlib import Path
 from time import monotonic
@@ -46,7 +47,42 @@ class CompatibleModel:
         self.response_directory = ArtifactStore().directory(stage_id)
         stage = repository.get(stage_id)
         self.policy = stage.model_config_snapshot or policy_snapshot()
-        version = prompt_version if stage.kind in {"rule", "review"} else "1"
+        if stage.kind == "review" and prompt_version in {"6", "7", "8", "9", "10"}:
+            self.policy = {
+                **self.policy,
+                "budgets": {
+                    **self.policy["budgets"],
+                    "review": min(8192, self.policy["budgets"]["review"]),
+                },
+            }
+        if stage.kind == "scout" and prompt_version in {"6", "7", "8"}:
+            self.policy = {
+                **self.policy,
+                "budgets": {
+                    **self.policy["budgets"],
+                    "scout": max(6000, self.policy["budgets"]["scout"]),
+                },
+            }
+        if stage.kind == "repair" and prompt_version == "2":
+            self.policy = {
+                **self.policy,
+                "max_calls": min(12, self.policy["max_calls"]),
+            }
+        if (stage.kind, prompt_version) in {
+            ("repair", "2"),
+            ("rule", "6"),
+            ("rule", "7"),
+            ("rule", "8"),
+        } and "semantic_policy" not in self.policy:
+            self.policy = {
+                **self.policy,
+                "semantic_policy": {
+                    "context_chars": audit_settings.SEMANTIC_CONTEXT_CHARS,
+                    "tool_limit": audit_settings.SEMANTIC_TOOL_LIMIT,
+                    "repair_attempts": audit_settings.REPAIR_ATTEMPTS,
+                },
+            }
+        version = prompt_version
         self.prompt_snapshot = self.policy.get("prompt_snapshot")
         if self.prompt_snapshot is None:
             prompt = (PROMPTS / f"{stage.kind}.v{version}.txt").read_text()
@@ -82,7 +118,7 @@ class CompatibleModel:
     def generate(self, purpose: str, payload: dict, schema: type[Response]) -> Response:
         if not self.model:
             raise AuditError("未配置 AI_MODEL")
-        version = self.prompt_version if purpose in {"review", "rule"} else "1"
+        version = self.prompt_version
         if self.prompt_snapshot is not None:
             if (purpose, version) != (
                 self.prompt_snapshot["purpose"],
@@ -108,6 +144,7 @@ class CompatibleModel:
         ]
         output = self.policy["budgets"][purpose]
         for attempt in range(2):
+            validation_feedback = None
             input_bound = len(json.dumps(messages, ensure_ascii=False).encode()) + 256
             timeout = self.budget.reserve(output, input_bound)
             record = {
@@ -128,6 +165,7 @@ class CompatibleModel:
                 "input_tokens": None,
                 "output_tokens": None,
                 "reasoning_tokens": None,
+                "cached_input_tokens": None,
                 "finish_reason": None,
                 "response_model": None,
                 "error_code": None,
@@ -164,6 +202,10 @@ class CompatibleModel:
                 if completion.usage:
                     record["input_tokens"] = completion.usage.prompt_tokens
                     record["output_tokens"] = completion.usage.completion_tokens
+                    prompt_details = completion.usage.prompt_tokens_details
+                    record["cached_input_tokens"] = (
+                        prompt_details.cached_tokens if prompt_details else None
+                    )
                     details = completion.usage.completion_tokens_details
                     record["reasoning_tokens"] = (
                         details.reasoning_tokens if details else None
@@ -193,7 +235,15 @@ class CompatibleModel:
                 error = AuditError(
                     f"模型服务请求失败（{type(exc).__name__}）；检查服务配置"
                 )
-            except ValidationError:
+            except ValidationError as exc:
+                validation_feedback = [
+                    {
+                        "location": list(row["loc"]),
+                        "type": row["type"],
+                        "message": row["msg"][:500],
+                    }
+                    for row in exc.errors(include_input=False, include_url=False)[:12]
+                ]
                 record["error_code"] = "schema_invalid"
                 error = AuditError("模型输出不符合结构契约；未确认任何漏洞")
             finally:
@@ -218,7 +268,8 @@ class CompatibleModel:
                     *messages,
                     {
                         "role": "user",
-                        "content": "The previous response failed the supplied JSON schema. Regenerate the complete response using only the original evidence and schema. Do not invent missing evidence or locations.",
+                        "content": "The previous response failed validation. Correct the complete response using only original evidence. Preserve unresolved premises: choose insufficient/pending when a supported/excluded verdict conflicts with them; do not remove unknowns to make a verdict pass. Do not invent evidence or locations. Diagnostics: "
+                        + json.dumps(validation_feedback, ensure_ascii=False),
                     },
                 ]
                 continue
@@ -231,10 +282,41 @@ class CompatibleModel:
             raise AuditError("未配置 EMBEDDING_MODEL")
         try:
             result = self.client.embeddings.create(
-                model=audit_settings.EMBEDDING_MODEL, input=texts
+                model=audit_settings.EMBEDDING_MODEL,
+                input=texts,
+                encoding_format="float",
+                **(
+                    {"dimensions": audit_settings.EMBEDDING_DIMENSIONS}
+                    if audit_settings.EMBEDDING_DIMENSIONS
+                    else {}
+                ),
             )
-            return [
+            if (
+                audit_settings.EMBEDDING_REVISION
+                and result.model != audit_settings.EMBEDDING_REVISION
+            ):
+                raise AuditError("向量模型服务版本变化，请核实版本后重新索引")
+            if [
+                row.index for row in sorted(result.data, key=lambda row: row.index)
+            ] != list(range(len(texts))):
+                raise AuditError("向量返回索引不完整或重复")
+            vectors = [
                 row.embedding for row in sorted(result.data, key=lambda row: row.index)
             ]
+            if (
+                any(
+                    not vector
+                    or not all(math.isfinite(value) for value in vector)
+                    or not any(vector)
+                    or (
+                        audit_settings.EMBEDDING_DIMENSIONS
+                        and len(vector) != audit_settings.EMBEDDING_DIMENSIONS
+                    )
+                    for vector in vectors
+                )
+                or len({len(v) for v in vectors}) != 1
+            ):
+                raise AuditError("向量返回维度或数值无效")
+            return vectors
         except OpenAIError as exc:
             raise AuditError("向量服务请求失败；不降级伪造向量") from exc

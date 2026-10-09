@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import select
 
+from app.adapters.retrieval.embedding_identity import embedding_identity
 from app.adapters.retrieval.knowledge import KnowledgeRetriever, import_knowledge
 from app.api.deps import CurrentUser, SessionDep
 from app.contracts.stages import KnowledgeRequest
@@ -26,7 +27,18 @@ def capabilities(_user: CurrentUser):
         if not audit_settings.EMBEDDING_MODEL
         else "haystack_bm25+optional_pgvector",
         "thinking_mode": audit_settings.AI_THINKING_MODE,
-        "prompt_version": "2",
+        "prompt_version": "8",
+        "corpora": ["reference", "rule_example"],
+        "rule_output_tokens": audit_settings.AI_RULE_TOKENS
+        or audit_settings.AI_MAX_OUTPUT_TOKENS,
+        "rule_generation": {
+            "stable_detector_families": ["eval", "sql", "reflected_xss"],
+            "source_extension_scope": "python_eval_external_call_return",
+            "other_purposes_and_strategies": "experimental_free_ql_draft",
+            "project_confirmation": "human_required",
+        },
+        "reranker": None,
+        "embedding_revision": audit_settings.EMBEDDING_REVISION or None,
     }
 
 
@@ -41,7 +53,13 @@ def add(body: KnowledgeRequest, user: CurrentUser):
     }
     metadata["trust"] = "user_supplied"
     return import_knowledge(
-        user.id, body.title, body.source, body.language, body.content, metadata
+        user.id,
+        body.title,
+        body.source,
+        body.language,
+        body.content,
+        metadata,
+        corpus=body.corpus,
     )
 
 
@@ -67,15 +85,23 @@ def documents(session: SessionDep, user: CurrentUser):
                 "version": row.version,
                 "language": row.language,
                 "provenance": row.provenance,
+                "corpus": row.corpus,
+                "embedding_identity": row.embedding_identity,
                 "shared": row.owner_id is None,
                 "chunks": 0,
                 "indexed_chunks": 0,
+                "stale_indexed_chunks": 0,
                 "embedding_model": row.embedding_model,
                 "index_error": row.embedding_error,
             },
         )
         item["chunks"] += 1
-        item["indexed_chunks"] += int(row.embedding is not None)
+        item["indexed_chunks"] += int(
+            row.embedding is not None and row.embedding_identity == embedding_identity()
+        )
+        item["stale_indexed_chunks"] += int(
+            row.embedding is not None and row.embedding_identity != embedding_identity()
+        )
     return list(result.values())
 
 
@@ -86,12 +112,13 @@ def search(
     language: str = "python",
     mode: str = "auto",
     api_version: str | None = None,
+    corpus: str | None = None,
 ):
     if language not in {"python", "javascript"}:
         raise HTTPException(422, "知识检索语言无效")
     try:
         return KnowledgeRetriever().retrieve(
-            user.id, language, query, mode=mode, api_version=api_version
+            user.id, language, query, mode=mode, api_version=api_version, corpus=corpus
         )
     except AuditError as exc:
         raise HTTPException(422, str(exc))

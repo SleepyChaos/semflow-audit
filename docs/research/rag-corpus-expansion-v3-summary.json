@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-04",
+  "previous_curated": {
+    "reference_units": 40,
+    "complete_rule_examples": 28,
+    "official_development_passed": 22,
+    "official_development_failed": 6
+  },
+  "current_curated": {
+    "reference_units": 271,
+    "complete_rule_examples": 141,
+    "official_development_passed": 22,
+    "official_development_failed_excluded": 6,
+    "additional_compiler_only_passed": 113,
+    "eligible_examples": 135,
+    "reference_by_language": {
+      "python": 103,
+      "javascript": 168
+    },
+    "examples_by_language": {
+      "python": 44,
+      "javascript": 97
+    },
+    "reference_categories": {
+      "security_dataflow": 179,
+      "framework": 76,
+      "core_dataflow_and_api": 16
+    },
+    "cwe_directory_groups": 62
+  },
+  "database_before": {
+    "total_document_versions": 196,
+    "total_chunks": 409,
+    "public_document_versions": 180,
+    "private_document_versions": 16,
+    "public_by_corpus": {
+      "reference": {
+        "document_versions": 93,
+        "unique_sources": 40,
+        "chunks": 258,
+        "validation": {
+          "reference_source": 93
+        },
+        "fully_indexed_document_versions": 78
+      },
+      "rule_example": {
+        "document_versions": 83,
+        "unique_sources": 56,
+        "chunks": 83,
+        "validation": {
+          "reference_source": 28,
+          "passed": 29,
+          "failed": 26
+        },
+        "fully_indexed_document_versions": 55
+      },
+      "unclassified": {
+        "document_versions": 4,
+        "unique_sources": 2,
+        "chunks": 4,
+        "validation": {
+          "reference_source": 4
+        },
+        "fully_indexed_document_versions": 0
+      }
+    },
+    "public_by_language": {
+      "python": 103,
+      "javascript": 77
+    },
+    "public_indexed_chunks_current_identity": 279
+  },
+  "database_after": {
+    "total_document_versions": 540,
+    "total_chunks": 832,
+    "public_document_versions": 524,
+    "public_chunks": 768,
+    "private_document_versions": 16,
+    "public_by_corpus": {
+      "reference": {
+        "document_versions": 324,
+        "unique_sources": 271,
+        "chunks": 566,
+        "validation": {
+          "reference_source": 324
+        },
+        "eligible_document_versions_under_current_filter": 324,
+        "eligible_unique_sources": 271,
+        "eligible_fully_current_indexed_document_versions": 309,
+        "eligible_fully_current_indexed_unique_sources": 271
+      },
+      "rule_example": {
+        "document_versions": 196,
+        "unique_sources": 169,
+        "chunks": 198,
+        "validation": {
+          "reference_source": 28,
+          "passed": 142,
+          "failed": 26
+        },
+        "eligible_document_versions_under_current_filter": 170,
+        "eligible_unique_sources": 163,
+        "eligible_fully_current_indexed_document_versions": 142,
+        "eligible_fully_current_indexed_unique_sources": 135
+      },
+      "unclassified": {
+        "document_versions": 4,
+        "unique_sources": 2,
+        "chunks": 4,
+        "validation": {
+          "reference_source": 4
+        },
+        "eligible_document_versions_under_current_filter": 4,
+        "eligible_unique_sources": 2,
+        "eligible_fully_current_indexed_document_versions": 0,
+        "eligible_fully_current_indexed_unique_sources": 0
+      }
+    },
+    "public_by_language": {
+      "python": 215,
+      "javascript": 309
+    },
+    "public_current_indexed_chunks": 702,
+    "public_chunks_by_language_corpus": {
+      "python:unclassified": 2,
+      "javascript:unclassified": 2,
+      "python:reference": 274,
+      "python:rule_example": 75,
+      "javascript:rule_example": 123,
+      "javascript:reference": 292
+    },
+    "note": "Historical versions count separately; distinct sources can still refer to the same official query. Legacy unverified examples are allowed by the current filter and are not claimed development-validated."
+  },
+  "index_errors": 0,
+  "new_rule_compilation": {
+    "first_pass": 112,
+    "total": 113,
+    "corrected_missing_private_helper": 1,
+    "final_passed": 113,
+    "not_an_effectiveness_score": true
+  },
+  "coverage_smoke": {
+    "meaning": "40 retrieval checks over 20 language/CWE tasks. No rule generation, compiler execution or vulnerability accuracy is inferred. Matching CWE tags and nonempty slots establish availability, not relevance correctness.",
+    "checks": 40,
+    "statuses": {
+      "passed": 36,
+      "materials_missing": 4
+    },
+    "by_mode": {
+      "bm25": {
+        "passed": 18,
+        "materials_missing": 2
+      },
+      "hybrid": {
+        "passed": 18,
+        "materials_missing": 2
+      }
+    }
+  },
+  "coverage_gaps": [
+    {
+      "language": "javascript",
+      "cwe": "CWE-089",
+      "mode": "bm25",
+      "status": "materials_missing"
+    },
+    {
+      "language": "javascript",
+      "cwe": "CWE-089",
+      "mode": "hybrid",
+      "status": "materials_missing"
+    },
+    {
+      "language": "javascript",
+      "cwe": "CWE-943",
+      "mode": "bm25",
+      "status": "materials_missing"
+    },
+    {
+      "language": "javascript",
+      "cwe": "CWE-943",
+      "mode": "hybrid",
+      "status": "materials_missing"
+    }
+  ],
+  "normal_tests": {
+    "target": "tests/test_corpus_expansion.py",
+    "passed": 3
+  },
+  "commits": {
+    "python": "4ece8abc3032a266eb4b9839442d8be5084552ea",
+    "javascript": "c524a98eb91c769cb2994b8373181c2ebd27c20f"
+  },
+  "excluded_oversized_examples": [
+    {
+      "language": "python",
+      "query": "Security/CWE-020-ExternalAPIs/ExternalAPIsUsedWithUntrustedData.ql",
+      "reason": "complete_bundle_exceeds_existing_context_contract",
+      "characters": 8890
+    },
+    {
+      "language": "python",
+      "query": "Security/CWE-020-ExternalAPIs/UntrustedDataToExternalAPI.ql",
+      "reason": "complete_bundle_exceeds_existing_context_contract",
+      "characters": 9032
+    },
+    {
+      "language": "python",
+      "query": "Security/CWE-327/InsecureProtocol.ql",
+      "reason": "complete_bundle_exceeds_existing_context_contract",
+      "characters": 25307
+    },
+    {
+      "language": "javascript",
+      "query": "Security/CWE-094/ExpressionInjection.ql",
+      "reason": "complete_bundle_exceeds_existing_context_contract",
+      "characters": 10335
+    },
+    {
+      "language": "javascript",
+      "query": "Security/CWE-915/PrototypePollutingFunction.ql",
+      "reason": "complete_bundle_exceeds_existing_context_contract",
+      "characters": 20080
+    }
+  ],
+  "limitations": [
+    "Compiler-only examples have no official developer or independent hidden pass claim",
+    "JavaScript SQL remains developer-failed and excluded",
+    "The combined SQL/NoSQL query has multiple CWE tags; current metadata/filter records one directory CWE",
+    "Stored historical and unverified versions remain in the database; canonical sources and chunks are different counts",
+    "No new rule-generation comparison was run; previous 15/18 versus 1/18 result remains the effect evidence",
+    "No generated-rule publication or GUI tests"
+  ],
+  "artifacts": {
+    "manifest": "artifacts/materials/rag-corpus-v3/manifest.json",
+    "index_inventory": "artifacts/research/rag-inventory-after-expansion-20261004.json",
+    "coverage": "artifacts/research/corpus-coverage-v3.json",
+    "recovery": "artifacts/materials/rag-corpus-v3/validation/batch-recovery-receipt.json"
+  }
+}

@@ -35,6 +35,7 @@ export function RulePanel({
     [purpose, setPurpose] = useState("review_anchor"),
     [holdout, setHoldout] = useState("none"),
     [candidate, setCandidate] = useState("none")
+  const [sourcePaths, setSourcePaths] = useState("")
   const cache = useQueryClient(),
     busy = stages.some((item) => ["queued", "running"].includes(item.status))
   const candidates = useQuery({
@@ -58,6 +59,10 @@ export function RulePanel({
         purpose,
         holdout_id: holdout === "none" ? null : holdout,
         candidate_id: candidate === "none" ? null : candidate,
+        source_paths: sourcePaths
+          .split(/\r?\n/)
+          .map((path) => path.trim())
+          .filter(Boolean),
       }),
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
@@ -66,7 +71,7 @@ export function RulePanel({
     <section className="stage-section">
       <h3>RAG 规则生成与验收</h3>
       <p>
-        先检索知识与分析已有覆盖，再选择建模、扩展或新查询。样本批准、验收和发布分别记录。
+        根据漏洞描述、相关源码和知识/范例生成规则，再进行编译、正反例与原项目单规则复测。样本批准、根因确认和发布分别记录。
       </p>
       <KnowledgePanel
         language={run.language}
@@ -147,10 +152,21 @@ export function RulePanel({
               ))}
           </SelectContent>
         </Select>
+        <label>
+          相关源码路径（每行一个；选择已确认漏洞时可从关联证据自动读取）
+          <textarea
+            className="audit-textarea"
+            value={sourcePaths}
+            onChange={(event) => setSourcePaths(event.target.value)}
+            maxLength={4000}
+            placeholder="例如 app.py 或 services/search.py"
+          />
+        </label>
         <Button
           disabled={
             !capabilities?.model_configured ||
             requirement.length < 10 ||
+            (candidate === "none" && !sourcePaths.trim()) ||
             busy ||
             start.isPending ||
             run.status !== "completed"

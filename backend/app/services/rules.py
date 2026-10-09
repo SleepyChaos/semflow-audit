@@ -36,15 +36,19 @@ class RuleService:
         self.inputs = RuleRequest.model_validate(self.stage.inputs)
         self.audit = AuditRepository().get(str(self.stage.audit_id))
         self.directory = ArtifactStore().directory(stage_id)
-        self.modern = self.stage.prompt_version in {"2", "3", "4", "5"}
+        self.modern = self.stage.prompt_version in {"2", "3", "4", "5", "6", "7", "8"}
         self.experiment = (
             self.stage.model_config_snapshot.get("rule_experiment", {})
-            if self.stage.prompt_version in {"3", "4", "5"}
+            if self.stage.prompt_version in {"3", "4", "5", "6", "7", "8"}
             else {}
         )
 
     def retrieve(self) -> dict:
         self.repository.active(self.stage_id)
+        if self.stage.prompt_version in {"6", "7", "8"}:
+            from app.services.rule_materials import prepare_rule_materials
+
+            return prepare_rule_materials(self)
         target = None
         if self.inputs.candidate_id:
             with Session(engine) as session:
@@ -172,6 +176,11 @@ class RuleService:
                 "validated"
                 if validation["status"] == "passed"
                 and (rule.purpose == "unknown" or independent.get("status") == "passed")
+                and (
+                    self.stage.prompt_version not in {"6", "7", "8"}
+                    or (current.validation.get("project_replay") or {}).get("status")
+                    in {"target_detected", "not_evaluated"}
+                )
                 else "draft"
             )
             final_status = current.status
@@ -201,4 +210,8 @@ def publish_rule(rule: RuleVersion) -> None:
     if rule.validation.get("query_hash") != query_digest(rule.query, rule.modules):
         raise AuditError("规则内容已变化，必须重新验收")
     check_modern_validation(rule)
+    if rule.validation.get("generation_version") in {"6", "7", "8"}:
+        from app.services.rule_project_validation import check_project_validation
+
+        check_project_validation(rule)
     rule.status, rule.published_at = "published", get_datetime_utc()

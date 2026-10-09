@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-from uuid import uuid4
 
 from sqlmodel import Session, select
 
@@ -18,7 +17,7 @@ from app.adapters.codeql.flask_spec import generate_flask_spec
 from app.adapters.codeql.model_spec import generate_framework_spec
 from app.adapters.codeql.rule_spec import generate_from_spec
 from app.adapters.codeql.type_probe import probe_types
-from app.contracts.stages import RuleResponse
+from app.contracts.stages import RuleResponse, RuleResponseV6
 from app.core.db import engine
 from app.domain.audit import AuditError
 from app.persistence.knowledge_models import RuleVersion
@@ -51,44 +50,16 @@ class RuleSynthesis:
         s.repository.update(s.stage_id, phase=name, usage=s.provider.usage)
 
     def _context(self, state):
-        s = self.service
-        context = {
-            "requirement": s.inputs.requirement,
-            "strategy": s.inputs.strategy,
-            "purpose": s.inputs.purpose,
-            "language": s.audit.language,
-            "knowledge": state["knowledge"],
-            "confirmed_target": state.get("target"),
-            "existing_coverage": {
-                "baseline": s.audit.query_pack,
-                "alerts": s.audit.findings,
-                "published_versions": s.audit.custom_rule_ids,
-            },
-            "dependencies": fixed_dependencies(s.audit.language),
-            "compiler_feedback": None,
-        }
-        full = s.stage.prompt_version in {"3", "4", "5"} and s.experiment.get(
-            "full_feedback", True
-        )
-        if full:
-            context["previous_candidate"] = None
-        if state.get("attempt", 0):
-            previous = self._pack(state)
-            diagnostic = json.loads((previous / "diagnostic.json").read_text())
-            context["compiler_feedback"] = (
-                diagnostic
-                if full
-                else (diagnostic["message"] + "\n" + diagnostic["log_tail"][-5000:])
-            )
-            if full:
-                context["previous_candidate"] = self._load(state).model_dump(
-                    mode="json"
-                )
-            for name in ("development_feedback", "type_feedback"):
-                path = previous / f"{name}.json"
-                if path.exists():
-                    context[name] = json.loads(path.read_text())
-        return context
+        from app.services.rule_context import build_rule_context
+
+        return build_rule_context(self, state)
+
+    def _knowledge(self, state):
+        if self.service.stage.prompt_version in {"6", "7", "8"}:
+            from app.services.rule_materials import load_rule_materials
+
+            return load_rule_materials(self.service, state)["knowledge"]
+        return state["knowledge"]
 
     def propose(self, state):
         self._phase("generate_rule")
@@ -100,6 +71,23 @@ class RuleSynthesis:
         pack = s.directory / f"draft-{attempt - 1}"
         pack.mkdir(parents=True, exist_ok=True)
         serialized = json.dumps(context, ensure_ascii=False, indent=2)
+        if s.stage.prompt_version in {"6", "7", "8"}:
+            from app.services.context_materials import semantic_policy
+
+            model_chars = (
+                len(
+                    json.dumps(
+                        {"untrusted_analysis_material": context}, ensure_ascii=False
+                    )
+                )
+                if s.stage.prompt_version == "8"
+                else len(serialized)
+            )
+            if model_chars > semantic_policy(s.directory)["context_chars"]:
+                raise AuditError(
+                    "规则输入超过上下文预算；请缩小目标或参考材料",
+                    code="context_budget",
+                )
         input_digest = hashlib.sha256(serialized.encode()).hexdigest()
         receipt = pack / "generation-receipt.json"
         if receipt.exists():
@@ -117,7 +105,18 @@ class RuleSynthesis:
             raise AuditError("上次候选生成未完整提交；保留产物，请创建新的规则阶段")
         (pack / "input.json").write_text(serialized)
         provenance = None
-        if s.experiment.get("flask_route_spec"):
+        from app.adapters.codeql.grounded_spec import (
+            can_constrain,
+            generate_grounded_spec,
+        )
+
+        if (
+            s.stage.prompt_version in {"7", "8"}
+            and s.experiment.get("generation_constraint", True)
+            and can_constrain(context, strict_scope=s.stage.prompt_version == "8")
+        ):
+            response, provenance = generate_grounded_spec(s.provider, context)
+        elif s.experiment.get("flask_route_spec"):
             response, provenance = generate_flask_spec(s.provider, context)
         elif s.experiment.get("framework_spec"):
             response, provenance = generate_framework_spec(
@@ -126,7 +125,25 @@ class RuleSynthesis:
         elif s.experiment.get("spec"):
             response, provenance = generate_from_spec(s.provider, context)
         else:
-            response = s.provider.generate("rule", context, RuleResponse)
+            response = s.provider.generate(
+                "rule",
+                context,
+                RuleResponseV6
+                if s.stage.prompt_version in {"6", "7", "8"}
+                else RuleResponse,
+            )
+        if s.stage.prompt_version in {"7", "8"} and provenance is None:
+            provenance = {
+                "coverage": "free_ql_draft",
+                "grammar": None,
+                "reason": "Outside supported typed eval/SQL/reflected-XSS scope or explicit unconstrained experiment; compilation/development/project gates still apply",
+            }
+        if s.stage.prompt_version in {"6", "7", "8"}:
+            from app.services.rule_output import assign_namespace
+
+            response = assign_namespace(
+                response, pack, unique_logic=s.stage.prompt_version == "8"
+            )
         save_candidate(s.directory, attempt - 1, response)
         (pack / "provenance.json").write_text(json.dumps(provenance))
         digest = hashlib.sha256((pack / "candidate.json").read_bytes()).hexdigest()
@@ -173,7 +190,7 @@ class RuleSynthesis:
         log = pack / "execution.log"
         try:
             if not set(map(str, response.knowledge_ids)).issubset(
-                {r["id"] for r in state["knowledge"]}
+                {r["id"] for r in self._knowledge(state)}
             ):
                 raise AuditError("模型引用了未检索到的知识片段")
             if s.inputs.strategy != "auto" and response.strategy != s.inputs.strategy:
@@ -185,6 +202,10 @@ class RuleSynthesis:
                 or (s.modern and s.inputs.purpose == "framework_model")
             ) and not response.modules:
                 raise AuditError("模型补充策略必须包含 .qll 建模模块")
+            if s.stage.prompt_version in {"6", "7", "8"}:
+                from app.services.rule_output import verify_module_imports
+
+                verify_module_imports(response)
             prepare_query(
                 pack,
                 s.audit.language,
@@ -212,19 +233,20 @@ class RuleSynthesis:
     def develop(self, state):
         self._phase("execute_development")
         s = self.service
-        if not s.experiment.get("execute_dev"):
+        if not (
+            s.stage.prompt_version in {"6", "7", "8"} or s.experiment.get("execute_dev")
+        ):
             return {"draft_ok": True}
-        # Replaying a node must not re-create a CodeQL DB in an existing directory.
-        directory = s.directory / f"development-{state['attempt'] - 1}-{uuid4()}"
+        from app.services.rule_development import execute_development
+
         try:
-            result = validate_fixtures(
-                directory,
+            result = execute_development(
+                s,
                 self._pack(state),
-                s.audit.language,
+                self._load(state),
                 self._fixtures(self._load(state)),
-            )
-            (self._pack(state) / "development_feedback.json").write_text(
-                json.dumps(result, ensure_ascii=False, indent=2)
+                state["attempt"],
+                runner=validate_fixtures,
             )
             s.repository.active(s.stage_id)
             if result["status"] != "passed":
@@ -235,7 +257,9 @@ class RuleSynthesis:
         except StageCancelled:
             raise
         except AuditError as exc:
-            return self._failure(state, exc, directory / "execution.log")
+            return self._failure(
+                state, exc, self._pack(state) / "development-execution.log"
+            )
 
     def persist(self, state):
         self._phase("save_rule")
@@ -266,7 +290,7 @@ class RuleSynthesis:
                     fixtures=self._fixtures(response),
                     retrieval=[
                         r
-                        for r in state["knowledge"]
+                        for r in self._knowledge(state)
                         if r["id"] in set(map(str, response.knowledge_ids))
                     ],
                     validation={
@@ -279,6 +303,12 @@ class RuleSynthesis:
                         "development": json.loads(development.read_text())
                         if development.exists()
                         else None,
+                        "project_replay": json.loads(
+                            (pack / "project-replay.json").read_text()
+                        )
+                        if (pack / "project-replay.json").exists()
+                        else None,
+                        "generation_version": s.stage.prompt_version,
                     },
                 )
                 session.add(rule)
@@ -297,6 +327,26 @@ class RuleSynthesis:
             s.stage_id, phase="awaiting_fixture_approval", result=result
         )
         return {"rule_id": result["rule_id"]}
+
+    def replay_project(self, state):
+        self._phase("project_single_rule")
+        from app.services.rule_project_validation import replay_project
+
+        s, pack = self.service, self._pack(state)
+        result = replay_project(s, pack)
+        from app.services.context_materials import save_json
+
+        save_json(pack / "project-replay.json", result)
+        if (
+            result["status"] in {"target_missed", "already_covered"}
+            and s.inputs.candidate_id
+        ):
+            return self._failure(
+                state,
+                AuditError("单规则补漏未通过；见 project_feedback"),
+                pack / "project-execution.log",
+            )
+        return {"draft_ok": True}
 
     def exhausted(self, state):
         self.service.repository.active(self.service.stage_id)

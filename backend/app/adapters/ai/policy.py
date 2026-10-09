@@ -15,7 +15,7 @@ def policy_snapshot() -> dict:
         "budgets": {
             purpose: getattr(audit_settings, f"AI_{purpose.upper()}_TOKENS")
             or audit_settings.AI_MAX_OUTPUT_TOKENS
-            for purpose in ("review", "repair", "rule")
+            for purpose in ("review", "repair", "rule", "scout")
         },
         "max_calls": audit_settings.AI_STAGE_MAX_CALLS,
         "max_tokens": audit_settings.AI_STAGE_MAX_TOKENS,

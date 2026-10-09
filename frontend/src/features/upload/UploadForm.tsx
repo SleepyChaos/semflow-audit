@@ -82,6 +82,10 @@ export function UploadForm({ onCreated }: { onCreated: (id: string) => void }) {
         </span>
       </button>
       <FieldGroup>
+        <p className="text-sm text-muted-foreground">
+          上传后并发运行 CodeQL 标准扫描与 Agent 独立粗筛，随后在 AI
+          阶段统一复核。粗筛受预算限制，未检查范围会保留。
+        </p>
         <Field>
           <FieldLabel htmlFor="project-name">项目名称（可选）</FieldLabel>
           <Input

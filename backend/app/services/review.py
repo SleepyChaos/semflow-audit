@@ -5,7 +5,6 @@ import json
 
 from sqlmodel import Session, select
 
-from app.adapters.retrieval.knowledge import KnowledgeRetriever
 from app.contracts.review import ReviewResponseV2
 from app.contracts.stages import ReviewRequest, ReviewResponse
 from app.core.db import engine
@@ -93,7 +92,7 @@ class ReviewService:
             "tool_trace": [],
             "model_recommendations_only": True,
         }
-        if len(json.dumps(context)) > self.inputs.max_context_chars:
+        if len(json.dumps(context, ensure_ascii=False)) > self.inputs.max_context_chars:
             raise AuditError("初始证据超过上下文预算，请减少复审目标")
         return {"context": context, "steps": 0}
 
@@ -134,19 +133,13 @@ class ReviewService:
         elif name == "callers":
             data = self.evidence.callers(**arguments)
         elif name == "knowledge":
-            records = KnowledgeRetriever().retrieve(
-                self.evidence.audit.owner_id,
-                self.evidence.audit.language,
+            from app.services.knowledge_evidence import gather_knowledge
+
+            data = gather_knowledge(
+                self.evidence,
+                state["context"],
+                self.inputs.max_context_chars,
                 arguments["query"],
-            )
-            data = self.evidence.record(
-                "knowledge",
-                json.dumps(records, ensure_ascii=False),
-                {
-                    "chunks": [
-                        {"id": row["id"], "version": row["version"]} for row in records
-                    ]
-                },
             )
         elif name == "static_query":
             from app.services.rules_execution import execute_evidence_query
@@ -171,12 +164,18 @@ class ReviewService:
                 {"tool": name, "arguments": arguments, "evidence_id": data["id"]},
             ],
         }
-        if len(json.dumps(context)) > self.inputs.max_context_chars:
-            raise AuditError("上下文取证预算耗尽；请缩小范围后创建新的复审")
+        if len(json.dumps(context, ensure_ascii=False)) > self.inputs.max_context_chars:
+            raise AuditError(
+                "上下文取证预算耗尽；请请求更窄的源码页", code="context_budget"
+            )
         self.repository.update(
             self.stage_id,
             phase="evidence",
-            result={"trace": context["tool_trace"], "anchors": context["anchors"]},
+            result={
+                **self.repository.get(self.stage_id).result,
+                "trace": context["tool_trace"],
+                "anchors": context["anchors"],
+            },
         )
         return {"context": context}
 

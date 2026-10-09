@@ -1,0 +1,98 @@
+{
+  "run_id": "20261007-pilot-v1",
+  "status": "complete_representative_pilot",
+  "model": "deepseek-v4.1-flash",
+  "cases": 56,
+  "positive": 28,
+  "negative": 28,
+  "categories": 14,
+  "primary_scores": {
+    "D0_CodeQL": {
+      "counts": {
+        "TP": 9,
+        "FP": 3,
+        "TN": 25,
+        "FN": 19
+      },
+      "precision": 0.75,
+      "recall": 0.32142857142857145,
+      "f1": 0.45,
+      "false_positive_rate": 0.10714285714285714
+    },
+    "D1_scout_unverified": {
+      "counts": {
+        "TP": 20,
+        "FP": 14,
+        "TN": 14,
+        "FN": 8
+      },
+      "precision": 0.5882352941176471,
+      "recall": 0.7142857142857143,
+      "f1": 0.6451612903225806,
+      "false_positive_rate": 0.5
+    },
+    "D2_union_unverified": {
+      "counts": {
+        "TP": 20,
+        "FP": 14,
+        "TN": 14,
+        "FN": 8
+      },
+      "precision": 0.5882352941176471,
+      "recall": 0.7142857142857143,
+      "f1": 0.6451612903225806,
+      "false_positive_rate": 0.5
+    },
+    "D3_supported_review": {
+      "counts": {
+        "TP": 14,
+        "FP": 5,
+        "TN": 23,
+        "FN": 14
+      },
+      "precision": 0.7368421052631579,
+      "recall": 0.5,
+      "f1": 0.5957446808510638,
+      "false_positive_rate": 0.17857142857142858
+    }
+  },
+  "source_case_windows_inspected": 56,
+  "source_case_windows_planned": 56,
+  "task_unknown_records": 105,
+  "unreviewed": 4,
+  "model_usage": {
+    "calls": 151,
+    "input_tokens": 1084620,
+    "output_tokens": 243583
+  },
+  "parallel_wall_seconds": 829.1687244159984,
+  "full_1230_AI_executed": false,
+  "formal_paper_uplift_demonstrated": false,
+  "counterfactual_metadata_diagnostic": {
+    "model_calls": 0,
+    "not_new_end_to_end_result": true,
+    "counts": {
+      "TP": 18,
+      "FP": 5,
+      "TN": 23,
+      "FN": 10
+    },
+    "precision": 0.782608695652174,
+    "recall": 0.6428571428571429,
+    "f1": 0.7058823529411765
+  },
+  "ordinary_tests_after_safety_fixes": 42,
+  "inputs_and_code_frozen_during_model_run": true,
+  "post_run_production_fix_hashes": {
+    "backend/app/services/scout_inspection.py": "40580cfa677e9aa340d42606c487e43de7f5a71ad13e27c265571d4464e9092e",
+    "backend/app/services/review_classification.py": "9879e65a2068aaefbc98da20a0ef7846678bcc0ae492324dc5bd7bc6ceaccc95",
+    "backend/app/services/review_verdict_gate.py": "abb619005e34729c4b5631d88dfd9aa308528eec47c66902221db59202c4ecdf",
+    "backend/app/services/unified_review_results.py": "d30b30d63260b06615123401151ace5fd207b09535f1aa410c9af19154007133"
+  },
+  "next_priorities": [
+    "Pre-register CWE taxonomy and preserve distinct classifier sources",
+    "Ground authentication/authorization requirements in business contracts and reconcile framework semantic conflicts",
+    "Resolve helper/branch dataflow and precise missing proof obligations",
+    "Cache project facts and references under fixed quality/cost gates before full AI expansion"
+  ]
+}

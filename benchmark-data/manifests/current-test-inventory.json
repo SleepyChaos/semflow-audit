@@ -1,0 +1,2140 @@
+{
+  "as_of": "2026-10-08",
+  "scope": "Catalogs + existing bibliography/method manifests + recent competitor sources; no new paid tests or source execution",
+  "counting": "Material entries are not independent runnable datasets; publications dedup by normalized title, versions merged; reading/download/replication distinct",
+  "summary": {
+    "material_entries": 32,
+    "material_by_direction": {
+      "discovery": 16,
+      "rules": 6,
+      "repair": 10
+    },
+    "primary_program_counts": {
+      "common-benchmarks": 13,
+      "specialized-comparisons": 19
+    },
+    "unique_literature_entries": 43,
+    "citation_years": {
+      "2026": 29,
+      "2025": 12,
+      "2023": 1,
+      "2024": 1
+    },
+    "local_pdf_files": 25,
+    "local_pdf_publications": 21,
+    "local_html_publications_without_pdf": 1,
+    "reference_only_publications": 21,
+    "main_external_comparators": 10,
+    "main_comparators_actually_run": 3,
+    "additional_method_candidates": 8
+  },
+  "datasets": [
+    {
+      "id": "owasp-python",
+      "name": "OWASP BenchmarkPython",
+      "official_url": "https://github.com/OWASP-Benchmark/BenchmarkPython",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "raw/discovery/owasp-python"
+      ],
+      "download_status": "full_source_and_expected_csv",
+      "test_role": "检测正负例、CWE覆盖、误报率",
+      "limitations": "1230行=452正例+778负例、14类别；预期CSV和代码中的答案标记需隔离；未运行",
+      "license": "GPL-3.0",
+      "version": "f1291485808b66e20ddb6b01b10dc71b3df8c8ba",
+      "previously_used": "no local prior execution found; source exposure still needs audit",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "full static plus OWASP56 and 3x48-case AI campaigns; only one held-out48 acceptance",
+      "local_presence": [
+        {
+          "path": "raw/discovery/owasp-python",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "realvuln",
+      "name": "RealVuln",
+      "official_url": "https://github.com/kolega-ai/Real-Vuln-Benchmark",
+      "languages": [
+        "python",
+        "javascript",
+        "typescript"
+      ],
+      "local_paths": [
+        "raw/discovery/realvuln"
+      ],
+      "download_status": "metadata_and_2_full_target_sources",
+      "test_role": "项目级发现、业务逻辑漏洞、安全负例",
+      "limitations": "发行宣称140项目，实际只取Flask和DVNA完整源码；manifest 3.1.0与README 3.0.0不一致；教育项目非自然CVE总体；其他告警需复核",
+      "license": "Apache-2.0 framework; DVNA MIT; Flask target license unresolved",
+      "version": "7a710251f55c17d32d3adcb13d37468e2e3b9e4a",
+      "previously_used": "labels viewed earlier; full target source newly collected",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "two development projects; cumulative29/31, not new blind result",
+      "local_presence": [
+        {
+          "path": "raw/discovery/realvuln",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "vulngym",
+      "name": "Tencent VulnGym",
+      "official_url": "https://github.com/Tencent/VulnGym",
+      "languages": [
+        "multiple; filter by full repository"
+      ],
+      "local_paths": [
+        "raw/discovery/vulngym"
+      ],
+      "download_status": "complete_annotation_files_not_target_repositories",
+      "test_role": "Agent主动取证、入口/危险操作/跨模块路径定位",
+      "limitations": "184报告、408入口、393人工确认；不含23仓库完整源码；官方评分是覆盖/召回而非precision；模型不得读取trace",
+      "license": "CC-BY-4.0 annotations; upstream source licenses separate",
+      "version": "cd69f7e163e08485ab5496115ae03439cda6e27e / v0.1.4",
+      "previously_used": "earlier annotations collected; copy with provenance, not a new blind set",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/discovery/vulngym",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "sastbench",
+      "name": "SastBench",
+      "official_url": "https://github.com/RivalSecurity/sastbench",
+      "languages": [
+        "multiple"
+      ],
+      "local_paths": [
+        "raw/discovery/sastbench"
+      ],
+      "download_status": "complete_original_json",
+      "test_role": "告警复审、误报过滤、弃权校准",
+      "limitations": "2737告警=299TP/2438近似FP；Py/JS/TS候选1313项仍需语言审核；不是从零发现召回测试；只允许to_analyzer进入模型",
+      "license": "Apache-2.0 benchmark; upstream projects separate",
+      "version": "b8d95b7720491b21d039b7504999577ba7ebb12b",
+      "previously_used": "earlier metadata and subset collected",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/discovery/sastbench",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "crosscommit",
+      "name": "CrossCommitVuln-Bench",
+      "official_url": "https://github.com/motornomad/crosscommitvuln-bench",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "raw/discovery/crosscommit"
+      ],
+      "download_status": "full_benchmark_archive_not_target_repositories",
+      "test_role": "跨模块组合缺陷与增量锚点研究",
+      "limitations": "论文15CVE+6排除项；当前55完整项中的新增40项待人工复核，不能合称论文黄金集；当前平台不实现跨提交图",
+      "license": "CC-BY-4.0 annotations; MIT scripts; upstream separate",
+      "version": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "previously_used": "original 15 annotations viewed earlier",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/discovery/crosscommit",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "openssf",
+      "name": "OpenSSF CVE Benchmark",
+      "official_url": "https://github.com/ossf-cve-benchmark/ossf-cve-benchmark",
+      "languages": [
+        "javascript",
+        "typescript"
+      ],
+      "local_paths": [
+        "raw/discovery/openssf"
+      ],
+      "download_status": "fixed_metadata_archive",
+      "test_role": "自然CVE修复前后定位、规则外推",
+      "limitations": "223个CVE元数据；元数据不等于完整项目。部分已用于旧pilot，应按repo/CVE排除",
+      "license": "MIT metadata; upstream separate",
+      "version": "91c59fd54b2b768c0f310bb0027d2ac59cdf74d4",
+      "previously_used": "previous development source",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/discovery/openssf",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "new-project-pairs",
+      "name": "6个新增JS项目配对快照",
+      "official_url": "https://github.com/ossf-cve-benchmark/ossf-cve-benchmark",
+      "languages": [
+        "javascript"
+      ],
+      "local_paths": [
+        "raw/project-pairs"
+      ],
+      "download_status": "6_complete_pre_post_snapshots",
+      "test_role": "同目标根因的发现/规则/修复候选集",
+      "limitations": "6/6双快照完整；已排除旧20-pair pilot仓库；未完成全部历史暴露检查、oracle/根因校准、输入去标签；不能称已认证安全负例",
+      "license": "each snapshot retains upstream license; review pending",
+      "version": "12 fixed source commits recorded in local manifest",
+      "previously_used": "not run; candidates, not certified untouched holdout",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "6 paired snapshots; four module-oracle calibrations, no certified hidden repair set",
+      "local_presence": [
+        {
+          "path": "raw/project-pairs",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "secbenchjs",
+      "name": "SecBench.js",
+      "official_url": "https://github.com/cristianstaicu/SecBench.js",
+      "languages": [
+        "javascript"
+      ],
+      "local_paths": [
+        "raw/discovery/secbenchjs"
+      ],
+      "download_status": "complete_framework_and_600_test_entries",
+      "test_role": "JS偏门包/CWE、回归规则、单元级安全验证素材",
+      "limitations": "600项、278含fixedVersion、573含sinkLocation；npm依赖包源码未下载；测试尚未运行；安全测试不等于业务功能测试",
+      "license": "no standalone license found; local research, no redistribution",
+      "version": "5d362353550a8baa42bba34edd26e5fb86d41b60",
+      "previously_used": "no prior local run found",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/discovery/secbenchjs",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "secjs",
+      "name": "SecJS / ForgeJS / JudgeJS",
+      "official_url": "https://github.com/SecJS-Vuln-Benchmark/SecJS-Benchmark",
+      "languages": [
+        "javascript"
+      ],
+      "local_paths": [
+        "raw/discovery/secjs"
+      ],
+      "download_status": "framework_metadata_only",
+      "test_role": "项目级标注和评分方法参考",
+      "limitations": "ArenaJS数据未公开在仓库；不计为已收集可测项目",
+      "license": "Apache-2.0 framework; upstream separate",
+      "version": "1bda0329805128bebb6581012642233a75c1c515",
+      "previously_used": "earlier framework mentioned",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/discovery/secjs",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "eyeballvul",
+      "name": "eyeballvul",
+      "official_url": "https://github.com/timothee-chauvin/eyeballvul",
+      "languages": [
+        "multiple"
+      ],
+      "local_paths": [
+        "raw/discovery/eyeballvul"
+      ],
+      "download_status": "fixed_heads_directory_metadata_only",
+      "test_role": "按漏洞公开时间拆分和持续新CVE候选",
+      "limitations": "上游39981漏洞/13093快照/10005仓库不是本地下载量；仅heads/根目录/年月份tree及info日期字段，不含完整漏洞记录或项目；递归tree超15MB失败，废弃响应已清理；训练截止未确认",
+      "license": "MIT framework; data/upstream terms require separate review",
+      "version": "framework 76a5d6c6ee7257fad10846934ab8863f60b52eff; data 288b718adda4f001425da5ffe65af74a166545f1",
+      "previously_used": "new metadata; not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/discovery/eyeballvul",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "vicbench",
+      "name": "VICBench",
+      "official_url": "https://arxiv.org/abs/2608.12246",
+      "languages": [
+        "python",
+        "java",
+        "cpp"
+      ],
+      "local_paths": [],
+      "download_status": "paper_only_dataset_unverified",
+      "test_role": "引入漏洞提交识别、历史切片方法参考",
+      "limitations": "论文100条VIC/88项目，不是本地已下载样本；未确认公开数据下载入口",
+      "license": "paper local reading only",
+      "version": "arxiv v1",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": []
+    },
+    {
+      "id": "vloc",
+      "name": "Vulnerability Localization Benchmark (VLoc Bench)",
+      "official_url": "https://github.com/cisco-foundation-ai/vulnerability-localization-benchmark",
+      "languages": [
+        "python",
+        "javascript",
+        "typescript",
+        "java",
+        "go",
+        "rust",
+        "php"
+      ],
+      "local_paths": [],
+      "download_status": "online_primary_source_verified_local_download_failed",
+      "test_role": "Agent全仓库文件定位及修复前后对照",
+      "limitations": "官方500任务/290仓库，文件gold来自patch而非精确根因；给定CWE不是完全无提示发现；post标签不代表整项目安全；需区分超时/拒绝与真负例；本轮未下载manifest/项目",
+      "license": "Apache-2.0 framework; upstream source licenses separate",
+      "version": "not locally frozen; do not use mutable main for an experiment",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": []
+    },
+    {
+      "id": "vex-bench",
+      "name": "VEX-Bench",
+      "official_url": "https://github.com/steven1518/vex-bench",
+      "languages": [
+        "python",
+        "go",
+        "java"
+      ],
+      "local_paths": [],
+      "download_status": "online_primary_source_verified_local_download_failed",
+      "test_role": "供应链漏洞可达性与配置/环境证据复审",
+      "limitations": "75案例/67CVE/35项目为上游规模；任务给定依赖CVE，不是新漏洞发现；Python需筛选，JS不覆盖；数据/完整项目未下载",
+      "license": "not locally verified; inspect official LICENSE before redistribution",
+      "version": "not locally frozen; do not use mutable main for an experiment",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "discovery",
+      "source_registry": "benchmark-data/catalog/discovery.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": []
+    },
+    {
+      "id": "qlcoder",
+      "name": "QLCoder / CWE-Bench tasks",
+      "official_url": "https://github.com/neuralprogram/QLCoder",
+      "languages": [
+        "java",
+        "c"
+      ],
+      "local_paths": [
+        "raw/rules/qlcoder-b879ac2"
+      ],
+      "download_status": "complete_framework_task_indexes_and_author_outputs",
+      "test_role": "CodeQL生成、执行反馈、定位评测流程参考",
+      "limitations": "project_info216行、fix_info1493行，不等于独立216漏洞或1493规则；原论文Java/C，当前Python/JS不能直接套；生成答案/patch/标签需隔离",
+      "license": "MIT framework; upstream separate",
+      "version": "b879ac2c90aac7fcc0b2e73caf117c2a12bf20e9",
+      "previously_used": "QLCoder paper used earlier for design; tasks newly archived",
+      "test_execution": "not_run_this_collection",
+      "direction": "rules",
+      "source_registry": "benchmark-data/catalog/rules.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/rules/qlcoder-b879ac2",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "spark-java",
+      "name": "CWE-Bench Java Spark snapshots",
+      "official_url": "https://github.com/perwendel/spark",
+      "languages": [
+        "java"
+      ],
+      "local_paths": [
+        "raw/rules/cwe-bench-java-spark"
+      ],
+      "download_status": "vulnerable_and_first_fix_source_snapshots",
+      "test_role": "Java参考的真实库QL执行流程",
+      "limitations": "first-fix未确认完整修复，不直接当安全oracle；Java不属于当前平台主语言",
+      "license": "upstream license retained; review required",
+      "version": "5316c0d0f057daaf556c3907c20df975f7bf8a8a vulnerable / 030e9d00125cbd1ad759668f85488aba1019c668 first-fix",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "rules",
+      "source_registry": "benchmark-data/catalog/rules.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/rules/cwe-bench-java-spark",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "cqllm",
+      "name": "CQLLM Python rule samples and task workbook",
+      "official_url": "https://github.com/Arashiailing/CQLLM",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "raw/rules/cqllm-slice-9e2abe0"
+      ],
+      "download_status": "selected_python_zip_queries_prompt_csv_xlsx",
+      "test_role": "Python QL生成参考、原方法任务结构",
+      "limitations": "不是完整release；zip/工作簿未转为独立隐藏集；官方QL示例可能与RAG重叠；无源码项目gold完整性证明",
+      "license": "repository license unresolved; local reference only",
+      "version": "9e2abe086b7b2cc55fa22c0fc9305e972b16157f",
+      "previously_used": "not evaluated; overlap audit pending",
+      "test_execution": "not_run_this_collection",
+      "direction": "rules",
+      "source_registry": "benchmark-data/catalog/rules.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/rules/cqllm-slice-9e2abe0",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "iris",
+      "name": "IRIS v2 / CWE-Bench-Java",
+      "official_url": "https://github.com/iris-sast/iris",
+      "languages": [
+        "java"
+      ],
+      "local_paths": [
+        "raw/rules/source-metadata"
+      ],
+      "download_status": "commit_tree_license_metadata_only",
+      "test_role": "source/sink规格扩展与完整项目评测参考",
+      "limitations": "未下载完整IRIS项目集；不能把作者结果作为平台结果",
+      "license": "MIT framework; verify actual LICENSE and upstream licenses",
+      "version": "v2 fixed sha in iris-v2-commit.json",
+      "previously_used": "earlier paper consulted",
+      "test_execution": "not_run_this_collection",
+      "direction": "rules",
+      "source_registry": "benchmark-data/catalog/rules.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/rules/source-metadata",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "querygen",
+      "name": "Automatic Query Generation replication package",
+      "official_url": "https://arxiv.org/abs/2609.10412",
+      "languages": [],
+      "local_paths": [
+        "raw/rules/querygen-replication-63158995.zip"
+      ],
+      "download_status": "failed_empty_archive",
+      "test_role": "编译率、检测率与耗时定义参考",
+      "limitations": "ZIP为0字节、页面为空，下载失败；不计可用数据；论文PDF已保存",
+      "license": "unverified dataset license",
+      "version": "paper arxiv v1",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "rules",
+      "source_registry": "benchmark-data/catalog/rules.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/rules/querygen-replication-63158995.zip",
+          "exists": true,
+          "nonempty": false
+        }
+      ]
+    },
+    {
+      "id": "python-js-ql-holdout",
+      "name": "当前语言QL独立评测候选",
+      "official_url": "https://github.com/OWASP-Benchmark/BenchmarkPython",
+      "languages": [
+        "python",
+        "javascript"
+      ],
+      "local_paths": [
+        "raw/project-pairs"
+      ],
+      "download_status": "source_candidates_only_tasks_not_prepared",
+      "test_role": "标准规则漏检目标→新规则检测；隐藏同根因/安全变体",
+      "limitations": "需先固定CodeQL基线并确认漏检，再构建三输入任务；与141官方RAG范例、旧18次任务隔离；本轮没有制作新的黄金QL答案",
+      "license": "upstream and derived fixture licenses to record",
+      "version": "see project-pair manifest and OWASP fixed commit",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "rules",
+      "source_registry": "benchmark-data/catalog/rules.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "pilot/derived tasks only, formal hidden gold not certified",
+      "local_presence": [
+        {
+          "path": "raw/project-pairs",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "patcheval",
+      "name": "PatchEval",
+      "official_url": "https://github.com/bytedance/PatchEval",
+      "languages": [
+        "python",
+        "javascript",
+        "go"
+      ],
+      "local_paths": [
+        "raw/repair/evaluator_only/patcheval-dataset.json",
+        "raw/repair/evaluator_only/patcheval-input.json",
+        "raw/repair/evaluator_only/patcheval-README.md",
+        "raw/repair/evaluator_only/patcheval-LICENSE",
+        "raw/repair/evaluator_only/patcheval-commit.json",
+        "raw/repair/evaluator_only/patcheval-tree.json",
+        "raw/repair/evaluator_only/patcheval-run_evaluation.py",
+        "raw/repair/evaluator_only/patcheval-download_images.py"
+      ],
+      "download_status": "complete_1000_task_json_framework_scripts_no_images",
+      "test_role": "真实CVE修复、测试可得性和闭环修复",
+      "limitations": "1000=404Python+300JS+296Go；仅176有非空unit_test_cmd；官方230镜像未下载；input.json含fix_func/one-shot泄漏；本固定tree未发现verified数据文件",
+      "license": "Apache-2.0 framework; upstream separately licensed",
+      "version": "ae9b3a7233e9e2fe86dcba8baba24beff9bcbba8",
+      "previously_used": "new task metadata; not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "repair",
+      "source_registry": "benchmark-data/catalog/repair.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/repair/evaluator_only/patcheval-dataset.json",
+          "exists": true,
+          "nonempty": true
+        },
+        {
+          "path": "raw/repair/evaluator_only/patcheval-input.json",
+          "exists": true,
+          "nonempty": true
+        },
+        {
+          "path": "raw/repair/evaluator_only/patcheval-README.md",
+          "exists": true,
+          "nonempty": true
+        },
+        {
+          "path": "raw/repair/evaluator_only/patcheval-LICENSE",
+          "exists": true,
+          "nonempty": true
+        },
+        {
+          "path": "raw/repair/evaluator_only/patcheval-commit.json",
+          "exists": true,
+          "nonempty": true
+        },
+        {
+          "path": "raw/repair/evaluator_only/patcheval-tree.json",
+          "exists": true,
+          "nonempty": true
+        },
+        {
+          "path": "raw/repair/evaluator_only/patcheval-run_evaluation.py",
+          "exists": true,
+          "nonempty": true
+        },
+        {
+          "path": "raw/repair/evaluator_only/patcheval-download_images.py",
+          "exists": true,
+          "nonempty": true
+        }
+      ]
+    },
+    {
+      "id": "vul4py",
+      "name": "Vul4Py",
+      "official_url": "https://github.com/tabudz/vul4py",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "raw/repair/evaluator_only/vul4py-2649d7b89e796738ebc2bc3fa9480dff5ae15898.tar.gz"
+      ],
+      "download_status": "complete_100_task_index_and_harness_no_target_snapshots",
+      "test_role": "Python真实修复/双oracle校准候选",
+      "limitations": "100行；evaluate允许functional_rc=999缺失/skip成为plausible，不能全称双测试齐备；未下载全部上游源码/镜像；旧索引已用",
+      "license": "no standalone license found; local research only",
+      "version": "2649d7b89e796738ebc2bc3fa9480dff5ae15898",
+      "previously_used": "earlier CSV/pilot used; disjoint repos required",
+      "test_execution": "not_run_this_collection",
+      "direction": "repair",
+      "source_registry": "benchmark-data/catalog/repair.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/repair/evaluator_only/vul4py-2649d7b89e796738ebc2bc3fa9480dff5ae15898.tar.gz",
+          "exists": true,
+          "nonempty": true
+        }
+      ]
+    },
+    {
+      "id": "execution-patching",
+      "name": "Execution-calibrated patching reproduction",
+      "official_url": "https://zenodo.org/records/21645415",
+      "languages": [
+        "python",
+        "javascript",
+        "go"
+      ],
+      "local_paths": [
+        "raw/repair/evaluator_only/execution-patching-reproduction.zip"
+      ],
+      "download_status": "complete_reproduction_zip",
+      "test_role": "小型安全+功能oracle、验证器开发",
+      "limitations": "复制包8个Python/JS样例已用于旧测试，属于开发；作者SQLite结果不属于本平台；MD5与Zenodo核对",
+      "license": "CC-BY-4.0 per Zenodo; upstream as applicable",
+      "version": "Zenodo 21645415",
+      "previously_used": "8 small oracles previously evaluated, development only",
+      "test_execution": "not_run_this_collection",
+      "direction": "repair",
+      "source_registry": "benchmark-data/catalog/repair.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "8 previously tested development mini-oracles, not independent holdout",
+      "local_presence": [
+        {
+          "path": "raw/repair/evaluator_only/execution-patching-reproduction.zip",
+          "exists": true,
+          "nonempty": true
+        }
+      ]
+    },
+    {
+      "id": "bugsinpy",
+      "name": "BugsInPy",
+      "official_url": "https://github.com/soarsmu/BugsInPy",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "raw/repair/evaluator_only/bugsinpy-11c5f1eea954a42132cfd06bf257766a7963e0fd.tar.gz"
+      ],
+      "download_status": "complete_framework_bug_metadata_archive",
+      "test_role": "修复业务功能保持与测试环境设计参考",
+      "limitations": "固定归档501个bug.info文件，不等于原论文493可重现bugs；普通功能bug非安全漏洞gold；未下载上游项目",
+      "license": "no standalone license in fixed archive; local research; upstream licenses separate",
+      "version": "11c5f1eea954a42132cfd06bf257766a7963e0fd",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "repair",
+      "source_registry": "benchmark-data/catalog/repair.json",
+      "primary_program": "common-benchmarks",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/repair/evaluator_only/bugsinpy-11c5f1eea954a42132cfd06bf257766a7963e0fd.tar.gz",
+          "exists": true,
+          "nonempty": true
+        }
+      ]
+    },
+    {
+      "id": "educollab",
+      "name": "EduCollab / Detect-Repair-Verify",
+      "official_url": "https://github.com/Hahappyppy2024/EmpricalVDR",
+      "languages": [
+        "python",
+        "javascript",
+        "php"
+      ],
+      "local_paths": [
+        "raw/repair/evaluator_only/educollab"
+      ],
+      "download_status": "188_of_197_selected_source_files_git_blob_verified",
+      "test_role": "语义业务用例、功能+安全测试、跨修复范围方法",
+      "limitations": "Py/JS两个项目选取197文本文件，188通过Git blob SHA1核对、9缺失；不是完整快照；排除缓存/数据库/ZIP/图片。完整大包和缺失文件下载失败；生成应用单列，需服务的测试未运行",
+      "license": "no root LICENSE found; local research only; no redistribution",
+      "version": "5bb31b561bee09017b1b269839d12c6895f81efa",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "repair",
+      "source_registry": "benchmark-data/catalog/repair.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "raw/repair/evaluator_only/educollab",
+          "exists": true,
+          "nonempty": null
+        }
+      ]
+    },
+    {
+      "id": "vulnrepaireval",
+      "name": "VulnRepairEval",
+      "official_url": "https://arxiv.org/abs/2509.03331",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "papers/repair/vulnrepaireval-2509.03331v1.pdf"
+      ],
+      "download_status": "paper_only_public_dataset_unverified",
+      "test_role": "漏洞利用有效性验证定义",
+      "limitations": "23 Python PoC案例仅论文规模；未找到确认的公开完整复制包；需容器/部署，当前仅研究",
+      "license": "paper local reading only",
+      "version": "arxiv v1",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "repair",
+      "source_registry": "benchmark-data/catalog/repair.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "papers/repair/vulnrepaireval-2509.03331v1.pdf",
+          "exists": true,
+          "nonempty": true
+        }
+      ]
+    },
+    {
+      "id": "realsec",
+      "name": "RealSec-bench",
+      "official_url": "https://aclanthology.org/2026.findings-acl.1786/",
+      "languages": [
+        "java"
+      ],
+      "local_paths": [
+        "papers/repair/realsec-2026.findings-acl.1786.pdf"
+      ],
+      "download_status": "paper_only",
+      "test_role": "secure-and-correct联合指标参考",
+      "limitations": "105任务是安全代码生成、Java，不是当前Python/JS修复主集",
+      "license": "paper terms local reading; dataset license unverified",
+      "version": "ACL Findings 2026",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "repair",
+      "source_registry": "benchmark-data/catalog/repair.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "papers/repair/realsec-2026.findings-acl.1786.pdf",
+          "exists": true,
+          "nonempty": true
+        }
+      ]
+    },
+    {
+      "id": "secrepobench",
+      "name": "SecRepoBench",
+      "official_url": "https://arxiv.org/abs/2504.21205",
+      "languages": [
+        "c",
+        "cpp"
+      ],
+      "local_paths": [
+        "papers/repair/secrepobench-2504.21205v3.html"
+      ],
+      "download_status": "paper_html_only",
+      "test_role": "仓库上下文和安全completion参考",
+      "limitations": "与修复任务不同，C/C++未来扩展，不计当前已支持语言",
+      "license": "paper terms local reading",
+      "version": "arxiv v3",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "repair",
+      "source_registry": "benchmark-data/catalog/repair.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "papers/repair/secrepobench-2504.21205v3.html",
+          "exists": true,
+          "nonempty": true
+        }
+      ]
+    },
+    {
+      "id": "predicatefix",
+      "name": "PredicateFix artifact",
+      "official_url": "https://doi.org/10.6084/m9.figshare.26956228",
+      "languages": [
+        "python",
+        "java",
+        "go"
+      ],
+      "local_paths": [],
+      "download_status": "online_primary_source_verified_local_download_failed",
+      "test_role": "静态告警修复与领域知识检索的方法参考",
+      "limitations": "论文明确给出Figshare复制包地址，但本轮未获取目录/复制包；桥接谓词帮助找干净范例；告警消失仍需人工正确性确认；不是业务语义双oracle认证集",
+      "license": "paper CC-BY-NC-ND-4.0; artifact license not verified",
+      "version": "not locally frozen; do not use mutable main for an experiment",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "repair",
+      "source_registry": "benchmark-data/catalog/repair.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": []
+    },
+    {
+      "id": "sec-bench",
+      "name": "SEC-bench",
+      "official_url": "https://github.com/SEC-bench/SEC-bench",
+      "languages": [
+        "c",
+        "cpp"
+      ],
+      "local_paths": [],
+      "download_status": "online_primary_source_verified_local_download_failed",
+      "test_role": "隔离环境、安全修复oracle方法参考；未来语言扩展",
+      "limitations": "NeurIPS 2025主文200已验证实例；C/C++内存安全，sanitizer测试不能取代业务合同；框架/镜像/数据本轮均未下载；不纳入当前Py/JS主表",
+      "license": "dataset/framework license not locally verified; upstream licenses separate",
+      "version": "not locally frozen; do not use mutable main for an experiment",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection",
+      "direction": "repair",
+      "source_registry": "benchmark-data/catalog/repair.json",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": []
+    },
+    {
+      "id": "bac-bench",
+      "name": "BAC-Bench / ABSENTIA task",
+      "direction": "discovery",
+      "official_url": "https://github.com/avduarte333/Absentia",
+      "local_paths": [],
+      "download_status": "online_metadata_and_protocol_verified_not_locally_frozen",
+      "scale": "30 advisories / 25 repositories / 9 frameworks; Python18 TS9 JS3",
+      "limitations": "Target source upstream only; detector implementation not released; gold invariants/routes/commits evaluator-only. Metadata download escalation timed out, not counted as collected files.",
+      "version": "main inspected 2026-10-08, commit not pinned",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": []
+    },
+    {
+      "id": "aacr-bench",
+      "name": "AACR-Bench",
+      "direction": "discovery",
+      "official_url": "https://huggingface.co/datasets/Alibaba-Aone/aacr-bench",
+      "local_paths": [
+        "../artifacts/research-materials/aacr-dataset.json",
+        "../artifacts/research-materials/aacr-python-js-ts.json"
+      ],
+      "download_status": "downloaded_labels_and_714_language_subset_no_complete_PR_sources",
+      "scale": "2145 comments; Py/JS/TS714, not all security comments",
+      "version": "47be1d6df1e7faf222cf531587772d92f79fe6b2",
+      "limitations": "Comment correctness triage, not whole-repository vulnerability recall",
+      "primary_program": "specialized-comparisons",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": [
+        {
+          "path": "../artifacts/research-materials/aacr-dataset.json",
+          "exists": true,
+          "nonempty": true
+        },
+        {
+          "path": "../artifacts/research-materials/aacr-python-js-ts.json",
+          "exists": true,
+          "nonempty": true
+        }
+      ]
+    },
+    {
+      "id": "pyvul",
+      "name": "PyVul",
+      "direction": "discovery",
+      "official_url": "https://github.com/billquan/PyVul",
+      "local_paths": [],
+      "download_status": "reference_and_online_repository_only_not_downloaded",
+      "limitations": "No fixed full source/labels/oracles admitted locally",
+      "primary_program": "common-benchmarks",
+      "current_execution": "no matched formal result admitted in this inventory",
+      "local_presence": []
+    }
+  ],
+  "papers": [
+    {
+      "title": "SastBench: A Benchmark for Testing Agentic SAST Triage",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery",
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2601.02941"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/2601.02941v1.pdf",
+        "artifacts/papers/2601.02941v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-01-06",
+      "last_arxiv_revision_date": "2026-01-06",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/2601.02941v1.pdf",
+        "artifacts/papers/2601.02941v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "RealVuln: Benchmarking Rule-Based, General-Purpose LLM, and Security-Specialized Scanners on Real-World Code",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2604.13764"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/2604.13764v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-04-15",
+      "last_arxiv_revision_date": "2026-04-15",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/2604.13764v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "VulnGym: Benchmarking Coding Agents for Repository-Level Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2608.02001"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-08-03",
+      "last_arxiv_revision_date": "2026-08-03",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "CrossCommitVuln-Bench: A Dataset of Multi-Commit Python Vulnerabilities Invisible to Per-Commit Static Analysis",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2604.21917"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/2604.21917v1.pdf"
+      ],
+      "notes": [
+        "AIware 2026 acceptance stated on arXiv/official artifact"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-04-23",
+      "last_arxiv_revision_date": "2026-04-23",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/2604.21917v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "Large Language Models Cannot Reliably Detect Vulnerabilities in JavaScript: The First Systematic Benchmark and Evaluation",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2512.01255"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/2512.01255v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-12-01",
+      "last_arxiv_revision_date": "2025-12-01",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/2512.01255v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "SecBench.js: An Executable Security Benchmark Suite for Server-Side JavaScript",
+      "citation_year": 2023,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://github.com/cristianstaicu/SecBench.js"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/icse2023-SecBenchJS.pdf"
+      ],
+      "notes": [
+        "ICSE 2023 mature benchmark"
+      ],
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/icse2023-SecBenchJS.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "VICBench: A Multi-Language Benchmark for Code Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2608.12246"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/vicbench-2608.12246v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-08-12",
+      "last_arxiv_revision_date": "2026-08-12",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/vicbench-2608.12246v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "eyeballvul: a future-proof benchmark for vulnerability detection in the wild",
+      "citation_year": 2024,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2407.08708"
+      ],
+      "local_paths": [],
+      "notes": [
+        "arXiv preprint; current artifact updated in 2026"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2024-07-11",
+      "last_arxiv_revision_date": "2024-07-13",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "Vulnerability Localization Benchmark: Measuring Agentic Security Analysis at Repository Scale",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://cisco-foundation-ai.github.io/vulnerability-localization-benchmark/technical-report.pdf"
+      ],
+      "local_paths": [],
+      "notes": [
+        "official technical report; no peer-reviewed venue verified"
+      ],
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "VEX-Bench: Benchmarking LLM Agents for Assessing Exploitability of Software Supply Chain Vulnerabilities",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2609.08040"
+      ],
+      "local_paths": [],
+      "notes": [
+        "EMNLP 2026 acceptance stated by official project and Red Hat; proceedings forthcoming at collection date"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-09-07",
+      "last_arxiv_revision_date": "2026-09-07",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "QLCoder: A Query Synthesizer for Static Analysis of Security Vulnerabilities",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/rules",
+        "docs/research/references.bib",
+        "docs/research/references.bib",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://openreview.net/forum?id=J91IKwJrqv",
+        "https://arxiv.org/abs/2511.08462",
+        "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2adf01ab15adde8820622f7f24bd516b-Abstract-Conference.html",
+        "https://arxiv.org/abs/2511.08462v3",
+        "https://arxiv.org/html/2511.08462v3"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+        "benchmark-data/papers/rules/qlcoder-arxiv-v5.pdf",
+        "artifacts/papers/2511.08462v5.pdf"
+      ],
+      "notes": [
+        "ICLR 2026",
+        "Recorded reading scope: methods, evaluation, ablations, discussion, LSP appendix"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-11-11",
+      "last_arxiv_revision_date": "2026-08-26",
+      "formal_publication_year": 2026,
+      "venue": "ICLR 2026",
+      "local_pdf_files": [
+        "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+        "benchmark-data/papers/rules/qlcoder-arxiv-v5.pdf",
+        "artifacts/papers/2511.08462v5.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/rules",
+        "docs/research/references.bib",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://proceedings.iclr.cc/paper_files/paper/2025/hash/582d4e27fa24168f3af1f4582655034b-Abstract-Conference.html",
+        "https://arxiv.org/abs/2405.17238",
+        "https://openreview.net/forum?id=9LdJDU7E91",
+        "https://arxiv.org/abs/2405.17238v3",
+        "https://arxiv.org/html/2405.17238v3"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/rules/iris-arxiv-v3.pdf"
+      ],
+      "notes": [
+        "ICLR 2025; arxiv first posted 2024",
+        "Recorded reading scope: methods, evaluation, templates and error analysis"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2024-05-27",
+      "last_arxiv_revision_date": "2025-04-06",
+      "formal_publication_year": 2025,
+      "venue": "ICLR 2025",
+      "local_pdf_files": [
+        "benchmark-data/papers/rules/iris-arxiv-v3.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "CQLLM: A Framework for Generating CodeQL Security Vulnerability Detection Code Based on Large Language Model",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/rules",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://www.mdpi.com/2076-3417/16/1/517/notes",
+        "https://doi.org/10.3390/app16010517",
+        "https://www.mdpi.com/2076-3417/16/1/517"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/rules/cqllm-applsci2026.pdf"
+      ],
+      "notes": [
+        "Applied Sciences 16(1):517, published 2026-01-04",
+        "Recorded reading scope: publisher indexed text; author 2025 preprint methods, implementation, ablation and limitations"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2026,
+      "formal_publication_date": "2026-01-04",
+      "venue": "Applied Sciences 16(1),517",
+      "local_pdf_files": [
+        "benchmark-data/papers/rules/cqllm-applsci2026.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "QRS: A Rule-Synthesizing Neuro-Symbolic Triad for Autonomous Vulnerability Discovery",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/rules",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2602.09774",
+        "https://arxiv.org/abs/2602.09774v1",
+        "https://arxiv.org/html/2602.09774v1"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/rules/qrs-arxiv-v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint",
+        "Recorded reading scope: methods, metrics, model observations and limitations"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-02-10",
+      "last_arxiv_revision_date": "2026-08-20",
+      "local_pdf_files": [
+        "benchmark-data/papers/rules/qrs-arxiv-v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "Towards Scalable and Cost-Efficient Vulnerability Detection: A Study on Automatic Query Generation",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/rules",
+        "docs/research/references.bib",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2609.10412",
+        "https://arxiv.org/abs/2609.10412v1",
+        "https://arxiv.org/html/2609.10412v1"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/rules/querygen-arxiv-v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint",
+        "Recorded reading scope: method, data splits, syntax refiner, evaluation and false-positive discussion"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-09-09",
+      "last_arxiv_revision_date": "2026-09-09",
+      "local_pdf_files": [
+        "benchmark-data/papers/rules/querygen-arxiv-v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "CodeRAG-Bench: Can Retrieval Augment Code Generation?",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/rules",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://aclanthology.org/2025.findings-naacl.176/",
+        "https://aclanthology.org/2025.findings-naacl.176.pdf"
+      ],
+      "local_paths": [],
+      "notes": [
+        "Findings of NAACL 2025",
+        "Recorded reading scope: datasets, retrieval/generation evaluation, context experiments and limitations"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2025,
+      "venue": "Findings of NAACL 2025",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "PatchEval: A New Benchmark for Evaluating LLMs on Patching Real-World Vulnerabilities",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2511.11019"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-11-14",
+      "last_arxiv_revision_date": "2025-11-14",
+      "local_pdf_files": [
+        "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "Vul4Py: Benchmarking Automated Vulnerability Repair in Python with Paired Exploit and Functional Oracles",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/repair",
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2608.00692"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+        "artifacts/papers/2608.00692.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-08-01",
+      "last_arxiv_revision_date": "2026-08-01",
+      "local_pdf_files": [
+        "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+        "artifacts/papers/2608.00692.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "VulnRepairEval: An Exploit-Based Evaluation Framework for Assessing Large Language Model Vulnerability Repair Capabilities",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2509.03331"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/vulnrepaireval-2509.03331v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint; no formal venue verified"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-09-03",
+      "last_arxiv_revision_date": "2025-09-03",
+      "local_pdf_files": [
+        "benchmark-data/papers/repair/vulnrepaireval-2509.03331v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "Detect--Repair--Verify for LLM-Generated Code: A Multi-Language, Multi-Granularity Empirical Study",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2603.23633"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/detect-repair-verify-2603.23633v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-03-24",
+      "last_arxiv_revision_date": "2026-03-24",
+      "local_pdf_files": [
+        "benchmark-data/papers/repair/detect-repair-verify-2603.23633v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "RealSec-bench: A Benchmark for Evaluating Secure Code Generation in Real-World Repositories",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/repair",
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://aclanthology.org/2026.findings-acl.1786/"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/realsec-2026.findings-acl.1786.pdf"
+      ],
+      "notes": [
+        "Findings of ACL 2026"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2026,
+      "formal_publication_month": "2026-07",
+      "venue": "Findings of ACL 2026",
+      "local_pdf_files": [
+        "benchmark-data/papers/repair/realsec-2026.findings-acl.1786.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "SecRepoBench: Benchmarking Code Agents for Secure Code Completion in Real-World Repositories",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2504.21205"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/secrepobench-2504.21205v3.html"
+      ],
+      "notes": [
+        "arXiv preprint version 3"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-04-29",
+      "last_arxiv_revision_date": "2026-02-14",
+      "local_pdf_files": [],
+      "local_html_files": [
+        "benchmark-data/papers/repair/secrepobench-2504.21205v3.html"
+      ],
+      "availability": "local_html"
+    },
+    {
+      "title": "PredicateFix: Repairing Static Analysis Alerts with Bridging Predicates",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://conf.researchr.org/details/icse-2026/icse-2026-research-track/117/PredicateFix-Repairing-Static-Analysis-Alerts-with-Bridging-Predicates",
+        "https://doi.org/10.1145/3744916.3773159"
+      ],
+      "local_paths": [],
+      "notes": [
+        "ICSE 2026"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2026,
+      "venue": "ICSE 2026 Research Track",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "SEC-bench: Automated Benchmarking of LLM Agents on Real-World Software Security Tasks",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://papers.nips.cc/paper_files/paper/2025/file/a9168f1c54e5147027f1e8cf83e1a775-Paper-Conference.pdf"
+      ],
+      "local_paths": [],
+      "notes": [
+        "NeurIPS 2025"
+      ],
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "QLPro: Automated Code Vulnerability Discovery via LLM and Static Code Analysis Integration",
+      "citation_year": 2025,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2506.23644"
+      ],
+      "local_paths": [
+        "artifacts/papers/2506.23644.pdf"
+      ],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-06-30",
+      "last_arxiv_revision_date": "2025-07-19",
+      "local_pdf_files": [
+        "artifacts/papers/2506.23644.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "Minimizing False Positives in Static Bug Detection via LLM-Enhanced Path Feasibility Analysis",
+      "citation_year": 2025,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2506.10322"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-06-12",
+      "last_arxiv_revision_date": "2025-06-12",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "An Empirical Analysis of CodeQL False Positives and Query Refinements for Java Vulnerabilities",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2609.04535v2"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-09-03",
+      "last_arxiv_revision_date": "2026-09-15",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "ARQ: Agentic CodeQL Query Refinement for C/C++ Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2608.20637"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-08-21",
+      "last_arxiv_revision_date": "2026-08-21",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "Persistent Human Feedback, LLMs, and Static Analyzers for Secure Code Generation and Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2602.05868"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-02-05",
+      "last_arxiv_revision_date": "2026-02-05",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "Reducing False Positives in Static Bug Detection with LLMs: An Empirical Study in Industry",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2601.18844"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-01-26",
+      "last_arxiv_revision_date": "2026-01-26",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "Revisiting Vul-RAG: Reproducibility and Replicability of RAG-based Vulnerability Detection with Open-Weight Models",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2606.04739"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-06-03",
+      "last_arxiv_revision_date": "2026-06-03",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "Securing AI-Generated Code: A Just-in-Time Vulnerability Detection and Remediation Pipeline",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2608.16187"
+      ],
+      "local_paths": [
+        "artifacts/papers/2608.16187.pdf"
+      ],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-08-17",
+      "last_arxiv_revision_date": "2026-08-17",
+      "local_pdf_files": [
+        "artifacts/papers/2608.16187.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "Fixing, Breaking, or Faking It? An Execution-Calibrated Evaluation of LLM Vulnerability Patching in JavaScript, Python, Go, and Java, and the Limits of LLM-as-Judge",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://www.mdpi.com/2624-800X/6/5/153/notes",
+        "https://www.mdpi.com/2624-800X/6/5/153"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2026,
+      "formal_publication_date": "2026-09-02",
+      "venue": "Journal of Cybersecurity and Privacy6(5),153",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "Multi-Agent Taint Specification Extraction for Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2601.10865"
+      ],
+      "local_paths": [
+        "artifacts/papers/2601.10865.pdf"
+      ],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-01-15",
+      "last_arxiv_revision_date": "2026-01-15",
+      "local_pdf_files": [
+        "artifacts/papers/2601.10865.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "Friends or Foes? Combining Static Analysis Tools and LLMs for Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://ieeexplore.ieee.org/abstract/document/11600417",
+        "https://ieeexplore.ieee.org/document/11600417"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2026,
+      "venue": "ICSTW 2026",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "QLM: CodeQL Query Synthesis with Compositional PoC Validation",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://conf.researchr.org/details/icse-2026/jaws-2026-papers/56/QLM-CodeQL-Query-Synthesis-with-Compositional-PoC-Validation"
+      ],
+      "local_paths": [],
+      "notes": [
+        "Recorded reading scope: official conference abstract only"
+      ],
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "RepoAudit: An Autonomous LLM-Agent for Repository-Level Code Auditing",
+      "citation_year": 2025,
+      "sources": [
+        "owasp48-competitor-research"
+      ],
+      "urls": [
+        "https://proceedings.mlr.press/v267/guo25n.html",
+        "https://arxiv.org/abs/2501.18160"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-01-30",
+      "last_arxiv_revision_date": "2025-05-29",
+      "formal_publication_year": 2025,
+      "venue": "ICML 2025/PMLR267",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "How Code Representation Shapes False-Positive Dynamics in Cross-Language LLM Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "owasp48-competitor-research"
+      ],
+      "urls": [
+        "https://arxiv.org/html/2604.27714v1"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-04-30",
+      "last_arxiv_revision_date": "2026-04-30",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "ABSENTIA: Detecting Broken Access Control Vulnerabilities in Web Applications",
+      "citation_year": 2026,
+      "sources": [
+        "owasp48-competitor-research; official repository rechecked 2026-10-08"
+      ],
+      "urls": [
+        "https://arxiv.org/html/2610.00977v1"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-10-01",
+      "last_arxiv_revision_date": "2026-10-01",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "An Empirical Study of Vulnerabilities in Python Packages and Their Detection",
+      "citation_year": 2025,
+      "sources": [
+        "phase-two-literature"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2509.04260"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-09-04",
+      "last_arxiv_revision_date": "2025-09-04",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "AACR-Bench: Evaluating Automatic Code Review with Holistic Repository-Level Context",
+      "citation_year": 2026,
+      "sources": [
+        "competitors-and-materials; papers-manifest"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2601.19494"
+      ],
+      "local_paths": [
+        "artifacts/papers/2601.19494.pdf"
+      ],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-01-27",
+      "last_arxiv_revision_date": "2026-01-30",
+      "local_pdf_files": [
+        "artifacts/papers/2601.19494.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf"
+    },
+    {
+      "title": "SoK: Automated Vulnerability Repair: Methods, Tools, and Assessments",
+      "citation_year": 2025,
+      "sources": [
+        "papers-and-innovations"
+      ],
+      "urls": [
+        "https://www.usenix.org/conference/usenixsecurity25/presentation/hu-yiwei"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2025,
+      "venue": "USENIX Security 2025",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    },
+    {
+      "title": "Vul-RAG: Enhancing LLM-based Vulnerability Detection via Knowledge-level RAG",
+      "citation_year": 2026,
+      "sources": [
+        "papers-and-innovations; first preprint 2024, recorded formal publication 2026"
+      ],
+      "urls": [
+        "https://doi.org/10.1145/3797277",
+        "https://arxiv.org/abs/2406.11147"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2024-06-17",
+      "last_arxiv_revision_date": "2025-06-17",
+      "formal_publication_year": 2026,
+      "formal_publication_date": "2026-09-16",
+      "venue": "ACM TOSEM35(10),article312",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only"
+    }
+  ],
+  "comparators": [
+    {
+      "id": "codeql",
+      "name": "CodeQL",
+      "status": "actual_owasp48",
+      "program": "common",
+      "limits": "CLI2.23.5/python-queries1.6.0 default suite",
+      "url": "https://codeql.github.com/"
+    },
+    {
+      "id": "bandit",
+      "name": "Bandit",
+      "status": "actual_owasp48",
+      "program": "common",
+      "limits": "1.9.4, same Python48",
+      "url": "https://github.com/PyCQA/bandit"
+    },
+    {
+      "id": "ocr",
+      "name": "Alibaba Open Code Review",
+      "status": "actual_owasp48",
+      "program": "common_and_specialized",
+      "limits": "a758d9cb, full scan actual; AACR diff review not yet",
+      "url": "https://github.com/alibaba/open-code-review"
+    },
+    {
+      "id": "semgrep",
+      "name": "Semgrep CE",
+      "status": "reference_not_run",
+      "program": "common",
+      "limits": "CE separated from commercial/Pro; rules not frozen",
+      "url": "https://github.com/semgrep/semgrep"
+    },
+    {
+      "id": "frame",
+      "name": "Frame",
+      "status": "official_self_report_not_run",
+      "program": "common",
+      "limits": "Implementation/config not frozen locally",
+      "url": "https://github.com/lambdasec/frame"
+    },
+    {
+      "id": "vyql",
+      "name": "VyQL",
+      "status": "official_self_report_not_run",
+      "program": "common",
+      "limits": "Benchmark exposure/genericity requires independent check",
+      "url": "https://github.com/vyprai/vyql"
+    },
+    {
+      "id": "cyfendo",
+      "name": "Cyfendo",
+      "status": "vendor_self_report_not_run",
+      "program": "common",
+      "limits": "Closed service access/config not available for matched run",
+      "url": "https://cyfendo.com/benchmarks"
+    },
+    {
+      "id": "absentia",
+      "name": "ABSENTIA",
+      "status": "paper_and_data_only_no_detector_code",
+      "program": "specialized",
+      "limits": "BAC-Bench public; release planned end2026",
+      "url": "https://github.com/avduarte333/Absentia"
+    },
+    {
+      "id": "iris",
+      "name": "IRIS",
+      "status": "metadata_and_paper_not_run",
+      "program": "specialized",
+      "limits": "Official Java task; current platform Py/JS not matched",
+      "url": "https://github.com/iris-sast/iris"
+    },
+    {
+      "id": "repoaudit",
+      "name": "RepoAudit",
+      "status": "paper_and_repository_reference_not_run",
+      "program": "specialized",
+      "limits": "Task/language/bug types must align before running",
+      "url": "https://github.com/PurCL/RepoAudit"
+    }
+  ],
+  "additional_method_candidates": [
+    "QLCoder",
+    "CQLLM",
+    "QRS",
+    "ARQ",
+    "QLPro",
+    "PredicateFix",
+    "SemTaint",
+    "LLM4PFA"
+  ],
+  "pdf_files": [
+    {
+      "path": "artifacts/papers/2506.23644.pdf",
+      "bytes": 1931947,
+      "sha256": "b8410dd88194df835f2010f245d8d10c3e57f803b78fed32d5a1281c2745f431"
+    },
+    {
+      "path": "artifacts/papers/2511.08462v5.pdf",
+      "bytes": 1656927,
+      "sha256": "c9e6b28b94264236c7d990014e1cf3f140bf68d5d7d2e06e31535086dfbe84fe"
+    },
+    {
+      "path": "artifacts/papers/2601.02941v1.pdf",
+      "bytes": 994585,
+      "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d"
+    },
+    {
+      "path": "artifacts/papers/2601.10865.pdf",
+      "bytes": 3793889,
+      "sha256": "becaeb4bd7911e292f2a5ebfc4ad9b40dadbf0d1cd813b4a22d977032ae1bb9c"
+    },
+    {
+      "path": "artifacts/papers/2601.19494.pdf",
+      "bytes": 3536934,
+      "sha256": "adc40e7877b2d478a69c12c1729f80a4c5e4eb9ff846a014e70e9eb2b86a6528"
+    },
+    {
+      "path": "artifacts/papers/2608.00692.pdf",
+      "bytes": 497766,
+      "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0"
+    },
+    {
+      "path": "artifacts/papers/2608.16187.pdf",
+      "bytes": 725350,
+      "sha256": "7d05dd23c7a6f76ad0e6fec2bc0a5adff559295b7ccd93d7c823c2d202fc6373"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2512.01255v1.pdf",
+      "bytes": 1279588,
+      "sha256": "cfb40cb34661107780a8d6f7c74fb8c5dd49651a3bbafd72b14f2b7943591483"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+      "bytes": 994585,
+      "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+      "bytes": 594873,
+      "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2604.21917v1.pdf",
+      "bytes": 459333,
+      "sha256": "2b47089ff32b390bf061018263c68448fe674d58c41b67aced705d8ed3f2ff0f"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/icse2023-SecBenchJS.pdf",
+      "bytes": 399416,
+      "sha256": "787edbd1edf93d6d83c8ee274077076f8a9603cac2acd223a533dd7ec3b805f7"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/vicbench-2608.12246v1.pdf",
+      "bytes": 186761,
+      "sha256": "606b135edcda61c1adc46b7745b87036240e8591b3554369a94bba80773499fd"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+      "bytes": 602590,
+      "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec"
+    },
+    {
+      "path": "benchmark-data/papers/repair/detect-repair-verify-2603.23633v1.pdf",
+      "bytes": 2682130,
+      "sha256": "a130d0ecafac462814ab55c463578c6ecc8fd64327f935c13a998454c979f0ce"
+    },
+    {
+      "path": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+      "bytes": 1905170,
+      "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f"
+    },
+    {
+      "path": "benchmark-data/papers/repair/realsec-2026.findings-acl.1786.pdf",
+      "bytes": 1358584,
+      "sha256": "7a6c4bd22c9d16fb88f7b8990a0d55e0d456d5c7fe1fcd95161d8b3b2f996f26"
+    },
+    {
+      "path": "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+      "bytes": 497766,
+      "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0"
+    },
+    {
+      "path": "benchmark-data/papers/repair/vulnrepaireval-2509.03331v1.pdf",
+      "bytes": 1370069,
+      "sha256": "4c5f6abda38162ff318271bae2f2c070ffb497fb353e1547732d56245b54c617"
+    },
+    {
+      "path": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+      "bytes": 1148212,
+      "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d"
+    },
+    {
+      "path": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+      "bytes": 1888032,
+      "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-arxiv-v5.pdf",
+      "bytes": 1656927,
+      "sha256": "c9e6b28b94264236c7d990014e1cf3f140bf68d5d7d2e06e31535086dfbe84fe"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+      "bytes": 2079381,
+      "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qrs-arxiv-v1.pdf",
+      "bytes": 1488276,
+      "sha256": "5a37521be0a66654ea098a9dbaf6b20c7f0819df98b953649313dbc91519c6c3"
+    },
+    {
+      "path": "benchmark-data/papers/rules/querygen-arxiv-v1.pdf",
+      "bytes": 1079427,
+      "sha256": "b3ead496ba1a43e3666bb5bb320cc7d5084d82144f79df4aab7e611566d7b8b6"
+    }
+  ]
+}

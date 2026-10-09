@@ -154,3 +154,50 @@ def test_bound_stage_prompt_is_frozen(pipeline_context, monkeypatch, tmp_path):
     with Session(engine) as db:
         snapshot = db.get(StageRun, identifier).model_config_snapshot["prompt_snapshot"]
         assert snapshot["content"] == "Frozen original UNTRUSTED instruction"
+
+
+def test_validation_feedback_preserves_unresolved_premises(monkeypatch):
+    from uuid import uuid4
+
+    from app.contracts.unified_review import UnifiedReviewResponse
+
+    calls = []
+    assessment = {
+        "candidate_id": str(uuid4()),
+        "assessment": "supported",
+        "reason": "Necessary caller authorization has not been established.",
+        "checked_premises": ["Dangerous operation is present"],
+        "missing_premises": ["Caller authorization remains unresolved"],
+    }
+
+    def handler(request):
+        calls.append(json.loads(request.content))
+        if len(calls) == 2:
+            feedback = calls[-1]["messages"][-1]["content"]
+            assert "Unresolved necessary premises" in feedback
+            assert "do not remove unknowns" in feedback
+            assert assessment["candidate_id"] not in feedback
+            assessment["assessment"] = "insufficient"
+        return httpx.Response(
+            200,
+            json=completion(
+                json.dumps(
+                    {
+                        "action": "final",
+                        "candidate_assessments": [assessment],
+                    }
+                )
+            ),
+        )
+
+    provider = configured(monkeypatch, handler)
+    provider.prompt_version = "4"
+    result = provider.generate("review", {}, UnifiedReviewResponse)
+    assert len(calls) == 2
+    assert result.candidate_assessments[0].assessment == "insufficient"
+    assert (
+        result.candidate_assessments[0].missing_premises
+        == assessment["missing_premises"]
+    )
+    assert provider.records[0]["error_code"] == "schema_invalid"
+    assert provider.records[1]["error_code"] is None

@@ -14,6 +14,10 @@ class ReviewRequest(StrictModel):
     discover: bool = True
     max_steps: int = Field(8, ge=1, le=16)
     max_context_chars: int = Field(40000, ge=4000, le=100000)
+    include_scout: bool = True
+    scout_candidate_ids: list[UUID] = Field(default_factory=list, max_length=200)
+    batch_size: int = Field(4, ge=1, le=8)
+    max_batches: int = Field(24, ge=1, le=100)
 
 
 class DecisionRequest(StrictModel):
@@ -30,6 +34,7 @@ class RepairRequest(StrictModel):
 
 
 class KnowledgeRequest(StrictModel):
+    corpus: Literal["reference", "rule_example"] = "reference"
     provenance: dict = Field(default_factory=dict)
     title: str = Field(min_length=1, max_length=200)
     source: str = Field(min_length=1, max_length=500)
@@ -44,10 +49,19 @@ class RuleRequest(StrictModel):
     holdout_id: str | None = Field(default=None, max_length=100)
     requirement: str = Field(min_length=10, max_length=5000)
     candidate_id: UUID | None = None
+    source_paths: list[str] = Field(default_factory=list, max_length=20)
     strategy: Literal["auto", "model", "extend", "new_query"] = "auto"
 
 
 class FixtureApproval(StrictModel):
+    reason: str = Field(min_length=10, max_length=4000)
+
+
+class ProjectMatchConfirmation(StrictModel):
+    baseline_exclusion_reason: str | None = Field(
+        default=None, min_length=10, max_length=4000
+    )
+    finding_id: str = Field(min_length=1, max_length=100)
     reason: str = Field(min_length=10, max_length=4000)
 
 
@@ -109,3 +123,7 @@ class RuleResponse(StrictModel):
     knowledge_ids: list[UUID] = Field(min_length=1, max_length=20)
     positive: TestFixture
     negative: TestFixture
+
+
+class RuleResponseV6(RuleResponse):
+    purpose: Literal["review_anchor", "vulnerability_detector", "framework_model"]

@@ -16,6 +16,7 @@ export function KnowledgePanel({
     [content, setContent] = useState(""),
     [apiVersion, setApiVersion] = useState(""),
     [license, setLicense] = useState("")
+  const [corpus, setCorpus] = useState("reference")
   const cache = useQueryClient()
   const documents = useQuery({
     queryKey: ["knowledge"],
@@ -29,6 +30,7 @@ export function KnowledgePanel({
         source,
         content,
         language,
+        corpus,
         provenance: {
           api_version: apiVersion || "unknown",
           license: license || "unspecified",
@@ -52,6 +54,17 @@ export function KnowledgePanel({
       <summary>知识库管理与版本</summary>
       <p>资料用于真实检索，不能单独确认缺陷。</p>
       <div className="stage-form">
+        <label htmlFor="knowledge-corpus">
+          材料分类
+          <select
+            id="knowledge-corpus"
+            value={corpus}
+            onChange={(event) => setCorpus(event.target.value)}
+          >
+            <option value="reference">参考知识与 API 文档</option>
+            <option value="rule_example">完整规则范例</option>
+          </select>
+        </label>
         <label htmlFor="knowledge-title">
           资料标题
           <Input

@@ -86,6 +86,20 @@ def build_report(session: Session, audit: AuditRun) -> dict:
             for stage in stages
             if stage.kind == "review"
         ],
+        "discovery": [
+            {"stage_id": str(stage.id), "status": stage.status, "result": stage.result}
+            for stage in stages
+            if stage.kind == "scout"
+        ],
+        "root_relations": [
+            {
+                "stage_id": str(stage.id),
+                "relations": stage.result.get("root_relations", []),
+                "meaning": "Proposals only; original candidates and counts retained",
+            }
+            for stage in stages
+            if stage.kind == "review" and stage.prompt_version in {"4", "5", "6", "7", "8", "9", "10"}
+        ],
         "candidates": dump(candidates),
         "decisions": dump(decisions),
         "evidence": dump(evidence),
@@ -116,6 +130,8 @@ def markdown_report(report: dict) -> str:
     ]
     for title, key in [
         ("原始静态告警", None),
+        ("独立粗筛与覆盖", "discovery"),
+        ("根因关联建议", "root_relations"),
         ("阶段执行与版本", "stages"),
         ("锚点评价与未评估范围", "anchor_assessments"),
         ("候选与人工判断", "candidates"),

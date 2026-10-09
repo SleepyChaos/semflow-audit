@@ -1,0 +1,1861 @@
+{
+  "schema_version": 1,
+  "plan_version": "2026-10-05-v1",
+  "updated_at": "2026-10-08",
+  "execution_status": "owasp48_frozen_acceptance_and_comparison_complete",
+  "active_phase": "P1",
+  "active_task": "E02",
+  "completed": [
+    {
+      "id": "COLLECTION",
+      "status": "complete",
+      "evidence": [
+        "../manifests/collection-summary.json",
+        "../search-round-report.md"
+      ]
+    },
+    {
+      "id": "PLAN",
+      "status": "complete",
+      "evidence": [
+        "plan.md",
+        "first-batch.md",
+        "runbook.md",
+        "journal.md"
+      ]
+    },
+    {
+      "id": "TEST_PROGRAMS_PLAN",
+      "status": "complete",
+      "evidence": [
+        "../test-programs/README.md",
+        "../test-programs/inventory.md",
+        "../catalog/current-papers.md",
+        "../manifests/current-test-inventory.json"
+      ]
+    }
+  ],
+  "next_action": {
+    "task_id": "TEST_PROGRAMS_INPUT_PREP",
+    "instruction": "按两类测试计划准备下一轮输入。通用发现使用新的预留样本，已有OWASP48验收已暴露、只作回归，补统一告警盲审；专项优先冻结BAC-Bench索引及漏洞/修复源码、隔离根因/路由金标，完成匹配裁决与预算登记后再执行。ABSENTIA检测器未发布，先做公开任务+作者参照，不称实际竞品复现。RAG规则/修复仍待独立参考QL与联合oracle正式准入。本次只分类统计，没有新增模型测试。"
+  },
+  "current_batch": "20261005-calibration-v1",
+  "experiment_id": "20261005-calibration-v1",
+  "formal_run_count": 0,
+  "frozen_configuration": false,
+  "pending_configuration_fields": [
+    "formal_task_and_root_group_split",
+    "complete_historical_exposure_audit",
+    "formal_runner_and_scoring_version",
+    "no_rag_control_and_pure_retrieval_routing",
+    "formal_batch_request_and_token_caps",
+    "human_reviewed_oracles_and_reference_ql_calibration",
+    "formal_input_sanitization_and_isolation_tests"
+  ],
+  "boundaries": {
+    "primary_languages": [
+      "python",
+      "javascript"
+    ],
+    "typescript": "separate_support_table",
+    "gui_tests": false,
+    "target_services": false,
+    "product_exploit_replay": false,
+    "benchmark_material_into_production_rag": false,
+    "codeql_extended_suite_experiment": false
+  },
+  "first_batch": {
+    "discovery": [
+      "OWASP BenchmarkPython",
+      "RealVuln Flask (development)",
+      "RealVuln DVNA (development)",
+      "six JS project pairs (candidates, not split)"
+    ],
+    "rules": "6–10 derived tasks target; not yet calibrated; retrieval query target 24",
+    "repair": "10–20 calibration candidates target; 4–6 qualified tasks target, not guaranteed"
+  },
+  "budget": {
+    "status": "calibration_spend_recorded_formal_not_frozen",
+    "pilot_max_tasks_per_chain": 2,
+    "pilot_repetitions_per_configuration": 1,
+    "formal_repetitions_per_model_configuration": 3,
+    "infrastructure_retry_limit": 1,
+    "actual_model_calls": 99,
+    "actual_tokens": 780296,
+    "actual_repetitions_note": "rules 2 tasks x 3 modes x 3; repair 1 task x 2 versions x 3; discovery 2 projects x 1; retrieval 20 x 3"
+  },
+  "resume_rules": [
+    "Read state, referenced plan, relevant task section, latest journal entry.",
+    "Verify durable outputs and run identity before repeating any model request.",
+    "Complete task only after acceptance evidence exists.",
+    "Gold/oracle shortage may defer its dependent branch with documented reason; never silently pass dependency.",
+    "Before context or model switch update next_action, evidence, remaining work and journal."
+  ],
+  "tasks": [
+    {
+      "id": "E00",
+      "title": "冻结配置与历史暴露审计",
+      "status": "in_progress",
+      "depends_on": [],
+      "acceptance": "工作树含未提交变更的内容摘要；模型/提示/图/CLI/pack/suite/语料身份；候选暴露清单。",
+      "evidence": [
+        "../../artifacts/research/formal/20261005-calibration-v1/config.json",
+        "../../artifacts/research/formal/20261005-calibration-v1/exposure.json"
+      ],
+      "remaining": [
+        "complete historical source overlap audit; unseen-training status not certified"
+      ]
+    },
+    {
+      "id": "E01",
+      "title": "准备白名单模型输入",
+      "status": "in_progress",
+      "depends_on": [
+        "E00"
+      ],
+      "acceptance": "按链路导出输入；源码去标签差异与哈希；工具根目录和隐藏答案隔离收据。",
+      "evidence": [
+        "../../artifacts/research/formal/20261005-calibration-v1/inputs.json",
+        "../../artifacts/research/formal/20261005-calibration-v1/loader-correction.json"
+      ],
+      "remaining": [
+        "complete category-hint removal and allowable-input isolation proof",
+        "check static entrypoint equivalence beyond loader case set"
+      ]
+    },
+    {
+      "id": "E02",
+      "title": "裁决根因并校准任务",
+      "status": "in_progress",
+      "depends_on": [
+        "E01"
+      ],
+      "acceptance": "项目接纳/排除记录；根因映射；修复纯单元双 oracle 校准。无合格修复样本明确登记缺口。",
+      "evidence": [
+        "repair-calibration-report.md",
+        "discovery-root-review.md"
+      ],
+      "remaining": [
+        "human review provisional roots and module oracles",
+        "reference QL must pass original and hidden positive/negative task conditions",
+        "obtain more complete pure-module pre/post tasks"
+      ]
+    },
+    {
+      "id": "E03",
+      "title": "实现统一 runner 与评分契约",
+      "status": "in_progress",
+      "depends_on": [
+        "E00"
+      ],
+      "acceptance": "按链路适配；失败/未决分离；恢复去重、隐藏反馈阻断及根因评分普通测试通过。",
+      "evidence": [
+        "calibration-summary.json",
+        "../../tests/test_formal_scoring.py",
+        "../../artifacts/research/formal/20261005-calibration-v1/integrity.json"
+      ],
+      "remaining": [
+        "ordinary tests for resume deduplication, hidden-feedback isolation and cross-task file rejection",
+        "freeze formal runner version and no-RAG scoring contract"
+      ]
+    },
+    {
+      "id": "E04",
+      "title": "运行确定性静态基线",
+      "status": "planned",
+      "depends_on": [
+        "E02",
+        "E03"
+      ],
+      "acceptance": "冻结 suite 和源码的 CodeQL 结果、提取失败、SARIF 与实际时序；补充竞品准备状态。",
+      "evidence": [],
+      "remaining": [
+        "calibration executed; formal acceptance pending E02/E03 prerequisites"
+      ],
+      "calibration_evidence": [
+        "calibration-results.md",
+        "calibration-summary.json"
+      ]
+    },
+    {
+      "id": "E05",
+      "title": "开发集最小接入 pilot",
+      "status": "planned",
+      "depends_on": [
+        "E04"
+      ],
+      "acceptance": "每链路最多两个合格开发任务，每配置一次；记录预算/覆盖/反馈隔离，不得访问隐藏结果。",
+      "evidence": [],
+      "remaining": [
+        "calibration executed; formal acceptance pending E02/E03 prerequisites"
+      ],
+      "calibration_evidence": [
+        "calibration-results.md",
+        "calibration-summary.json"
+      ]
+    },
+    {
+      "id": "E06",
+      "title": "冻结正式任务、预算与评分",
+      "status": "planned",
+      "depends_on": [
+        "E05"
+      ],
+      "acceptance": "开发/隐藏按根因仓库分组；清单/输入/语料/配置哈希；数值预算、运行矩阵、排除口径与评分版本。",
+      "evidence": [],
+      "remaining": []
+    },
+    {
+      "id": "E07",
+      "title": "双引擎四组正式评测",
+      "status": "planned",
+      "depends_on": [
+        "E06"
+      ],
+      "acceptance": "D0–D3 根因计数、额外 TP、复审误删、未决与覆盖；实际墙钟及候选池复用结果分列。",
+      "evidence": [],
+      "remaining": []
+    },
+    {
+      "id": "E08",
+      "title": "独立检索相关性评测",
+      "status": "planned",
+      "depends_on": [
+        "E06"
+      ],
+      "acceptance": "BM25/向量/混合固定语料；相关性覆盖与复核身份；知识/范例的检索指标。",
+      "evidence": [],
+      "remaining": []
+    },
+    {
+      "id": "E09",
+      "title": "RAG 规则四组评测",
+      "status": "planned",
+      "depends_on": [
+        "E08"
+      ],
+      "acceptance": "R0–R3 每任务三轮；编译、运行、根因、隐藏正负例、基线新增和跨仓库复用分列。",
+      "evidence": [],
+      "remaining": []
+    },
+    {
+      "id": "E10",
+      "title": "语义修复四组与端到端评测",
+      "status": "planned",
+      "depends_on": [
+        "E06",
+        "E07"
+      ],
+      "acceptance": "F0–F3 每合格任务三轮；已知漏洞修复和审计驱动修复分开；双 oracle/unknown/未发现全分母记录。",
+      "evidence": [],
+      "remaining": []
+    },
+    {
+      "id": "E11",
+      "title": "汇总效率与质量成本",
+      "status": "planned",
+      "depends_on": [
+        "E07",
+        "E09",
+        "E10"
+      ],
+      "acceptance": "阶段时序与实际墙钟、冷暖缓存、调用/token、失败成本；相同质量配置的配对比较。",
+      "evidence": [],
+      "remaining": []
+    },
+    {
+      "id": "E12",
+      "title": "形成结果、失败分类与改进计划",
+      "status": "planned",
+      "depends_on": [
+        "E11"
+      ],
+      "acceptance": "从原始收据生成三主线结果与有限结论、缺口、用户校准清单及下一轮可检验假设。",
+      "evidence": [],
+      "remaining": []
+    }
+  ],
+  "calibration_result": {
+    "status": "complete",
+    "formal_result": false,
+    "evidence": [
+      "calibration-results.md",
+      "calibration-summary.json",
+      "paper-baseline-alignment.md",
+      "calibration-followup-plan.md",
+      "../../artifacts/research/formal/20261005-calibration-v1/integrity.json"
+    ],
+    "model_text_calls": 99,
+    "input_tokens": 681097,
+    "output_tokens": 99199,
+    "embedding_requests_separate_retrieval": 20,
+    "generation_embedding_usage": "not_fully_aggregated",
+    "paper_uplift_demonstrated": false,
+    "posthoc_analysis": {
+      "evidence": [
+        "failure-analysis.md",
+        "../../artifacts/research/formal/20261005-calibration-v1/posthoc/failure-analysis-receipt.json"
+      ],
+      "new_model_calls": 0,
+      "original_counts_unchanged": true,
+      "existing_round2_patch_bounded_joint_pass": true
+    }
+  },
+  "discovery_remediation": {
+    "status": "complete",
+    "evidence": [
+      "discovery-retest-results.md",
+      "discovery-retest-summary.json"
+    ],
+    "ordinary_tests": 50,
+    "old_pool_candidates_reviewed": 59,
+    "unreviewed": 0,
+    "additional_provisionally_gold_matched_supported_roots": 4,
+    "human_confirmed": false,
+    "usage": [
+      {
+        "run_id": "20261005-v1",
+        "calls": 44,
+        "input_tokens": 316994,
+        "output_tokens": 27962
+      },
+      {
+        "run_id": "20261005-v2",
+        "calls": 34,
+        "input_tokens": 173989,
+        "output_tokens": 27387
+      }
+    ],
+    "new_prompt_versions": {
+      "review": "6",
+      "scout": "3"
+    },
+    "remaining": [
+      "independent human/root verification and unmapped supported adjudication",
+      "independent scout DVNA 5/18 windows; expand source coverage in future batch",
+      "formal benchmark/version alignment pending"
+    ]
+  },
+  "discovery_coverage_improvement": {
+    "status": "complete",
+    "plan": "../../docs/discovery-coverage-improvement-plan.md",
+    "ordinary_tests": 81,
+    "run": "../../artifacts/research/discovery-coverage/20261006-v6",
+    "previous_pilot": "../../artifacts/research/discovery-coverage/20261006-v1",
+    "input_defect": "Previous exporter omitted .ejs; new input version adds 55 template/config files to DVNA; existing files byte-identical",
+    "gui": false,
+    "target_services": false,
+    "prompt_versions": {
+      "scout": "5",
+      "review": "7"
+    },
+    "base_review_run": "../../artifacts/research/discovery-coverage/20261006-v5",
+    "reused_scout_run": "../../artifacts/research/discovery-coverage/20261006-v2",
+    "evidence": [
+      "discovery-coverage-results.md",
+      "discovery-coverage-summary.json"
+    ],
+    "eligible_windows": 81,
+    "inspected_eligible_windows": 81,
+    "deferred_windows": 4,
+    "reviewed_unique_candidates": 124,
+    "unreviewed": 0,
+    "supported_positive_roots_provisional_primary_only": 24,
+    "gold_positive_roots": 31,
+    "current_static_matched_roots": 13,
+    "previous_supported_primary_roots": 16,
+    "human_confirmed": false,
+    "formal_benchmark": false,
+    "same_budget_uplift_demonstrated": false,
+    "all_attempts_text_calls": 301,
+    "all_attempts_input_tokens": 2290763,
+    "all_attempts_output_tokens": 247846,
+    "default_budget_whole_repository_complete": false,
+    "remaining": [
+      "Endpoint/security-property split and primary source location accuracy",
+      "Model local middleware/role/logging semantics and correlated hypotheses",
+      "Default token/call budget still limits large-project coverage",
+      "Independent root adjudication and label-free fixed-budget comparison"
+    ]
+  },
+  "discovery_semantic_improvement": {
+    "status": "implemented_development_retest_complete",
+    "plan": "../../docs/discovery-semantic-improvement-plan.md",
+    "diagnostics": "../../artifacts/research/discovery-coverage/20261006-v6/semantic-flow-diagnostics.json",
+    "coverage_gain_provisional_primary_roots": "16/31 to 24/31; expanded inputs and budgets",
+    "same_pool_review6_vs_review7_plus_recovery": "24/31 vs 24/31; different context/calls, not a single-factor ablation",
+    "new_model_calls_in_assessment": 0,
+    "production_changes_in_assessment": false,
+    "priority": [
+      "Candidate failure isolation, one bounded retry and shared parent budget",
+      "Exact operation localization and endpoint/security-property split",
+      "Local premise evidence ledger and conditional framework references",
+      "Cross-candidate contradiction check and matched-budget evaluation"
+    ],
+    "supported_roots": 29,
+    "gold_roots": 31,
+    "remaining_unreviewed": 0,
+    "ordinary_tests": 42,
+    "production_prompt_versions": {
+      "scout": "6",
+      "review": "8"
+    },
+    "evidence": [
+      "discovery-semantic-results.md",
+      "discovery-semantic-summary.json"
+    ],
+    "single_fresh_full_scan": false,
+    "post_owasp_safety_fixes": true
+  },
+  "owasp_discovery_pilot": {
+    "run_id": "20261007-pilot-v1",
+    "status": "complete_representative_pilot",
+    "model": "deepseek-v4.1-flash",
+    "cases": 56,
+    "positive": 28,
+    "negative": 28,
+    "categories": 14,
+    "primary_scores": {
+      "D0_CodeQL": {
+        "counts": {
+          "TP": 9,
+          "FP": 3,
+          "TN": 25,
+          "FN": 19
+        },
+        "precision": 0.75,
+        "recall": 0.32142857142857145,
+        "f1": 0.45,
+        "false_positive_rate": 0.10714285714285714
+      },
+      "D1_scout_unverified": {
+        "counts": {
+          "TP": 20,
+          "FP": 14,
+          "TN": 14,
+          "FN": 8
+        },
+        "precision": 0.5882352941176471,
+        "recall": 0.7142857142857143,
+        "f1": 0.6451612903225806,
+        "false_positive_rate": 0.5
+      },
+      "D2_union_unverified": {
+        "counts": {
+          "TP": 20,
+          "FP": 14,
+          "TN": 14,
+          "FN": 8
+        },
+        "precision": 0.5882352941176471,
+        "recall": 0.7142857142857143,
+        "f1": 0.6451612903225806,
+        "false_positive_rate": 0.5
+      },
+      "D3_supported_review": {
+        "counts": {
+          "TP": 14,
+          "FP": 5,
+          "TN": 23,
+          "FN": 14
+        },
+        "precision": 0.7368421052631579,
+        "recall": 0.5,
+        "f1": 0.5957446808510638,
+        "false_positive_rate": 0.17857142857142858
+      }
+    },
+    "source_case_windows_inspected": 56,
+    "source_case_windows_planned": 56,
+    "task_unknown_records": 105,
+    "unreviewed": 4,
+    "model_usage": {
+      "calls": 151,
+      "input_tokens": 1084620,
+      "output_tokens": 243583
+    },
+    "parallel_wall_seconds": 829.1687244159984,
+    "full_1230_AI_executed": false,
+    "formal_paper_uplift_demonstrated": false,
+    "counterfactual_metadata_diagnostic": {
+      "model_calls": 0,
+      "not_new_end_to_end_result": true,
+      "counts": {
+        "TP": 18,
+        "FP": 5,
+        "TN": 23,
+        "FN": 10
+      },
+      "precision": 0.782608695652174,
+      "recall": 0.6428571428571429,
+      "f1": 0.7058823529411765
+    },
+    "ordinary_tests_after_safety_fixes": 42,
+    "inputs_and_code_frozen_during_model_run": true,
+    "post_run_production_fix_hashes": {
+      "backend/app/services/scout_inspection.py": "40580cfa677e9aa340d42606c487e43de7f5a71ad13e27c265571d4464e9092e",
+      "backend/app/services/review_classification.py": "9879e65a2068aaefbc98da20a0ef7846678bcc0ae492324dc5bd7bc6ceaccc95",
+      "backend/app/services/review_verdict_gate.py": "abb619005e34729c4b5631d88dfd9aa308528eec47c66902221db59202c4ecdf",
+      "backend/app/services/unified_review_results.py": "d30b30d63260b06615123401151ace5fd207b09535f1aa410c9af19154007133"
+    },
+    "next_priorities": [
+      "Pre-register CWE taxonomy and preserve distinct classifier sources",
+      "Ground authentication/authorization requirements in business contracts and reconcile framework semantic conflicts",
+      "Resolve helper/branch dataflow and precise missing proof obligations",
+      "Cache project facts and references under fixed quality/cost gates before full AI expansion"
+    ]
+  },
+  "discovery_generality_review": {
+    "status": "mechanism_review_and_full_host_replay_complete",
+    "production_project_or_case_specific_branches_found": false,
+    "production_files_scanned": 168,
+    "paid_model_calls": 0,
+    "benchmark": "OWASP56 historical exposed representative subset",
+    "pool": 184,
+    "accepted_original": 180,
+    "accepted_fixed": 180,
+    "unreviewed": 4,
+    "original_score": {
+      "counts": {
+        "TP": 14,
+        "FP": 5,
+        "TN": 23,
+        "FN": 14
+      },
+      "precision": 0.7368421052631579,
+      "recall": 0.5,
+      "f1": 0.5957446808510638
+    },
+    "fixed_full_host_replay": {
+      "counts": {
+        "TP": 18,
+        "FP": 5,
+        "TN": 23,
+        "FN": 10
+      },
+      "precision": 0.782608695652174,
+      "recall": 0.6428571428571429,
+      "f1": 0.7058823529411765
+    },
+    "metamorphic": [
+      {
+        "transform": "directory_and_file_rename",
+        "accepted_records": 180,
+        "mismatches": [],
+        "same_prediction_counts": true
+      },
+      {
+        "transform": "line_offset",
+        "accepted_records": 180,
+        "mismatches": [],
+        "same_prediction_counts": true
+      },
+      {
+        "transform": "combined",
+        "accepted_records": 180,
+        "mismatches": [],
+        "same_prediction_counts": true
+      }
+    ],
+    "supported_claim": "Generic result/proof mechanisms work on OWASP and survive name/coordinate changes; classification preservation changes benchmark accounting",
+    "not_supported": [
+      "Fresh model discovery generalization",
+      "Unseen framework or natural CVE performance",
+      "End-to-end speed uplift",
+      "Full 1230 AI evaluation"
+    ],
+    "next_acceptance": "Standard benchmark old/new same-budget comparisons; RealVuln only regression"
+  },
+  "owasp48_campaign": {
+    "artifact_root": "../../artifacts/research/owasp48/20261007-evolution",
+    "versions": [
+      "base",
+      "revision-01",
+      "revision-02"
+    ],
+    "completed": [
+      "base/development-01",
+      "revision-01/development-01",
+      "revision-01/development-02",
+      "revision-02/development-02",
+      "base/acceptance-01",
+      "revision-01/acceptance-01",
+      "OCR/acceptance-01"
+    ],
+    "running": null,
+    "ordinary_tests_passed": 83,
+    "acceptance_labels_inspected_for_tuning": false,
+    "selected_final": "revision-01",
+    "selection_reason": "same development quality; fewer model calls and tokens",
+    "status": "complete",
+    "stopping_rule_met": true,
+    "acceptance_labels_inspected_after_candidate_freeze_for_scoring": true,
+    "default_prompt_versions": {
+      "scout": "7",
+      "review": "9"
+    },
+    "reports": [
+      "owasp48-final-comparison.md",
+      "owasp48-final-summary.json"
+    ],
+    "comparison": [
+      {
+        "tool": "CodeQL fixed code-scanning suite",
+        "metrics": {
+          "counts": {
+            "TP": 9,
+            "FP": 2,
+            "TN": 22,
+            "FN": 15
+          },
+          "precision": 0.8181818181818182,
+          "recall": 0.375,
+          "f1": 0.5142857142857142,
+          "false_positive_rate": 0.08333333333333333,
+          "macro_TPR": 0.39285714285714285,
+          "macro_FPR": 0.10714285714285714,
+          "macro_J": 0.2857142857142857,
+          "by_class": [
+            {
+              "category": "cmdi",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "codeinj",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "deserialization",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "hash",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "ldapi",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "pathtraver",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            },
+            {
+              "category": "redirect",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 2,
+                "FN": 1
+              },
+              "TPR": 0.5,
+              "FPR": 0.0,
+              "J": 0.5
+            },
+            {
+              "category": "securecookie",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "sqli",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 1,
+                "FN": 1
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "trustbound",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "weakrand",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "xpathi",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 1,
+                "FN": 1
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "xss",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "xxe",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            }
+          ],
+          "outside_target_count": 8
+        },
+        "wall_seconds": 11.722492582979612,
+        "query_seconds": 8.545282332983334,
+        "model_calls": 0,
+        "model_tokens": 0,
+        "cache": "new 48-case DB; OS cache not cleared; extraction plus first query"
+      },
+      {
+        "tool": "python -m bandit 1.9.4\n  python version = 3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 17.0.0 (clang-1700.6.4.2)]",
+        "metrics": {
+          "counts": {
+            "TP": 3,
+            "FP": 2,
+            "TN": 22,
+            "FN": 21
+          },
+          "precision": 0.6,
+          "recall": 0.125,
+          "f1": 0.20689655172413793,
+          "false_positive_rate": 0.08333333333333333,
+          "macro_TPR": 0.17857142857142858,
+          "macro_FPR": 0.14285714285714285,
+          "macro_J": 0.03571428571428571,
+          "by_class": [
+            {
+              "category": "cmdi",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "codeinj",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "deserialization",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 1,
+                "FN": 1
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "hash",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "ldapi",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "pathtraver",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "redirect",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "securecookie",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "sqli",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "trustbound",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "weakrand",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 2,
+                "FN": 1
+              },
+              "TPR": 0.5,
+              "FPR": 0.0,
+              "J": 0.5
+            },
+            {
+              "category": "xpathi",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 1,
+                "FN": 1
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "xss",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "xxe",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            }
+          ],
+          "outside_target_count": 28
+        },
+        "wall_seconds": 0.20639416598714888,
+        "wall_repetitions": [
+          0.22377454198431224,
+          0.20639416598714888,
+          0.20638816599966958
+        ],
+        "model_calls": 0,
+        "model_tokens": 0,
+        "cache": "three independent processes; warm OS/import effects disclosed"
+      },
+      {
+        "tool": "Platform base",
+        "metrics": {
+          "counts": {
+            "TP": 17,
+            "FP": 3,
+            "TN": 21,
+            "FN": 7
+          },
+          "precision": 0.85,
+          "recall": 0.7083333333333334,
+          "f1": 0.7727272727272727,
+          "false_positive_rate": 0.125,
+          "macro_TPR": 0.75,
+          "macro_FPR": 0.14285714285714285,
+          "macro_J": 0.6071428571428571,
+          "by_class": [
+            {
+              "category": "cmdi",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "codeinj",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 2,
+                "FN": 1
+              },
+              "TPR": 0.5,
+              "FPR": 0.0,
+              "J": 0.5
+            },
+            {
+              "category": "deserialization",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "hash",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "ldapi",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            },
+            {
+              "category": "pathtraver",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            },
+            {
+              "category": "redirect",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "securecookie",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "sqli",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "trustbound",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "weakrand",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "xpathi",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "xss",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "xxe",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            }
+          ],
+          "outside_target_count": 100
+        },
+        "ai_wall_seconds": 433.105594291992,
+        "wall_seconds": 444.82808687497163,
+        "timing_basis": "Sum of measured AI wall and common static scan wall; static result shared by both versions. Excludes research registration/setup; not process or GUI end-to-end wall.",
+        "model_calls": 141,
+        "input_tokens": 1027899,
+        "output_tokens": 226660,
+        "model_tokens": 1254559,
+        "unreviewed_candidates": 1,
+        "incomplete_case_windows": 0,
+        "case_task_conclusions": {
+          "suspicious": 96,
+          "not_applicable": 60,
+          "no_condition_identified": 203,
+          "unknown": 73
+        },
+        "cache": "actual model requests; no cross-run verdict reuse"
+      },
+      {
+        "tool": "Platform revision-01",
+        "metrics": {
+          "counts": {
+            "TP": 18,
+            "FP": 2,
+            "TN": 22,
+            "FN": 6
+          },
+          "precision": 0.9,
+          "recall": 0.75,
+          "f1": 0.8181818181818182,
+          "false_positive_rate": 0.08333333333333333,
+          "macro_TPR": 0.7857142857142857,
+          "macro_FPR": 0.10714285714285714,
+          "macro_J": 0.6785714285714286,
+          "by_class": [
+            {
+              "category": "cmdi",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "codeinj",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "deserialization",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "hash",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "ldapi",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "pathtraver",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            },
+            {
+              "category": "redirect",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "securecookie",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "sqli",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "trustbound",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 2,
+                "FN": 1
+              },
+              "TPR": 0.5,
+              "FPR": 0.0,
+              "J": 0.5
+            },
+            {
+              "category": "weakrand",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "xpathi",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "xss",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 2,
+                "FN": 1
+              },
+              "TPR": 0.5,
+              "FPR": 0.0,
+              "J": 0.5
+            },
+            {
+              "category": "xxe",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            }
+          ],
+          "outside_target_count": 34
+        },
+        "ai_wall_seconds": 460.6760282079922,
+        "wall_seconds": 472.3985207909718,
+        "timing_basis": "Sum of measured AI wall and common static scan wall; static result shared by both versions. Excludes research registration/setup; not process or GUI end-to-end wall.",
+        "model_calls": 139,
+        "input_tokens": 1206148,
+        "output_tokens": 192023,
+        "model_tokens": 1398171,
+        "unreviewed_candidates": 1,
+        "incomplete_case_windows": 0,
+        "case_task_conclusions": {
+          "no_condition_identified": 250,
+          "not_applicable": 30,
+          "suspicious": 53,
+          "unknown": 99
+        },
+        "cache": "actual model requests; no cross-run verdict reuse"
+      },
+      {
+        "tool": "Platform independent Scout (unverified)",
+        "metrics": {
+          "counts": {
+            "TP": 18,
+            "FP": 10,
+            "TN": 14,
+            "FN": 6
+          },
+          "precision": 0.6428571428571429,
+          "recall": 0.75,
+          "f1": 0.6923076923076923,
+          "false_positive_rate": 0.4166666666666667,
+          "macro_TPR": 0.7857142857142857,
+          "macro_FPR": 0.42857142857142855,
+          "macro_J": 0.35714285714285715,
+          "by_class": [
+            {
+              "category": "cmdi",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "codeinj",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 1,
+                "FN": 1
+              },
+              "TPR": 0.5,
+              "FPR": 0.5,
+              "J": 0.0
+            },
+            {
+              "category": "deserialization",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "hash",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "ldapi",
+              "counts": {
+                "TP": 2,
+                "FP": 2,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "pathtraver",
+              "counts": {
+                "TP": 2,
+                "FP": 2,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "redirect",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            },
+            {
+              "category": "securecookie",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "sqli",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "trustbound",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            },
+            {
+              "category": "weakrand",
+              "counts": {
+                "TP": 0,
+                "FP": 0,
+                "TN": 2,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.0,
+              "J": 0.0
+            },
+            {
+              "category": "xpathi",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "xss",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 1,
+                "FN": 1
+              },
+              "TPR": 0.5,
+              "FPR": 0.5,
+              "J": 0.0
+            },
+            {
+              "category": "xxe",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            }
+          ],
+          "outside_target_count": 68
+        },
+        "wall_seconds": null,
+        "summed_stage_seconds_not_parallel_wall": 782.1954354989575,
+        "model_calls": 93,
+        "input_tokens": 781213,
+        "output_tokens": 110466,
+        "model_tokens": 891679,
+        "cache": "same final-run Scout outputs, not a separately scheduled pure-prompt tool"
+      },
+      {
+        "tool": "Alibaba Open Code Review a758d9cb",
+        "metrics": {
+          "counts": {
+            "TP": 21,
+            "FP": 12,
+            "TN": 12,
+            "FN": 3
+          },
+          "precision": 0.6363636363636364,
+          "recall": 0.875,
+          "f1": 0.7368421052631579,
+          "false_positive_rate": 0.5,
+          "macro_TPR": 0.8928571428571429,
+          "macro_FPR": 0.5,
+          "macro_J": 0.39285714285714285,
+          "by_class": [
+            {
+              "category": "cmdi",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "codeinj",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            },
+            {
+              "category": "deserialization",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "hash",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 2,
+                "FN": 1
+              },
+              "TPR": 0.5,
+              "FPR": 0.0,
+              "J": 0.5
+            },
+            {
+              "category": "ldapi",
+              "counts": {
+                "TP": 2,
+                "FP": 2,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "pathtraver",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            },
+            {
+              "category": "redirect",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            },
+            {
+              "category": "securecookie",
+              "counts": {
+                "TP": 2,
+                "FP": 0,
+                "TN": 2,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "sqli",
+              "counts": {
+                "TP": 1,
+                "FP": 0,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.0,
+              "J": 1.0
+            },
+            {
+              "category": "trustbound",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            },
+            {
+              "category": "weakrand",
+              "counts": {
+                "TP": 0,
+                "FP": 1,
+                "TN": 1,
+                "FN": 2
+              },
+              "TPR": 0.0,
+              "FPR": 0.5,
+              "J": -0.5
+            },
+            {
+              "category": "xpathi",
+              "counts": {
+                "TP": 1,
+                "FP": 1,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "xss",
+              "counts": {
+                "TP": 2,
+                "FP": 2,
+                "TN": 0,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 1.0,
+              "J": 0.0
+            },
+            {
+              "category": "xxe",
+              "counts": {
+                "TP": 2,
+                "FP": 1,
+                "TN": 1,
+                "FN": 0
+              },
+              "TPR": 1.0,
+              "FPR": 0.5,
+              "J": 0.5
+            }
+          ],
+          "outside_target_count": 83
+        },
+        "wall_seconds": 552.2878274999675,
+        "model_calls": 192,
+        "input_tokens": 1220188,
+        "output_tokens": 289436,
+        "model_tokens": 1509624,
+        "reported_cache_read_tokens": 723968,
+        "tool_calls": 119,
+        "comments": 202,
+        "unclassified_comments": 85,
+        "completed_cases": 48,
+        "unreviewed_candidates": null,
+        "limits": "real full-file default OCR plan/dedup/summary; explicit CWE regex frozen before run; soft 1.8M token cap, default tool-round cap differs; non-CWE comments are not silently adjudicated"
+      }
+    ],
+    "paired_changes": {
+      "improved_cases": [
+        "Case33c8b5bc7920",
+        "Case879e685c2c9e",
+        "Casec0b1a4d2b8f5"
+      ],
+      "regressed_cases": [
+        "Case030c89e13cd5"
+      ],
+      "mcnemar_two_sided_exact_p": 0.625
+    },
+    "remaining": [
+      "6 target-CWE FN and 2 FP",
+      "1 unknown review candidate and 99 unknown security tasks",
+      "unified blind adjudication for OCR unclassified/outside findings",
+      "multiple seeds/repetitions and natural CVE cross-project generalization",
+      "speed/token cost regression versus base"
+    ]
+  },
+  "test_programs": {
+    "version": "2026-10-08-v1",
+    "status": "classification_inventory_and_protocol_complete_no_new_model_runs",
+    "entrypoint": "../test-programs/README.md",
+    "inventory": "../manifests/current-test-inventory.json",
+    "papers": "../catalog/current-papers.md",
+    "common_benchmarks": "../test-programs/common-benchmarks/plan.md",
+    "specialized_comparisons": "../test-programs/specialized-comparisons/plan.md",
+    "absentia": "../test-programs/specialized-comparisons/absentia.md",
+    "summary": {
+      "material_entries": 32,
+      "primary_common": 13,
+      "primary_specialized": 19,
+      "literature_entries": 43,
+      "local_pdf_files": 25,
+      "local_pdf_publications": 21,
+      "external_comparators": 10,
+      "actually_run_external_comparators": 3
+    },
+    "absentia_status": "official_data_protocol_online_verified; no local index/target source freeze; detector not released; no matched run",
+    "previous_followup": {
+      "task_id": "E07",
+      "instruction": "本轮48例循环完成并达到有限优势条件：Precision90/Recall75/F181.82%，默认Scout7/Review9。下一轮用新预留样本验证路由约束、可变容器、操作任务覆盖与CWE/政策边界；增加统一盲审与多次/跨项目复现，当前验收分数不因补丁改写。未证明全量1230、所有框架或全球领先；RAG/修复正式实验仍独立待完成。"
+    },
+    "freshness_and_coverage_review": {
+      "status": "metadata_recheck_complete_no_model_runs",
+      "report": "../test-programs/freshness-and-coverage-review.md",
+      "evidence": "../manifests/freshness-and-coverage-review.json",
+      "arxiv_records_rechecked": 31,
+      "formal_records_rechecked": 11,
+      "count_note": "arxiv/formal counts overlap;3newpaper and4tool candidates excluded from prior43/10 totals",
+      "priority_gaps": [
+        "Semgrep CE actual run",
+        "independent same-model Agent control",
+        "PyJS external QL generator + certified hidden tasks",
+        "OpenHands repair comparison + calibrated joint oracle",
+        "BAC-Bench task preparation before ABSENTIA code release"
+      ]
+    }
+  }
+}

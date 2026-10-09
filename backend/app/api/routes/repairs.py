@@ -8,6 +8,7 @@ from app.adapters.artifacts import ArtifactStore
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.audits import owned_run
 from app.contracts.stages import RepairAcceptance
+from app.domain.audit import AuditError
 from app.persistence.stage_models import Candidate, RepairRecord
 from app.services.reports import build_report, markdown_report
 
@@ -51,6 +52,12 @@ def accept(
     ]
     if any(row is None or row.status != "confirmed" for row in candidates):
         raise HTTPException(409, "修复目标确认状态已变化，请重新评估补丁")
+    from app.services.repair_integrity import verify_acceptance
+
+    try:
+        verify_acceptance(record, owned_run(record.audit_id, session, user))
+    except (AuditError, OSError, KeyError, ValueError) as exc:
+        raise HTTPException(409, "补丁或验证产物失效，请重新验证") from exc
     record.status, record.accepted_by, record.acceptance_reason = (
         "accepted",
         user.id,

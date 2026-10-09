@@ -1,0 +1,255 @@
+{
+  "date": "2026-10-04",
+  "conclusion": "At the historical common 6000 output budget, current v6 auto regressed from reproduced old K 15/18 to 1/18; not an isolated RAG causal comparison.",
+  "groups": {
+    "old_K": {
+      "requests": 18,
+      "independent_tasks": 6,
+      "observed_compile_passed": 18,
+      "generated": 18,
+      "development_passed": 18,
+      "hidden_executed": 18,
+      "hidden_passed": 15,
+      "end_to_end_passed": 15,
+      "conditional_tp": 21,
+      "conditional_fp": 0,
+      "conditional_fn": 3,
+      "conditional_precision": 1.0,
+      "conditional_recall": 0.875,
+      "generation_median_seconds": 38.46471443749033,
+      "total_median_seconds": 50.71279847949336,
+      "model_calls": 22,
+      "input_tokens": 126953,
+      "output_tokens": 17143,
+      "response_models": [
+        "deepseek-v4-1-flash-260910"
+      ],
+      "per_case": {
+        "javascript-eval-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 3,
+          "hidden_passed": 3,
+          "end_to_end_passed": 3
+        },
+        "javascript-sql-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 3,
+          "hidden_passed": 3,
+          "end_to_end_passed": 3
+        },
+        "javascript-xss-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 3,
+          "hidden_passed": 3,
+          "end_to_end_passed": 3
+        },
+        "python-eval-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 3,
+          "hidden_passed": 3,
+          "end_to_end_passed": 3
+        },
+        "python-sql-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 3,
+          "hidden_passed": 3,
+          "end_to_end_passed": 3
+        },
+        "python-xss-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 3,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        }
+      }
+    },
+    "new_v6_auto": {
+      "requests": 18,
+      "independent_tasks": 6,
+      "observed_compile_passed": 1,
+      "generated": 1,
+      "development_passed": 1,
+      "hidden_executed": 1,
+      "hidden_passed": 1,
+      "end_to_end_passed": 1,
+      "conditional_tp": 1,
+      "conditional_fp": 0,
+      "conditional_fn": 0,
+      "conditional_precision": 1.0,
+      "conditional_recall": 1.0,
+      "generation_median_seconds": 7.598112395993667,
+      "total_median_seconds": 7.598112395993667,
+      "model_calls": 37,
+      "input_tokens": 132852,
+      "output_tokens": 29636,
+      "response_models": [
+        "deepseek-v4-1-flash-260910"
+      ],
+      "per_case": {
+        "javascript-eval-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 0,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        },
+        "javascript-sql-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 1,
+          "hidden_passed": 1,
+          "end_to_end_passed": 1
+        },
+        "javascript-xss-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 0,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        },
+        "python-eval-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 0,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        },
+        "python-sql-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 0,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        },
+        "python-xss-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 0,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        }
+      }
+    },
+    "new_v6_strict_hybrid_pilot": {
+      "requests": 18,
+      "independent_tasks": 6,
+      "observed_compile_passed": 1,
+      "generated": 1,
+      "development_passed": 1,
+      "hidden_executed": 1,
+      "hidden_passed": 1,
+      "end_to_end_passed": 1,
+      "conditional_tp": 2,
+      "conditional_fp": 0,
+      "conditional_fn": 0,
+      "conditional_precision": 1.0,
+      "conditional_recall": 1.0,
+      "generation_median_seconds": 9.179714229001547,
+      "total_median_seconds": 9.179714229001547,
+      "model_calls": 36,
+      "input_tokens": 113473,
+      "output_tokens": 26575,
+      "response_models": [
+        "deepseek-v4-1-flash-260910"
+      ],
+      "per_case": {
+        "javascript-eval-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 0,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        },
+        "javascript-sql-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 0,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        },
+        "javascript-xss-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 0,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        },
+        "python-eval-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 1,
+          "hidden_passed": 1,
+          "end_to_end_passed": 1
+        },
+        "python-sql-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 0,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        },
+        "python-xss-vulnerability_detector-v1": {
+          "requests": 3,
+          "generated": 0,
+          "hidden_passed": 0,
+          "end_to_end_passed": 0
+        }
+      }
+    }
+  },
+  "failures": {
+    "new_v6_auto": {
+      "规则输入超过上下文预算；请缩小目标或参考材料": 5,
+      "语义取证重复停滞，需明确缺失事实": 9,
+      "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留": 2,
+      "关键业务/漏洞语义证据不足，需补充或人工澄清": 1
+    },
+    "new_v6_strict_hybrid_pilot": {
+      "语义取证重复停滞，需明确缺失事实": 7,
+      "规则输入超过上下文预算；请缩小目标或参考材料": 8,
+      "未配置或索引向量模型，不能宣称向量/混合检索": 2
+    }
+  },
+  "fresh_generation_requests": 54,
+  "total_model_calls": 95,
+  "total_input_tokens": 373278,
+  "total_output_tokens": 73354,
+  "common_policy": {
+    "model": "deepseek-v4.1-flash",
+    "base_url": "https://ark.cn-beijing.volces.com/api/plan/v3",
+    "timeout": 90,
+    "thinking_mode": "disabled",
+    "budgets": {
+      "review": 6000,
+      "repair": 6000,
+      "rule": 6000
+    },
+    "max_calls": 24,
+    "max_tokens": 100000,
+    "max_seconds": 300,
+    "recovery_attempts": 1
+  },
+  "identities": {
+    "cli": "2.23.5",
+    "new_corpus_hash": "6a4c853f95ca1752e157005fb1237a24453536ca4f39148a78827750b505a6a8",
+    "old_corpus_hash": "55aa151c0e98dbc9d5bc6066cdfc98493081fe6d04ac8b6c7afd1ed8cc08991c",
+    "old_records_hash": "003fbb4d8d5aaf2270a6c437eaea31bb0c524e79aec2964b83026d7d80bd6c75",
+    "hidden_manifest_hash": "2778f39326b5b1c6e908fc3a43898026e7ad9b6739b1a68490b1d6ba901ce6f5",
+    "prompt_hashes": {
+      "3": "a066db137854c5cf20f86697185bc4befa61264e1a7ae4d349fece9c1df4342e",
+      "6": "4b2c849bc7ad8073c007c009d871836b0cdbf77b71c2bf95f346585cbce1bf1a"
+    }
+  },
+  "hidden_source_hashes": {
+    "python-eval-vulnerability_detector-v1": "9cf154952c1270c32c3543aca57651aa57bfdf67406afbcfd97c139c9dd811f5",
+    "python-sql-vulnerability_detector-v1": "b1622f2885cc628f3cd208b8035da636b4088fe17c9fe7b25c4e366b92d24b95",
+    "python-xss-vulnerability_detector-v1": "97d154f2efe8919e32281b6fd2bd40d555d77aa93ff7cf51c032132ca5857b03",
+    "javascript-eval-vulnerability_detector-v1": "e022495bd9720ab1ae90f6fc5f4a091e6cfb431101aac4131a6997b514b8b831",
+    "javascript-sql-vulnerability_detector-v1": "0487407a4266f58be0662a8beaedbcc3b904acfa37600e109801f4455c24f55f",
+    "javascript-xss-vulnerability_detector-v1": "e68128fbfd6e6e297bf597bfb01e733ef19fe15fc3032eb860c5fa9981537795"
+  },
+  "frozen_public_documents": 180,
+  "old_control_reuse": "The auto run references all 18 completed old controls from the pilot, without regeneration; copied records are not new requests.",
+  "limitations": [
+    "Six semantic tasks repeated three times, not 18 independent vulnerabilities",
+    "Whole pipeline: knowledge, source access, generation constraints and validations differ",
+    "Current production default 8000 output tokens was not tested; common historical budget is 6000",
+    "Old retrieval replay and sequential auto group limit performance comparisons",
+    "Conditional precision/recall exclude generation failures; report executed coverage",
+    "No hidden evaluation labels or variant sources supplied to generator"
+  ],
+  "artifacts": {
+    "pilot": "artifacts/benchmarks/legacy-rag-matched-20261004/report.json",
+    "auto": "artifacts/benchmarks/legacy-rag-deployed-20261004/report.json"
+  },
+  "frozen_identity_and_control_equality_checks": "passed"
+}

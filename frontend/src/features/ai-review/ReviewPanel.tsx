@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { StageHistory } from "@/features/stages/StageHistory"
 import { CandidateCard } from "./CandidateCard"
+import { DiscoveryCoverage } from "./DiscoveryCoverage"
 export function ReviewPanel({
   run,
   stages,
@@ -25,6 +26,7 @@ export function ReviewPanel({
 }) {
   const [paths, setPaths] = useState("")
   const [discover, setDiscover] = useState(true)
+  const [includeScout, setIncludeScout] = useState(true)
   const [steps, setSteps] = useState(8)
   const [findings, setFindings] = useState(run.findings.map((item) => item.id))
   const [file, setFile] = useState("")
@@ -52,6 +54,7 @@ export function ReviewPanel({
           .filter(Boolean),
         finding_ids: findings,
         discover,
+        include_scout: includeScout,
         max_steps: steps,
       }),
     onSuccess: () => cache.invalidateQueries(),
@@ -62,11 +65,40 @@ export function ReviewPanel({
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
   })
+  const scout = useMutation({
+    mutationFn: () =>
+      startStage(run.id, "scout", {
+        paths: paths
+          .split("\n")
+          .map((item) => item.trim())
+          .filter(Boolean),
+      }),
+    onSuccess: () => cache.invalidateQueries(),
+    onError: (error: Error) => toast.error(error.message),
+  })
+  const ready =
+    run.status === "completed" ||
+    (run.status === "failed" && Boolean(run.coverage.dual_engine?.review_ready))
+  const byIdentity = new Map<
+    string,
+    NonNullable<typeof candidates.data>[number]
+  >()
+  for (const candidate of candidates.data ?? []) {
+    const key = candidate.identity_key || candidate.id
+    const previous = byIdentity.get(key)
+    if (
+      !previous ||
+      (previous.status === "pending" && candidate.status !== "pending") ||
+      previous.status === candidate.status
+    )
+      byIdentity.set(key, candidate)
+  }
   return (
     <section className="stage-section">
-      <h3>AI 复审与主动取证</h3>
+      <DiscoveryCoverage run={run} stages={stages} />
+      <h3>统一复核与主动取证</h3>
       <p>
-        从静态告警或安全操作锚点开始。AI
+        汇合静态告警与独立粗筛候选，分批核查必要前提和反证。AI
         判断是建议，确认和排除需要人工证据判断。
       </p>
       <div className="stage-form">
@@ -102,6 +134,14 @@ export function ReviewPanel({
             placeholder="src/"
           />
         </label>
+        <label className="stage-check" htmlFor={`scout-input-${run.id}`}>
+          <Checkbox
+            id={`scout-input-${run.id}`}
+            checked={includeScout}
+            onCheckedChange={(checked) => setIncludeScout(Boolean(checked))}
+          />
+          纳入独立粗筛候选
+        </label>
         <label className="stage-check" htmlFor={`discover-${run.id}`}>
           <Checkbox
             id={`discover-${run.id}`}
@@ -122,12 +162,17 @@ export function ReviewPanel({
           />
         </label>
         <Button
-          disabled={
-            !modelReady || run.status !== "completed" || busy || start.isPending
-          }
+          disabled={!modelReady || !ready || busy || start.isPending}
           onClick={() => start.mutate()}
         >
-          启动 AI 复审
+          启动统一复核
+        </Button>
+        <Button
+          variant="outline"
+          disabled={!modelReady || !ready || busy || scout.isPending}
+          onClick={() => scout.mutate()}
+        >
+          单独重新粗筛
         </Button>
         {!modelReady ? (
           <p role="status">
@@ -170,7 +215,11 @@ export function ReviewPanel({
           {candidates.error?.message ?? evidence.error?.message}
         </p>
       ) : null}
-      {candidates.data?.map((candidate) => (
+      <p>
+        相同候选身份展示一张卡片，优先保留人工决定；不同假设仍分别展示。
+        原始粗筛和历次复核记录保存在下方历史中。
+      </p>
+      {[...byIdentity.values()].map((candidate) => (
         <CandidateCard
           key={`${candidate.id}:${candidate.status}`}
           candidate={candidate}
@@ -178,6 +227,12 @@ export function ReviewPanel({
           busy={busy}
         />
       ))}
+      <details>
+        <summary>全部原始候选记录与复核历史（未删除或按根因合并）</summary>
+        <pre className="source-code">
+          {JSON.stringify(candidates.data ?? [], null, 2)}
+        </pre>
+      </details>
       <details>
         <summary>锚点评价与未评估范围（不计为新增漏洞）</summary>
         {stages
@@ -195,6 +250,27 @@ export function ReviewPanel({
               )}
             </pre>
           ))}
+      </details>
+      <details>
+        <summary>复核前提、未评估候选与根因关联建议</summary>
+        {stages
+          .filter((item) => item.kind === "review")
+          .map((item) => (
+            <pre className="source-code" key={item.id}>
+              {JSON.stringify(
+                {
+                  stage: item.id,
+                  coverage: item.result.coverage_status,
+                  batches: item.result.batches,
+                  root_relations: item.result.root_relations,
+                  unreviewed: item.result.unreviewed_candidate_ids,
+                },
+                null,
+                2,
+              )}
+            </pre>
+          ))}
+        <p>关联建议保留全部候选与触发路径，不自动减少已确认数量。</p>
       </details>
       <StageHistory stages={stages} />
     </section>

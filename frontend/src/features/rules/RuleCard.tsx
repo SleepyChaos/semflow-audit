@@ -10,6 +10,7 @@ import {
 } from "@/api/stages"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ProjectReplayReview } from "./ProjectReplayReview"
 export function RuleCard({
   rule,
   awaiting,
@@ -75,6 +76,7 @@ export function RuleCard({
           {JSON.stringify(rule.validation, null, 2)}
         </pre>
       </details>
+      <ProjectReplayReview rule={rule} />
       {awaiting && !rule.fixtures_approved ? (
         <div className="stage-form">
           <label>

@@ -25,7 +25,13 @@ def execute_scan(run_id: str) -> None:
             "postgresql+psycopg://", "postgresql://", 1
         )
         with PostgresSaver.from_conn_string(url) as saver:
-            graph = build_scan_graph(service, saver)
+            if repository.get(run_id).coverage.get("pipeline_version") == "2":
+                from app.services.dual_scanning import DualScanService
+                from app.workflows.dual_scanning import build_dual_scan_graph
+
+                graph = build_dual_scan_graph(DualScanService(service), saver)
+            else:
+                graph = build_scan_graph(service, saver)
             graph.invoke(
                 {"run_id": run_id}, config={"configurable": {"thread_id": run_id}}
             )

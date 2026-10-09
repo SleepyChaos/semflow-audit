@@ -7,7 +7,7 @@ from sqlmodel import select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.stages import dispatch_stage
-from app.contracts.stages import FixtureApproval
+from app.contracts.stages import FixtureApproval, ProjectMatchConfirmation
 from app.domain.audit import AuditError
 from app.models import get_datetime_utc
 from app.persistence.knowledge_models import RuleVersion
@@ -82,6 +82,36 @@ def approve(
     session.refresh(stage)
     dispatch_stage(stage, session, resume=True)
     return stage
+
+
+@router.post("/{identifier}/confirm-project-match")
+def confirm_project(
+    identifier: UUID,
+    body: ProjectMatchConfirmation,
+    session: SessionDep,
+    user: CurrentUser,
+):
+    from app.services.rule_project_validation import confirm_project_match
+
+    rule = owned_rule(identifier, session, user)
+    if rule.status == "published":
+        raise HTTPException(409, "已发布规则不可改变验收记录")
+    try:
+        confirm_project_match(
+            rule, body.finding_id, user.id, body.reason, body.baseline_exclusion_reason
+        )
+    except AuditError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    if (
+        rule.fixtures_approved
+        and rule.validation.get("status") == "passed"
+        and rule.validation.get("independent_holdout", {}).get("status") == "passed"
+    ):
+        rule.status = "validated"
+    session.add(rule)
+    session.commit()
+    session.refresh(rule)
+    return rule
 
 
 @router.post("/{identifier}/publish")

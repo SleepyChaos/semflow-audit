@@ -1,0 +1,221 @@
+{
+  "run_id": "20261006-v6",
+  "base_review_run": "20261006-v5",
+  "date": "2026-10-06",
+  "adjudication": "agent-assisted evaluator, primary condition only; provisional, not human gold",
+  "formal_benchmark": false,
+  "human_confirmed": false,
+  "gui": false,
+  "target_services": false,
+  "exploit_execution": false,
+  "ordinary_tests": 81,
+  "limitations": [
+    "Label-exposed development projects; not independent holdout or paper reproduction.",
+    "Expanded input and much larger full-run budgets; gain cannot be attributed solely to new tasks or prompts.",
+    "Supported is a source-condition model recommendation, not deployed exploit proof.",
+    "Unmapped alarms remain unknown; no full precision/F1 computed.",
+    "Inspected task records do not prove safe; task unknown and deferred assets retained.",
+    "Inaccurate primary line positions and bundled secondary conditions still need correction.",
+    "Full Scout uses its original frozen code; final review uses current frozen review7 code; stage receipts preserved."
+  ],
+  "projects": [
+    {
+      "project": "rv-flask",
+      "gold_positive_roots": 14,
+      "gold_false_traps": 5,
+      "static_alerts": 5,
+      "static_matched_roots": [
+        "damn-vulnerable-flask-app-001",
+        "damn-vulnerable-flask-app-005",
+        "damn-vulnerable-flask-app-006",
+        "damn-vulnerable-flask-app-007",
+        "damn-vulnerable-flask-app-008"
+      ],
+      "supported_positive_roots": [
+        "damn-vulnerable-flask-app-001",
+        "damn-vulnerable-flask-app-002",
+        "damn-vulnerable-flask-app-005",
+        "damn-vulnerable-flask-app-006",
+        "damn-vulnerable-flask-app-007",
+        "damn-vulnerable-flask-app-008",
+        "damn-vulnerable-flask-app-009",
+        "damn-vulnerable-flask-app-010",
+        "damn-vulnerable-flask-app-011",
+        "damn-vulnerable-flask-app-015"
+      ],
+      "additional_over_current_static": [
+        "damn-vulnerable-flask-app-002",
+        "damn-vulnerable-flask-app-009",
+        "damn-vulnerable-flask-app-010",
+        "damn-vulnerable-flask-app-011",
+        "damn-vulnerable-flask-app-015"
+      ],
+      "missed_or_undecided_roots": [
+        "damn-vulnerable-flask-app-004",
+        "damn-vulnerable-flask-app-012",
+        "damn-vulnerable-flask-app-013",
+        "damn-vulnerable-flask-app-014"
+      ],
+      "supported_false_traps": [],
+      "candidate_count": 25,
+      "verdict_counts": {
+        "supported": 22,
+        "insufficient": 2,
+        "excluded": 1
+      },
+      "original_unreviewed": 0,
+      "unreviewed": 0,
+      "bounded_review_recovery": null,
+      "eligible_windows": 10,
+      "inspected_windows": 10,
+      "task_status_counts": {
+        "investigated": 32,
+        "unknown": 1,
+        "not_applicable": 19
+      },
+      "scout_usage": {
+        "calls": 16,
+        "input_tokens": 98623,
+        "output_tokens": 12446
+      },
+      "scout_seconds": 68.56338604202028,
+      "review_usage": {
+        "calls": 7,
+        "input_tokens": 58731,
+        "output_tokens": 7977
+      },
+      "review_seconds": 39.9026755419909
+    },
+    {
+      "project": "rv-dvna",
+      "gold_positive_roots": 17,
+      "gold_false_traps": 0,
+      "static_alerts": 35,
+      "static_matched_roots": [
+        "dvna-001",
+        "dvna-002",
+        "dvna-004",
+        "dvna-005",
+        "dvna-006",
+        "dvna-013",
+        "dvna-014",
+        "dvna-016"
+      ],
+      "supported_positive_roots": [
+        "dvna-001",
+        "dvna-002",
+        "dvna-003",
+        "dvna-004",
+        "dvna-005",
+        "dvna-006",
+        "dvna-007",
+        "dvna-008",
+        "dvna-010",
+        "dvna-013",
+        "dvna-014",
+        "dvna-015",
+        "dvna-016",
+        "dvna-017"
+      ],
+      "additional_over_current_static": [
+        "dvna-003",
+        "dvna-007",
+        "dvna-008",
+        "dvna-010",
+        "dvna-015",
+        "dvna-017"
+      ],
+      "missed_or_undecided_roots": [
+        "dvna-009",
+        "dvna-011",
+        "dvna-012"
+      ],
+      "supported_false_traps": [],
+      "candidate_count": 99,
+      "verdict_counts": {
+        "supported": 54,
+        "insufficient": 36,
+        "excluded": 9
+      },
+      "original_unreviewed": 4,
+      "unreviewed": 0,
+      "bounded_review_recovery": {
+        "stage_id": "8d46b0e5-b3e5-4b88-95e3-bdc2efc7e2aa",
+        "usage": {
+          "calls": 8,
+          "input_tokens": 67172,
+          "output_tokens": 2534
+        },
+        "wall_seconds": 21.710723500000313,
+        "unreviewed": 0
+      },
+      "eligible_windows": 71,
+      "inspected_windows": 71,
+      "task_status_counts": {
+        "investigated": 86,
+        "unknown": 49,
+        "not_applicable": 197
+      },
+      "scout_usage": {
+        "calls": 106,
+        "input_tokens": 685341,
+        "output_tokens": 59018
+      },
+      "scout_seconds": 347.0876737080398,
+      "review_usage": {
+        "calls": 34,
+        "input_tokens": 345418,
+        "output_tokens": 33411
+      },
+      "review_seconds": 156.38660887500737
+    }
+  ],
+  "total_supported_roots": 24,
+  "total_gold_positive_roots": 31,
+  "current_static_matched_roots": 13,
+  "old_supported_roots_primary_only": 16,
+  "all_attempts_usage_by_run_deduplicated_by_stage_id": [
+    {
+      "run_id": "20261006-v1",
+      "new_unique_stages": 3,
+      "calls": 53,
+      "input_tokens": 376302,
+      "output_tokens": 55026
+    },
+    {
+      "run_id": "20261006-v2",
+      "new_unique_stages": 5,
+      "calls": 154,
+      "input_tokens": 1018534,
+      "output_tokens": 105296
+    },
+    {
+      "run_id": "20261006-v3",
+      "new_unique_stages": 3,
+      "calls": 45,
+      "input_tokens": 424606,
+      "output_tokens": 43602
+    },
+    {
+      "run_id": "20261006-v4",
+      "new_unique_stages": 1,
+      "calls": 7,
+      "input_tokens": 58731,
+      "output_tokens": 7977
+    },
+    {
+      "run_id": "20261006-v5",
+      "new_unique_stages": 1,
+      "calls": 34,
+      "input_tokens": 345418,
+      "output_tokens": 33411
+    },
+    {
+      "run_id": "20261006-v6",
+      "new_unique_stages": 1,
+      "calls": 8,
+      "input_tokens": 67172,
+      "output_tokens": 2534
+    }
+  ]
+}

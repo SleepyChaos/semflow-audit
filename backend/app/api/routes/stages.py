@@ -49,9 +49,14 @@ def create_stage(
     run = session.exec(
         select(AuditRun).where(AuditRun.id == audit_id).with_for_update()
     ).one()
-    if kind not in {"review", "repair", "rule"}:
+    if kind not in {"review", "repair", "rule", "scout"}:
         raise HTTPException(409, "此记录不支持后台重跑")
-    if run.status != "completed":
+    ready = run.status == "completed" or (
+        run.status == "failed"
+        and kind in {"review", "repair", "scout"}
+        and run.coverage.get("dual_engine", {}).get("review_ready", False)
+    )
+    if not ready:
         raise HTTPException(409, "需要先完成静态审计")
     active = session.exec(
         select(StageRun).where(
@@ -66,7 +71,7 @@ def create_stage(
         audit_id=audit_id,
         kind=kind,
         inputs=inputs,
-        prompt_version="2" if kind in {"review", "rule"} else "1",
+        prompt_version={"review": "9", "repair": "2", "rule": "8", "scout": "7"}[kind],
     )
     session.add(stage)
     session.commit()
@@ -88,6 +93,19 @@ def stages(audit_id: UUID, session: SessionDep, user: CurrentUser):
 @router.post("/audits/{audit_id}/review", status_code=201)
 def review(audit_id: UUID, body: ReviewRequest, session: SessionDep, user: CurrentUser):
     return create_stage(audit_id, "review", body.model_dump(mode="json"), session, user)
+
+
+@router.post("/audits/{audit_id}/scout", status_code=201)
+def scout(audit_id: UUID, body: dict, session: SessionDep, user: CurrentUser):
+    from app.contracts.scouting import ScoutRequest
+
+    try:
+        inputs = ScoutRequest.model_validate(body)
+    except ValueError as exc:
+        raise HTTPException(422, "粗筛范围或预算无效") from exc
+    return create_stage(
+        audit_id, "scout", inputs.model_dump(mode="json"), session, user
+    )
 
 
 @router.post("/audits/{audit_id}/repair", status_code=201)
@@ -286,3 +304,25 @@ def stage_logs(identifier: UUID, session: SessionDep, user: CurrentUser):
     from app.adapters.artifacts import ArtifactStore
 
     return {"text": ArtifactStore().log_tail(str(identifier))}
+
+
+@router.get("/stages/{identifier}/materials")
+def stage_materials(identifier: UUID, session: SessionDep, user: CurrentUser):
+    stage = owned_stage(identifier, session, user)
+    import json
+
+    from app.adapters.artifacts import ArtifactStore
+
+    name = {"repair": "repair-context.json", "rule": "rule-materials.json"}.get(
+        stage.kind
+    )
+    if stage.kind == "scout":
+        name = "scout-map.json"
+    elif stage.kind == "review" and stage.prompt_version in {"4", "5", "6", "7", "8", "9", "10"}:
+        name = "review-pool.json"
+    if not name:
+        raise HTTPException(404, "此阶段没有语义材料")
+    path = ArtifactStore().directory(str(identifier)) / name
+    if not path.is_file():
+        raise HTTPException(404, "材料尚未准备完成")
+    return json.loads(path.read_text())

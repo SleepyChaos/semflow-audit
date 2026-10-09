@@ -27,3 +27,19 @@ def semantic_chunks(content: str, limit: int = 8000) -> list[str]:
                 block[start : start + limit] for start in range(0, len(block), limit)
             )
     return chunks
+
+
+def source_chunks(content: str, limit: int = 8000) -> list[str]:
+    """Exact nonoverlapping source windows. These are reference slices, not full rules."""
+    chunks, lines, size = [], [], 0
+    for line in content.splitlines(keepends=True):
+        if len(line) > limit:
+            raise AuditError("源码单行超过知识窗口预算")
+        if size + len(line) > limit and lines:
+            chunks.append("".join(lines))
+            lines, size = [], 0
+        lines.append(line)
+        size += len(line)
+    if lines:
+        chunks.append("".join(lines))
+    return chunks

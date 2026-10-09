@@ -1,0 +1,536 @@
+{
+  "experiment_id": "20261005-calibration-v1",
+  "scope": "first collected-benchmark calibration",
+  "formal_hidden_benchmark_complete": false,
+  "paper_uplift_demonstrated": false,
+  "primary_static": [
+    {
+      "project_id": "owasp-python-loader-fixed",
+      "status": "succeeded",
+      "extract_seconds": 13.581714625004679,
+      "first_query_seconds": 13.334322915994562,
+      "warm_query_seconds": [
+        4.164433833037037,
+        4.114928749972023
+      ],
+      "alerts": 428,
+      "metrics": {
+        "scope": "primary_location_and_exact_CWE_testcase_adapter_not_official_scorecard",
+        "counts": {
+          "TP": 138,
+          "FP": 150,
+          "TN": 628,
+          "FN": 314
+        },
+        "precision": 0.4791666666666667,
+        "recall": 0.3053097345132743,
+        "f1": 0.372972972972973,
+        "false_positive_rate": 0.1928020565552699,
+        "outside_target_alert_count": 121
+      },
+      "error": null
+    },
+    {
+      "project_id": "pair-0881334be31562ed",
+      "status": "succeeded",
+      "extract_seconds": 3.277463208010886,
+      "first_query_seconds": 13.381041540997103,
+      "warm_query_seconds": [
+        3.2753023330005817,
+        3.2456468750024214
+      ],
+      "alerts": 4,
+      "metrics": null,
+      "error": null
+    },
+    {
+      "project_id": "pair-9d4a339b89e2beef",
+      "status": "succeeded",
+      "extract_seconds": 3.2670911659952253,
+      "first_query_seconds": 12.438024375005625,
+      "warm_query_seconds": [
+        3.330774542002473,
+        3.280864542000927
+      ],
+      "alerts": 1,
+      "metrics": null,
+      "error": null
+    },
+    {
+      "project_id": "pair-a0a4ebc7815b308f",
+      "status": "succeeded",
+      "extract_seconds": 4.6347165839979425,
+      "first_query_seconds": 18.078986708947923,
+      "warm_query_seconds": [
+        3.3942813749890774,
+        3.348338000010699
+      ],
+      "alerts": 29,
+      "metrics": null,
+      "error": null
+    },
+    {
+      "project_id": "pair-cd1928cf526399cd",
+      "status": "failed",
+      "extract_seconds": 13.62556625000434,
+      "first_query_seconds": null,
+      "warm_query_seconds": [],
+      "alerts": null,
+      "metrics": null,
+      "error": "CodeQL 命令失败（退出码 99）；请查看执行日志"
+    },
+    {
+      "project_id": "pair-cefbcd4004c80277",
+      "status": "succeeded",
+      "extract_seconds": 4.904719541023951,
+      "first_query_seconds": 22.26275633298792,
+      "warm_query_seconds": [
+        3.316160916001536,
+        3.336892707971856
+      ],
+      "alerts": 8,
+      "metrics": null,
+      "error": null
+    },
+    {
+      "project_id": "pair-cff5121b5eadd458",
+      "status": "succeeded",
+      "extract_seconds": 3.425233957997989,
+      "first_query_seconds": 13.773737125040498,
+      "warm_query_seconds": [
+        3.3511275409837253,
+        3.3318551249685697
+      ],
+      "alerts": 9,
+      "metrics": null,
+      "error": null
+    },
+    {
+      "project_id": "ql-owasp-codeinj",
+      "status": "succeeded",
+      "extract_seconds": 2.4702773339813575,
+      "first_query_seconds": 7.71472554205684,
+      "warm_query_seconds": [],
+      "alerts": 0,
+      "metrics": null,
+      "error": null
+    },
+    {
+      "project_id": "ql-owasp-sqli",
+      "status": "succeeded",
+      "extract_seconds": 2.753821333986707,
+      "first_query_seconds": 9.004112416994758,
+      "warm_query_seconds": [],
+      "alerts": 0,
+      "metrics": null,
+      "error": null
+    },
+    {
+      "project_id": "rv-dvna",
+      "status": "succeeded",
+      "extract_seconds": 3.3351370000164025,
+      "first_query_seconds": 14.100052208988927,
+      "warm_query_seconds": [
+        3.3328057500184514,
+        3.2812709999852814
+      ],
+      "alerts": 33,
+      "metrics": null,
+      "error": null
+    },
+    {
+      "project_id": "rv-flask",
+      "status": "succeeded",
+      "extract_seconds": 2.9586674160091206,
+      "first_query_seconds": 8.042580709035974,
+      "warm_query_seconds": [
+        3.880312207969837,
+        3.8411664579762146
+      ],
+      "alerts": 5,
+      "metrics": null,
+      "error": null
+    }
+  ],
+  "diagnostic_static": [
+    {
+      "project_id": "owasp-python",
+      "status": "succeeded",
+      "extract_seconds": 12.53464550001081,
+      "first_query_seconds": 13.28459625004325,
+      "warm_query_seconds": [
+        4.153359042014927,
+        4.119489083997905
+      ],
+      "alerts": 428,
+      "metrics": {
+        "scope": "primary_location_and_exact_CWE_testcase_adapter_not_official_scorecard",
+        "counts": {
+          "TP": 138,
+          "FP": 150,
+          "TN": 628,
+          "FN": 314
+        },
+        "precision": 0.4791666666666667,
+        "recall": 0.3053097345132743,
+        "f1": 0.372972972972973,
+        "false_positive_rate": 0.1928020565552699,
+        "outside_target_alert_count": 121
+      },
+      "error": null
+    }
+  ],
+  "rules": {
+    "bm25": {
+      "runs": 6,
+      "distinct_tasks": 2,
+      "persisted_compile_development_pass": 2,
+      "hidden_evaluated": 2,
+      "hidden_all_conditions_pass": 0,
+      "hidden_TP": 0,
+      "hidden_FP": 0,
+      "hidden_not_run": 4,
+      "hidden_infra_failure": 0,
+      "median_generation_seconds": 56.899986187025206,
+      "generation_errors": [
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留",
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留",
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留",
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留"
+      ],
+      "project_alert_counts": [
+        0,
+        0
+      ]
+    },
+    "vector": {
+      "runs": 6,
+      "distinct_tasks": 2,
+      "persisted_compile_development_pass": 2,
+      "hidden_evaluated": 2,
+      "hidden_all_conditions_pass": 0,
+      "hidden_TP": 0,
+      "hidden_FP": 0,
+      "hidden_not_run": 4,
+      "hidden_infra_failure": 0,
+      "median_generation_seconds": 57.52174106249004,
+      "generation_errors": [
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留",
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留",
+        "关键业务/漏洞语义证据不足，需补充或人工澄清",
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留"
+      ],
+      "project_alert_counts": [
+        0,
+        0
+      ]
+    },
+    "hybrid": {
+      "runs": 6,
+      "distinct_tasks": 2,
+      "persisted_compile_development_pass": 1,
+      "hidden_evaluated": 1,
+      "hidden_all_conditions_pass": 0,
+      "hidden_TP": 0,
+      "hidden_FP": 0,
+      "hidden_not_run": 5,
+      "hidden_infra_failure": 0,
+      "median_generation_seconds": 60.406482041522395,
+      "generation_errors": [
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留",
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留",
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留",
+        "两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留",
+        "关键业务/漏洞语义证据不足，需补充或人工澄清"
+      ],
+      "project_alert_counts": [
+        0
+      ]
+    }
+  },
+  "repair": {
+    "1": {
+      "runs": 3,
+      "distinct_tasks": 1,
+      "applied_evaluated": 3,
+      "bounded_joint_pass": 3,
+      "median_wall_seconds": 3.0362286250456236,
+      "mean_model_calls": 1,
+      "errors": [],
+      "oracle_origin": "derived-agent-authored-not-human-reviewed"
+    },
+    "2": {
+      "runs": 3,
+      "distinct_tasks": 1,
+      "applied_evaluated": 1,
+      "bounded_joint_pass": 1,
+      "median_wall_seconds": 32.8026334590395,
+      "mean_model_calls": 6.333333333333333,
+      "errors": [
+        "关键上下文超过预算，需缩小目标；未截断原文",
+        "关键上下文超过预算，需缩小目标；未截断原文"
+      ],
+      "oracle_origin": "derived-agent-authored-not-human-reviewed"
+    }
+  },
+  "retrieval": {
+    "bm25": {
+      "queries": 20,
+      "successful": 20,
+      "metadata_CWE_examples": 29,
+      "example_slots": 40,
+      "human_relevance": "not_evaluated",
+      "median_db_retrieval_seconds": 0.335041750484379
+    },
+    "vector": {
+      "queries": 20,
+      "successful": 20,
+      "metadata_CWE_examples": 28,
+      "example_slots": 40,
+      "human_relevance": "not_evaluated",
+      "median_db_retrieval_seconds": 0.32187122901086695
+    },
+    "hybrid": {
+      "queries": 20,
+      "successful": 20,
+      "metadata_CWE_examples": 29,
+      "example_slots": 40,
+      "human_relevance": "not_evaluated",
+      "median_db_retrieval_seconds": 0.33126575002097525
+    }
+  },
+  "bandit": [
+    {
+      "input_version": "owasp-python",
+      "tool": "bandit 1.9.4\n  python version = 3.11.15 (main, Mar  3 2026, 00:52:57) [Clang 17.0.0 (clang-1700.6.3.2)]",
+      "primary": false,
+      "rounds": [
+        {
+          "status": "failed",
+          "seconds": 2.475741292000748,
+          "parser_error_count": 470,
+          "metrics": null
+        },
+        {
+          "status": "failed",
+          "seconds": 1.9067913750186563,
+          "parser_error_count": 470,
+          "metrics": null
+        },
+        {
+          "status": "failed",
+          "seconds": 2.005220042017754,
+          "parser_error_count": 470,
+          "metrics": null
+        }
+      ]
+    },
+    {
+      "input_version": "owasp-python-loader-fixed-py314",
+      "tool": "python -m bandit 1.9.4\n  python version = 3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 17.0.0 (clang-1700.6.4.2)]",
+      "primary": true,
+      "rounds": [
+        {
+          "status": "succeeded",
+          "seconds": 5.7595495419809595,
+          "parser_error_count": 0,
+          "metrics": {
+            "scope": "primary_location_and_exact_CWE_testcase_adapter_not_official_scorecard",
+            "counts": {
+              "TP": 108,
+              "FP": 25,
+              "TN": 753,
+              "FN": 344
+            },
+            "precision": 0.8120300751879699,
+            "recall": 0.23893805309734514,
+            "f1": 0.36923076923076925,
+            "false_positive_rate": 0.032133676092544985,
+            "outside_target_alert_count": 363
+          }
+        },
+        {
+          "status": "succeeded",
+          "seconds": 4.394679249962792,
+          "parser_error_count": 0,
+          "metrics": {
+            "scope": "primary_location_and_exact_CWE_testcase_adapter_not_official_scorecard",
+            "counts": {
+              "TP": 108,
+              "FP": 25,
+              "TN": 753,
+              "FN": 344
+            },
+            "precision": 0.8120300751879699,
+            "recall": 0.23893805309734514,
+            "f1": 0.36923076923076925,
+            "false_positive_rate": 0.032133676092544985,
+            "outside_target_alert_count": 363
+          }
+        },
+        {
+          "status": "succeeded",
+          "seconds": 2.6395064999815077,
+          "parser_error_count": 0,
+          "metrics": {
+            "scope": "primary_location_and_exact_CWE_testcase_adapter_not_official_scorecard",
+            "counts": {
+              "TP": 108,
+              "FP": 25,
+              "TN": 753,
+              "FN": 344
+            },
+            "precision": 0.8120300751879699,
+            "recall": 0.23893805309734514,
+            "f1": 0.36923076923076925,
+            "false_positive_rate": 0.032133676092544985,
+            "outside_target_alert_count": 363
+          }
+        }
+      ]
+    },
+    {
+      "input_version": "owasp-python-py314",
+      "tool": "python -m bandit 1.9.4\n  python version = 3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 17.0.0 (clang-1700.6.4.2)]",
+      "primary": false,
+      "rounds": [
+        {
+          "status": "succeeded",
+          "seconds": 3.0118565420270897,
+          "parser_error_count": 0,
+          "metrics": {
+            "scope": "primary_location_and_exact_CWE_testcase_adapter_not_official_scorecard",
+            "counts": {
+              "TP": 108,
+              "FP": 25,
+              "TN": 753,
+              "FN": 344
+            },
+            "precision": 0.8120300751879699,
+            "recall": 0.23893805309734514,
+            "f1": 0.36923076923076925,
+            "false_positive_rate": 0.032133676092544985,
+            "outside_target_alert_count": 363
+          }
+        },
+        {
+          "status": "succeeded",
+          "seconds": 2.624731999996584,
+          "parser_error_count": 0,
+          "metrics": {
+            "scope": "primary_location_and_exact_CWE_testcase_adapter_not_official_scorecard",
+            "counts": {
+              "TP": 108,
+              "FP": 25,
+              "TN": 753,
+              "FN": 344
+            },
+            "precision": 0.8120300751879699,
+            "recall": 0.23893805309734514,
+            "f1": 0.36923076923076925,
+            "false_positive_rate": 0.032133676092544985,
+            "outside_target_alert_count": 363
+          }
+        },
+        {
+          "status": "succeeded",
+          "seconds": 2.6533042910159566,
+          "parser_error_count": 0,
+          "metrics": {
+            "scope": "primary_location_and_exact_CWE_testcase_adapter_not_official_scorecard",
+            "counts": {
+              "TP": 108,
+              "FP": 25,
+              "TN": 753,
+              "FN": 344
+            },
+            "precision": 0.8120300751879699,
+            "recall": 0.23893805309734514,
+            "f1": 0.36923076923076925,
+            "false_positive_rate": 0.032133676092544985,
+            "outside_target_alert_count": 363
+          }
+        }
+      ]
+    }
+  ],
+  "discovery": {
+    "adjudication": "agent-assisted-evaluator-provisional-not-human-reviewed",
+    "projects": [
+      {
+        "project": "rv-flask",
+        "gold_positive_roots": 14,
+        "gold_false_traps": 5,
+        "static_alerts": 5,
+        "static_matched_roots": 5,
+        "scout_hypotheses": 11,
+        "scout_matched_roots_including_explicit_secondary_condition": 6,
+        "union_matched_roots": 8,
+        "additional_gold_root_matches": [
+          "damn-vulnerable-flask-app-009",
+          "damn-vulnerable-flask-app-010",
+          "damn-vulnerable-flask-app-011"
+        ],
+        "confirmed_pipeline_additional_TP": 0,
+        "scout_false_trap_root_ids": [
+          "damn-vulnerable-flask-app-003"
+        ],
+        "scout_false_trap_hypothesis_count": 2,
+        "review_recommendations": {
+          "insufficient": 4
+        },
+        "review_unreviewed": 12,
+        "explicit_excluded_true_roots": [],
+        "unmatched_static_alerts": 0,
+        "unmatched_scout_hypotheses": 0,
+        "D1_seconds": 25.270917000016198,
+        "D1_model_calls": 6,
+        "D3_seconds": 29.26711274997797,
+        "D3_model_calls": 7
+      },
+      {
+        "project": "rv-dvna",
+        "gold_positive_roots": 17,
+        "gold_false_traps": 0,
+        "static_alerts": 33,
+        "static_matched_roots": 7,
+        "scout_hypotheses": 10,
+        "scout_matched_roots_including_explicit_secondary_condition": 6,
+        "union_matched_roots": 9,
+        "additional_gold_root_matches": [
+          "dvna-007",
+          "dvna-008"
+        ],
+        "confirmed_pipeline_additional_TP": 0,
+        "scout_false_trap_root_ids": [],
+        "scout_false_trap_hypothesis_count": 0,
+        "review_recommendations": {},
+        "review_unreviewed": 43,
+        "explicit_excluded_true_roots": [],
+        "unmatched_static_alerts": 26,
+        "unmatched_scout_hypotheses": 4,
+        "D1_seconds": 29.76837720896583,
+        "D1_model_calls": 8,
+        "D3_seconds": 7.28758766700048,
+        "D3_model_calls": 5
+      }
+    ],
+    "strict_primary_gold_roots": 31,
+    "strict_primary_static_matches": 12,
+    "strict_primary_union_matches": 16,
+    "confirmed_additional_TP": 0,
+    "note": "Strict totals exclude bundled secondary debug condition; provisional source adjudication, not human gold or deployability proof"
+  },
+  "no_rag_control": "unsupported_by_current_contract; no score assigned",
+  "rule_input_limit": "Two bounded Python testcase/helper tasks; reference-query oracle and entrypoint calibration pending",
+  "retrieval_limit": "Metadata fit only, no human qrels; generation role routing may force BM25",
+  "discovery_input_limit": "Development labels exposed; category hint removal not yet complete",
+  "text_model_calls": 99,
+  "text_input_tokens": 681097,
+  "text_output_tokens": 99199,
+  "embedding_usage_note": "Standalone retrieval made 20 embedding requests; generation embedding usage not included in text token counters",
+  "implementation_backend_verified": true,
+  "response_models": [
+    "deepseek-v4-1-flash-260910"
+  ]
+}

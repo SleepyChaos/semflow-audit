@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-05",
+  "model": "deepseek-v4.1-flash",
+  "evaluation": "Six synthetic development pairs, one final round; supported is model recommendation, human confirmation separate; no_supported_target is not a true-negative proof",
+  "cases": [
+    {
+      "case": "ownership_vulnerable",
+      "vulnerable": true,
+      "codeql_alerts": 0,
+      "target_scout_hypothesis": true,
+      "scout_candidates": 3,
+      "final_target": "TP",
+      "review_coverage": "completed",
+      "review_states": {
+        "supported": 3
+      },
+      "incomplete_reasons": [],
+      "discovery_seconds": 15.41,
+      "review_seconds": 7.91,
+      "model_calls": 7
+    },
+    {
+      "case": "tenant_vulnerable",
+      "vulnerable": true,
+      "codeql_alerts": 0,
+      "target_scout_hypothesis": true,
+      "scout_candidates": 2,
+      "final_target": "FN",
+      "review_coverage": "completed",
+      "review_states": {
+        "insufficient": 2
+      },
+      "incomplete_reasons": [],
+      "discovery_seconds": 15.28,
+      "review_seconds": 14.87,
+      "model_calls": 6
+    },
+    {
+      "case": "state_vulnerable",
+      "vulnerable": true,
+      "codeql_alerts": 0,
+      "target_scout_hypothesis": true,
+      "scout_candidates": 4,
+      "final_target": "FN",
+      "review_coverage": "completed",
+      "review_states": {
+        "insufficient": 4
+      },
+      "incomplete_reasons": [],
+      "discovery_seconds": 14.93,
+      "review_seconds": 22.13,
+      "model_calls": 6
+    },
+    {
+      "case": "ownership_safe",
+      "vulnerable": false,
+      "codeql_alerts": 0,
+      "target_scout_hypothesis": true,
+      "scout_candidates": 6,
+      "final_target": "no_supported_target",
+      "review_coverage": "partial",
+      "review_states": {
+        "unknown": 4,
+        "insufficient": 2
+      },
+      "incomplete_reasons": [
+        "audit_error"
+      ],
+      "discovery_seconds": 20.8,
+      "review_seconds": 19.47,
+      "model_calls": 10
+    },
+    {
+      "case": "tenant_safe",
+      "vulnerable": false,
+      "codeql_alerts": 0,
+      "target_scout_hypothesis": true,
+      "scout_candidates": 3,
+      "final_target": "no_supported_target",
+      "review_coverage": "completed",
+      "review_states": {
+        "insufficient": 3
+      },
+      "incomplete_reasons": [],
+      "discovery_seconds": 14.42,
+      "review_seconds": 18.61,
+      "model_calls": 7
+    },
+    {
+      "case": "state_safe",
+      "vulnerable": false,
+      "codeql_alerts": 0,
+      "target_scout_hypothesis": false,
+      "scout_candidates": 5,
+      "final_target": "no_supported_target",
+      "review_coverage": "completed",
+      "review_states": {
+        "insufficient": 5
+      },
+      "incomplete_reasons": [],
+      "discovery_seconds": 15.78,
+      "review_seconds": 31.18,
+      "model_calls": 9
+    }
+  ],
+  "ordinary_tests": 157,
+  "cli_integration_tests": 2,
+  "frontend_build": "passed",
+  "gui_tests": "not_run",
+  "frozen_inputs_verified": true,
+  "implementation_verified": true,
+  "supported_positive_cases": 1,
+  "positive_cases": 3,
+  "negative_cases_with_supported_target": 0,
+  "negative_cases": 3,
+  "discovery_median_seconds": 15.35,
+  "review_median_seconds": 19.04,
+  "previous_runs": [
+    "dual-discovery-20261005",
+    "dual-discovery-corrected-20261005",
+    "dual-discovery-entrypoints-20261005"
+  ],
+  "final_materials_match_entrypoints_run": true,
+  "post_experiment_fix": {
+    "change": "Quarantine invalid optional root relations; preserve valid assessments; supplementary new findings remain pending and require actual source locations",
+    "verification": "Ordinary regression suite including dedicated evidence test passed; not attributed to real-model benchmark gains"
+  }
+}

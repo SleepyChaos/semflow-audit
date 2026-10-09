@@ -1,0 +1,432 @@
+{
+  "direction": "repair",
+  "accessed_at": "2026-10-05",
+  "datasets": [
+    {
+      "id": "patcheval",
+      "name": "PatchEval",
+      "official_url": "https://github.com/bytedance/PatchEval",
+      "languages": [
+        "python",
+        "javascript",
+        "go"
+      ],
+      "local_paths": [
+        "raw/repair/evaluator_only/patcheval-dataset.json",
+        "raw/repair/evaluator_only/patcheval-input.json",
+        "raw/repair/evaluator_only/patcheval-README.md",
+        "raw/repair/evaluator_only/patcheval-LICENSE",
+        "raw/repair/evaluator_only/patcheval-commit.json",
+        "raw/repair/evaluator_only/patcheval-tree.json",
+        "raw/repair/evaluator_only/patcheval-run_evaluation.py",
+        "raw/repair/evaluator_only/patcheval-download_images.py"
+      ],
+      "download_status": "complete_1000_task_json_framework_scripts_no_images",
+      "test_role": "真实CVE修复、测试可得性和闭环修复",
+      "limitations": "1000=404Python+300JS+296Go；仅176有非空unit_test_cmd；官方230镜像未下载；input.json含fix_func/one-shot泄漏；本固定tree未发现verified数据文件",
+      "license": "Apache-2.0 framework; upstream separately licensed",
+      "version": "ae9b3a7233e9e2fe86dcba8baba24beff9bcbba8",
+      "previously_used": "new task metadata; not evaluated",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "vul4py",
+      "name": "Vul4Py",
+      "official_url": "https://github.com/tabudz/vul4py",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "raw/repair/evaluator_only/vul4py-2649d7b89e796738ebc2bc3fa9480dff5ae15898.tar.gz"
+      ],
+      "download_status": "complete_100_task_index_and_harness_no_target_snapshots",
+      "test_role": "Python真实修复/双oracle校准候选",
+      "limitations": "100行；evaluate允许functional_rc=999缺失/skip成为plausible，不能全称双测试齐备；未下载全部上游源码/镜像；旧索引已用",
+      "license": "no standalone license found; local research only",
+      "version": "2649d7b89e796738ebc2bc3fa9480dff5ae15898",
+      "previously_used": "earlier CSV/pilot used; disjoint repos required",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "execution-patching",
+      "name": "Execution-calibrated patching reproduction",
+      "official_url": "https://zenodo.org/records/21645415",
+      "languages": [
+        "python",
+        "javascript",
+        "go"
+      ],
+      "local_paths": [
+        "raw/repair/evaluator_only/execution-patching-reproduction.zip"
+      ],
+      "download_status": "complete_reproduction_zip",
+      "test_role": "小型安全+功能oracle、验证器开发",
+      "limitations": "复制包8个Python/JS样例已用于旧测试，属于开发；作者SQLite结果不属于本平台；MD5与Zenodo核对",
+      "license": "CC-BY-4.0 per Zenodo; upstream as applicable",
+      "version": "Zenodo 21645415",
+      "previously_used": "8 small oracles previously evaluated, development only",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "bugsinpy",
+      "name": "BugsInPy",
+      "official_url": "https://github.com/soarsmu/BugsInPy",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "raw/repair/evaluator_only/bugsinpy-11c5f1eea954a42132cfd06bf257766a7963e0fd.tar.gz"
+      ],
+      "download_status": "complete_framework_bug_metadata_archive",
+      "test_role": "修复业务功能保持与测试环境设计参考",
+      "limitations": "固定归档501个bug.info文件，不等于原论文493可重现bugs；普通功能bug非安全漏洞gold；未下载上游项目",
+      "license": "no standalone license in fixed archive; local research; upstream licenses separate",
+      "version": "11c5f1eea954a42132cfd06bf257766a7963e0fd",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "educollab",
+      "name": "EduCollab / Detect-Repair-Verify",
+      "official_url": "https://github.com/Hahappyppy2024/EmpricalVDR",
+      "languages": [
+        "python",
+        "javascript",
+        "php"
+      ],
+      "local_paths": [
+        "raw/repair/evaluator_only/educollab"
+      ],
+      "download_status": "188_of_197_selected_source_files_git_blob_verified",
+      "test_role": "语义业务用例、功能+安全测试、跨修复范围方法",
+      "limitations": "Py/JS两个项目选取197文本文件，188通过Git blob SHA1核对、9缺失；不是完整快照；排除缓存/数据库/ZIP/图片。完整大包和缺失文件下载失败；生成应用单列，需服务的测试未运行",
+      "license": "no root LICENSE found; local research only; no redistribution",
+      "version": "5bb31b561bee09017b1b269839d12c6895f81efa",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "vulnrepaireval",
+      "name": "VulnRepairEval",
+      "official_url": "https://arxiv.org/abs/2509.03331",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "papers/repair/vulnrepaireval-2509.03331v1.pdf"
+      ],
+      "download_status": "paper_only_public_dataset_unverified",
+      "test_role": "漏洞利用有效性验证定义",
+      "limitations": "23 Python PoC案例仅论文规模；未找到确认的公开完整复制包；需容器/部署，当前仅研究",
+      "license": "paper local reading only",
+      "version": "arxiv v1",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "realsec",
+      "name": "RealSec-bench",
+      "official_url": "https://aclanthology.org/2026.findings-acl.1786/",
+      "languages": [
+        "java"
+      ],
+      "local_paths": [
+        "papers/repair/realsec-2026.findings-acl.1786.pdf"
+      ],
+      "download_status": "paper_only",
+      "test_role": "secure-and-correct联合指标参考",
+      "limitations": "105任务是安全代码生成、Java，不是当前Python/JS修复主集",
+      "license": "paper terms local reading; dataset license unverified",
+      "version": "ACL Findings 2026",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "secrepobench",
+      "name": "SecRepoBench",
+      "official_url": "https://arxiv.org/abs/2504.21205",
+      "languages": [
+        "c",
+        "cpp"
+      ],
+      "local_paths": [
+        "papers/repair/secrepobench-2504.21205v3.html"
+      ],
+      "download_status": "paper_html_only",
+      "test_role": "仓库上下文和安全completion参考",
+      "limitations": "与修复任务不同，C/C++未来扩展，不计当前已支持语言",
+      "license": "paper terms local reading",
+      "version": "arxiv v3",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "predicatefix",
+      "name": "PredicateFix artifact",
+      "official_url": "https://doi.org/10.6084/m9.figshare.26956228",
+      "languages": [
+        "python",
+        "java",
+        "go"
+      ],
+      "local_paths": [],
+      "download_status": "online_primary_source_verified_local_download_failed",
+      "test_role": "静态告警修复与领域知识检索的方法参考",
+      "limitations": "论文明确给出Figshare复制包地址，但本轮未获取目录/复制包；桥接谓词帮助找干净范例；告警消失仍需人工正确性确认；不是业务语义双oracle认证集",
+      "license": "paper CC-BY-NC-ND-4.0; artifact license not verified",
+      "version": "not locally frozen; do not use mutable main for an experiment",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "sec-bench",
+      "name": "SEC-bench",
+      "official_url": "https://github.com/SEC-bench/SEC-bench",
+      "languages": [
+        "c",
+        "cpp"
+      ],
+      "local_paths": [],
+      "download_status": "online_primary_source_verified_local_download_failed",
+      "test_role": "隔离环境、安全修复oracle方法参考；未来语言扩展",
+      "limitations": "NeurIPS 2025主文200已验证实例；C/C++内存安全，sanitizer测试不能取代业务合同；框架/镜像/数据本轮均未下载；不纳入当前Py/JS主表",
+      "license": "dataset/framework license not locally verified; upstream licenses separate",
+      "version": "not locally frozen; do not use mutable main for an experiment",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection"
+    }
+  ],
+  "papers": [
+    {
+      "id": "patcheval",
+      "title": "PatchEval: A New Benchmark for Evaluating LLMs on Patching Real-World Vulnerabilities",
+      "year": 2025,
+      "official_url": "https://arxiv.org/abs/2511.11019",
+      "local_paths": [
+        "papers/repair/patcheval-2511.11019v1.pdf"
+      ],
+      "publication_status": "arXiv preprint",
+      "relevance": "真实CVE+PoC/单元测试，运行子集需核实",
+      "affiliation": "ByteDance official artifact verified; full author affiliations not audited",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "vul4py",
+      "title": "Vul4Py: Benchmarking Automated Vulnerability Repair in Python with Paired Exploit and Functional Oracles",
+      "year": 2026,
+      "official_url": "https://arxiv.org/abs/2608.00692",
+      "local_paths": [
+        "papers/repair/vul4py-2608.00692.pdf"
+      ],
+      "publication_status": "arXiv preprint",
+      "relevance": "双oracle宣称与脚本实际缺失测试状态分开",
+      "affiliation": "not verified",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "vulnrepaireval",
+      "title": "VulnRepairEval: An Exploit-Based Evaluation Framework for Assessing Large Language Model Vulnerability Repair Capabilities",
+      "year": 2025,
+      "official_url": "https://arxiv.org/abs/2509.03331",
+      "local_paths": [
+        "papers/repair/vulnrepaireval-2509.03331v1.pdf"
+      ],
+      "publication_status": "arXiv preprint; no formal venue verified",
+      "relevance": "不能只以语法/复扫判断修复",
+      "affiliation": "天津大学 / Singapore Management University / NTU，论文HTML核实",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "drv",
+      "title": "Detect--Repair--Verify for LLM-Generated Code: A Multi-Language, Multi-Granularity Empirical Study",
+      "year": 2026,
+      "official_url": "https://arxiv.org/abs/2603.23633",
+      "local_paths": [
+        "papers/repair/detect-repair-verify-2603.23633v1.pdf"
+      ],
+      "publication_status": "arXiv preprint",
+      "relevance": "不同上下文与修复范围、业务功能保持",
+      "affiliation": "Concordia University, Canada verified in paper",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "realsec",
+      "title": "RealSec-bench: A Benchmark for Evaluating Secure Code Generation in Real-World Repositories",
+      "year": 2026,
+      "official_url": "https://aclanthology.org/2026.findings-acl.1786/",
+      "local_paths": [
+        "papers/repair/realsec-2026.findings-acl.1786.pdf"
+      ],
+      "publication_status": "Findings of ACL 2026",
+      "relevance": "安全与功能同时满足，生成任务区别修复",
+      "affiliation": "not verified",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "secrepobench",
+      "title": "SecRepoBench: Benchmarking Code Agents for Secure Code Completion in Real-World Repositories",
+      "year": 2025,
+      "official_url": "https://arxiv.org/abs/2504.21205",
+      "local_paths": [
+        "papers/repair/secrepobench-2504.21205v3.html"
+      ],
+      "publication_status": "arXiv preprint version 3",
+      "relevance": "真实仓库上下文，completion任务边界",
+      "affiliation": "not verified",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "predicatefix",
+      "title": "PredicateFix: Repairing Static Analysis Alerts with Bridging Predicates",
+      "year": 2026,
+      "official_url": "https://doi.org/10.1145/3744916.3773159",
+      "local_paths": [],
+      "publication_status": "ICSE 2026",
+      "relevance": "规则谓词连接缺陷与知识范例；辅助修复资料相关性",
+      "affiliation": "北京大学 / 中兴，论文首页核实",
+      "read_scope": "official paper/report and artifact protocol inspected; local PDF download failed SSL timeout",
+      "download_status": "failed_SSL_connection_timeout"
+    },
+    {
+      "id": "sec-bench",
+      "title": "SEC-bench: Automated Benchmarking of LLM Agents on Real-World Software Security Tasks",
+      "year": 2025,
+      "official_url": "https://papers.nips.cc/paper_files/paper/2025/file/a9168f1c54e5147027f1e8cf83e1a775-Paper-Conference.pdf",
+      "local_paths": [],
+      "publication_status": "NeurIPS 2025",
+      "relevance": "可复现环境与sanitizer验证，C/C++未来参考",
+      "affiliation": "UIUC / Purdue，正式论文首页核实",
+      "read_scope": "official paper/report and artifact protocol inspected; local PDF download failed SSL timeout",
+      "download_status": "failed_SSL_connection_timeout"
+    }
+  ],
+  "downloads": [
+    {
+      "file": "raw/repair/evaluator_only/patcheval-dataset.json",
+      "exists": true,
+      "source": "https://github.com/bytedance/PatchEval",
+      "fixed_revision": "ae9b3a7233e9e2fe86dcba8baba24beff9bcbba8"
+    },
+    {
+      "file": "raw/repair/evaluator_only/patcheval-input.json",
+      "exists": true,
+      "source": "https://github.com/bytedance/PatchEval",
+      "fixed_revision": "ae9b3a7233e9e2fe86dcba8baba24beff9bcbba8"
+    },
+    {
+      "file": "raw/repair/evaluator_only/patcheval-README.md",
+      "exists": true,
+      "source": "https://github.com/bytedance/PatchEval",
+      "fixed_revision": "ae9b3a7233e9e2fe86dcba8baba24beff9bcbba8"
+    },
+    {
+      "file": "raw/repair/evaluator_only/patcheval-LICENSE",
+      "exists": true,
+      "source": "https://github.com/bytedance/PatchEval",
+      "fixed_revision": "ae9b3a7233e9e2fe86dcba8baba24beff9bcbba8"
+    },
+    {
+      "file": "raw/repair/evaluator_only/patcheval-commit.json",
+      "exists": true,
+      "source": "https://github.com/bytedance/PatchEval",
+      "fixed_revision": "ae9b3a7233e9e2fe86dcba8baba24beff9bcbba8"
+    },
+    {
+      "file": "raw/repair/evaluator_only/patcheval-tree.json",
+      "exists": true,
+      "source": "https://github.com/bytedance/PatchEval",
+      "fixed_revision": "ae9b3a7233e9e2fe86dcba8baba24beff9bcbba8"
+    },
+    {
+      "file": "raw/repair/evaluator_only/patcheval-run_evaluation.py",
+      "exists": true,
+      "source": "https://github.com/bytedance/PatchEval",
+      "fixed_revision": "ae9b3a7233e9e2fe86dcba8baba24beff9bcbba8"
+    },
+    {
+      "file": "raw/repair/evaluator_only/patcheval-download_images.py",
+      "exists": true,
+      "source": "https://github.com/bytedance/PatchEval",
+      "fixed_revision": "ae9b3a7233e9e2fe86dcba8baba24beff9bcbba8"
+    },
+    {
+      "file": "raw/repair/evaluator_only/vul4py-2649d7b89e796738ebc2bc3fa9480dff5ae15898.tar.gz",
+      "exists": true,
+      "source": "https://github.com/tabudz/vul4py",
+      "fixed_revision": "2649d7b89e796738ebc2bc3fa9480dff5ae15898"
+    },
+    {
+      "file": "raw/repair/evaluator_only/execution-patching-reproduction.zip",
+      "exists": true,
+      "source": "https://zenodo.org/records/21645415",
+      "fixed_revision": "Zenodo 21645415"
+    },
+    {
+      "file": "raw/repair/evaluator_only/bugsinpy-11c5f1eea954a42132cfd06bf257766a7963e0fd.tar.gz",
+      "exists": true,
+      "source": "https://github.com/soarsmu/BugsInPy",
+      "fixed_revision": "11c5f1eea954a42132cfd06bf257766a7963e0fd"
+    },
+    {
+      "file": "raw/repair/evaluator_only/educollab",
+      "exists": true,
+      "source": "https://github.com/Hahappyppy2024/EmpricalVDR",
+      "fixed_revision": "5bb31b561bee09017b1b269839d12c6895f81efa"
+    },
+    {
+      "file": "papers/repair/vulnrepaireval-2509.03331v1.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2509.03331",
+      "fixed_revision": "arxiv v1"
+    },
+    {
+      "file": "papers/repair/realsec-2026.findings-acl.1786.pdf",
+      "exists": true,
+      "source": "https://aclanthology.org/2026.findings-acl.1786/",
+      "fixed_revision": "ACL Findings 2026"
+    },
+    {
+      "file": "papers/repair/secrepobench-2504.21205v3.html",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2504.21205",
+      "fixed_revision": "arxiv v3"
+    },
+    {
+      "file": "papers/repair/patcheval-2511.11019v1.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2511.11019",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/repair/vul4py-2608.00692.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2608.00692",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/repair/vulnrepaireval-2509.03331v1.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2509.03331",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/repair/detect-repair-verify-2603.23633v1.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2603.23633",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/repair/realsec-2026.findings-acl.1786.pdf",
+      "exists": true,
+      "source": "https://aclanthology.org/2026.findings-acl.1786/",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/repair/secrepobench-2504.21205v3.html",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2504.21205",
+      "fixed_revision": null
+    }
+  ],
+  "validation": "local SHA256 and file validation in manifests/local-integrity.json; benchmark execution not performed"
+}

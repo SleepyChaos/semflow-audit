@@ -62,6 +62,8 @@ def test_upload_dispatch_and_owner_isolation(client, monkeypatch):
     )
     result = upload(api)
     assert result.status_code == 201
+    assert result.json()["suite"] == "codeql-suites/python-code-scanning.qls"
+    assert result.json()["coverage"]["pipeline_version"] == "2"
     identifier = result.json()["id"]
     assert dispatched == [identifier]
     assert (
@@ -105,6 +107,8 @@ def test_dispatch_failure_is_explicit_and_retry_has_new_identity(client, monkeyp
     retried = api.post(f"/api/v1/audits/{original['id']}/retry").json()
     assert retried["id"] != original["id"]
     assert retried["snapshot_hash"] == original["snapshot_hash"]
+    assert retried["suite"] == original["suite"]
+    assert retried["coverage"]["pipeline_version"] == "2"
     assert api.get(f"/api/v1/audits/{original['id']}").json()["status"] == "failed"
 
 

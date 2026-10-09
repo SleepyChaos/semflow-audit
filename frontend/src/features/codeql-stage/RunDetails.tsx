@@ -27,6 +27,9 @@ const phases: Record<string, string> = {
   supplement: "正在执行补充规则",
   cancelled: "扫描已取消",
   completed: "静态扫描完成",
+  codeql_ready: "CodeQL 完成，等待 Agent 汇合",
+  discovery_ready: "双引擎发现完成，等待复核",
+  discovery_partial: "双引擎部分完成，请查看各路覆盖",
 }
 export function RunDetails({
   run,
@@ -135,7 +138,7 @@ export function RunDetails({
         <TabsContent value="codeql">
           {run.error ? (
             <Alert variant="destructive">
-              <AlertTitle>审计未完成</AlertTitle>
+              <AlertTitle>CodeQL 分支未完成</AlertTitle>
               <AlertDescription>{run.error}</AlertDescription>
             </Alert>
           ) : null}
@@ -192,7 +195,7 @@ export function RunDetails({
           <ReviewPanel
             run={run}
             stages={(stages.data ?? []).filter(
-              (item) => item.kind === "review",
+              (item) => item.kind === "review" || item.kind === "scout",
             )}
             modelReady={Boolean(capabilities.data?.model_configured)}
           />

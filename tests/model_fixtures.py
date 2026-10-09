@@ -14,6 +14,31 @@ class ScriptedModel:
     def generate(self, purpose, payload, schema):
         self.usage["calls"] += 1
         self.seen.append((purpose, payload))
+        if purpose == "scout":
+            return schema.model_validate(
+                {
+                    "action": "final",
+                    "scope_summary": "Explicit test double inspected the window; no quality claim.",
+                }
+            )
+        if payload.get("phase") == "inspect_semantics":
+            return schema.model_validate(
+                {
+                    "action": "ready",
+                    "project_overview": "Numeric conversion fixture",
+                    "target_flow": "External text reaches eval",
+                    "modification_semantics": "Limit intended numeric conversion",
+                    "facts": [
+                        {
+                            "statement": "Target code executes external text",
+                            "state": "supported",
+                            "evidence_ids": [payload["evidence"][0]["id"]],
+                            "category": "security",
+                            "critical": True,
+                        }
+                    ],
+                }
+            )
         if purpose == "review":
             self.review_calls += 1
             if self.review_calls == 1:
@@ -50,7 +75,7 @@ class ScriptedModel:
                     ],
                     "summary": "Evidence supports manual review; no automatic confirmation.",
                 }
-            if schema.__name__ == "ReviewResponseV2":
+            if schema.__name__ in {"ReviewResponseV2", "UnifiedReviewResponse"}:
                 findings = result.pop("findings", [])
                 result["candidate_assessments"] = [
                     {
@@ -61,6 +86,11 @@ class ScriptedModel:
                     }
                     for row in findings
                 ]
+                if schema.__name__ == "UnifiedReviewResponse":
+                    for row in result["candidate_assessments"]:
+                        row["checked_premises"] = [
+                            "The scripted fixture checks the input-to-eval path."
+                        ]
             return schema.model_validate(result)
         if purpose == "repair":
             contents = "\n".join(payload["allowed_files"].values())
@@ -95,6 +125,7 @@ class ScriptedModel:
             )
             return schema.model_validate(
                 {
+                    "purpose": payload.get("purpose", "review_anchor"),
                     "title": "Dynamic eval review anchor",
                     "strategy": "new_query",
                     "coverage_analysis": "Baseline dataflow catches injection; this broad anchor query is for manual review and is not a precision claim.",

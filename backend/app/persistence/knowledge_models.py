@@ -25,10 +25,12 @@ class KnowledgeChunk(SQLModel, table=True):
     provenance: dict = Field(
         default_factory=dict, sa_column=Column(JSON, nullable=False)
     )
+    corpus: str = Field(default="unclassified", index=True)
     embedding: list[float] | None = Field(
         default=None, sa_column=Column(Vector(), nullable=True)
     )
     embedding_model: str | None = None
+    embedding_identity: str | None = None
     embedding_error: str | None = None
     created_at: datetime = Field(
         default_factory=get_datetime_utc, sa_type=DateTime(timezone=True)

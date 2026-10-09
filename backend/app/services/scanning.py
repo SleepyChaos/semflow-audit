@@ -78,12 +78,13 @@ class ScanService:
                 document["runs"].extend(extra["runs"])
             (directory / "results.sarif").write_text(json.dumps(document))
 
-    def save_findings(self, run_id: str) -> None:
+    def save_findings(self, run_id: str, finalize: bool = True) -> None:
         run = self.repository.get(run_id)
         self.repository.update(run_id, phase="parse")
         findings = parse_sarif(
             self.artifacts.directory(run_id) / "results.sarif", run.snapshot_hash
         )
-        self.repository.update(
-            run_id, findings=findings, phase="completed", status="completed"
-        )
+        changes = {"findings": findings, "phase": "codeql_ready"}
+        if finalize:
+            changes.update(phase="completed", status="completed")
+        self.repository.update(run_id, **changes)

@@ -1,0 +1,251 @@
+{
+  "date": "2026-10-04",
+  "baseline_commit": "2b1519b",
+  "scope": "Development microcases; repeated rounds are not independent projects. Root matches require human confirmation. No exploit replay or population accuracy claim.",
+  "experiments": [
+    {
+      "name": "semantic-repair-controlled-20261004",
+      "artifact": "artifacts/benchmarks/semantic-repair-controlled-20261004/report.json",
+      "report_sha256": "1d655d7a5b2037246137c41e5b126694b614b62521133495953b585023ac5bc6",
+      "policy": {
+        "thinking_mode": "disabled",
+        "rule_tokens": 8000,
+        "max_stage_tokens": 100000
+      },
+      "experiment": {},
+      "groups": [
+        {
+          "kind": "repair",
+          "version": "1",
+          "runs": 6,
+          "independent_cases": 2,
+          "seconds_median": 2.409860250001657,
+          "seconds_all": [
+            2.7850947090191767,
+            2.5138256670034025,
+            2.8715252080000937,
+            2.305894832999911,
+            2.292447457992239,
+            2.088016207999317
+          ],
+          "chat_calls_all": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "chat_input_tokens_total": 4062,
+          "chat_output_tokens_total": 2270,
+          "functional_passed": 6
+        },
+        {
+          "kind": "repair",
+          "version": "2",
+          "runs": 6,
+          "independent_cases": 2,
+          "seconds_median": 8.681024791483651,
+          "seconds_all": [
+            8.9586280840158,
+            6.0419875840016175,
+            8.753606207988923,
+            6.1026901669974905,
+            8.608443374978378,
+            9.053102334000869
+          ],
+          "chat_calls_all": [
+            3,
+            2,
+            3,
+            2,
+            3,
+            3
+          ],
+          "chat_input_tokens_total": 31578,
+          "chat_output_tokens_total": 10111,
+          "functional_passed": 6
+        }
+      ]
+    },
+    {
+      "name": "semantic-rule-final-verified-20261004",
+      "artifact": "artifacts/benchmarks/semantic-rule-final-verified-20261004/report.json",
+      "report_sha256": "0364cfb45baaae280dad4f1f3eba84bfab84ad78f3796274f96eece4c11ab6ee",
+      "policy": {
+        "thinking_mode": "disabled",
+        "rule_tokens": 8000,
+        "max_stage_tokens": 100000
+      },
+      "experiment": {
+        "retrieval_mode": "auto",
+        "collection_routing": true
+      },
+      "groups": [
+        {
+          "kind": "rule",
+          "version": "2",
+          "runs": 3,
+          "independent_cases": 1,
+          "seconds_median": 12.527574540989008,
+          "seconds_all": [
+            13.398887874995125,
+            11.523580917011714,
+            12.527574540989008
+          ],
+          "chat_calls_all": [
+            2,
+            2,
+            2
+          ],
+          "chat_input_tokens_total": 50101,
+          "chat_output_tokens_total": 8367,
+          "compile_passed": 0,
+          "development_passed": 0,
+          "hidden_passed": 0,
+          "project_matched": 0,
+          "project_statuses": [
+            "not_run",
+            "not_run",
+            "not_run"
+          ]
+        },
+        {
+          "kind": "rule",
+          "version": "6",
+          "runs": 3,
+          "independent_cases": 1,
+          "seconds_median": 96.10930154201924,
+          "seconds_all": [
+            96.10930154201924,
+            101.77867958298884,
+            74.49403641599929
+          ],
+          "chat_calls_all": [
+            3,
+            3,
+            3
+          ],
+          "chat_input_tokens_total": 43354,
+          "chat_output_tokens_total": 7800,
+          "compile_passed": 3,
+          "development_passed": 3,
+          "hidden_passed": 3,
+          "project_matched": 3,
+          "project_statuses": [
+            "candidate_match_needs_confirmation",
+            "candidate_match_needs_confirmation",
+            "candidate_match_needs_confirmation"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "semantic-rule-bm25-20261004",
+      "artifact": "artifacts/benchmarks/semantic-rule-bm25-20261004/report.json",
+      "report_sha256": "547d33c1e6f8cbd7178e891fb38a97d08ab95b590905711986d13be38d71c8c2",
+      "policy": {
+        "thinking_mode": "disabled",
+        "rule_tokens": 8000,
+        "max_stage_tokens": 100000
+      },
+      "experiment": {
+        "retrieval_mode": "bm25",
+        "collection_routing": true
+      },
+      "groups": [
+        {
+          "kind": "rule",
+          "version": "6",
+          "runs": 3,
+          "independent_cases": 1,
+          "seconds_median": 97.57979908300331,
+          "seconds_all": [
+            87.02899016698939,
+            98.97669654199854,
+            97.57979908300331
+          ],
+          "chat_calls_all": [
+            3,
+            4,
+            3
+          ],
+          "chat_input_tokens_total": 54839,
+          "chat_output_tokens_total": 9103,
+          "compile_passed": 3,
+          "development_passed": 3,
+          "hidden_passed": 3,
+          "project_matched": 3,
+          "project_statuses": [
+            "candidate_match_needs_confirmation",
+            "candidate_match_needs_confirmation",
+            "candidate_match_needs_confirmation"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "semantic-rule-unrouted-20261004",
+      "artifact": "artifacts/benchmarks/semantic-rule-unrouted-20261004/report.json",
+      "report_sha256": "663a7bf28da099ccdf24457aa7041eb3e5d627a8375b8cbdf4e6d9023801320f",
+      "policy": {
+        "thinking_mode": "disabled",
+        "rule_tokens": 8000,
+        "max_stage_tokens": 100000
+      },
+      "experiment": {
+        "retrieval_mode": "auto",
+        "collection_routing": false
+      },
+      "groups": [
+        {
+          "kind": "rule",
+          "version": "6",
+          "runs": 3,
+          "independent_cases": 1,
+          "seconds_median": 78.82713775002048,
+          "seconds_all": [
+            102.16088341700379,
+            27.373306124994997,
+            78.82713775002048
+          ],
+          "chat_calls_all": [
+            3,
+            4,
+            4
+          ],
+          "chat_input_tokens_total": 63428,
+          "chat_output_tokens_total": 9457,
+          "compile_passed": 2,
+          "development_passed": 1,
+          "hidden_passed": 1,
+          "project_matched": 1,
+          "project_statuses": [
+            "candidate_match_needs_confirmation",
+            "not_run",
+            "not_run"
+          ]
+        }
+      ]
+    }
+  ],
+  "corpus": {
+    "reference_topics": 40,
+    "rule_examples": 28,
+    "commits": {
+      "python": "4ece8abc3032a266eb4b9839442d8be5084552ea",
+      "javascript": "c524a98eb91c769cb2994b8373181c2ebd27c20f"
+    },
+    "official_development_passed": 22,
+    "official_development_failed": 6
+  },
+  "verification": {
+    "pytest_total_passed": 113,
+    "ordinary_passed": 111,
+    "real_tool_integration_passed": 2,
+    "seconds": 108.14,
+    "frontend_build": "passed",
+    "changed_python_ruff": "passed",
+    "gui_testing": "not_performed"
+  }
+}

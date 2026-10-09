@@ -1,0 +1,198 @@
+{
+  "extra": [
+    [
+      "RepoAudit: An Autonomous LLM-Agent for Repository-Level Code Auditing",
+      2025,
+      "https://arxiv.org/abs/2501.18160",
+      "owasp48-competitor-research"
+    ],
+    [
+      "How Code Representation Shapes False-Positive Dynamics in Cross-Language LLM Vulnerability Detection",
+      2026,
+      "https://arxiv.org/html/2604.27714v1",
+      "owasp48-competitor-research"
+    ],
+    [
+      "ABSENTIA: Detecting Broken Access Control Vulnerabilities in Web Applications",
+      2026,
+      "https://arxiv.org/html/2610.00977v1",
+      "owasp48-competitor-research; official repository rechecked 2026-10-08"
+    ],
+    [
+      "An Empirical Study of Vulnerabilities in Python Packages and Their Detection",
+      2025,
+      "https://arxiv.org/abs/2509.04260",
+      "phase-two-literature"
+    ],
+    [
+      "AACR-Bench: Evaluating Automatic Code Review with Holistic Repository-Level Context",
+      2026,
+      "https://arxiv.org/abs/2601.19494",
+      "competitors-and-materials; papers-manifest"
+    ],
+    [
+      "SoK: Automated Vulnerability Repair: Methods, Tools, and Assessments",
+      2025,
+      "https://www.usenix.org/conference/usenixsecurity25/presentation/hu-yiwei",
+      "papers-and-innovations"
+    ],
+    [
+      "Vul-RAG: Enhancing LLM-based Vulnerability Detection via Knowledge-level RAG",
+      2026,
+      "https://arxiv.org/abs/2406.11147",
+      "papers-and-innovations; first preprint 2024, recorded formal publication 2026"
+    ]
+  ],
+  "datasets": [
+    {
+      "id": "bac-bench",
+      "name": "BAC-Bench / ABSENTIA task",
+      "direction": "discovery",
+      "official_url": "https://github.com/avduarte333/Absentia",
+      "local_paths": [],
+      "download_status": "online_metadata_and_protocol_verified_not_locally_frozen",
+      "scale": "30 advisories / 25 repositories / 9 frameworks; Python18 TS9 JS3",
+      "limitations": "Target source upstream only; detector implementation not released; gold invariants/routes/commits evaluator-only. Metadata download escalation timed out, not counted as collected files.",
+      "version": "main inspected 2026-10-08, commit not pinned"
+    },
+    {
+      "id": "aacr-bench",
+      "name": "AACR-Bench",
+      "direction": "discovery",
+      "official_url": "https://huggingface.co/datasets/Alibaba-Aone/aacr-bench",
+      "local_paths": [
+        "../artifacts/research-materials/aacr-dataset.json",
+        "../artifacts/research-materials/aacr-python-js-ts.json"
+      ],
+      "download_status": "downloaded_labels_and_714_language_subset_no_complete_PR_sources",
+      "scale": "2145 comments; Py/JS/TS714, not all security comments",
+      "version": "47be1d6df1e7faf222cf531587772d92f79fe6b2",
+      "limitations": "Comment correctness triage, not whole-repository vulnerability recall"
+    },
+    {
+      "id": "pyvul",
+      "name": "PyVul",
+      "direction": "discovery",
+      "official_url": "https://github.com/billquan/PyVul",
+      "local_paths": [],
+      "download_status": "reference_and_online_repository_only_not_downloaded",
+      "limitations": "No fixed full source/labels/oracles admitted locally"
+    }
+  ],
+  "common": [
+    "bugsinpy",
+    "eyeballvul",
+    "new-project-pairs",
+    "openssf",
+    "owasp-python",
+    "patcheval",
+    "python-js-ql-holdout",
+    "pyvul",
+    "realvuln",
+    "secbenchjs",
+    "secjs",
+    "vicbench",
+    "vul4py"
+  ],
+  "executed": {
+    "owasp-python": "full static plus OWASP56 and 3x48-case AI campaigns; only one held-out48 acceptance",
+    "realvuln": "two development projects; cumulative29/31, not new blind result",
+    "new-project-pairs": "6 paired snapshots; four module-oracle calibrations, no certified hidden repair set",
+    "execution-patching": "8 previously tested development mini-oracles, not independent holdout",
+    "python-js-ql-holdout": "pilot/derived tasks only, formal hidden gold not certified"
+  },
+  "tool_rows": [
+    [
+      "codeql",
+      "CodeQL",
+      "actual_owasp48",
+      "common",
+      "CLI2.23.5/python-queries1.6.0 default suite",
+      "https://codeql.github.com/"
+    ],
+    [
+      "bandit",
+      "Bandit",
+      "actual_owasp48",
+      "common",
+      "1.9.4, same Python48",
+      "https://github.com/PyCQA/bandit"
+    ],
+    [
+      "ocr",
+      "Alibaba Open Code Review",
+      "actual_owasp48",
+      "common_and_specialized",
+      "a758d9cb, full scan actual; AACR diff review not yet",
+      "https://github.com/alibaba/open-code-review"
+    ],
+    [
+      "semgrep",
+      "Semgrep CE",
+      "reference_not_run",
+      "common",
+      "CE separated from commercial/Pro; rules not frozen",
+      "https://github.com/semgrep/semgrep"
+    ],
+    [
+      "frame",
+      "Frame",
+      "official_self_report_not_run",
+      "common",
+      "Implementation/config not frozen locally",
+      "https://github.com/lambdasec/frame"
+    ],
+    [
+      "vyql",
+      "VyQL",
+      "official_self_report_not_run",
+      "common",
+      "Benchmark exposure/genericity requires independent check",
+      "https://github.com/vyprai/vyql"
+    ],
+    [
+      "cyfendo",
+      "Cyfendo",
+      "vendor_self_report_not_run",
+      "common",
+      "Closed service access/config not available for matched run",
+      "https://cyfendo.com/benchmarks"
+    ],
+    [
+      "absentia",
+      "ABSENTIA",
+      "paper_and_data_only_no_detector_code",
+      "specialized",
+      "BAC-Bench public; release planned end2026",
+      "https://github.com/avduarte333/Absentia"
+    ],
+    [
+      "iris",
+      "IRIS",
+      "metadata_and_paper_not_run",
+      "specialized",
+      "Official Java task; current platform Py/JS not matched",
+      "https://github.com/iris-sast/iris"
+    ],
+    [
+      "repoaudit",
+      "RepoAudit",
+      "paper_and_repository_reference_not_run",
+      "specialized",
+      "Task/language/bug types must align before running",
+      "https://github.com/PurCL/RepoAudit"
+    ]
+  ],
+  "methods": [
+    "QLCoder",
+    "CQLLM",
+    "QRS",
+    "ARQ",
+    "QLPro",
+    "PredicateFix",
+    "SemTaint",
+    "LLM4PFA"
+  ],
+  "as_of": "2026-10-08",
+  "scope": "Additions sourced from earlier research notes and ABSENTIA official repository recheck; availability is not reproduction."
+}

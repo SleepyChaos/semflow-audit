@@ -1,0 +1,1303 @@
+{
+  "sample": "acceptance-01",
+  "cases": 48,
+  "positive": 24,
+  "negative": 24,
+  "seed": 2026100748,
+  "final_version": "revision-01",
+  "rows": [
+    {
+      "tool": "CodeQL fixed code-scanning suite",
+      "metrics": {
+        "counts": {
+          "TP": 9,
+          "FP": 2,
+          "TN": 22,
+          "FN": 15
+        },
+        "precision": 0.8181818181818182,
+        "recall": 0.375,
+        "f1": 0.5142857142857142,
+        "false_positive_rate": 0.08333333333333333,
+        "macro_TPR": 0.39285714285714285,
+        "macro_FPR": 0.10714285714285714,
+        "macro_J": 0.2857142857142857,
+        "by_class": [
+          {
+            "category": "cmdi",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "codeinj",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "deserialization",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "hash",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "ldapi",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "pathtraver",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          },
+          {
+            "category": "redirect",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 2,
+              "FN": 1
+            },
+            "TPR": 0.5,
+            "FPR": 0.0,
+            "J": 0.5
+          },
+          {
+            "category": "securecookie",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "sqli",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 1,
+              "FN": 1
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "trustbound",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "weakrand",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "xpathi",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 1,
+              "FN": 1
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "xss",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "xxe",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          }
+        ],
+        "outside_target_count": 8
+      },
+      "wall_seconds": 11.722492582979612,
+      "query_seconds": 8.545282332983334,
+      "model_calls": 0,
+      "model_tokens": 0,
+      "cache": "new 48-case DB; OS cache not cleared; extraction plus first query"
+    },
+    {
+      "tool": "python -m bandit 1.9.4\n  python version = 3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 17.0.0 (clang-1700.6.4.2)]",
+      "metrics": {
+        "counts": {
+          "TP": 3,
+          "FP": 2,
+          "TN": 22,
+          "FN": 21
+        },
+        "precision": 0.6,
+        "recall": 0.125,
+        "f1": 0.20689655172413793,
+        "false_positive_rate": 0.08333333333333333,
+        "macro_TPR": 0.17857142857142858,
+        "macro_FPR": 0.14285714285714285,
+        "macro_J": 0.03571428571428571,
+        "by_class": [
+          {
+            "category": "cmdi",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "codeinj",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "deserialization",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 1,
+              "FN": 1
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "hash",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "ldapi",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "pathtraver",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "redirect",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "securecookie",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "sqli",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "trustbound",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "weakrand",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 2,
+              "FN": 1
+            },
+            "TPR": 0.5,
+            "FPR": 0.0,
+            "J": 0.5
+          },
+          {
+            "category": "xpathi",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 1,
+              "FN": 1
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "xss",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "xxe",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          }
+        ],
+        "outside_target_count": 28
+      },
+      "wall_seconds": 0.20639416598714888,
+      "wall_repetitions": [
+        0.22377454198431224,
+        0.20639416598714888,
+        0.20638816599966958
+      ],
+      "model_calls": 0,
+      "model_tokens": 0,
+      "cache": "three independent processes; warm OS/import effects disclosed"
+    },
+    {
+      "tool": "Platform base",
+      "metrics": {
+        "counts": {
+          "TP": 17,
+          "FP": 3,
+          "TN": 21,
+          "FN": 7
+        },
+        "precision": 0.85,
+        "recall": 0.7083333333333334,
+        "f1": 0.7727272727272727,
+        "false_positive_rate": 0.125,
+        "macro_TPR": 0.75,
+        "macro_FPR": 0.14285714285714285,
+        "macro_J": 0.6071428571428571,
+        "by_class": [
+          {
+            "category": "cmdi",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "codeinj",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 2,
+              "FN": 1
+            },
+            "TPR": 0.5,
+            "FPR": 0.0,
+            "J": 0.5
+          },
+          {
+            "category": "deserialization",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "hash",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "ldapi",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          },
+          {
+            "category": "pathtraver",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          },
+          {
+            "category": "redirect",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "securecookie",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "sqli",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "trustbound",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "weakrand",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "xpathi",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "xss",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "xxe",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          }
+        ],
+        "outside_target_count": 100
+      },
+      "ai_wall_seconds": 433.105594291992,
+      "wall_seconds": 444.82808687497163,
+      "timing_basis": "Sum of measured AI wall and common static scan wall; static result shared by both versions. Excludes research registration/setup; not process or GUI end-to-end wall.",
+      "model_calls": 141,
+      "input_tokens": 1027899,
+      "output_tokens": 226660,
+      "model_tokens": 1254559,
+      "unreviewed_candidates": 1,
+      "incomplete_case_windows": 0,
+      "case_task_conclusions": {
+        "suspicious": 96,
+        "not_applicable": 60,
+        "no_condition_identified": 203,
+        "unknown": 73
+      },
+      "cache": "actual model requests; no cross-run verdict reuse"
+    },
+    {
+      "tool": "Platform revision-01",
+      "metrics": {
+        "counts": {
+          "TP": 18,
+          "FP": 2,
+          "TN": 22,
+          "FN": 6
+        },
+        "precision": 0.9,
+        "recall": 0.75,
+        "f1": 0.8181818181818182,
+        "false_positive_rate": 0.08333333333333333,
+        "macro_TPR": 0.7857142857142857,
+        "macro_FPR": 0.10714285714285714,
+        "macro_J": 0.6785714285714286,
+        "by_class": [
+          {
+            "category": "cmdi",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "codeinj",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "deserialization",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "hash",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "ldapi",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "pathtraver",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          },
+          {
+            "category": "redirect",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "securecookie",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "sqli",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "trustbound",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 2,
+              "FN": 1
+            },
+            "TPR": 0.5,
+            "FPR": 0.0,
+            "J": 0.5
+          },
+          {
+            "category": "weakrand",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "xpathi",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "xss",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 2,
+              "FN": 1
+            },
+            "TPR": 0.5,
+            "FPR": 0.0,
+            "J": 0.5
+          },
+          {
+            "category": "xxe",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          }
+        ],
+        "outside_target_count": 34
+      },
+      "ai_wall_seconds": 460.6760282079922,
+      "wall_seconds": 472.3985207909718,
+      "timing_basis": "Sum of measured AI wall and common static scan wall; static result shared by both versions. Excludes research registration/setup; not process or GUI end-to-end wall.",
+      "model_calls": 139,
+      "input_tokens": 1206148,
+      "output_tokens": 192023,
+      "model_tokens": 1398171,
+      "unreviewed_candidates": 1,
+      "incomplete_case_windows": 0,
+      "case_task_conclusions": {
+        "no_condition_identified": 250,
+        "not_applicable": 30,
+        "suspicious": 53,
+        "unknown": 99
+      },
+      "cache": "actual model requests; no cross-run verdict reuse"
+    },
+    {
+      "tool": "Platform independent Scout (unverified)",
+      "metrics": {
+        "counts": {
+          "TP": 18,
+          "FP": 10,
+          "TN": 14,
+          "FN": 6
+        },
+        "precision": 0.6428571428571429,
+        "recall": 0.75,
+        "f1": 0.6923076923076923,
+        "false_positive_rate": 0.4166666666666667,
+        "macro_TPR": 0.7857142857142857,
+        "macro_FPR": 0.42857142857142855,
+        "macro_J": 0.35714285714285715,
+        "by_class": [
+          {
+            "category": "cmdi",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "codeinj",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 1,
+              "FN": 1
+            },
+            "TPR": 0.5,
+            "FPR": 0.5,
+            "J": 0.0
+          },
+          {
+            "category": "deserialization",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "hash",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "ldapi",
+            "counts": {
+              "TP": 2,
+              "FP": 2,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "pathtraver",
+            "counts": {
+              "TP": 2,
+              "FP": 2,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "redirect",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          },
+          {
+            "category": "securecookie",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "sqli",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "trustbound",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          },
+          {
+            "category": "weakrand",
+            "counts": {
+              "TP": 0,
+              "FP": 0,
+              "TN": 2,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.0,
+            "J": 0.0
+          },
+          {
+            "category": "xpathi",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "xss",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 1,
+              "FN": 1
+            },
+            "TPR": 0.5,
+            "FPR": 0.5,
+            "J": 0.0
+          },
+          {
+            "category": "xxe",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          }
+        ],
+        "outside_target_count": 68
+      },
+      "wall_seconds": null,
+      "summed_stage_seconds_not_parallel_wall": 782.1954354989575,
+      "model_calls": 93,
+      "input_tokens": 781213,
+      "output_tokens": 110466,
+      "model_tokens": 891679,
+      "cache": "same final-run Scout outputs, not a separately scheduled pure-prompt tool"
+    },
+    {
+      "tool": "Alibaba Open Code Review a758d9cb",
+      "metrics": {
+        "counts": {
+          "TP": 21,
+          "FP": 12,
+          "TN": 12,
+          "FN": 3
+        },
+        "precision": 0.6363636363636364,
+        "recall": 0.875,
+        "f1": 0.7368421052631579,
+        "false_positive_rate": 0.5,
+        "macro_TPR": 0.8928571428571429,
+        "macro_FPR": 0.5,
+        "macro_J": 0.39285714285714285,
+        "by_class": [
+          {
+            "category": "cmdi",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "codeinj",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          },
+          {
+            "category": "deserialization",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "hash",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 2,
+              "FN": 1
+            },
+            "TPR": 0.5,
+            "FPR": 0.0,
+            "J": 0.5
+          },
+          {
+            "category": "ldapi",
+            "counts": {
+              "TP": 2,
+              "FP": 2,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "pathtraver",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          },
+          {
+            "category": "redirect",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          },
+          {
+            "category": "securecookie",
+            "counts": {
+              "TP": 2,
+              "FP": 0,
+              "TN": 2,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "sqli",
+            "counts": {
+              "TP": 1,
+              "FP": 0,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.0,
+            "J": 1.0
+          },
+          {
+            "category": "trustbound",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          },
+          {
+            "category": "weakrand",
+            "counts": {
+              "TP": 0,
+              "FP": 1,
+              "TN": 1,
+              "FN": 2
+            },
+            "TPR": 0.0,
+            "FPR": 0.5,
+            "J": -0.5
+          },
+          {
+            "category": "xpathi",
+            "counts": {
+              "TP": 1,
+              "FP": 1,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "xss",
+            "counts": {
+              "TP": 2,
+              "FP": 2,
+              "TN": 0,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 1.0,
+            "J": 0.0
+          },
+          {
+            "category": "xxe",
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 1,
+              "FN": 0
+            },
+            "TPR": 1.0,
+            "FPR": 0.5,
+            "J": 0.5
+          }
+        ],
+        "outside_target_count": 83
+      },
+      "wall_seconds": 552.2878274999675,
+      "model_calls": 192,
+      "input_tokens": 1220188,
+      "output_tokens": 289436,
+      "model_tokens": 1509624,
+      "reported_cache_read_tokens": 723968,
+      "tool_calls": 119,
+      "comments": 202,
+      "unclassified_comments": 85,
+      "completed_cases": 48,
+      "unreviewed_candidates": null,
+      "limits": "real full-file default OCR plan/dedup/summary; explicit CWE regex frozen before run; soft 1.8M token cap, default tool-round cap differs; non-CWE comments are not silently adjudicated"
+    }
+  ],
+  "paired_changes": {
+    "improved_cases": [
+      "Case33c8b5bc7920",
+      "Case879e685c2c9e",
+      "Casec0b1a4d2b8f5"
+    ],
+    "regressed_cases": [
+      "Case030c89e13cd5"
+    ],
+    "mcnemar_two_sided_exact_p": 0.625
+  },
+  "same_model": "deepseek-v4.1-flash",
+  "official_scorecard": false,
+  "scope": "OWASP Python balanced representative sample, exact file+CWE; one model run per config. Same-distribution public synthetic, no independent project or training-unseen claim. Outside-target findings require separate adjudication. Static engines are faster; OCR/tool budgets and scheduling differ.",
+  "scoring_is_target_classification_and_discovery": true,
+  "billing_cost_not_inferred_from_tokens": true,
+  "execution_ledger": [
+    {
+      "configuration": "base/development-01",
+      "calls": 142,
+      "input_tokens": 1028688,
+      "output_tokens": 214853,
+      "ai_wall_seconds": 476.28761108301114
+    },
+    {
+      "configuration": "revision-01/development-01",
+      "calls": 143,
+      "input_tokens": 1223699,
+      "output_tokens": 209382,
+      "ai_wall_seconds": 497.6184750829707
+    },
+    {
+      "configuration": "revision-01/development-02",
+      "calls": 131,
+      "input_tokens": 1140248,
+      "output_tokens": 193438,
+      "ai_wall_seconds": 443.82244979200186
+    },
+    {
+      "configuration": "revision-02/development-02",
+      "calls": 159,
+      "input_tokens": 1427876,
+      "output_tokens": 199868,
+      "ai_wall_seconds": 388.844179000007
+    },
+    {
+      "configuration": "base/acceptance-01",
+      "calls": 141,
+      "input_tokens": 1027899,
+      "output_tokens": 226660,
+      "ai_wall_seconds": 433.105594291992
+    },
+    {
+      "configuration": "revision-01/acceptance-01",
+      "calls": 139,
+      "input_tokens": 1206148,
+      "output_tokens": 192023,
+      "ai_wall_seconds": 460.6760282079922
+    },
+    {
+      "configuration": "OCR/acceptance-01",
+      "calls": 192,
+      "input_tokens": 1220188,
+      "output_tokens": 289436,
+      "wall_seconds": 552.2878274999675
+    }
+  ],
+  "recorded_total_usage": {
+    "calls": 1047,
+    "input_tokens": 8274746,
+    "output_tokens": 1525660
+  },
+  "selected_before_acceptance": true,
+  "production_default": {
+    "scout": "7",
+    "review": "9",
+    "experimental_only": {
+      "scout": "8",
+      "review": "10"
+    }
+  },
+  "ordinary_tests_before_activation": 82,
+  "generality_screen": {
+    "files": 175,
+    "project_case_label_string_matches": 0
+  },
+  "remaining_failures": {
+    "FN": 6,
+    "FP": 2
+  },
+  "advantage_claim": "Limited same-sample quality tradeoff versus fixed CodeQL and actual OCR; not global superiority or speed improvement over base.",
+  "ordinary_tests_after_activation": 83,
+  "stopping_rule_met": true,
+  "not_statistically_significant_vs_base": true
+}

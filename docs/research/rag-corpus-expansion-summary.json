@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-04",
+  "revision": "v4",
+  "canonical": {
+    "reference_sources": 271,
+    "examples": 141,
+    "official_examples_passed": 130,
+    "official_tests_passed": 133,
+    "official_tests_failed": 3,
+    "compile_only_eligible": 8,
+    "development_failed_excluded": 3,
+    "eligible_examples": 138
+  },
+  "coverage_checks": {
+    "bm25": {
+      "passed": 20,
+      "checks": 20
+    },
+    "hybrid": {
+      "passed": 20,
+      "checks": 20
+    }
+  },
+  "index": {
+    "model": "doubao-embedding-vision",
+    "revision": "doubao-embedding-vision-251215",
+    "dimensions": 2048,
+    "reference_sources": 271,
+    "eligible_examples": 138
+  },
+  "limitations": [
+    "Availability is not retrieval relevance or detector accuracy",
+    "Typed JavaScript SQL test group unresolved; fixed official untyped group passed",
+    "Historical versions and aliases are not independent examples"
+  ]
+}

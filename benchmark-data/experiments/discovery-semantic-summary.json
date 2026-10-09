@@ -1,0 +1,70 @@
+{
+  "run_id": "20261007-v7",
+  "gold_positive_roots": 31,
+  "supported_roots": 29,
+  "limitations": [
+    "Development projects already exposed to evaluator; no independent generalization claim.",
+    "Bundled secondary conditions not granted roots; unmapped alarms are not adjudicated FP.",
+    "Flask004 and013 describe executable rp but rp has no source binding; keep upstream labels unchanged and flag disagreement.",
+    "New source inspection and larger review budgets; not a single-factor or equal-cost improvement claim."
+  ],
+  "projects": [
+    {
+      "project": "rv-flask",
+      "supported_roots": [
+        "damn-vulnerable-flask-app-001",
+        "damn-vulnerable-flask-app-002",
+        "damn-vulnerable-flask-app-005",
+        "damn-vulnerable-flask-app-006",
+        "damn-vulnerable-flask-app-007",
+        "damn-vulnerable-flask-app-008",
+        "damn-vulnerable-flask-app-009",
+        "damn-vulnerable-flask-app-010",
+        "damn-vulnerable-flask-app-011",
+        "damn-vulnerable-flask-app-012",
+        "damn-vulnerable-flask-app-014",
+        "damn-vulnerable-flask-app-015"
+      ],
+      "missed_or_undecided": [
+        "damn-vulnerable-flask-app-004",
+        "damn-vulnerable-flask-app-013"
+      ],
+      "candidate_count": 39,
+      "unreviewed": 0,
+      "false_traps_supported": []
+    },
+    {
+      "project": "rv-dvna",
+      "supported_roots": [
+        "dvna-001",
+        "dvna-002",
+        "dvna-003",
+        "dvna-004",
+        "dvna-005",
+        "dvna-006",
+        "dvna-007",
+        "dvna-008",
+        "dvna-009",
+        "dvna-010",
+        "dvna-011",
+        "dvna-012",
+        "dvna-013",
+        "dvna-014",
+        "dvna-015",
+        "dvna-016",
+        "dvna-017"
+      ],
+      "missed_or_undecided": [],
+      "candidate_count": 126,
+      "unreviewed": 0,
+      "false_traps_supported": []
+    }
+  ],
+  "all_attempts_persisted_usage_lower_bound": {
+    "calls": 271,
+    "input_tokens": 2968438,
+    "output_tokens": 421568
+  },
+  "ordinary_tests": 39,
+  "single_fresh_full_scan": false
+}

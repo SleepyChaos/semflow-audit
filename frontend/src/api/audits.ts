@@ -29,6 +29,22 @@ export interface AuditRun {
   coverage: {
     files_by_language?: Record<string, number>
     unscanned_languages?: string[]
+    pipeline_version?: string
+    dual_engine?: {
+      status: string
+      review_ready?: boolean
+      codeql?: { status: string; error?: string }
+      scout?: {
+        status: string
+        error?: string
+        coverage?: {
+          status: string
+          planned_windows: number
+          inspected_windows: number
+          uninspected_windows: number
+        }
+      }
+    }
   }
   custom_rule_ids: string[]
   findings: Finding[]

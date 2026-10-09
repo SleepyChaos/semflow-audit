@@ -17,6 +17,9 @@ def create_run(
     name: str,
     language: str,
     custom_rule_ids: list[str] | None = None,
+    *,
+    dual_engine: bool = False,
+    suite: str | None = None,
 ) -> AuditRun:
     identifier = uuid4()
     store = ArtifactStore()
@@ -40,8 +43,15 @@ def create_run(
             language=language,
             snapshot_hash=snapshot_hash,
             query_pack=pack,
-            suite=f"codeql-suites/{prefix}-security-extended.qls",
-            coverage=coverage,
+            suite=suite or f"codeql-suites/{prefix}-code-scanning.qls",
+            coverage={
+                **coverage,
+                **(
+                    {"pipeline_version": "2", "dual_engine": {"status": "queued"}}
+                    if dual_engine
+                    else {}
+                ),
+            },
             custom_rule_ids=custom_rule_ids or [],
         )
         session.add(run)

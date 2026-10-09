@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "verified_on": "2026-10-07",
+  "status": "research_only_no_paid_model_requests",
+  "gui_used": false,
+  "network_access": "public_static_web_sources; CDP precheck chrome not connected, no browser launched",
+  "secret_policy": "no token/config content included",
+  "local_ocr": {
+    "path": "/Users/chaos/Documents/Codex/2026-09-29/xin-j/work/open-code-review",
+    "commit": "a758d9cbfb689937c7857ad64b2dd66adb58c0c2",
+    "inspected_source_sha256": {
+      "go.mod": "607f395abc650bb3b935fcbdd9e2ba28b0d385f690df177dd0b2f94cfe769e34",
+      "README.md": "76228cb397c4e64a13fa03ee893ae8a46df310f7073bd690e7ad0dc6cfc1aa43",
+      "cmd/opencodereview/shared_flags.go": "fe289f3bf4e4e0f035f7fb3050455fb49bc109dbc7e7fa6bb295c62df3b99be6",
+      "cmd/opencodereview/shared.go": "39becd778604df102106bd0bc223a90b361a66ac4f071d1fa4c8f5143047635f",
+      "cmd/opencodereview/scan_cmd.go": "d2df1b2ee47888d9fdd448c22aa53d051b76241d3389719d0d095ca9e05fb0f6",
+      "cmd/opencodereview/review_cmd.go": "494d14b612a3db8187ba29bb50a175beb34b27ad022037fa0a4df96586256daa",
+      "internal/llm/resolver.go": "cae05e415625ff7bf7a641f29cb69d1fcd4e8221090313dd0b6a81dd606c842a",
+      "internal/model/review.go": "a5e4761346ce38d300b1492dc8055602fde793db09228dbe4e1599c7db8509aa",
+      "internal/config/template/scan_template.json": "29bcabf3e60d71dbf977e1a1c477bae037454834decf83cab9e5abc240c172cc"
+    },
+    "endpoint_keys": [
+      "OCR_LLM_URL",
+      "OCR_LLM_TOKEN",
+      "OCR_LLM_MODEL",
+      "OCR_LLM_PROTOCOL",
+      "OCR_LLM_TIMEOUT"
+    ],
+    "openai_compatible_source_verified": true,
+    "live_model_verified": false,
+    "user_config_exists_at_check": false,
+    "core_registered_tools": [
+      "file_read",
+      "file_find",
+      "file_read_diff",
+      "code_search",
+      "code_comment"
+    ],
+    "output_structured_cwe": false,
+    "max_tools_default": 60,
+    "max_tools_flag_can_decrease": false,
+    "budget_limit_type": "pre-call and dispatch total-token soft cap; in-flight work can overshoot",
+    "build_completed": true,
+    "model_requests": 0,
+    "binary_sha256": "1ce8691c6ca949d96783cfc92ff44c89ba9e8192e0f76d41a48f5130c5f848de",
+    "preview_selected": 48,
+    "preview_reviewable": 48,
+    "preview_status": "preview_only_48_verified",
+    "preview_receipt": "/Users/chaos/Documents/Codex/2026-09-29/xin-j/ai-code-audit/artifacts/competitors/ocr-preview-acceptance-01-final2/receipt.json",
+    "request_count_note": "native llm_request journal count is logical requests; HTTP retry/in-flight cost may remain unobserved"
+  },
+  "sources": [
+    {
+      "id": "owasp-python",
+      "title": "OWASP BenchmarkPython",
+      "url": "https://github.com/OWASP-Benchmark/BenchmarkPython",
+      "authority": "primary",
+      "kind": "benchmark",
+      "scope": "Python v0.1",
+      "numbers": {},
+      "comparability": "method_or_execution_reference",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "本轮以本地固定commit和去标签快照为准，不跟随main"
+      ]
+    },
+    {
+      "id": "ocr",
+      "title": "Alibaba Open Code Review",
+      "url": "https://github.com/alibaba/open-code-review",
+      "authority": "primary",
+      "kind": "tool",
+      "scope": "full-file LLM scan",
+      "numbers": {},
+      "comparability": "method_or_execution_reference",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "官方新README不同于已固定commit；执行以local_ocr.inspected_source为准",
+        "现成输出没有CWE结构字段",
+        "非本轮成绩"
+      ]
+    },
+    {
+      "id": "bandit",
+      "title": "Bandit documentation",
+      "url": "https://bandit.readthedocs.io/en/latest/",
+      "authority": "primary",
+      "kind": "tool_documentation",
+      "scope": "Python AST security plugins",
+      "numbers": {},
+      "comparability": "method_or_execution_reference",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "不等于跨函数全项目污点分析"
+      ]
+    },
+    {
+      "id": "bandit-cli",
+      "title": "Bandit CLI",
+      "url": "https://bandit.readthedocs.io/en/latest/man/bandit.html",
+      "authority": "primary",
+      "kind": "tool_documentation",
+      "scope": "bandit -r -f json -o",
+      "numbers": {},
+      "comparability": "method_or_execution_reference",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "解析错误须保存，固定engine/plugins/Python版本"
+      ]
+    },
+    {
+      "id": "semgrep-rules",
+      "title": "Semgrep local rules",
+      "url": "https://docs.semgrep.dev/running-rules",
+      "authority": "primary",
+      "kind": "tool_documentation",
+      "scope": "local YAML",
+      "numbers": {},
+      "comparability": "method_or_execution_reference",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "规则和CLI要冻结，不使用浮动auto结果"
+      ]
+    },
+    {
+      "id": "semgrep-python",
+      "title": "Semgrep Python support",
+      "url": "https://docs.semgrep.dev/languages/python",
+      "authority": "primary",
+      "kind": "tool_documentation",
+      "scope": "CE vs commercial Code/Pro",
+      "numbers": {},
+      "comparability": "method_or_execution_reference",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "跨文件/框架Pro能力不能归到CE"
+      ]
+    },
+    {
+      "id": "iris-paper",
+      "title": "IRIS ICLR2025 / arXiv v3",
+      "url": "https://arxiv.org/abs/2405.17238v3",
+      "authority": "primary",
+      "kind": "paper",
+      "scope": "Java120CVE",
+      "numbers": {
+        "codeql_detected": 27,
+        "iris_gpt4_detected": 55,
+        "denominator": 120
+      },
+      "comparability": "context_only",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "现实Java CVE，与48例Python/精确CWE不同"
+      ]
+    },
+    {
+      "id": "iris-code",
+      "title": "IRIS official implementation",
+      "url": "https://github.com/iris-sast/iris",
+      "authority": "primary",
+      "kind": "tool",
+      "scope": "official Java pipeline",
+      "numbers": {},
+      "comparability": "method_or_execution_reference",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "ABSENTIA作者的Python移植不是本官方实现"
+      ]
+    },
+    {
+      "id": "repoaudit-paper",
+      "title": "RepoAudit ICML2025",
+      "url": "https://arxiv.org/abs/2501.18160",
+      "authority": "primary",
+      "kind": "paper",
+      "scope": "15 real-world systems",
+      "numbers": {
+        "true_bugs": 38,
+        "mean_hours_per_project": 0.44,
+        "mean_usd_per_project": 2.54
+      },
+      "comparability": "context_only",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "Claude3.5Sonnet",
+        "不是OWASP14类/48例同榜"
+      ]
+    },
+    {
+      "id": "repoaudit-code",
+      "title": "RepoAudit official implementation",
+      "url": "https://github.com/PurCL/RepoAudit",
+      "authority": "primary",
+      "kind": "tool",
+      "scope": "general data-flow bugs; includes Python support",
+      "numbers": {},
+      "comparability": "method_or_execution_reference",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "语言支持不代表已经具备OWASP全部安全类别配置"
+      ]
+    },
+    {
+      "id": "representation2026",
+      "title": "How Code Representation Shapes False-Positive Dynamics in Cross-Language LLM Vulnerability Detection",
+      "url": "https://arxiv.org/html/2604.27714v1",
+      "authority": "primary",
+      "kind": "paper",
+      "scope": "Table8 PythonAST-parseable subset; China Telecom Research Institute",
+      "numbers": {
+        "n": 1108,
+        "positive": 420,
+        "negative": 688,
+        "excluded_ast_failures": 122,
+        "qwen3_8b_zero_shot_text": {
+          "fpr": 0.703,
+          "recall": 0.893,
+          "f1": 0.586
+        },
+        "qwen3_8b_zero_shot_ast": {
+          "fpr": 0.999,
+          "recall": 1.0,
+          "f1": 0.55
+        },
+        "qwen3_8b_text_pilot_text": {
+          "fpr": 0.858,
+          "recall": 0.976,
+          "f1": 0.578
+        },
+        "qwen3_8b_text_pilot_ast": {
+          "fpr": 0.554,
+          "recall": 0.698,
+          "f1": 0.536
+        }
+      },
+      "comparability": "context_only",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "预印本2026-04-30",
+        "found二分类不要求正确CWE",
+        "1108可解析子集不是1230全套或本轮48",
+        "C/C++ LoRA训练因素不同",
+        "无本轮逐项预测可重评分"
+      ]
+    },
+    {
+      "id": "absentia-paper",
+      "title": "ABSENTIA: Detecting Broken Access Control Vulnerabilities in Web Applications",
+      "url": "https://arxiv.org/html/2610.00977v1",
+      "authority": "primary",
+      "kind": "paper",
+      "scope": "Section7.1,7.5,AppendixB Python injection subset",
+      "numbers": {
+        "n": 677,
+        "positive": 240,
+        "negative": 437,
+        "cwe_categories": 10,
+        "minimax2_5": {
+          "macro_tpr": 0.85,
+          "macro_fpr": 0.42,
+          "macro_j": 0.43
+        },
+        "sonnet5": {
+          "macro_tpr": 0.95,
+          "macro_fpr": 0.14,
+          "macro_j": 0.81
+        },
+        "sonnet_cost_multiple": 6.2
+      },
+      "comparability": "context_only",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "预印本2026-10-01",
+        "10类注入而非全14类",
+        "macro TPR/FPR不可转成本轮micro F1",
+        "不同模型/预算/源码允许上下文",
+        "PythonIRIS系作者重实现"
+      ]
+    },
+    {
+      "id": "absentia-code-status",
+      "title": "Absentia current release",
+      "url": "https://github.com/avduarte333/Absentia",
+      "authority": "primary",
+      "kind": "author_release_status",
+      "scope": "BAC-Bench data only",
+      "numbers": {},
+      "comparability": "method_or_execution_reference",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "实现计划2026年底；本轮不能运行该工具，不能用自制提示冒充"
+      ]
+    },
+    {
+      "id": "frame",
+      "title": "Frame official README",
+      "url": "https://github.com/lambdasec/frame",
+      "authority": "primary",
+      "kind": "author_tool_and_self_report",
+      "scope": "Python symbolic+LLM scan",
+      "numbers": {
+        "owasp_python_macro_j": 0.809
+      },
+      "comparability": "context_only",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "作者自报，不是独立本轮结果",
+        "提交/输入/规则/原始输出身份尚未冻结",
+        "没有本轮实跑或模型调用"
+      ]
+    },
+    {
+      "id": "cyfendo",
+      "title": "Cyfendo benchmarks",
+      "url": "https://cyfendo.com/benchmarks",
+      "authority": "primary",
+      "kind": "vendor_self_report",
+      "scope": "September2026 full Python benchmark",
+      "numbers": {
+        "n": 1230,
+        "tp": 407,
+        "fp": 27,
+        "tn": 751,
+        "fn": 45,
+        "precision": 0.9378,
+        "recall": 0.9004,
+        "fpr": 0.0347
+      },
+      "comparability": "context_only",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "厂商自报，无本轮同48例/同预算实跑",
+        "模型/规则/原始输出未冻结"
+      ]
+    },
+    {
+      "id": "vyql",
+      "title": "VyQL benchmark RESULTS",
+      "url": "https://github.com/vyprai/vyql/blob/main/benchmarks/RESULTS.md",
+      "authority": "primary",
+      "kind": "author_self_report",
+      "scope": "full Python benchmark",
+      "numbers": {
+        "n": 1230,
+        "tp": 452,
+        "fp": 99,
+        "tn": 679,
+        "fn": 0,
+        "macro_j": 0.8959
+      },
+      "comparability": "context_only",
+      "direct_improvement_claim_allowed": false,
+      "limitations": [
+        "作者自报，非同榜实跑",
+        "基准驱动开发/暴露，尚未独立证明通用性"
+      ]
+    },
+    {
+      "id": "codeql-cli",
+      "title": "CodeQL CLI",
+      "url": "https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-cli",
+      "authority": "primary",
+      "kind": "tool_documentation",
+      "comparability": "method_or_execution_reference",
+      "direct_improvement_claim_allowed": false
+    }
+  ],
+  "followup_execution": {
+    "date": "2026-10-08",
+    "ocr_executed": true,
+    "completed_cases": 48,
+    "logical_requests": 192,
+    "report": "owasp48-final-comparison.md",
+    "note": "Initial research-only status is preserved as historical preparation; actual native session/receipt is in campaign artifacts."
+  }
+}

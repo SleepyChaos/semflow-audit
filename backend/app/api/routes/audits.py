@@ -56,7 +56,7 @@ def environment(_user: CurrentUser) -> dict:
             audit_settings.CODEQL_PACK_PATH
             / name
             / version
-            / f"codeql-suites/{language}-security-extended.qls"
+            / f"codeql-suites/{language}-code-scanning.qls"
         ).is_file()
         for specification, language in [
             (audit_settings.PYTHON_QUERY_PACK, "python"),
@@ -117,7 +117,15 @@ async def upload_run(
                     raise HTTPException(413, "代码包超过 20 MB 限制")
                 stream.write(chunk)
         try:
-            run = create_run(session, user.id, archive, name, language, selected_rules)
+            run = create_run(
+                session,
+                user.id,
+                archive,
+                name,
+                language,
+                selected_rules,
+                dual_engine=True,
+            )
         except AuditError as exc:
             raise HTTPException(422, str(exc))
     dispatch(run, session)
@@ -142,6 +150,8 @@ def retry(identifier: UUID, session: SessionDep, user: CurrentUser):
         previous.project_name,
         previous.language,
         previous.custom_rule_ids,
+        dual_engine=previous.coverage.get("pipeline_version") == "2",
+        suite=previous.suite,
     )
     dispatch(run, session)
     return run

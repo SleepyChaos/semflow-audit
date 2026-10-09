@@ -1,0 +1,396 @@
+{
+  "as_of": "2026-10-08",
+  "registry_scope": "existing43 entries, metadata corrections only; candidate additions below excluded from current43",
+  "arxiv_metadata": [
+    {
+      "url": "https://arxiv.org/abs/2601.02941",
+      "title": "SastBench: A Benchmark for Testing Agentic SAST Triage",
+      "first_public_date": "2026-01-06",
+      "last_arxiv_revision_date": "2026-01-06",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2604.13764",
+      "title": "RealVuln: Benchmarking Rule-Based, General-Purpose LLM, and Security-Specialized Scanners on Real-World Code",
+      "first_public_date": "2026-04-15",
+      "last_arxiv_revision_date": "2026-04-15",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2608.02001",
+      "title": "VulnGym: Benchmarking Coding Agents for Repository-Level Vulnerability Detection",
+      "first_public_date": "2026-08-03",
+      "last_arxiv_revision_date": "2026-08-03",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2604.21917",
+      "title": "CrossCommitVuln-Bench: A Dataset of Multi-Commit Python Vulnerabilities Invisible to Per-Commit Static Analysis",
+      "first_public_date": "2026-04-23",
+      "last_arxiv_revision_date": "2026-04-23",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2407.08708",
+      "title": "eyeballvul: a future-proof benchmark for vulnerability detection in the wild",
+      "first_public_date": "2024-07-11",
+      "last_arxiv_revision_date": "2024-07-13",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2609.08040",
+      "title": "VEX-Bench: Benchmarking LLM Agents for Assessing Exploitability of Software Supply Chain Vulnerabilities",
+      "first_public_date": "2026-09-07",
+      "last_arxiv_revision_date": "2026-09-07",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2405.17238",
+      "title": "IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities",
+      "first_public_date": "2024-05-27",
+      "last_arxiv_revision_date": "2025-04-06",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2602.09774",
+      "title": "QRS: A Rule-Synthesizing Neuro-Symbolic Triad for Autonomous Vulnerability Discovery",
+      "first_public_date": "2026-02-10",
+      "last_arxiv_revision_date": "2026-08-20",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2608.00692",
+      "title": "Vul4Py: Benchmarking Automated Vulnerability Repair in Python with Paired Exploit and Functional Oracles",
+      "first_public_date": "2026-08-01",
+      "last_arxiv_revision_date": "2026-08-01",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2509.03331",
+      "title": "VulnRepairEval: An Exploit-Based Evaluation Framework for Assessing Large Language Model Vulnerability Repair Capabilities",
+      "first_public_date": "2025-09-03",
+      "last_arxiv_revision_date": "2025-09-03",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2504.21205",
+      "title": "SecRepoBench: Benchmarking Code Agents for Secure Code Completion in Real-World Repositories",
+      "first_public_date": "2025-04-29",
+      "last_arxiv_revision_date": "2026-02-14",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2506.23644",
+      "title": "QLPro: Automated Code Vulnerability Discovery via LLM and Static Code Analysis Integration",
+      "first_public_date": "2025-06-30",
+      "last_arxiv_revision_date": "2025-07-19",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2506.10322",
+      "title": "Minimizing False Positives in Static Bug Detection via LLM-Enhanced Path Feasibility Analysis",
+      "first_public_date": "2025-06-12",
+      "last_arxiv_revision_date": "2025-06-12",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2609.04535",
+      "title": "An Empirical Analysis of CodeQL False Positives and Query Refinements for Java Vulnerabilities",
+      "first_public_date": "2026-09-03",
+      "last_arxiv_revision_date": "2026-09-15",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2608.20637",
+      "title": "ARQ: Agentic CodeQL Query Refinement for C/C++ Vulnerability Detection",
+      "first_public_date": "2026-08-21",
+      "last_arxiv_revision_date": "2026-08-21",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2602.05868",
+      "title": "Persistent Human Feedback, LLMs, and Static Analyzers for Secure Code Generation and Vulnerability Detection",
+      "first_public_date": "2026-02-05",
+      "last_arxiv_revision_date": "2026-02-05",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2601.18844",
+      "title": "Reducing False Positives in Static Bug Detection with LLMs: An Empirical Study in Industry",
+      "first_public_date": "2026-01-26",
+      "last_arxiv_revision_date": "2026-01-26",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2606.04739",
+      "title": "Revisiting Vul-RAG: Reproducibility and Replicability of RAG-based Vulnerability Detection with Open-Weight Models",
+      "first_public_date": "2026-06-03",
+      "last_arxiv_revision_date": "2026-06-03",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2608.16187",
+      "title": "Securing AI-Generated Code: A Just-in-Time Vulnerability Detection and Remediation Pipeline",
+      "first_public_date": "2026-08-17",
+      "last_arxiv_revision_date": "2026-08-17",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2601.10865",
+      "title": "Multi-Agent Taint Specification Extraction for Vulnerability Detection",
+      "first_public_date": "2026-01-15",
+      "last_arxiv_revision_date": "2026-01-15",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2501.18160",
+      "title": "RepoAudit: An Autonomous LLM-Agent for Repository-Level Code Auditing",
+      "first_public_date": "2025-01-30",
+      "last_arxiv_revision_date": "2025-05-29",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2512.01255",
+      "title": "Large Language Models Cannot Reliably Detect Vulnerabilities in JavaScript: The First Systematic Benchmark and Evaluation",
+      "first_public_date": "2025-12-01",
+      "last_arxiv_revision_date": "2025-12-01",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2608.12246",
+      "title": "VICBench: A Multi-Language Benchmark for Code Vulnerability Detection",
+      "first_public_date": "2026-08-12",
+      "last_arxiv_revision_date": "2026-08-12",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2511.11019",
+      "title": "PATCHEVAL: A New Benchmark for Evaluating LLMs on Patching Real-World Vulnerabilities",
+      "first_public_date": "2025-11-14",
+      "last_arxiv_revision_date": "2025-11-14",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2604.27714",
+      "title": "How Code Representation Shapes False-Positive Dynamics in Cross-Language LLM Vulnerability Detection",
+      "first_public_date": "2026-04-30",
+      "last_arxiv_revision_date": "2026-04-30",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2610.00977",
+      "title": "ABSENTIA: Detecting Broken Access Control Vulnerabilities in Web Applications",
+      "first_public_date": "2026-10-01",
+      "last_arxiv_revision_date": "2026-10-01",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2509.04260",
+      "title": "An Empirical Study of Vulnerabilities in Python Packages and Their Detection",
+      "first_public_date": "2025-09-04",
+      "last_arxiv_revision_date": "2025-09-04",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2601.19494",
+      "title": "AACR-Bench: Evaluating Automatic Code Review with Holistic Repository-Level Context",
+      "first_public_date": "2026-01-27",
+      "last_arxiv_revision_date": "2026-01-30",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2406.11147",
+      "title": "Vul-RAG: Enhancing LLM-based Vulnerability Detection via Knowledge-level RAG",
+      "first_public_date": "2024-06-17",
+      "last_arxiv_revision_date": "2025-06-17",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2609.10412",
+      "title": "Towards Scalable and Cost-Efficient Vulnerability Detection: A Study on Automatic Query Generation",
+      "first_public_date": "2026-09-09",
+      "last_arxiv_revision_date": "2026-09-09",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    },
+    {
+      "url": "https://arxiv.org/abs/2603.23633",
+      "title": "Detect--Repair--Verify for LLM-Generated Code: A Multi-Language, Multi-Granularity Empirical Study",
+      "first_public_date": "2026-03-24",
+      "last_arxiv_revision_date": "2026-03-24",
+      "verified_at": "2026-10-08",
+      "verification_scope": "arXiv title and submission/revision metadata; no assertion of peer-reviewed venue"
+    }
+  ],
+  "formal_metadata": [
+    {
+      "title": "QLCoder: A Query Synthesizer for Static Analysis of Security Vulnerabilities",
+      "first_public_date": "2025-11-11",
+      "last_arxiv_revision_date": "2026-08-26",
+      "formal_publication_year": 2026,
+      "venue": "ICLR 2026",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2adf01ab15adde8820622f7f24bd516b-Abstract-Conference.html",
+      "preprint_source": "https://arxiv.org/abs/2511.08462"
+    },
+    {
+      "title": "IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities",
+      "formal_publication_year": 2025,
+      "venue": "ICLR 2025",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2025/hash/582d4e27fa24168f3af1f4582655034b-Abstract-Conference.html"
+    },
+    {
+      "title": "CQLLM: A Framework for Generating CodeQL Security Vulnerability Detection Code Based on Large Language Model",
+      "formal_publication_year": 2026,
+      "formal_publication_date": "2026-01-04",
+      "venue": "Applied Sciences 16(1),517",
+      "source": "https://www.mdpi.com/2076-3417/16/1/517/notes"
+    },
+    {
+      "title": "CodeRAG-Bench: Can Retrieval Augment Code Generation?",
+      "formal_publication_year": 2025,
+      "venue": "Findings of NAACL 2025",
+      "source": "https://aclanthology.org/2025.findings-naacl.176/"
+    },
+    {
+      "title": "RealSec-bench: A Benchmark for Evaluating Secure Code Generation in Real-World Repositories",
+      "formal_publication_year": 2026,
+      "formal_publication_month": "2026-07",
+      "venue": "Findings of ACL 2026",
+      "source": "https://aclanthology.org/2026.findings-acl.1786/"
+    },
+    {
+      "title": "PredicateFix: Repairing Static Analysis Alerts with Bridging Predicates",
+      "formal_publication_year": 2026,
+      "venue": "ICSE 2026 Research Track",
+      "source": "https://conf.researchr.org/details/icse-2026/icse-2026-research-track/117/PredicateFix-Repairing-Static-Analysis-Alerts-with-Bridging-Predicates",
+      "preprint_source": "https://arxiv.org/abs/2503.12205"
+    },
+    {
+      "title": "Friends or Foes? Combining Static Analysis Tools and LLMs for Vulnerability Detection",
+      "formal_publication_year": 2026,
+      "venue": "ICSTW 2026",
+      "conference_dates": "2026-05-18/2026-05-22",
+      "online_index_date": "2026-07-16",
+      "source": "https://ieeexplore.ieee.org/abstract/document/11600417"
+    },
+    {
+      "title": "RepoAudit: An Autonomous LLM-Agent for Repository-Level Code Auditing",
+      "formal_publication_year": 2025,
+      "venue": "ICML 2025/PMLR267",
+      "source": "https://proceedings.mlr.press/v267/guo25n.html",
+      "title_correction_from": "RepoAudit: An Autonomous LLM-Agent-Based Code Auditor"
+    },
+    {
+      "title": "SoK: Automated Vulnerability Repair: Methods, Tools, and Assessments",
+      "formal_publication_year": 2025,
+      "venue": "USENIX Security 2025",
+      "source": "https://www.usenix.org/conference/usenixsecurity25/presentation/hu-yiwei"
+    },
+    {
+      "title": "Vul-RAG: Enhancing LLM-based Vulnerability Detection via Knowledge-level RAG",
+      "formal_publication_year": 2026,
+      "formal_publication_date": "2026-09-16",
+      "venue": "ACM TOSEM35(10),article312",
+      "source": "https://doi.org/10.1145/3797277"
+    },
+    {
+      "title": "Fixing, Breaking, or Faking It? An Execution-Calibrated Evaluation of LLM Vulnerability Patching in JavaScript, Python, Go, and Java, and the Limits of LLM-as-Judge",
+      "formal_publication_year": 2026,
+      "formal_publication_date": "2026-09-02",
+      "venue": "Journal of Cybersecurity and Privacy6(5),153",
+      "source": "https://www.mdpi.com/2624-800X/6/5/153/notes"
+    }
+  ],
+  "limits": [
+    "Web metadata/title verification is not full-paper reading or methodology verification.",
+    "arXiv-issued DOI does not establish peer review.",
+    "No independent same-task competitors were executed in this review.",
+    "SEC-bench retains prior official verification; VLoc report, QLM abstract and historical SecBench.js are not newly venue-audited here."
+  ],
+  "candidate_papers": [
+    {
+      "title": "Knowledge-Enhanced Agentic Vulnerability Repair",
+      "method": "KeaRepair",
+      "first_public_date": "2026-07-01",
+      "url": "https://arxiv.org/abs/2607.00820",
+      "status": "preprint; official abstract/method overview read; no downloaded full artifact or admission",
+      "relevance": "fact-grounded diagnosis, dual-view knowledge, ReAct tool use and patch validation",
+      "task_limits": "main55C/C++ Vul4C; cannot directly use83.64%asPyJScomparison"
+    },
+    {
+      "title": "AgenticRepair: Multi-Faceted Program Context Engineering for Agentic Vulnerability Repair",
+      "first_public_date": "2026-07-31",
+      "url": "https://arxiv.org/abs/2607.29422",
+      "status": "under review IEEE TSE per arXiv; abstract/metadata verified; no artifact admission",
+      "relevance": "structural/execution/history context orchestration",
+      "task_limits": "SEC-bench sanitizer tasks; current pure-unit PyJS scope differs"
+    },
+    {
+      "title": "How Safe Are AI-Generated Patches? A Large-scale Study on Security Risks in LLM and Agentic Automated Program Repair on SWE-bench",
+      "first_public_date": "2025-06-30",
+      "last_arxiv_revision_date": "2025-12-29",
+      "url": "https://arxiv.org/abs/2507.02976",
+      "status": "preprint abstract/metadata verified; no artifact admission",
+      "relevance": "new security regressions after functional program repair"
+    }
+  ],
+  "candidate_comparators": [
+    {
+      "name": "OpenHands",
+      "url": "https://github.com/OpenHands/software-agent-sdk",
+      "priority": "P0 repair",
+      "reason": "External repair Agent appears in Vul4Py. Freeze author benchmark runtime for strict reproduction; current OpenHands/OpenHands is Agent Canvas UI, current agent implementation is software-agent-sdk. New SDK comparison must be a separate current-version arm. Trivy vulnerability-fixer demo is not the same source-patch task.",
+      "status": "candidate_not_run"
+    },
+    {
+      "name": "SWE-agent / mini-SWE-agent",
+      "url": "https://github.com/SWE-agent/SWE-agent",
+      "priority": "P1 repair/triage",
+      "reason": "independent Agent scaffold; choose one after pure-unit runner/API compatibility review",
+      "status": "candidate_not_run"
+    },
+    {
+      "name": "SonarQube",
+      "url": "https://www.sonarsource.com/products/sonarqube/downloads/",
+      "priority": "P1 optional commercial/static",
+      "reason": "enterprise coverage; Community vs Developer taint engine separate; don't deploy service during this review",
+      "status": "candidate_not_run"
+    },
+    {
+      "name": "CodeRabbit Security",
+      "url": "https://www.coderabbit.ai/blog/security-agent-benchmarks",
+      "priority": "P1 optional commercial/report",
+      "reason": "2026-10-06 vendor report on100case testbed/internal comparative development slice; known-target recovery only, not precision/fix quality",
+      "status": "vendor_report_reference_only_no_access_or_matched_run"
+    }
+  ]
+}

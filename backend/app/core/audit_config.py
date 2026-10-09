@@ -28,6 +28,7 @@ class AuditSettings(BaseSettings):
     AI_TIMEOUT: int = 90
     AI_MAX_OUTPUT_TOKENS: int = 6000
     AI_REVIEW_TOKENS: int = 0
+    AI_SCOUT_TOKENS: int = 3000
     AI_REPAIR_TOKENS: int = 0
     AI_RULE_TOKENS: int = 0
     AI_THINKING_MODE: Literal["enabled", "disabled"] | None = None
@@ -35,6 +36,11 @@ class AuditSettings(BaseSettings):
     AI_STAGE_MAX_TOKENS: int = 100000
     AI_STAGE_MAX_SECONDS: int = 300
     EMBEDDING_MODEL: str = ""
+    EMBEDDING_REVISION: str = ""
+    EMBEDDING_DIMENSIONS: int = 0
+    SEMANTIC_CONTEXT_CHARS: int = 40000
+    SEMANTIC_TOOL_LIMIT: int = 8
+    REPAIR_ATTEMPTS: int = 3
     VALIDATOR_PYTHON_IMAGE: str = "ai-code-audit-validator:local"
     VALIDATOR_JS_IMAGE: str = "node:22-bookworm-slim"
     VALIDATOR_TIMEOUT: int = 120

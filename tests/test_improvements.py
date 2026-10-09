@@ -286,14 +286,18 @@ def test_independent_fixture_sources_are_syntactically_valid():
                 check_syntax(name, content)
 
 
-def test_new_api_uses_v2_and_rejects_wrong_holdout(pipeline_context, monkeypatch):
+def test_new_api_uses_validated_semantic_versions_and_rejects_wrong_holdout(
+    pipeline_context, monkeypatch
+):
     from app.api.routes import stages
 
     monkeypatch.setattr(stages.execute_stage, "delay", lambda *args: None)
     api = pipeline_context["client"]
     identifier = pipeline_context["run_id"]
     response = api.post(f"/api/v1/audits/{identifier}/review", json={})
-    assert response.status_code == 201 and response.json()["prompt_version"] == "2"
+    assert response.status_code == 201 and response.json()["prompt_version"] == "9"
+    scout = api.post(f"/api/v1/audits/{identifier}/scout", json={})
+    assert scout.status_code == 201 and scout.json()["prompt_version"] == "7"
     holdouts = api.get("/api/v1/rules/holdouts")
     assert holdouts.status_code == 200 and len(holdouts.json()) == 12
     wrong = api.post(
@@ -308,6 +312,10 @@ def test_new_api_uses_v2_and_rejects_wrong_holdout(pipeline_context, monkeypatch
 
 
 def test_thinking_is_explicit_not_sent_by_default(monkeypatch):
+    from app.core.audit_config import audit_settings
+
+    # Verify the unset protocol independently of the developer's local .env.
+    monkeypatch.setattr(audit_settings, "AI_THINKING_MODE", "")
     packets = []
     provider = configured(
         monkeypatch,

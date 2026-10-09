@@ -1,0 +1,61 @@
+{
+  "status": "mechanism_review_and_full_host_replay_complete",
+  "production_project_or_case_specific_branches_found": false,
+  "production_files_scanned": 168,
+  "paid_model_calls": 0,
+  "benchmark": "OWASP56 historical exposed representative subset",
+  "pool": 184,
+  "accepted_original": 180,
+  "accepted_fixed": 180,
+  "unreviewed": 4,
+  "original_score": {
+    "counts": {
+      "TP": 14,
+      "FP": 5,
+      "TN": 23,
+      "FN": 14
+    },
+    "precision": 0.7368421052631579,
+    "recall": 0.5,
+    "f1": 0.5957446808510638
+  },
+  "fixed_full_host_replay": {
+    "counts": {
+      "TP": 18,
+      "FP": 5,
+      "TN": 23,
+      "FN": 10
+    },
+    "precision": 0.782608695652174,
+    "recall": 0.6428571428571429,
+    "f1": 0.7058823529411765
+  },
+  "metamorphic": [
+    {
+      "transform": "directory_and_file_rename",
+      "accepted_records": 180,
+      "mismatches": [],
+      "same_prediction_counts": true
+    },
+    {
+      "transform": "line_offset",
+      "accepted_records": 180,
+      "mismatches": [],
+      "same_prediction_counts": true
+    },
+    {
+      "transform": "combined",
+      "accepted_records": 180,
+      "mismatches": [],
+      "same_prediction_counts": true
+    }
+  ],
+  "supported_claim": "Generic result/proof mechanisms work on OWASP and survive name/coordinate changes; classification preservation changes benchmark accounting",
+  "not_supported": [
+    "Fresh model discovery generalization",
+    "Unseen framework or natural CVE performance",
+    "End-to-end speed uplift",
+    "Full 1230 AI evaluation"
+  ],
+  "next_acceptance": "Standard benchmark old/new same-budget comparisons; RealVuln only regression"
+}

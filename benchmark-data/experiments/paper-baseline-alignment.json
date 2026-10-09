@@ -1,0 +1,2200 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-05",
+  "status": "author_baselines_extracted_platform_results_pending",
+  "directly_comparable_papers": [],
+  "comparison_rule": "Only compute platform minus author delta after identical task IDs, snapshots, input permissions, metric and denominator are established. Different model/architecture may support system comparison, not mechanism causality. Subset scores require matched baseline subset rerun or author per-task rescore.",
+  "comparability_levels": {
+    "direct": "相同冻结任务、输入权限、评分与分母已核实，可报告同榜配对差值；当前无此项。",
+    "reproduction_required": "同方向且可适配，需要冻结作者任务/输出/评分器并在一致子集重跑或重评分。",
+    "context_only": "语言/任务/标签不匹配，当前只作方法与量级背景。"
+  },
+  "papers": [
+    {
+      "id": "realvuln-v1",
+      "title": "RealVuln",
+      "official_url": "https://arxiv.org/abs/2604.13764",
+      "direction": "discovery",
+      "comparability": "reproduction_required",
+      "current_platform_result": null,
+      "improvement_claim_allowed": false,
+      "paper_scope": {
+        "version": "arXiv v1 / RealVuln v1.0",
+        "language": [
+          "python"
+        ],
+        "repositories": 26,
+        "positive_roots": 676,
+        "fp_traps": 120,
+        "all_labels": 796,
+        "cwe_families": 18
+      },
+      "task_input": "完整漏洞仓库，无单条 CVE 描述；同一共享提示的 Agent 模式。",
+      "scoring": "strict_micro F3 主榜，F1/F2 辅助；失去输出的仓库计漏检。作者 matcher 允许文件位置/CWE 近似及替代位置。",
+      "reproduction_requirements": [
+        "取得作者 v1 manifest、26 项源码与标签/输出并核对哈希；或用同一当前子集重评分作者输出。",
+        "平台结果同时按作者 matcher 和本项目根因评测口径报告；当前版本不能拼接到 v1 总榜。",
+        "相同项目和评分可作系统外部对照；同模型/预算的本地控制组才支持机制归因。"
+      ],
+      "limitations": [
+        "本地上游当前 manifest 3.1.0，论文 v1.0；只有两个完整项目，且一个是 JS。",
+        "论文主体是教育/CTF 项目，并非自然漏洞总体。",
+        "未报告 CodeQL，不存在可直接引用的论文 CodeQL 分数。"
+      ],
+      "sources": [
+        {
+          "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+          "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+          "pdf_pages": [
+            5
+          ],
+          "table": "Table 2",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+          "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+          "pdf_pages": [
+            6,
+            7,
+            8
+          ],
+          "table": null,
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+          "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+          "pdf_pages": [
+            10
+          ],
+          "table": "Table 4",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        }
+      ],
+      "author_results": [
+        {
+          "configuration": "Kolega.Dev-v0.0.1",
+          "metrics": {
+            "f1_100": 52.4,
+            "f2_100": 66.5,
+            "f3_100": 73.0,
+            "precision": 0.388,
+            "recall": 0.809,
+            "completed_repositories": 26,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "SecLab Taskflow Agent v1 / GPT-5.4",
+          "metrics": {
+            "f1_100": 13.7,
+            "f2_100": 9.3,
+            "f3_100": 8.4,
+            "precision": 0.605,
+            "recall": 0.077,
+            "completed_repositories": 26,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude Sonnet 4.6 agentic v1",
+          "metrics": {
+            "f1_100": 60.9,
+            "f2_100": 53.7,
+            "f3_100": 51.7,
+            "precision": 0.785,
+            "recall": 0.498,
+            "completed_repositories": 23,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Gemini 3.1 Pro agentic v1",
+          "metrics": {
+            "f1_100": 60.1,
+            "f2_100": 53.0,
+            "f3_100": 51.0,
+            "precision": 0.774,
+            "recall": 0.491,
+            "completed_repositories": 24,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude Opus 4.6 agentic v1",
+          "metrics": {
+            "f1_100": 57.8,
+            "f2_100": 49.8,
+            "f3_100": 47.7,
+            "precision": 0.79,
+            "recall": 0.456,
+            "completed_repositories": 19,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Kimi K2.5 agentic v1",
+          "metrics": {
+            "f1_100": 54.3,
+            "f2_100": 48.3,
+            "f3_100": 46.6,
+            "precision": 0.683,
+            "recall": 0.45,
+            "completed_repositories": 24,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "GLM-5 agentic v1",
+          "metrics": {
+            "f1_100": 55.5,
+            "f2_100": 47.9,
+            "f3_100": 45.8,
+            "precision": 0.753,
+            "recall": 0.439,
+            "completed_repositories": 22,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Minimax M2.7 agentic v1",
+          "metrics": {
+            "f1_100": 48.7,
+            "f2_100": 41.0,
+            "f3_100": 39.0,
+            "precision": 0.707,
+            "recall": 0.371,
+            "completed_repositories": 22,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Qwen 3.5 397B agentic v1",
+          "metrics": {
+            "f1_100": 46.0,
+            "f2_100": 39.8,
+            "f3_100": 38.1,
+            "precision": 0.618,
+            "recall": 0.366,
+            "completed_repositories": 24,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude Haiku 4.5 agentic v1",
+          "metrics": {
+            "f1_100": 47.9,
+            "f2_100": 39.4,
+            "f3_100": 37.2,
+            "precision": 0.748,
+            "recall": 0.352,
+            "completed_repositories": 24,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Grok 4.20 reasoning agentic v1",
+          "metrics": {
+            "f1_100": 41.0,
+            "f2_100": 30.7,
+            "f3_100": 28.4,
+            "precision": 0.927,
+            "recall": 0.263,
+            "completed_repositories": 24,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Grok 3 agentic v1",
+          "metrics": {
+            "f1_100": 31.9,
+            "f2_100": 23.3,
+            "f3_100": 21.3,
+            "precision": 0.837,
+            "recall": 0.197,
+            "completed_repositories": 21,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Semgrep default",
+          "metrics": {
+            "f1_100": 18.9,
+            "f2_100": 18.0,
+            "f3_100": 17.7,
+            "precision": 0.205,
+            "recall": 0.175,
+            "completed_repositories": 25,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Snyk default",
+          "metrics": {
+            "f1_100": 21.0,
+            "f2_100": 18.2,
+            "f3_100": 17.4,
+            "precision": 0.282,
+            "recall": 0.167,
+            "completed_repositories": 25,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "SonarQube community default",
+          "metrics": {
+            "f1_100": 11.8,
+            "f2_100": 7.9,
+            "f3_100": 7.1,
+            "precision": 0.611,
+            "recall": 0.065,
+            "completed_repositories": 26,
+            "total_repositories": 26
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+            "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+            "pdf_pages": [
+              10
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vulngym-hard-t1",
+      "title": "VulnGym",
+      "official_url": "https://arxiv.org/abs/2608.02001",
+      "direction": "discovery",
+      "comparability": "reproduction_required",
+      "current_platform_result": null,
+      "improvement_claim_allowed": false,
+      "paper_scope": {
+        "version": "arXiv v1",
+        "language": [
+          "multiple; official hard subset"
+        ],
+        "all_advisories": 184,
+        "all_entries": 408,
+        "repositories": 23,
+        "table2_hard_advisories": 31,
+        "table2_hard_entries": 46
+      },
+      "task_input": "T1 已提供漏洞 advisory 标题、描述与完整仓库；T2–T4 另给黄金端点。",
+      "scoring": "T1 按 EP 与 CO 双位置匹配：同路径且偏差不超过 5 行；AR 是 advisory 覆盖、ER 是 entry 覆盖、ES 是命中 entry 的 trace 编辑相似度。",
+      "reproduction_requirements": [
+        "冻结作者 Hard 列表及 31/46 分母，下载相同提交。",
+        "建立单独的给定 advisory 轨道，不能与盲发现混合。",
+        "生成 EP/CO/trace 输出并运行作者 evaluator；复核 ES 聚合及失败口径。",
+        "框架和 DeepSeek-V4-Flash 等模型身份与本项目 deepseek-v4.1-flash 不默认相同。"
+      ],
+      "limitations": [
+        "Table 2 是 Hard 子集，并非全部 408 entries。",
+        "非完整 precision/FP 发现主榜。",
+        "当前只有标注，无 23 目标仓库完整源码，不能据两项目测试宣称超过该表。"
+      ],
+      "sources": [
+        {
+          "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+          "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+          "pdf_pages": [
+            3,
+            4
+          ],
+          "table": null,
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+          "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+          "pdf_pages": [
+            5
+          ],
+          "table": "Table 2",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        }
+      ],
+      "author_results": [
+        {
+          "configuration": "Claude Code / DeepSeek-V4-Flash",
+          "metrics": {
+            "advisory_recall_percent": 9.68,
+            "entry_recall_percent": 6.52,
+            "edit_similarity_percent": 3.37
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+            "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+            "pdf_pages": [
+              5
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude Code / GLM-5.2",
+          "metrics": {
+            "advisory_recall_percent": 12.9,
+            "entry_recall_percent": 8.7,
+            "edit_similarity_percent": 6.94
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+            "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+            "pdf_pages": [
+              5
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude Code / MiniMax-M3",
+          "metrics": {
+            "advisory_recall_percent": 12.9,
+            "entry_recall_percent": 8.7,
+            "edit_similarity_percent": 6.25
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+            "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+            "pdf_pages": [
+              5
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "OpenHands / DeepSeek-V4-Flash",
+          "metrics": {
+            "advisory_recall_percent": 22.58,
+            "entry_recall_percent": 15.22,
+            "edit_similarity_percent": 11.63
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+            "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+            "pdf_pages": [
+              5
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "OpenHands / GLM-5.2",
+          "metrics": {
+            "advisory_recall_percent": 6.45,
+            "entry_recall_percent": 4.35,
+            "edit_similarity_percent": 2.15
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+            "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+            "pdf_pages": [
+              5
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "OpenHands / MiniMax-M3",
+          "metrics": {
+            "advisory_recall_percent": 16.13,
+            "entry_recall_percent": 10.87,
+            "edit_similarity_percent": 7.93
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+            "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+            "pdf_pages": [
+              5
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "MiniSWE / DeepSeek-V4-Flash",
+          "metrics": {
+            "advisory_recall_percent": 16.13,
+            "entry_recall_percent": 10.87,
+            "edit_similarity_percent": 7.67
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+            "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+            "pdf_pages": [
+              5
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "MiniSWE / GLM-5.2",
+          "metrics": {
+            "advisory_recall_percent": 16.13,
+            "entry_recall_percent": 10.87,
+            "edit_similarity_percent": 8.65
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+            "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+            "pdf_pages": [
+              5
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "MiniSWE / MiniMax-M3",
+          "metrics": {
+            "advisory_recall_percent": 16.13,
+            "entry_recall_percent": 10.87,
+            "edit_similarity_percent": 6.95
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+            "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec",
+            "pdf_pages": [
+              5
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sastbench-triage",
+      "title": "SastBench",
+      "official_url": "https://arxiv.org/abs/2601.02941",
+      "direction": "discovery",
+      "comparability": "reproduction_required",
+      "current_platform_result": null,
+      "improvement_claim_allowed": false,
+      "paper_scope": {
+        "version": "arXiv v1",
+        "language": [
+          "38 languages"
+        ],
+        "tasks": 2737,
+        "tp": 299,
+        "approximate_fp": 2438,
+        "cwes": 139
+      },
+      "task_input": "给定 CWE 分组告警的位置/函数元数据与指定仓库，二分类真假；source 标签被排除。",
+      "scoring": "主指标 MCC，辅助 accuracy/precision/recall/F1/F2；这是假告警过滤，不是全项目漏洞发现。",
+      "reproduction_requirements": [
+        "适配平台复审入口为与论文一致的告警 triage；不得把发现模型同输出直接算 triage。",
+        "同一清单、语言、commit/CWE 分组与失败口径；Py/JS 子集仅与在该子集重评分的作者输出或重跑基线相比。",
+        "报告约似负标签来源和盲审，不自动把未标注新发现算 FP。"
+      ],
+      "limitations": [
+        "作者 negatives 来自 Semgrep 非 CVE 类提示，标签并非所有项均经过安全专家证伪。",
+        "作者配置每组仅一轮；GPT OSS 因 DSPy 错误仅测试子集，不能直接公平全表对比。",
+        "论文 F2 列保留原值，不据其重算本平台 F2。"
+      ],
+      "sources": [
+        {
+          "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+          "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+          "pdf_pages": [
+            4,
+            5
+          ],
+          "table": "Tables 2–3",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+          "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+          "pdf_pages": [
+            6
+          ],
+          "table": "Table 4",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        }
+      ],
+      "author_results": [
+        {
+          "configuration": "Gemini 2.5 Pro / Improved ReAct",
+          "metrics": {
+            "accuracy": 0.641,
+            "precision": 0.169,
+            "recall": 0.582,
+            "f1": 0.262,
+            "author_f2": 0.197,
+            "mcc": 0.148
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude Sonnet 4.5 / Improved ReAct",
+          "metrics": {
+            "accuracy": 0.481,
+            "precision": 0.14,
+            "recall": 0.722,
+            "f1": 0.235,
+            "author_f2": 0.167,
+            "mcc": 0.11
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude Sonnet 4.5 / Simple ReAct",
+          "metrics": {
+            "accuracy": 0.563,
+            "precision": 0.142,
+            "recall": 0.591,
+            "f1": 0.229,
+            "author_f2": 0.167,
+            "mcc": 0.096
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Gemini 2.5 Pro / Mini SWE-Agent",
+          "metrics": {
+            "accuracy": 0.327,
+            "precision": 0.1,
+            "recall": 0.869,
+            "f1": 0.18,
+            "author_f2": 0.122,
+            "mcc": 0.092
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Gemini 2.5 Pro / Simple ReAct",
+          "metrics": {
+            "accuracy": 0.567,
+            "precision": 0.14,
+            "recall": 0.565,
+            "f1": 0.224,
+            "author_f2": 0.165,
+            "mcc": 0.084
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "GPT OSS 120B / Simple ReAct (subset)",
+          "metrics": {
+            "accuracy": 0.642,
+            "precision": 0.142,
+            "recall": 0.461,
+            "f1": 0.218,
+            "author_f2": 0.165,
+            "mcc": 0.083
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Gemini 2.5 Pro / No Tools",
+          "metrics": {
+            "accuracy": 0.45,
+            "precision": 0.128,
+            "recall": 0.692,
+            "f1": 0.216,
+            "author_f2": 0.153,
+            "mcc": 0.072
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Gemini 2.5 Pro / OpenHands",
+          "metrics": {
+            "accuracy": 0.334,
+            "precision": 0.118,
+            "recall": 0.789,
+            "f1": 0.206,
+            "author_f2": 0.142,
+            "mcc": 0.047
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "DeepSeek R1 / Simple ReAct",
+          "metrics": {
+            "accuracy": 0.523,
+            "precision": 0.123,
+            "recall": 0.544,
+            "f1": 0.201,
+            "author_f2": 0.146,
+            "mcc": 0.042
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Gemini 2.5 Flash / Simple ReAct",
+          "metrics": {
+            "accuracy": 0.521,
+            "precision": 0.112,
+            "recall": 0.48,
+            "f1": 0.182,
+            "author_f2": 0.132,
+            "mcc": 0.007
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Qwen3 Coder 480B / Simple ReAct",
+          "metrics": {
+            "accuracy": 0.536,
+            "precision": 0.105,
+            "recall": 0.423,
+            "f1": 0.169,
+            "author_f2": 0.124,
+            "mcc": -0.011
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Llama 4 Maverick 17B / Simple ReAct",
+          "metrics": {
+            "accuracy": 0.679,
+            "precision": 0.1,
+            "recall": 0.235,
+            "f1": 0.14,
+            "author_f2": 0.113,
+            "mcc": -0.02
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+            "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+            "pdf_pages": [
+              6
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        }
+      ]
+    },
+    {
+      "id": "qlcoder-java",
+      "title": "QLCoder",
+      "official_url": "https://openreview.net/forum?id=J91IKwJrqv",
+      "direction": "rules",
+      "comparability": "context_only",
+      "current_platform_result": null,
+      "improvement_claim_allowed": false,
+      "paper_scope": {
+        "version": "ICLR 2026 conference PDF; arXiv v5 duplicate not counted",
+        "language": [
+          "java"
+        ],
+        "all_cves": 176,
+        "old_buildable_cves": 111,
+        "new_buildable_cves": 65,
+        "table2_shared_cves": 130,
+        "ablation_cves": 20,
+        "model": "Claude Code / Claude Sonnet 4",
+        "codeql": "2.22.2",
+        "max_iterations": 10
+      },
+      "task_input": "CVE、漏洞/修复源码与 patch information 参与生成和迭代反馈；有 docs、reference queries、AST、LSP 工具。",
+      "scoring": "Query success 要可编译、漏洞版命中受修复影响方法且修复版不报相关命中；recall 与平均 precision 基于 patch 影响方法近似根因。",
+      "reproduction_requirements": [
+        "当前平台是 Py/JS，自建任务只能作跨语言方法参考。",
+        "若扩展 Java，应冻结其 176/130/20 各自清单、模型/CodeQL 与预算并适配作者评分。",
+        "本项目隐藏修复版不反馈与作者反复查看 fixed 反馈不同；要建立单独复现协议，不能拿隐藏成功率直接减作者分数。"
+      ],
+      "limitations": [
+        "success 53.4% 与共享集 recall 80% 是不同分母/不同指标。",
+        "正文旧样本可构建数 111 与附录 112 存在差异，需清单核对。",
+        "作者查询以已知 CVE 为目标，不等于盲发现新漏洞。"
+      ],
+      "sources": [
+        {
+          "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+          "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+          "pdf_pages": [
+            4,
+            7
+          ],
+          "table": null,
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+          "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+          "pdf_pages": [
+            8
+          ],
+          "table": "Table 1",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+          "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+          "pdf_pages": [
+            8
+          ],
+          "table": "Table 2",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+          "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+          "pdf_pages": [
+            9
+          ],
+          "table": "Table 4",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        }
+      ],
+      "author_results": [
+        {
+          "configuration": "QLCoder overall",
+          "metrics": {
+            "total_cves": 176,
+            "successful_queries": 94,
+            "success_percent": 53.4,
+            "avg_precision": 0.631
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+            "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 1",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "CodeQL / shared 130",
+          "metrics": {
+            "recall_percent": 20.0,
+            "avg_precision": 0.055,
+            "avg_f1": 0.073
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+            "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "IRIS / shared 130",
+          "metrics": {
+            "recall_percent": 35.4,
+            "avg_precision": 0.031,
+            "avg_f1": 0.048
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+            "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "QLCoder / shared 130",
+          "metrics": {
+            "recall_percent": 80.0,
+            "avg_precision": 0.672,
+            "avg_f1": 0.7
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+            "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "QLCoder / ablation 20",
+          "metrics": {
+            "success_percent": 55,
+            "recall_percent": 80,
+            "avg_precision": 0.67,
+            "avg_f1": 0.69
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+            "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "without LSP",
+          "metrics": {
+            "success_percent": 25,
+            "recall_percent": 55,
+            "avg_precision": 0.32,
+            "avg_f1": 0.36
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+            "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "without Doc/Ref",
+          "metrics": {
+            "success_percent": 20,
+            "recall_percent": 55,
+            "avg_precision": 0.32,
+            "avg_f1": 0.36
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+            "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "without AST",
+          "metrics": {
+            "success_percent": 25,
+            "recall_percent": 80,
+            "avg_precision": 0.41,
+            "avg_f1": 0.47
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+            "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude Code without tools",
+          "metrics": {
+            "success_percent": 10,
+            "recall_percent": 55,
+            "avg_precision": 0.33,
+            "avg_f1": 0.36
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+            "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cqllm-python",
+      "title": "CQLLM",
+      "official_url": "https://doi.org/10.3390/app16010517",
+      "direction": "rules",
+      "comparability": "context_only",
+      "current_platform_result": null,
+      "improvement_claim_allowed": false,
+      "paper_scope": {
+        "version": "Applied Sciences 2026,16,517",
+        "language": [
+          "python"
+        ],
+        "database_cwe_types": 54,
+        "finetune_samples": 3754,
+        "train_samples": 3004,
+        "validation_samples": 375,
+        "test_samples": 375
+      },
+      "task_input": "CWE-id/query-id/name/type/description 的五字段请求与允许 QL library；RAGFlow、LoRA、CodeQL 文档/范例。",
+      "scoring": "Execution success 是编译并执行完成；CWE coverage 是命中 CWE 类型占比。Total_vul 是告警数，论文明确未逐样本定位黄金漏洞。",
+      "reproduction_requirements": [
+        "作者完整任务数据库/QL dependencies/CodeQL 版本与任务清单未核齐，当前不能做 direct。",
+        "需要额外逐根因正负 oracle 才能比較规则检测准确率，不能拿 Total_vul 当 TP。",
+        "同一 RAG corpus/模型/任务/生成预算复跑，隔离微调因素；检索相关性仍要单独标注。"
+      ],
+      "limitations": [
+        "表 2 的 7B 执行率 56.43%、表 4 为 56.38%、正文一处写 58.38%，不自行择优。",
+        "Table 4 Noft-RAG 分母 298，其他组 321，不是同一任务数的配对差值。",
+        "作者官方 QL 变体可能与当前 RAG 范例重叠，需组级泄漏检查。"
+      ],
+      "sources": [
+        {
+          "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+          "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+          "pdf_pages": [
+            8,
+            11,
+            12
+          ],
+          "table": null,
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+          "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+          "pdf_pages": [
+            13
+          ],
+          "table": "Table 2",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+          "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+          "pdf_pages": [
+            15
+          ],
+          "table": "Table 4",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        }
+      ],
+      "author_results": [
+        {
+          "configuration": "Qwen2.5-coder-14B / Noft-NoRAG",
+          "metrics": {
+            "redundancy_percent": 0,
+            "cwe_types": 1,
+            "cwe_coverage_percent": 1.9,
+            "reported_alarm_count": 0,
+            "execution_success_percent": 0.31
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+            "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+            "pdf_pages": [
+              13
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "CQLLM / Qwen2.5-coder-14B",
+          "metrics": {
+            "redundancy_percent": 24.3,
+            "cwe_types": 31,
+            "cwe_coverage_percent": 57.4,
+            "reported_alarm_count": 110686,
+            "execution_success_percent": 58.38
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+            "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+            "pdf_pages": [
+              13
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Qwen2.5-coder-7B / Noft-NoRAG",
+          "metrics": {
+            "redundancy_percent": 0,
+            "cwe_types": 0,
+            "cwe_coverage_percent": 0,
+            "reported_alarm_count": 0,
+            "execution_success_percent": 0
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+            "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+            "pdf_pages": [
+              13
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "CQLLM / Qwen2.5-coder-7B",
+          "metrics": {
+            "redundancy_percent": 17.7,
+            "cwe_types": 29,
+            "cwe_coverage_percent": 53.7,
+            "reported_alarm_count": 3930,
+            "execution_success_percent": 56.43
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+            "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+            "pdf_pages": [
+              13
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Qwen3-8B / Noft-NoRAG",
+          "metrics": {
+            "redundancy_percent": 0,
+            "cwe_types": 0,
+            "cwe_coverage_percent": 0,
+            "reported_alarm_count": 0,
+            "execution_success_percent": 0
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+            "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+            "pdf_pages": [
+              13
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "CQLLM / Qwen3-8B",
+          "metrics": {
+            "redundancy_percent": 9.3,
+            "cwe_types": 14,
+            "cwe_coverage_percent": 25.9,
+            "reported_alarm_count": 1401,
+            "execution_success_percent": 47.42
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+            "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+            "pdf_pages": [
+              13
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "CQLLM 7B / ft-RAG",
+          "metrics": {
+            "total_queries": 321,
+            "executable_queries": 181,
+            "execution_success_percent": 56.38,
+            "reported_alarm_count": 3930
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+            "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+            "pdf_pages": [
+              15
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Qwen2.5-coder-7B / ft-NoRAG",
+          "metrics": {
+            "total_queries": 321,
+            "executable_queries": 71,
+            "execution_success_percent": 22.11,
+            "reported_alarm_count": 1765
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+            "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+            "pdf_pages": [
+              15
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Qwen2.5-coder-7B / Noft-RAG",
+          "metrics": {
+            "total_queries": 298,
+            "executable_queries": 216,
+            "execution_success_percent": 72.48,
+            "reported_alarm_count": 4755
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+            "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d",
+            "pdf_pages": [
+              15
+            ],
+            "table": "Table 4",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        }
+      ]
+    },
+    {
+      "id": "iris-java",
+      "title": "IRIS",
+      "official_url": "https://arxiv.org/abs/2405.17238",
+      "direction": "discovery_and_rules",
+      "comparability": "context_only",
+      "current_platform_result": null,
+      "improvement_claim_allowed": false,
+      "paper_scope": {
+        "version": "arXiv v3 / ICLR 2025",
+        "language": [
+          "java"
+        ],
+        "cves": 120,
+        "cwe_types": 4,
+        "codeql": "2.15.3",
+        "primary_model": "gpt-4-0125-preview"
+      },
+      "task_input": "指定 CWE 类别下全项目 API source/sink 推断、CodeQL 数据流和 LLM 路径过滤；没有本项目独立粗筛或完整新 QL 生成任务。",
+      "scoring": "Detected 为 CVE 对应受修复影响位置命中；平均 FDR 是不完备黄金位置近似误报上界，而非人工确认后的真实 precision。",
+      "reproduction_requirements": [
+        "当前语言与任务不同仅方法参照；如扩展 Java 在同任务重跑。",
+        "作者报告 50 告警人工审查为潜在攻击面，并不等于表 1 的 FDR 均经过裁决。",
+        "不要比较本项目根因 P/R 与论文路径/位置近似平均 FDR。"
+      ],
+      "limitations": [
+        "CodeQL 2.15.3 与当前 CLI/pack 不同。",
+        "该文是检测方法，不是 BM25/向量检索质量基准。"
+      ],
+      "sources": [
+        {
+          "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+          "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+          "pdf_pages": [
+            7,
+            21
+          ],
+          "table": null,
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+          "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+          "pdf_pages": [
+            8
+          ],
+          "table": "Table 1",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        }
+      ],
+      "author_results": [
+        {
+          "configuration": "CodeQL",
+          "metrics": {
+            "detected_cves": 27,
+            "detection_percent": 22.5,
+            "avg_fdr_percent": 90.03,
+            "avg_f1": 0.076
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+            "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 1",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "IRIS / GPT-4",
+          "metrics": {
+            "detected_cves": 55,
+            "detection_percent": 45.83,
+            "avg_fdr_percent": 84.82,
+            "avg_f1": 0.177
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+            "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 1",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "IRIS / GPT-3.5",
+          "metrics": {
+            "detected_cves": 47,
+            "detection_percent": 39.17,
+            "avg_fdr_percent": 90.42,
+            "avg_f1": 0.096
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+            "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 1",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "IRIS / Llama3 8B",
+          "metrics": {
+            "detected_cves": 41,
+            "detection_percent": 34.17,
+            "avg_fdr_percent": 95.55,
+            "avg_f1": 0.058
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+            "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 1",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "IRIS / Llama3 70B",
+          "metrics": {
+            "detected_cves": 54,
+            "detection_percent": 45.0,
+            "avg_fdr_percent": 90.96,
+            "avg_f1": 0.113
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+            "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 1",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "IRIS / Qwen2.5Coder 32B",
+          "metrics": {
+            "detected_cves": 47,
+            "detection_percent": 39.17,
+            "avg_fdr_percent": 92.38,
+            "avg_f1": 0.097
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+            "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 1",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "IRIS / Gemma2 27B",
+          "metrics": {
+            "detected_cves": 45,
+            "detection_percent": 37.5,
+            "avg_fdr_percent": 91.23,
+            "avg_f1": 0.1
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+            "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 1",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "IRIS / DeepSeekCoder7B",
+          "metrics": {
+            "detected_cves": 52,
+            "detection_percent": 43.33,
+            "avg_fdr_percent": 95.4,
+            "avg_f1": 0.062
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+            "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+            "pdf_pages": [
+              8
+            ],
+            "table": "Table 1",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        }
+      ]
+    },
+    {
+      "id": "patcheval-dynamic",
+      "title": "PatchEval",
+      "official_url": "https://arxiv.org/abs/2511.11019",
+      "direction": "repair",
+      "comparability": "reproduction_required",
+      "current_platform_result": null,
+      "improvement_claim_allowed": false,
+      "paper_scope": {
+        "version": "arXiv v1",
+        "language": [
+          "python",
+          "javascript",
+          "go"
+        ],
+        "equivalence_tasks": 1000,
+        "dynamic_tasks": 230,
+        "cwe_types": 65
+      },
+      "task_input": "Location oracle：给正确漏洞函数、CVE/CWE 和旧案例；end-to-end：给漏洞描述+整个仓库但不提供目标函数。反馈组可读取安全/功能验证反馈。",
+      "scoring": "动态修复联合安全 PoC 与 unit 通过数；LLM-as-judge 1000 等价组另列，不可混为动态正确率。",
+      "reproduction_requirements": [
+        "取得同一 230 动态 CVE 清单、镜像和完整测试；本地 1000 元数据与 176 非空 unit cmd 不能代替 230 清单。",
+        "当前只测纯单元任务；筛选子集后须同子集重跑或评分作者输出，不能除以 230 作排名。",
+        "平台隐藏安全测试不回流，论文反馈组使用验证反馈；只用相同反馈权限/预算作比较。",
+        "语义保持另校准业务不变量；missing/999/skip 必须 unknown，不能当 unit 成功。"
+      ],
+      "limitations": [
+        "作者 unit 可能依项目可得性执行，本地实现需审查是否每个任务实际存在且运行。",
+        "表 3 location 与表 5 end-to-end 不同输入强度。",
+        "论文 end-to-end 仍给定漏洞描述，不等于平台无提示发现→修复。"
+      ],
+      "sources": [
+        {
+          "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+          "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+          "pdf_pages": [
+            5,
+            6,
+            7,
+            8,
+            16
+          ],
+          "table": null,
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+          "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+          "pdf_pages": [
+            9
+          ],
+          "table": "Table 3",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+          "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+          "pdf_pages": [
+            11
+          ],
+          "table": "Table 5",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+          "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+          "pdf_pages": [
+            11
+          ],
+          "table": "Tables 6–7",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        }
+      ],
+      "author_results": [
+        {
+          "configuration": "GPT-4.1",
+          "metrics": {
+            "security_pass_count": 51,
+            "security_and_unit_pass_count": 43,
+            "avg_tokens_k": 3.52,
+            "avg_usd": 0.013
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Gemini2.5-Pro",
+          "metrics": {
+            "security_pass_count": 58,
+            "security_and_unit_pass_count": 52,
+            "avg_tokens_k": 10.58,
+            "avg_usd": 0.023
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Doubao1.6-Thinking",
+          "metrics": {
+            "security_pass_count": 41,
+            "security_and_unit_pass_count": 34,
+            "avg_tokens_k": 10.28,
+            "avg_usd": 0.017
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Doubao1.6",
+          "metrics": {
+            "security_pass_count": 46,
+            "security_and_unit_pass_count": 38,
+            "avg_tokens_k": 6.89,
+            "avg_usd": 0.009
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "DeepSeek-R1",
+          "metrics": {
+            "security_pass_count": 47,
+            "security_and_unit_pass_count": 44,
+            "avg_tokens_k": 10.15,
+            "avg_usd": 0.018
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "DeepSeek-V3",
+          "metrics": {
+            "security_pass_count": 53,
+            "security_and_unit_pass_count": 41,
+            "avg_tokens_k": 3.65,
+            "avg_usd": 0.002
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Kimi-K2",
+          "metrics": {
+            "security_pass_count": 43,
+            "security_and_unit_pass_count": 38,
+            "avg_tokens_k": 3.51,
+            "avg_usd": 0.004
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Qwen3-Coder480B",
+          "metrics": {
+            "security_pass_count": 48,
+            "security_and_unit_pass_count": 41,
+            "avg_tokens_k": 3.49,
+            "avg_usd": 0.008
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Qwen3-Max",
+          "metrics": {
+            "security_pass_count": 49,
+            "security_and_unit_pass_count": 41,
+            "avg_tokens_k": 3.34,
+            "avg_usd": 0.037
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "O3",
+          "metrics": {
+            "security_pass_count": 42,
+            "security_and_unit_pass_count": 40,
+            "avg_tokens_k": 5.25,
+            "avg_usd": 0.027
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "SWE-Agent / Gemini2.5",
+          "metrics": {
+            "security_pass_count": 61,
+            "security_and_unit_pass_count": 53,
+            "avg_tokens_k": 561.07,
+            "avg_usd": 1.128
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "OpenHands / Gemini2.5",
+          "metrics": {
+            "security_pass_count": 52,
+            "security_and_unit_pass_count": 49,
+            "avg_tokens_k": 1141.62,
+            "avg_usd": 2.933
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude-Code / Gemini2.5",
+          "metrics": {
+            "security_pass_count": 47,
+            "security_and_unit_pass_count": 43,
+            "avg_tokens_k": 333.06,
+            "avg_usd": 0.853
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              9
+            ],
+            "table": "Table 3",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "SWE-Agent / Gemini2.5 / end-to-end",
+          "metrics": {
+            "security_pass_count": 36,
+            "security_and_unit_pass_count": 32,
+            "avg_tokens_k": 1190.35,
+            "avg_usd": 2.387
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              11
+            ],
+            "table": "Table 5",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "OpenHands / Gemini2.5 / end-to-end",
+          "metrics": {
+            "security_pass_count": 45,
+            "security_and_unit_pass_count": 43,
+            "avg_tokens_k": 1817.37,
+            "avg_usd": 4.64
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              11
+            ],
+            "table": "Table 5",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude-Code / Gemini2.5 / end-to-end",
+          "metrics": {
+            "security_pass_count": 31,
+            "security_and_unit_pass_count": 29,
+            "avg_tokens_k": 2492.83,
+            "avg_usd": 6.401
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              11
+            ],
+            "table": "Table 5",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "GPT-4.1 / location",
+          "metrics": {
+            "joint_pass_no_feedback": 43,
+            "joint_pass_with_feedback": 89
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              11
+            ],
+            "table": "Tables 6–7",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Gemini2.5-Pro / location",
+          "metrics": {
+            "joint_pass_no_feedback": 52,
+            "joint_pass_with_feedback": 122
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              11
+            ],
+            "table": "Tables 6–7",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "DeepSeek-R1 / location",
+          "metrics": {
+            "joint_pass_no_feedback": 44,
+            "joint_pass_with_feedback": 105
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              11
+            ],
+            "table": "Tables 6–7",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "OpenHands / Gemini2.5 / location",
+          "metrics": {
+            "joint_pass_no_feedback": 49,
+            "joint_pass_with_feedback": 129
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              11
+            ],
+            "table": "Tables 6–7",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "SWE-Agent / Gemini2.5 / end-to-end",
+          "metrics": {
+            "joint_pass_no_feedback": 32,
+            "joint_pass_with_feedback": 87
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              11
+            ],
+            "table": "Tables 6–7",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "OpenHands / Gemini2.5 / end-to-end",
+          "metrics": {
+            "joint_pass_no_feedback": 43,
+            "joint_pass_with_feedback": 82
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+            "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+            "pdf_pages": [
+              11
+            ],
+            "table": "Tables 6–7",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vul4py",
+      "title": "Vul4Py",
+      "official_url": "https://arxiv.org/abs/2608.00692",
+      "direction": "repair",
+      "comparability": "reproduction_required",
+      "current_platform_result": null,
+      "improvement_claim_allowed": false,
+      "paper_scope": {
+        "version": "local arXiv PDF; checksum below",
+        "language": [
+          "python"
+        ],
+        "tasks": 100,
+        "repositories": 60,
+        "cwe_types": 60,
+        "agent_model": "claude-sonnet-4-20250514",
+        "direct_gpt_model": "gpt-4o-2024-08-06",
+        "temperature": 0,
+        "max_agent_steps": 100,
+        "agent_usd_cap": 3,
+        "trae_cost_cap_enforced": false
+      },
+      "task_input": "给项目或目标全文件、CVE ID、官方修复触及文件/行范围；Agent 可构建与运行已给测试命令。",
+      "scoring": "Sec 是 exploit-only 通过；Plau 是 exploit+功能通过；Corr 由两位作者核对人工补丁语义后判断；runtime 是每任务补丁生成均值。",
+      "reproduction_requirements": [
+        "相同 100 任务/环境/提示/模型/修复范围，或在纯单元同子集重跑作者方法。",
+        "严格修正 functional_rc=999 的缺失通过分支；提供论文口径与严格口径差异。",
+        "不能拿 syntax/rescan 通过与 Plau/Corr 比；严格 joint pass 与人工正确也分开。",
+        "速度比需固定真实模型和 API 条件，同时记录验证/准备成本；Trae 超预算组单列。"
+      ],
+      "limitations": [
+        "论文宣称每个任务都有功能 oracle；已收集脚本存在无功能验证仍 plausible 的路径，应以实际校准记录为准。",
+        "官方修复行提示强于平台实际审计定位。",
+        "隐藏 oracle 禁止回流组与作者可试跑 oracle 的 Agent 组输入权限不同。"
+      ],
+      "sources": [
+        {
+          "local_pdf": "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+          "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0",
+          "pdf_pages": [
+            7,
+            9,
+            10,
+            11
+          ],
+          "table": null,
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        },
+        {
+          "local_pdf": "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+          "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0",
+          "pdf_pages": [
+            12
+          ],
+          "table": "Table 2",
+          "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+        }
+      ],
+      "author_results": [
+        {
+          "configuration": "APPATCH / Sonnet4",
+          "metrics": {
+            "avg_usd": 0.05,
+            "avg_seconds": 93,
+            "security_pass_count": 3,
+            "paired_pass_count": 2,
+            "manually_correct_count": 2
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+            "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0",
+            "pdf_pages": [
+              12
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "GPT-4o",
+          "metrics": {
+            "avg_usd": 0.03,
+            "avg_seconds": 7,
+            "security_pass_count": 0,
+            "paired_pass_count": 0,
+            "manually_correct_count": 0
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+            "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0",
+            "pdf_pages": [
+              12
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Claude Sonnet4",
+          "metrics": {
+            "avg_usd": 0.05,
+            "avg_seconds": 6,
+            "security_pass_count": 5,
+            "paired_pass_count": 5,
+            "manually_correct_count": 4
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+            "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0",
+            "pdf_pages": [
+              12
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "OpenHands / Sonnet4",
+          "metrics": {
+            "avg_usd": 1.32,
+            "avg_seconds": 490,
+            "security_pass_count": 51,
+            "paired_pass_count": 43,
+            "manually_correct_count": 41
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+            "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0",
+            "pdf_pages": [
+              12
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "Trae Agent / Sonnet4",
+          "metrics": {
+            "avg_usd": 7.52,
+            "avg_seconds": 5763,
+            "security_pass_count": 33,
+            "paired_pass_count": 30,
+            "manually_correct_count": 29
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+            "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0",
+            "pdf_pages": [
+              12
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        },
+        {
+          "configuration": "SWE-agent / Sonnet4",
+          "metrics": {
+            "avg_usd": 1.43,
+            "avg_seconds": 2052,
+            "security_pass_count": 27,
+            "paired_pass_count": 24,
+            "manually_correct_count": 22
+          },
+          "source": {
+            "local_pdf": "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+            "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0",
+            "pdf_pages": [
+              12
+            ],
+            "table": "Table 2",
+            "inspection": "pypdf extraction; main table visually checked against rendered PDF"
+          }
+        }
+      ]
+    }
+  ],
+  "retrieval_benchmark_gap": "No independently annotated Py/JS QL-reference retrieval relevance benchmark found in these papers. Need frozen separate Recall@k/nDCG/MRR labels; QL compile/detection scores do not identify which retriever found more relevant knowledge."
+}

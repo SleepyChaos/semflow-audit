@@ -27,6 +27,10 @@ def owned_published_rule(
         if query_digest(rule.query, rule.modules) != rule.query_hash:
             raise AuditError("已发布规则版本完整性检查失败")
         check_modern_validation(rule)
+        if rule.validation.get("generation_version") in {"6", "7", "8"}:
+            from app.services.rule_project_validation import check_project_validation
+
+            check_project_validation(rule)
         session.expunge(rule)
         return rule
 

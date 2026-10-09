@@ -21,14 +21,24 @@ class EvidenceService:
         self.stage_id = UUID(stage_id)
         self.root = ArtifactStore().source(str(self.audit.source_run_id)).resolve()
         if snapshot_digest(self.root) != self.audit.snapshot_hash:
-            raise AuditError("源码快照完整性检查失败；不能引用被改动的代码")
+            raise AuditError("源码快照完整性检查失败；不能引用被改动的代码", code="integrity_error")
+        from app.persistence.stage_models import StageRun
+
+        with Session(engine) as session:
+            stage = session.get(StageRun, self.stage_id)
+            if stage is None or stage.audit_id != self.audit.id:
+                raise AuditError("取证阶段不属于本次审计", code="identity_error")
         self.paths = paths
         for path in paths:
             self.target(path)
 
     def target(self, name: str) -> Path:
-        if not name or "\\" in name or ":" in name:
+        if not name or "\\" in name or ":" in name or Path(name).is_absolute():
             raise AuditError("源码路径无效")
+        from app.adapters.source_inventory import readable_name
+
+        if not readable_name(name):
+            raise AuditError("不能读取凭据或依赖工作目录")
         path = (self.root / name).resolve()
         if not path.is_relative_to(self.root) or path.is_symlink() or not path.exists():
             raise AuditError("源码位置不在本次快照中")
@@ -42,17 +52,17 @@ class EvidenceService:
             raise AuditError("取证请求超出已选择范围")
         return path
 
-    def files(self) -> list[Path]:
-        suffixes = (
-            {".py"}
-            if self.audit.language == "python"
-            else {".js", ".jsx", ".ts", ".tsx"}
-        )
+    def files(self, expanded: bool = True) -> list[Path]:
+        from app.adapters.source_inventory import inspectable
+
         return sorted(
             path
             for path in self.root.rglob("*")
             if path.is_file()
-            and path.suffix in suffixes
+            and not path.is_symlink()
+            and inspectable(
+                path.relative_to(self.root).as_posix(), self.audit.language, expanded
+            )
             and (
                 not self.paths
                 or any(path.is_relative_to(self.target(scope)) for scope in self.paths)
@@ -61,7 +71,7 @@ class EvidenceService:
 
     def record(self, kind: str, content: str, reference: dict) -> dict:
         if snapshot_digest(self.root) != self.audit.snapshot_hash:
-            raise AuditError("取证过程中源码快照发生变化")
+            raise AuditError("取证过程中源码快照发生变化", code="integrity_error")
         digest = hashlib.sha256(content.encode()).hexdigest()
         evidence = Evidence(
             stage_id=self.stage_id,
@@ -85,7 +95,7 @@ class EvidenceService:
             same = next((row for row in existing if row.reference == reference), None)
             if same is not None:
                 if same.content != content:
-                    raise AuditError("已保存的重复证据内容被修改")
+                    raise AuditError("已保存的重复证据内容被修改", code="integrity_error")
                 evidence = same
             else:
                 session.add(evidence)

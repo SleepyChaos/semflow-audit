@@ -1,0 +1,513 @@
+{
+  "run_id": "20261005-v2",
+  "scope": "paired old candidate pools plus independent new scout; development calibration, no paper uplift claim",
+  "paired": [
+    {
+      "project": "rv-flask",
+      "stage_status": "completed",
+      "stage_error": null,
+      "wall_seconds": 27.275838750007097,
+      "usage": {
+        "calls": 4,
+        "input_tokens": 33217,
+        "output_tokens": 5076
+      },
+      "candidate_count": 16,
+      "reviewed_candidates": 16,
+      "unreviewed_candidates": 0,
+      "coverage": "completed",
+      "schedule": {
+        "candidate_count": 16,
+        "scheduled_candidates": 16,
+        "batch_limit": 24,
+        "scheduled_batches": 4,
+        "remaining_reason": "explicit batch/call/time budgets; unprocessed candidates are unknown"
+      },
+      "verdict_counts": {
+        "supported": 14,
+        "excluded": 0,
+        "insufficient": 2,
+        "pending": 0
+      },
+      "supported_positive_roots": [
+        "damn-vulnerable-flask-app-001",
+        "damn-vulnerable-flask-app-005",
+        "damn-vulnerable-flask-app-006",
+        "damn-vulnerable-flask-app-007",
+        "damn-vulnerable-flask-app-008",
+        "damn-vulnerable-flask-app-009",
+        "damn-vulnerable-flask-app-010"
+      ],
+      "additional_supported_roots": [
+        "damn-vulnerable-flask-app-009",
+        "damn-vulnerable-flask-app-010"
+      ],
+      "supported_false_traps": [],
+      "excluded_positive_roots": [],
+      "excluded_false_traps": [],
+      "unmapped_recommendations": [],
+      "incomplete_batches": [],
+      "adjudication": "same old provisional root associations; not human gold or exploit validation",
+      "policy": {
+        "model": "deepseek-v4.1-flash",
+        "max_calls": 12,
+        "max_tokens": 100000,
+        "max_seconds": 240
+      },
+      "output_token_cap": 6000,
+      "additional_root_details": [
+        {
+          "gold_id": "damn-vulnerable-flask-app-009",
+          "root_reason": "Literal session-signing secret assigned at app.py:15; login stores session logged_in and no environment override in this file.",
+          "model_reasons": [
+            "app.py line 15 hardcodes app.secret_key = 'Harry Potter And The Deathly Hallows', a static low-entropy committed signing secret. Flask uses this key to sign session cookies; a known key permits forging the 'logged_in' session flag. app.debug = True at line 208 is also present. This is a source-level defect; whether the app is deployed publicly is a runtime unknown, not a necessary premise."
+          ],
+          "checked_premises": [
+            [
+              "secret_key assigned a literal string in source",
+              "Flask session signing depends on secret_key",
+              "debug=True set in __main__ block"
+            ]
+          ]
+        },
+        {
+          "gold_id": "damn-vulnerable-flask-app-010",
+          "root_reason": "Raw form password reaches User.__init__/String column and commit at app.py:61-63; filter_by plaintext comparison at 50 is corroboration, not SQL injection.",
+          "model_reasons": [
+            "User.password is a plain String column (line 24); register() persists request.form['password'] directly (line 61); login() queries filter_by(username=name, password=passw) comparing plaintext directly (line 50). No hashing or salting anywhere. Plaintext password storage/comparison is demonstrable in source; external DB encryption is a separate modifier."
+          ],
+          "checked_premises": [
+            [
+              "password column is plain String",
+              "register stores raw form password",
+              "login compares raw password directly"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "project": "rv-dvna",
+      "stage_status": "completed",
+      "stage_error": null,
+      "wall_seconds": 59.80889341700822,
+      "usage": {
+        "calls": 11,
+        "input_tokens": 69661,
+        "output_tokens": 12011
+      },
+      "candidate_count": 43,
+      "reviewed_candidates": 43,
+      "unreviewed_candidates": 0,
+      "coverage": "completed",
+      "schedule": {
+        "candidate_count": 43,
+        "scheduled_candidates": 43,
+        "batch_limit": 24,
+        "scheduled_batches": 11,
+        "remaining_reason": "explicit batch/call/time budgets; unprocessed candidates are unknown"
+      },
+      "verdict_counts": {
+        "supported": 15,
+        "excluded": 0,
+        "insufficient": 28,
+        "pending": 0
+      },
+      "supported_positive_roots": [
+        "dvna-001",
+        "dvna-002",
+        "dvna-004",
+        "dvna-005",
+        "dvna-006",
+        "dvna-007",
+        "dvna-008",
+        "dvna-013",
+        "dvna-014"
+      ],
+      "additional_supported_roots": [
+        "dvna-007",
+        "dvna-008"
+      ],
+      "supported_false_traps": [],
+      "excluded_positive_roots": [],
+      "excluded_false_traps": [],
+      "unmapped_recommendations": [
+        {
+          "id": "05beeeaf-08ec-4e8b-b4cd-c157d3590e2d",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "20dfbc67-a691-42a5-a377-f47db9a60b7e",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "41f8215b-3b84-4c36-b1f8-e9eb7210ce19",
+          "recommendation": "supported"
+        },
+        {
+          "id": "8c814a7c-3b95-4229-bad7-51b2f78839d1",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "d3e52ee8-7531-48cf-9c11-2a763b5ba057",
+          "recommendation": "supported"
+        },
+        {
+          "id": "86bbf3d7-9f0b-48f2-ba3b-1a8812faca29",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "e7f3f161-b96c-40c1-a0d2-688e316977ad",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "555594cc-df9e-4874-af25-776cd21ffcdf",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "e3771378-a529-4bb3-a321-63076e245881",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "6aae4e7a-de2c-4af9-a0bf-8c1de5e943d7",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "aee56845-c0cb-40d2-85db-29e243efc792",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "66b92276-4aad-4182-a6d1-b4170af4f751",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "5f24078d-4a4e-4dac-9bdb-d0be1b6350b4",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "2e87aae3-b11c-4bcb-911c-7ac06be6320b",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "92b6debf-e07f-4a29-a154-aad70ac7ab2f",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "1063cabb-3f34-4889-a148-74e99f45e1d1",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "9cd2c3be-5a2c-4814-aab6-17eef99b6488",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "77a0ebae-9863-451c-864e-d1b768eb1905",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "7e559545-4397-4810-adfe-697751b4cb16",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "345a20b2-d9d2-47b1-ad93-c677a17399b5",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "78f1e805-9d80-4fa3-b5d5-aaf74b08d249",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "85abfa57-8389-47e5-bfde-1cbe3f028696",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "4be89745-540c-4d4d-9ec7-686fe271a8c4",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "a28285b1-7fc7-4687-97fb-8fb2a5024fa4",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "cb432fef-e0ae-4dd6-8aaa-80a0ef62d1b8",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "4b8923aa-1992-4f76-8c3e-6e68e523df73",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "254a3eff-1206-4d45-94ea-bed5d970371c",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "078b8739-64fa-49eb-91d6-fe50a3af281e",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "61e279fe-bd65-4a90-84db-78857b414fb5",
+          "recommendation": "insufficient"
+        },
+        {
+          "id": "0b88f995-b0fb-4387-8c76-c95b9a34c1ac",
+          "recommendation": "insufficient"
+        }
+      ],
+      "incomplete_batches": [],
+      "adjudication": "same old provisional root associations; not human gold or exploit validation",
+      "policy": {
+        "model": "deepseek-v4.1-flash",
+        "max_calls": 12,
+        "max_tokens": 100000,
+        "max_seconds": 240
+      },
+      "output_token_cap": 6000,
+      "additional_root_details": [
+        {
+          "gold_id": "dvna-007",
+          "root_reason": "forgotPw returns distinct flash messages and redirect destinations for user exists versus absent at authHandler:26-32; route/main:63 is public.",
+          "model_reasons": [
+            "authHandler.js forgotPw (lines 16-38) returns 'Check email for reset link' when the user exists and 'Invalid login username' when not, and resetPw similarly distinguishes 'Invalid reset token' from 'Invalid login username'. These distinct responses form a user-enumeration oracle at the source level."
+          ],
+          "checked_premises": [
+            [
+              "forgotPw branches on user existence with distinct flash messages",
+              "resetPw also distinguishes token-invalid from user-invalid",
+              "responses are observable to the requester"
+            ]
+          ]
+        },
+        {
+          "gold_id": "dvna-008",
+          "root_reason": "resetPw and resetPwSubmit accept md5(login) at authHandler:49/78 as reset token; routes/main:49/65 expose both without authentication middleware. Two hypotheses share one predictable-token root.",
+          "model_reasons": [
+            "authHandler.js resetPw (line 55) and resetPwSubmit (line 84) gate the reset on req.query.token/req.body.token == md5(req.query.login)/md5(req.body.login). The token is a deterministic, unsalted function of the login value, which is a public/guessable identifier, so anyone knowing a victim's login can compute the expected token. This is a source-level predictable-token defect; no external premise is required.",
+            "resetPwSubmit (lines 84-100) accepts login/token/password from req.body, looks up the user, and if req.body.token == md5(req.body.login) directly sets user.password and saves. There is no token issuance record, expiry, session binding, or ownership proof; the only gate is the predictable md5(login) comparison, allowing account takeover by anyone who knows the login."
+          ],
+          "checked_premises": [
+            [
+              "Token compared to md5(login) at lines 55 and 84",
+              "login is user-supplied request input (query/body)",
+              "No random/secret component in token derivation",
+              "md5 imported and used directly"
+            ],
+            [
+              "Password change occurs on token==md5(login) match",
+              "No expiry or issuance tracking present",
+              "No session/ownership binding in the handler",
+              "Token derived solely from request-supplied login"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "scout": [
+    {
+      "project": "rv-flask",
+      "stage_id": "bff4341b-27f3-4442-ae63-b47faa4d8e12",
+      "status": "completed",
+      "usage": {
+        "calls": 7,
+        "input_tokens": 30847,
+        "output_tokens": 4706
+      },
+      "candidate_count": 11,
+      "wall_seconds": 30.600993999978527,
+      "coverage": {
+        "status": "completed",
+        "planned_windows": 4,
+        "inspected_windows": 4,
+        "uninspected_windows": 0,
+        "files": [
+          {
+            "file": "realvuln-Damn-Vulnerable-Flask-Application-55f63201c85190e760a8fa34a580a9bf918dbf36/app.py",
+            "module": "realvuln-Damn-Vulnerable-Flask-Application-55f63201c85190e760a8fa34a580a9bf918dbf36",
+            "total_windows": 3,
+            "inspected_windows": 3
+          },
+          {
+            "file": "realvuln-Damn-Vulnerable-Flask-Application-55f63201c85190e760a8fa34a580a9bf918dbf36/bin/activate_this.py",
+            "module": "realvuln-Damn-Vulnerable-Flask-Application-55f63201c85190e760a8fa34a580a9bf918dbf36/bin",
+            "total_windows": 1,
+            "inspected_windows": 1
+          }
+        ],
+        "skipped": [],
+        "stop_reason": null,
+        "map_artifact": "scout-map.json",
+        "meaning": "Inspected windows are not verified safe business flows"
+      }
+    },
+    {
+      "project": "rv-dvna",
+      "stage_id": "262e3449-33a5-4783-a3df-5741e5b5901f",
+      "status": "completed",
+      "usage": {
+        "calls": 12,
+        "input_tokens": 40264,
+        "output_tokens": 5594
+      },
+      "candidate_count": 6,
+      "wall_seconds": 40.19932362501277,
+      "coverage": {
+        "status": "partial",
+        "planned_windows": 18,
+        "inspected_windows": 5,
+        "uninspected_windows": 13,
+        "files": [
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/config/db.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/config",
+            "total_windows": 1,
+            "inspected_windows": 1
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/config/server.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/config",
+            "total_windows": 1,
+            "inspected_windows": 1
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/config/vulns.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/config",
+            "total_windows": 1,
+            "inspected_windows": 0
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/core/appHandler.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/core",
+            "total_windows": 3,
+            "inspected_windows": 1
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/core/authHandler.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/core",
+            "total_windows": 2,
+            "inspected_windows": 0
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/core/passport.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/core",
+            "total_windows": 1,
+            "inspected_windows": 0
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/models/index.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/models",
+            "total_windows": 1,
+            "inspected_windows": 1
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/models/product.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/models",
+            "total_windows": 1,
+            "inspected_windows": 0
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/models/user.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/models",
+            "total_windows": 1,
+            "inspected_windows": 0
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public/assets/jquery-3.2.1.min.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public",
+            "total_windows": 1,
+            "inspected_windows": 1
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public/assets/showdown.min.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public",
+            "total_windows": 2,
+            "inspected_windows": 0
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/routes/app.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/routes",
+            "total_windows": 1,
+            "inspected_windows": 0
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/routes/main.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/routes",
+            "total_windows": 1,
+            "inspected_windows": 0
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/server.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a",
+            "total_windows": 1,
+            "inspected_windows": 0
+          }
+        ],
+        "skipped": [
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public/assets/jquery-3.2.1.min.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public",
+            "start_line": 2,
+            "end_line": 2,
+            "reason": "oversized_source_line"
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public/assets/jquery-3.2.1.min.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public",
+            "start_line": 3,
+            "end_line": 3,
+            "reason": "oversized_source_line"
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public/assets/jquery-3.2.1.min.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public",
+            "start_line": 4,
+            "end_line": 4,
+            "reason": "oversized_source_line"
+          },
+          {
+            "file": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public/assets/showdown.min.js",
+            "module": "realvuln-dvna-9ba473add536f66ac9007966acb2a775dd31277a/public",
+            "start_line": 3,
+            "end_line": 3,
+            "reason": "oversized_source_line"
+          }
+        ],
+        "stop_reason": "budget_exhausted",
+        "map_artifact": "scout-map.json",
+        "meaning": "Inspected windows are not verified safe business flows"
+      }
+    }
+  ],
+  "integrity": {
+    "input_checks": [
+      {
+        "project": "rv-flask",
+        "snapshot_matches": true
+      },
+      {
+        "project": "rv-dvna",
+        "snapshot_matches": true
+      }
+    ],
+    "frozen_implementation_unchanged": true,
+    "ordinary_regression_tests": 50,
+    "ruff": "passed"
+  },
+  "known_additional_supported_roots": 4,
+  "formal_benchmark": false,
+  "human_confirmed": false,
+  "expanded_budget_experiment_used": false,
+  "all_remediation_attempts_usage": [
+    {
+      "run_id": "20261005-v1",
+      "calls": 44,
+      "input_tokens": 316994,
+      "output_tokens": 27962
+    },
+    {
+      "run_id": "20261005-v2",
+      "calls": 34,
+      "input_tokens": 173989,
+      "output_tokens": 27387
+    }
+  ]
+}
