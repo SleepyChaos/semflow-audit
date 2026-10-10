@@ -1,4 +1,4 @@
-"""Exercise the real authenticated API and CodeQL worker using a known vulnerable sample."""
+"""Exercise the real local API and CodeQL worker using a known vulnerable sample."""
 
 import argparse
 import json
@@ -7,7 +7,6 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import httpx
-from dotenv import dotenv_values
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--language", choices=["python", "javascript"], default="python")
@@ -16,17 +15,7 @@ fixture = "vulnerable" if language == "python" else "vulnerable-js"
 expected_rule = "py/code-injection" if language == "python" else "js/code-injection"
 
 root = Path(__file__).resolve().parents[1]
-environment = dotenv_values(root / ".env")
 client = httpx.Client(base_url="http://127.0.0.1:8000", timeout=30)
-login = client.post(
-    "/api/v1/login/access-token",
-    data={
-        "username": environment["FIRST_SUPERUSER"],
-        "password": environment["FIRST_SUPERUSER_PASSWORD"],
-    },
-)
-login.raise_for_status()
-client.headers["Authorization"] = "Bearer " + login.json()["access_token"]
 archive = root / f"artifacts/verification-{language}.zip"
 with ZipFile(archive, "w") as bundle:
     for file in (root / "tests/fixtures" / fixture).iterdir():
@@ -73,7 +62,7 @@ source = client.get(
 source.raise_for_status()
 assert any("eval(" in line for line in source.json()["lines"])
 assert client.get(f"/api/v1/audits/{identifier}/sarif").status_code == 200
-assert httpx.get(f"http://127.0.0.1:8000/api/v1/audits/{identifier}").status_code == 401
+assert httpx.get(f"http://127.0.0.1:8000/api/v1/audits/{identifier}").status_code == 200
 print(
     json.dumps(
         {

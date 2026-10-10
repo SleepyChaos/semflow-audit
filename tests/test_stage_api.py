@@ -1,12 +1,15 @@
 from datetime import timedelta
-from uuid import UUID, uuid4
-from sqlmodel import Session, delete
+from uuid import uuid4
+
+from app.api.deps import get_workspace
 from app.core.db import engine
-from app.core.security import create_access_token
 from app.jobs.stages import execute_stage
+from app.main import app
 from app.models import User
 from app.persistence.stage_models import StageRun
 from app.persistence.stage_repository import StageRepository
+from app.persistence.workspace import Workspace
+from sqlmodel import Session, delete
 
 
 def test_stage_dispatch_failure_and_independent_retry(pipeline_context, monkeypatch):
@@ -29,7 +32,7 @@ def test_stage_dispatch_failure_and_independent_retry(pipeline_context, monkeypa
     assert StageRepository().claim(retry["id"]) is False
 
 
-def test_owned_stage_evidence_and_report_access(pipeline_context):
+def test_workspace_stage_evidence_and_report_access(pipeline_context, monkeypatch):
     ctx = pipeline_context
     api = ctx["client"]
     with Session(engine) as session:
@@ -45,9 +48,8 @@ def test_owned_stage_evidence_and_report_access(pipeline_context):
         session.commit()
         session.refresh(other)
         other_id = other.id
-    own_header = api.headers["Authorization"]
-    api.headers["Authorization"] = "Bearer " + create_access_token(
-        other_id, timedelta(minutes=5)
+    monkeypatch.setitem(
+        app.dependency_overrides, get_workspace, lambda: Workspace(other_id)
     )
     for endpoint in [
         f"/stages/{stage_id}",
@@ -58,7 +60,9 @@ def test_owned_stage_evidence_and_report_access(pipeline_context):
         f"/audits/{ctx['run_id']}/repairs",
     ]:
         assert api.get("/api/v1" + endpoint).status_code == 404
-    api.headers["Authorization"] = own_header
+    monkeypatch.setitem(
+        app.dependency_overrides, get_workspace, lambda: Workspace(ctx["owner"])
+    )
     with Session(engine) as session:
         session.exec(delete(User).where(User.id == other_id))
         session.commit()

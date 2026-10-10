@@ -4,16 +4,16 @@ from uuid import uuid4
 from zipfile import ZipFile
 
 import pytest
-from fastapi.testclient import TestClient
-from sqlmodel import Session, delete
-
-from app.core.db import engine
-from app.core.security import create_access_token
+from app.api.deps import get_workspace
+from app.api.routes.audits import execute_scan
 from app.core.audit_config import audit_settings
+from app.core.db import engine
 from app.main import app
 from app.models import User
 from app.persistence.audit_models import AuditRun
-from app.api.routes.audits import execute_scan
+from app.persistence.workspace import Workspace
+from fastapi.testclient import TestClient
+from sqlmodel import Session, delete
 
 
 @pytest.fixture
@@ -29,9 +29,10 @@ def client(monkeypatch, tmp_path):
             )
         )
         session.commit()
-    token = create_access_token(identifier, timedelta(minutes=5))
     with TestClient(app) as test_client:
-        test_client.headers["Authorization"] = "Bearer " + token
+        monkeypatch.setitem(
+            app.dependency_overrides, get_workspace, lambda: Workspace(identifier)
+        )
         yield test_client, identifier
     with Session(engine) as session:
         session.exec(delete(AuditRun).where(AuditRun.owner_id == identifier))
@@ -54,8 +55,8 @@ def upload(client):
     )
 
 
-def test_upload_dispatch_and_owner_isolation(client, monkeypatch):
-    api, owner = client
+def test_upload_dispatch_and_workspace_isolation(client, monkeypatch):
+    api, _ = client
     dispatched = []
     monkeypatch.setattr(
         execute_scan, "delay", lambda identifier: dispatched.append(identifier)
@@ -82,8 +83,8 @@ def test_upload_dispatch_and_owner_isolation(client, monkeypatch):
             User(id=other, email=f"{other}@example.com", hashed_password="test-only")
         )
         session.commit()
-    api.headers["Authorization"] = "Bearer " + create_access_token(
-        other, timedelta(minutes=5)
+    monkeypatch.setitem(
+        app.dependency_overrides, get_workspace, lambda: Workspace(other)
     )
     assert api.get(f"/api/v1/audits/{identifier}").status_code == 404
     assert api.get(f"/api/v1/audits/{identifier}/logs").status_code == 404
@@ -126,8 +127,8 @@ def test_malformed_archive_does_not_create_a_run(client):
 def test_cancel_prevents_claim_and_completion_and_retry_is_independent(
     client, monkeypatch
 ):
-    from app.persistence.audit_repository import AuditRepository
     from app.domain.audit import AuditCancelled
+    from app.persistence.audit_repository import AuditRepository
 
     api, _ = client
     monkeypatch.setattr(execute_scan, "delay", lambda _: None)
@@ -151,6 +152,7 @@ def test_recover_rejects_recent_execution_and_stops_stale_execution(
 ):
     from datetime import UTC, datetime
     from uuid import UUID
+
     from app.persistence.audit_repository import AuditRepository
 
     api, _ = client

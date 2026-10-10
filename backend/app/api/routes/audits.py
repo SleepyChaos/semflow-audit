@@ -11,7 +11,7 @@ from sqlmodel import select
 
 from app.adapters.artifacts import ArtifactStore
 from app.adapters.codeql.scanner import CodeQLScanner
-from app.api.deps import CurrentUser, SessionDep
+from app.api.deps import LocalWorkspace, SessionDep
 from app.contracts.audit import AuditPublic
 from app.core.audit_config import audit_settings
 from app.domain.audit import AuditError
@@ -22,9 +22,11 @@ from app.services.uploads import create_run
 router = APIRouter(prefix="/audits", tags=["audits"])
 
 
-def owned_run(identifier: UUID, session: SessionDep, user: CurrentUser) -> AuditRun:
+def owned_run(
+    identifier: UUID, session: SessionDep, workspace: LocalWorkspace
+) -> AuditRun:
     run = session.get(AuditRun, identifier)
-    if run is None or run.owner_id != user.id:
+    if run is None or run.owner_id != workspace.id:
         raise HTTPException(404, "审计任务不存在")
     return run
 
@@ -39,7 +41,7 @@ def dispatch(run: AuditRun, session: SessionDep) -> None:
 
 
 @router.get("/environment")
-def environment(_user: CurrentUser) -> dict:
+def environment(_workspace: LocalWorkspace) -> dict:
     try:
         version, error = CodeQLScanner().version(), None
     except AuditError as exc:
@@ -74,11 +76,11 @@ def environment(_user: CurrentUser) -> dict:
 
 @router.get("/", response_model=list[AuditPublic])
 def list_runs(
-    session: SessionDep, user: CurrentUser, limit: int = Query(30, ge=1, le=100)
+    session: SessionDep, workspace: LocalWorkspace, limit: int = Query(30, ge=1, le=100)
 ):
     return session.exec(
         select(AuditRun)
-        .where(AuditRun.owner_id == user.id)
+        .where(AuditRun.owner_id == workspace.id)
         .order_by(AuditRun.created_at.desc())
         .limit(limit)
     ).all()
@@ -87,7 +89,7 @@ def list_runs(
 @router.post("/", response_model=AuditPublic, status_code=201)
 async def upload_run(
     session: SessionDep,
-    user: CurrentUser,
+    workspace: LocalWorkspace,
     file: Annotated[UploadFile, File()],
     language: Annotated[Literal["python", "javascript"], Form()],
     project_name: Annotated[str, Form(max_length=120)] = "",
@@ -102,7 +104,7 @@ async def upload_run(
 
     try:
         for rule_id in selected_rules:
-            owned_published_rule(UUID(rule_id), user.id, language)
+            owned_published_rule(UUID(rule_id), workspace.id, language)
     except (ValueError, AuditError) as exc:
         raise HTTPException(422, str(exc))
     name = project_name.strip() or Path(file.filename or "project.zip").stem[:120]
@@ -119,7 +121,7 @@ async def upload_run(
         try:
             run = create_run(
                 session,
-                user.id,
+                workspace.id,
                 archive,
                 name,
                 language,
@@ -133,19 +135,19 @@ async def upload_run(
 
 
 @router.get("/{identifier}", response_model=AuditPublic)
-def detail(identifier: UUID, session: SessionDep, user: CurrentUser):
-    return owned_run(identifier, session, user)
+def detail(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    return owned_run(identifier, session, workspace)
 
 
 @router.post("/{identifier}/retry", response_model=AuditPublic, status_code=201)
-def retry(identifier: UUID, session: SessionDep, user: CurrentUser):
-    previous = owned_run(identifier, session, user)
+def retry(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    previous = owned_run(identifier, session, workspace)
     if previous.status not in {"failed", "cancelled"}:
         raise HTTPException(409, "仅失败或取消任务可创建重试执行")
     archive = ArtifactStore().directory(str(previous.source_run_id)) / "upload.zip"
     run = create_run(
         session,
-        user.id,
+        workspace.id,
         archive,
         previous.project_name,
         previous.language,
@@ -158,8 +160,8 @@ def retry(identifier: UUID, session: SessionDep, user: CurrentUser):
 
 
 @router.post("/{identifier}/cancel", response_model=AuditPublic)
-def cancel(identifier: UUID, session: SessionDep, user: CurrentUser):
-    owned_run(identifier, session, user)
+def cancel(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    owned_run(identifier, session, workspace)
     run = session.exec(
         select(AuditRun).where(AuditRun.id == identifier).with_for_update()
     ).one()
@@ -175,8 +177,8 @@ def cancel(identifier: UUID, session: SessionDep, user: CurrentUser):
 
 
 @router.post("/{identifier}/recover", response_model=AuditPublic)
-def recover(identifier: UUID, session: SessionDep, user: CurrentUser):
-    owned_run(identifier, session, user)
+def recover(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    owned_run(identifier, session, workspace)
     run = session.exec(
         select(AuditRun).where(AuditRun.id == identifier).with_for_update()
     ).one()
@@ -194,8 +196,8 @@ def recover(identifier: UUID, session: SessionDep, user: CurrentUser):
 
 
 @router.get("/{identifier}/logs")
-def logs(identifier: UUID, session: SessionDep, user: CurrentUser):
-    owned_run(identifier, session, user)
+def logs(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    owned_run(identifier, session, workspace)
     return {"text": ArtifactStore().log_tail(str(identifier))}
 
 
@@ -203,11 +205,11 @@ def logs(identifier: UUID, session: SessionDep, user: CurrentUser):
 def source(
     identifier: UUID,
     session: SessionDep,
-    user: CurrentUser,
+    workspace: LocalWorkspace,
     file: str,
     line: int = Query(1, ge=1),
 ):
-    run = owned_run(identifier, session, user)
+    run = owned_run(identifier, session, workspace)
     root = ArtifactStore().source(str(run.source_run_id)).resolve()
     target = (root / file).resolve()
     if not target.is_relative_to(root) or not target.is_file():
@@ -227,8 +229,8 @@ def source(
 
 
 @router.get("/{identifier}/sarif")
-def download_sarif(identifier: UUID, session: SessionDep, user: CurrentUser):
-    run = owned_run(identifier, session, user)
+def download_sarif(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    run = owned_run(identifier, session, workspace)
     path = ArtifactStore().directory(str(identifier)) / "results.sarif"
     if run.status != "completed" or not path.is_file():
         raise HTTPException(409, "该任务尚无成功完成的 SARIF")

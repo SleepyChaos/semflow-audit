@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from sqlmodel import select
 
 from app.adapters.artifacts import ArtifactStore
-from app.api.deps import CurrentUser, SessionDep
+from app.api.deps import LocalWorkspace, SessionDep
 from app.api.routes.audits import owned_run
 from app.contracts.stages import RepairAcceptance
 from app.domain.audit import AuditError
@@ -16,24 +16,24 @@ router = APIRouter(tags=["repairs", "reports"])
 
 
 @router.get("/audits/{audit_id}/repairs")
-def repairs(audit_id: UUID, session: SessionDep, user: CurrentUser):
-    owned_run(audit_id, session, user)
+def repairs(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
+    owned_run(audit_id, session, workspace)
     return session.exec(
         select(RepairRecord).where(RepairRecord.audit_id == audit_id)
     ).all()
 
 
-def owned_repair(identifier: UUID, session: SessionDep, user: CurrentUser):
+def owned_repair(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
     record = session.get(RepairRecord, identifier)
     if record is None:
         raise HTTPException(404, "修复记录不存在")
-    owned_run(record.audit_id, session, user)
+    owned_run(record.audit_id, session, workspace)
     return record
 
 
 @router.get("/repairs/{identifier}/diff")
-def diff(identifier: UUID, session: SessionDep, user: CurrentUser):
-    record = owned_repair(identifier, session, user)
+def diff(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    record = owned_repair(identifier, session, workspace)
     path = ArtifactStore().directory(str(record.stage_id)) / "repair.diff"
     if not path.is_file():
         raise HTTPException(409, "该修复尚未生成 Diff")
@@ -42,9 +42,12 @@ def diff(identifier: UUID, session: SessionDep, user: CurrentUser):
 
 @router.post("/repairs/{identifier}/accept")
 def accept(
-    identifier: UUID, body: RepairAcceptance, session: SessionDep, user: CurrentUser
+    identifier: UUID,
+    body: RepairAcceptance,
+    session: SessionDep,
+    workspace: LocalWorkspace,
 ):
-    record = owned_repair(identifier, session, user)
+    record = owned_repair(identifier, session, workspace)
     if record.status != "checks_passed":
         raise HTTPException(409, "请先完成所选测试和目标复扫；证据不足的补丁保持草稿")
     candidates = [
@@ -55,12 +58,12 @@ def accept(
     from app.services.repair_integrity import verify_acceptance
 
     try:
-        verify_acceptance(record, owned_run(record.audit_id, session, user))
+        verify_acceptance(record, owned_run(record.audit_id, session, workspace))
     except (AuditError, OSError, KeyError, ValueError) as exc:
         raise HTTPException(409, "补丁或验证产物失效，请重新验证") from exc
     record.status, record.accepted_by, record.acceptance_reason = (
         "accepted",
-        user.id,
+        workspace.id,
         body.reason,
     )
     session.add(record)
@@ -73,13 +76,13 @@ def accept(
 
 
 @router.get("/audits/{audit_id}/report")
-def report(audit_id: UUID, session: SessionDep, user: CurrentUser):
-    return build_report(session, owned_run(audit_id, session, user))
+def report(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
+    return build_report(session, owned_run(audit_id, session, workspace))
 
 
 @router.get("/audits/{audit_id}/report.md", response_class=PlainTextResponse)
-def report_markdown(audit_id: UUID, session: SessionDep, user: CurrentUser):
-    document = build_report(session, owned_run(audit_id, session, user))
+def report_markdown(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
+    document = build_report(session, owned_run(audit_id, session, workspace))
     return PlainTextResponse(
         markdown_report(document),
         headers={"Content-Disposition": f'attachment; filename="{audit_id}-report.md"'},

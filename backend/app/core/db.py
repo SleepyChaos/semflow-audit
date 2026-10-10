@@ -1,13 +1,12 @@
-from sqlmodel import Session, create_engine, select
+from sqlmodel import Session, create_engine
 
-from app import crud
 from app.core.config import settings
-from app.models import User, UserCreate
 from app.persistence import (  # noqa: F401
     audit_models,  # noqa: F401
     knowledge_models,
     stage_models,
 )
+from app.persistence.workspace import resolve_workspace
 
 engine = create_engine(str(settings.DATABASE_URL), pool_pre_ping=True)
 
@@ -26,13 +25,4 @@ def init_db(session: Session) -> None:
     # This works because the models are already imported and registered from app.models
     # SQLModel.metadata.create_all(engine)
 
-    user = session.exec(
-        select(User).where(User.email == settings.FIRST_SUPERUSER)
-    ).first()
-    if not user:
-        user_in = UserCreate(
-            email=settings.FIRST_SUPERUSER,
-            password=settings.FIRST_SUPERUSER_PASSWORD,
-            is_superuser=True,
-        )
-        user = crud.create_user(session=session, user_create=user_in)
+    resolve_workspace(session)

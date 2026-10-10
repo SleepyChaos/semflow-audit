@@ -1,11 +1,10 @@
-from datetime import timedelta
 from uuid import uuid4
 from zipfile import ZipFile
 
 import pytest
+from app.api.deps import get_workspace
 from app.core.audit_config import audit_settings
 from app.core.db import engine
-from app.core.security import create_access_token
 from app.main import app
 from app.models import User
 from app.persistence.audit_models import AuditRun
@@ -17,6 +16,7 @@ from app.persistence.stage_models import (
     RepairRecord,
     StageRun,
 )
+from app.persistence.workspace import Workspace
 from app.services.uploads import create_run
 from fastapi.testclient import TestClient
 from sqlmodel import Session, delete, select
@@ -66,8 +66,8 @@ def pipeline_context(monkeypatch, tmp_path, request):
         session.refresh(run)
         run_id = run.id
     with TestClient(app) as client:
-        client.headers["Authorization"] = "Bearer " + create_access_token(
-            user_id, timedelta(minutes=10)
+        monkeypatch.setitem(
+            app.dependency_overrides, get_workspace, lambda: Workspace(user_id)
         )
         yield {"client": client, "owner": user_id, "run_id": run_id, "root": tmp_path}
     with Session(engine) as session:

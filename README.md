@@ -5,6 +5,7 @@
 - [LLM 与 CodeQL 协同方案索引](docs/research/codeql-llm-proposals-index.md)
 - [CodeQL 分析中段介入 LLM 的详细设计](docs/research/codeql-intermediate-llm-design.md)
 - [工作区迁移说明](docs/workspace-migration.md)
+- [协作者本地环境与启动清单](docs/collaborator-setup.md)
 
 结合 CodeQL 静态分析、AI 取证复审、隔离修复验证与 RAG 规则生成的四阶段审计原型。当前支持 Python 与 JavaScript/TypeScript 的 CodeQL 扫描。
 
@@ -56,7 +57,7 @@ PYTHONPATH=backend .venv/bin/python scripts/curate_rule_corpus.py --validate --i
 npm run dev --prefix frontend -- --host 127.0.0.1
 ```
 
-打开 http://localhost:5173；随机管理员密码保存在 `.env`。初始化脚本不覆盖已有配置。macOS 沙箱若限制 SWC 缓存，可设置 `SWC_NATIVE_BINDING_CACHE` 到仓库 `artifacts/swc`。
+打开 http://localhost:5173，直接进入本地审计工作台，无需账号或登录。初始化脚本不覆盖已有配置。macOS 沙箱若限制 SWC 缓存，可设置 `SWC_NATIVE_BINDING_CACHE` 到仓库 `artifacts/swc`。
 
 ## 代码与 CLI 验证
 
@@ -68,7 +69,7 @@ npm run build --prefix frontend
 .venv/bin/python scripts/benchmarks/rag_retrieval.py
 ```
 
-普通测试需本地数据库已初始化。集成测试使用真实 CodeQL、Docker、PostgreSQL、LangGraph 检查点；模型回复为明确标注的测试替身，因此验证流程，不证明 LLM 准确率。测试只清理自己临时用户和线程记录。按照用户要求没有执行 GUI 测试。
+普通测试需本地数据库已初始化。集成测试使用真实 CodeQL、Docker、PostgreSQL、LangGraph 检查点；模型回复为明确标注的测试替身，因此验证流程，不证明 LLM 准确率。测试只清理自己临时用户和线程记录。前端无账号入口的浏览器验证可运行 `npm test --prefix frontend`；默认从空浏览器存储开始。
 
 ## 实际边界
 

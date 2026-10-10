@@ -5,7 +5,7 @@ from sqlmodel import select
 
 from app.adapters.retrieval.embedding_identity import embedding_identity
 from app.adapters.retrieval.knowledge import KnowledgeRetriever, import_knowledge
-from app.api.deps import CurrentUser, SessionDep
+from app.api.deps import LocalWorkspace, SessionDep
 from app.contracts.stages import KnowledgeRequest
 from app.core.audit_config import audit_settings
 from app.domain.audit import AuditError
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/knowledge", tags=["knowledge"])
 
 
 @router.get("/capabilities")
-def capabilities(_user: CurrentUser):
+def capabilities(_workspace: LocalWorkspace):
     return {
         "model_configured": bool(
             audit_settings.AI_MODEL and audit_settings.AI_BASE_URL
@@ -43,7 +43,7 @@ def capabilities(_user: CurrentUser):
 
 
 @router.post("/", status_code=201)
-def add(body: KnowledgeRequest, user: CurrentUser):
+def add(body: KnowledgeRequest, workspace: LocalWorkspace):
     metadata = {
         key: value
         for key, value in body.provenance.items()
@@ -53,7 +53,7 @@ def add(body: KnowledgeRequest, user: CurrentUser):
     }
     metadata["trust"] = "user_supplied"
     return import_knowledge(
-        user.id,
+        workspace.id,
         body.title,
         body.source,
         body.language,
@@ -64,11 +64,12 @@ def add(body: KnowledgeRequest, user: CurrentUser):
 
 
 @router.get("/")
-def documents(session: SessionDep, user: CurrentUser):
+def documents(session: SessionDep, workspace: LocalWorkspace):
     rows = session.exec(
         select(KnowledgeChunk)
         .where(
-            (KnowledgeChunk.owner_id == user.id) | (KnowledgeChunk.owner_id.is_(None))
+            (KnowledgeChunk.owner_id == workspace.id)
+            | (KnowledgeChunk.owner_id.is_(None))
         )
         .order_by(KnowledgeChunk.created_at.desc())
         .limit(1000)
@@ -107,7 +108,7 @@ def documents(session: SessionDep, user: CurrentUser):
 
 @router.get("/search")
 def search(
-    user: CurrentUser,
+    workspace: LocalWorkspace,
     query: str = Query(min_length=1, max_length=5000),
     language: str = "python",
     mode: str = "auto",
@@ -118,18 +119,23 @@ def search(
         raise HTTPException(422, "知识检索语言无效")
     try:
         return KnowledgeRetriever().retrieve(
-            user.id, language, query, mode=mode, api_version=api_version, corpus=corpus
+            workspace.id,
+            language,
+            query,
+            mode=mode,
+            api_version=api_version,
+            corpus=corpus,
         )
     except AuditError as exc:
         raise HTTPException(422, str(exc))
 
 
 @router.post("/{document_id}/index", status_code=202)
-def index(document_id: UUID, session: SessionDep, user: CurrentUser):
+def index(document_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     row = session.exec(
         select(KnowledgeChunk).where(
             KnowledgeChunk.document_id == document_id,
-            KnowledgeChunk.owner_id == user.id,
+            KnowledgeChunk.owner_id == workspace.id,
         )
     ).first()
     if not row:
@@ -137,7 +143,7 @@ def index(document_id: UUID, session: SessionDep, user: CurrentUser):
     if not audit_settings.EMBEDDING_MODEL:
         raise HTTPException(409, "未配置向量模型；当前仍支持实际 BM25 检索")
     try:
-        index_knowledge.delay(str(document_id), str(user.id))
+        index_knowledge.delay(str(document_id), str(workspace.id))
     except Exception:
         raise HTTPException(503, "向量索引队列不可用")
     return {"status": "queued"}

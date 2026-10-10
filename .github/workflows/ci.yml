@@ -14,10 +14,7 @@ jobs:
         options: --health-cmd "pg_isready -U audit" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       PROJECT_NAME: AI Code Audit
-      SECRET_KEY: ci-only-key-not-for-production-123456789
       DATABASE_URL: postgresql+psycopg://audit:ci-only-password@localhost:5432/audit
-      FIRST_SUPERUSER: admin@example.com
-      FIRST_SUPERUSER_PASSWORD: ci-only-admin-password
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6

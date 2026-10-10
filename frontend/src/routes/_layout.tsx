@@ -1,12 +1,7 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
-import { FileText, LogOut, Monitor, Terminal } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { isLoggedIn } from "@/hooks/useAuth"
+import { createFileRoute, Outlet } from "@tanstack/react-router"
+import { FileText, Monitor, Terminal } from "lucide-react"
 export const Route = createFileRoute("/_layout")({
   component: Layout,
-  beforeLoad: () => {
-    if (!isLoggedIn()) throw redirect({ to: "/login" })
-  },
 })
 function Layout() {
   return (
@@ -27,16 +22,6 @@ function Layout() {
             <Monitor size={19} />
             本地工作台
           </p>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              localStorage.removeItem("access_token")
-              window.location.assign("/login")
-            }}
-          >
-            <LogOut data-icon="inline-start" />
-            退出登录
-          </Button>
         </footer>
       </aside>
       <main className="audit-content">

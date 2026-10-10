@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./workbench.css";
+@import "./welcome.css";
 
 @custom-variant dark (&:is(.dark *));
 

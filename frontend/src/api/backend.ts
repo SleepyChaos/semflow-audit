@@ -1,15 +1,7 @@
 export async function apiFetch(path: string, options?: RequestInit) {
   const response = await fetch(`/api/v1${path}`, {
     ...options,
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("access_token") ?? ""}`,
-      ...options?.headers,
-    },
   })
-  if ([401, 403].includes(response.status)) {
-    localStorage.removeItem("access_token")
-    window.location.assign("/login")
-  }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}))
     throw new Error(
