@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { StageHistory } from "@/features/stages/StageHistory"
-import { CandidateCard } from "./CandidateCard"
+import { CandidateWorkspace } from "./CandidateWorkspace"
+import { ReviewControls } from "./ReviewControls"
 import { DiscoveryCoverage } from "./DiscoveryCoverage"
 export function ReviewPanel({
   run,
@@ -79,29 +80,9 @@ export function ReviewPanel({
   const ready =
     run.status === "completed" ||
     (run.status === "failed" && Boolean(run.coverage.dual_engine?.review_ready))
-  const byIdentity = new Map<
-    string,
-    NonNullable<typeof candidates.data>[number]
-  >()
-  for (const candidate of candidates.data ?? []) {
-    const key = candidate.identity_key || candidate.id
-    const previous = byIdentity.get(key)
-    if (
-      !previous ||
-      (previous.status === "pending" && candidate.status !== "pending") ||
-      previous.status === candidate.status
-    )
-      byIdentity.set(key, candidate)
-  }
   return (
     <section className="stage-section">
-      <DiscoveryCoverage run={run} stages={stages} />
-      <h3>统一复核与主动取证</h3>
-      <p>
-        汇合静态告警与独立粗筛候选，分批核查必要前提和反证。AI
-        判断是建议，确认和排除需要人工证据判断。
-      </p>
-      <div className="stage-form">
+      <ReviewControls disabled={!modelReady || !ready || busy} pending={start.isPending} onStart={() => start.mutate()} reason={!modelReady ? "模型服务尚未配置，请查看执行环境。" : !ready ? "等待扫描就绪后可启动复核。" : busy ? "当前阶段正在执行，请等待或取消。" : null}>      <div className="stage-form">
         <details>
           <summary>选择静态告警（未选择时复审范围内所有告警）</summary>
           {run.findings.map((item) => (
@@ -162,12 +143,6 @@ export function ReviewPanel({
           />
         </label>
         <Button
-          disabled={!modelReady || !ready || busy || start.isPending}
-          onClick={() => start.mutate()}
-        >
-          启动统一复核
-        </Button>
-        <Button
           variant="outline"
           disabled={!modelReady || !ready || busy || scout.isPending}
           onClick={() => scout.mutate()}
@@ -210,24 +185,18 @@ export function ReviewPanel({
           </Button>
         </div>
       </details>
+      </ReviewControls>
+      <DiscoveryCoverage run={run} stages={stages} />
       {candidates.error || evidence.error ? (
         <p role="alert">
           {candidates.error?.message ?? evidence.error?.message}
         </p>
       ) : null}
-      <p>
+      <p className="page-note">
         相同候选身份展示一张卡片，优先保留人工决定；不同假设仍分别展示。
         原始粗筛和历次复核记录保存在下方历史中。
       </p>
-      {[...byIdentity.values()].map((candidate) => (
-        <CandidateCard
-          key={`${candidate.id}:${candidate.status}`}
-          candidate={candidate}
-          evidence={evidence.data ?? []}
-          busy={busy}
-        />
-      ))}
-      <details>
+      {candidates.isPending || evidence.isPending ? <p role="status">正在读取候选与证据…</p> : !candidates.error && !evidence.error ? <CandidateWorkspace candidates={candidates.data ?? []} evidence={evidence.data ?? []} stages={stages} busy={busy} /> : <Button variant="outline" onClick={() => {candidates.refetch();evidence.refetch()}}>重新读取候选与证据</Button>}      <details>
         <summary>全部原始候选记录与复核历史（未删除或按根因合并）</summary>
         <pre className="source-code">
           {JSON.stringify(candidates.data ?? [], null, 2)}
