@@ -105,6 +105,17 @@ test("修复结束后立即读取最终验证结果", async ({ page }) => {
           changes: [],
           validation: {},
           status,
+          acceptance_ready: completed,
+          comparison: completed
+            ? {
+                status: "passed",
+                stage_id: "comparison-1",
+                receipt_hash: "receipt-1",
+                summary: "所列对比已通过",
+                cases: [],
+                repetitions: 2,
+              }
+            : { status: "missing" },
           acceptance_reason: null,
         },
       ],
@@ -113,7 +124,7 @@ test("修复结束后立即读取最终验证结果", async ({ page }) => {
   })
   await page.goto("/audits/task-1?stage=repair")
   await expect(
-    page.getByText("验证通过，待人工接受", { exact: true }),
+    page.getByText("前后对比通过，待人工接受", { exact: true }),
   ).toBeVisible({ timeout: 10000 })
   await expect(
     page.getByRole("button", { name: "接受此补丁", exact: true }),

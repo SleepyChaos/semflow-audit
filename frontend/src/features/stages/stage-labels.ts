@@ -18,6 +18,14 @@ export const statusLabels: Record<string, string> = {
   needs_review: "仍需复核",
 }
 export const phaseLabels: Record<string, string> = {
+  generate_verification_suite: "生成项目验收测试",
+  verification_suite_ready: "项目验收测试已准备",
+  verification_ready: "前后验证结果已记录",
+  verify_before_1: "首次运行原始代码",
+  verify_after_1: "首次运行补丁副本",
+  verify_before_2: "再次核对原始代码",
+  verify_after_2: "再次核对补丁副本",
+  patch_accepted: "补丁已人工接受",
   write_chinese_report: "AI 正在撰写中文分析",
   chinese_report_ready: "AI 中文报告已生成",
   queued: "等待后台任务",

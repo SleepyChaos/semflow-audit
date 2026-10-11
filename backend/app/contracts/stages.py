@@ -31,6 +31,7 @@ class RepairRequest(StrictModel):
     allowed_paths: list[str] = Field(default_factory=list, max_length=30)
     validation_profile: Literal["syntax", "python_pytest", "javascript_test"] = "syntax"
     rescan: bool = True
+    verification_suite_id: UUID | None = None
 
 
 class KnowledgeRequest(StrictModel):
@@ -66,6 +67,8 @@ class ProjectMatchConfirmation(StrictModel):
 
 
 class RepairAcceptance(StrictModel):
+    comparison_stage_id: UUID | None = None
+    test_reviewed: bool = False
     reason: str = Field(min_length=10, max_length=4000)
 
 

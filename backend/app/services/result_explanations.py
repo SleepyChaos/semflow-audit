@@ -98,7 +98,7 @@ def explain_candidate(candidate: dict, evidence: list[dict]) -> dict:
     }
 
 
-def explain_validation(validation: dict) -> list[dict]:
+def explain_validation(validation: dict, comparison: dict | None = None) -> list[dict]:
     rows = []
     environment = validation.get("environment") or {}
     if environment:
@@ -188,4 +188,28 @@ def explain_validation(validation: dict) -> list[dict]:
                 "next_step": "核对改动范围与业务预期。",
             }
         )
+    if comparison and comparison.get("status") != "missing":
+        status = {
+            "passed": "测试范围内通过",
+            "failed": "未通过",
+            "inconclusive": "证据不足",
+            "stale": "材料已变化，需重新验证",
+            "queued": "排队中",
+            "running": "正在执行",
+        }.get(comparison.get("status"), "执行受阻")
+        for row in rows:
+            if row["label"] == "漏洞验证":
+                row.update(
+                    status=status,
+                    description=comparison.get(
+                        "summary", "同一组测试的前后比较尚未完成"
+                    ),
+                    next_step="查看下方逐项前后对比，审阅测试断言、业务预期和补丁后再决定接受。",
+                )
+            if row["label"] == "功能测试" and comparison.get("status") == "passed":
+                row.update(
+                    status="已列用例前后均通过",
+                    description="前后对比已执行所列正常功能测试；没有覆盖的业务路径仍未知。",
+                    next_step="核对测试是否覆盖你需要保留的功能。",
+                )
     return rows

@@ -243,4 +243,8 @@ class RepairService:
                 "original_snapshot_unchanged": True,
             },
         )
+        if self.inputs.verification_suite_id:
+            from app.services.repair_comparison import enqueue_after_repair
+
+            enqueue_after_repair(state["repair_id"], self.inputs.verification_suite_id)
         return {"saved": True}

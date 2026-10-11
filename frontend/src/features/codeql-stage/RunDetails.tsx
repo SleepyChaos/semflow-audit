@@ -201,8 +201,14 @@ export function RunDetails({
         <TabsContent value="repair">
           <RepairPanel
             run={run}
-            stages={(stages.data ?? []).filter(
-              (item) => item.kind === "repair" || item.kind === "report",
+            stages={(stages.data ?? []).filter((item) =>
+              [
+                "repair",
+                "report",
+                "verification",
+                "verification_suite",
+                "verification_acceptance",
+              ].includes(item.kind),
             )}
             modelReady={Boolean(capabilities.data?.model_configured)}
           />

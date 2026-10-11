@@ -17,7 +17,10 @@ def policy_snapshot() -> dict:
             or audit_settings.AI_MAX_OUTPUT_TOKENS
             for purpose in ("review", "repair", "rule", "scout")
         }
-        | {"report": audit_settings.AI_MAX_OUTPUT_TOKENS},
+        | {
+            "report": audit_settings.AI_MAX_OUTPUT_TOKENS,
+            "verification_suite": audit_settings.AI_MAX_OUTPUT_TOKENS,
+        },
         "max_calls": audit_settings.AI_STAGE_MAX_CALLS,
         "max_tokens": audit_settings.AI_STAGE_MAX_TOKENS,
         "max_seconds": audit_settings.AI_STAGE_MAX_SECONDS,

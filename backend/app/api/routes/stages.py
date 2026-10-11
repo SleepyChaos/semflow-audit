@@ -55,10 +55,21 @@ def create_stage(
     run = session.exec(
         select(AuditRun).where(AuditRun.id == audit_id).with_for_update()
     ).one()
-    if kind not in {"review", "repair", "rule", "scout", "report"}:
+    if kind not in {
+        "review",
+        "repair",
+        "rule",
+        "scout",
+        "report",
+        "verification_suite",
+        "verification",
+    }:
         raise HTTPException(409, "此记录不支持后台重跑")
     ready = (
-        (kind == "report" and run.status == "failed")
+        (
+            kind in {"report", "verification_suite", "verification"}
+            and run.status == "failed"
+        )
         or run.status == "completed"
         or (
             run.status == "failed"
@@ -77,6 +88,20 @@ def create_stage(
     ).first()
     if active:
         raise HTTPException(409, "该阶段已有正在执行的任务")
+    if kind == "verification":
+        from app.persistence.stage_models import RepairRecord
+        from app.services.repair_comparison import comparison_materials
+
+        record = session.get(RepairRecord, UUID(inputs["repair_id"]))
+        if record is None or record.audit_id != audit_id:
+            raise HTTPException(404, "修复不存在")
+        try:
+            inputs = {
+                **inputs,
+                "identity": comparison_materials(record, inputs["suite_id"])[0],
+            }
+        except (AuditError, OSError, ValueError, KeyError) as exc:
+            raise HTTPException(409, str(exc)) from exc
     if kind == "report":
         from app.services.report_generation import source_fingerprint
         from app.services.reports import build_report
@@ -91,7 +116,9 @@ def create_stage(
             "repair": "2",
             "rule": "8",
             "scout": "7",
-            "report": "1",
+            "report": "2",
+            "verification_suite": "1",
+            "verification": "1",
         }[kind],
     )
     session.add(stage)
@@ -147,6 +174,15 @@ def repair(
         row.status != "confirmed" for row in candidates
     ):
         raise HTTPException(409, "请选择本次审计中人工确认的缺陷")
+    if body.verification_suite_id:
+        from app.services.verification_suites import read_suite, target_ids
+
+        try:
+            suite = read_suite(body.verification_suite_id, audit_id)[1]
+            if not set(map(str, body.candidate_ids)).issubset(target_ids(suite)):
+                raise AuditError("测试集没有覆盖所选修复目标")
+        except (AuditError, OSError, ValueError, KeyError) as exc:
+            raise HTTPException(409, str(exc)) from exc
     return create_stage(
         audit_id, "repair", body.model_dump(mode="json"), session, workspace
     )

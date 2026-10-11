@@ -47,6 +47,7 @@ def report_source(report: dict, *, scrub: bool = True) -> dict:
         ],
         "decisions": report.get("decisions", []),
         "repairs": report.get("repairs", []),
+        "verification": report.get("verification", []),
         "rules": [
             {k: row.get(k) for k in ("id", "title", "status", "validation")}
             for row in report.get("rules", [])

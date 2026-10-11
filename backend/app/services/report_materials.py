@@ -86,12 +86,16 @@ def report_batches(source):
             "summary": source["summary"],
             "coverage": coverage_summary(source["coverage"]),
             "candidates": group,
+            "issue_evidence_binding": {
+                row["id"]: row.get("evidence_ids", []) for row in group
+            },
             "evidence": [
                 row for row in source["evidence"] if row["id"] in evidence_ids
             ],
             "decisions": latest_per_candidate(source["decisions"], ids),
             "assessments": latest_per_candidate(source.get("assessments", []), ids),
             "repairs": source["repairs"][-12:],
+            "verification": source.get("verification", []),
             "rules": source["rules"][-12:],
             "stages": source["stages"][-20:],
             "material_scope": "当前候选分批生成；历史记录和长文本可节选，不能将节选视作完整源码或完整验证。所有候选都会纳入最终报告。",

@@ -40,7 +40,13 @@ export function StageHistory({ stages }: { stages: StageRun[] }) {
         stages.map((item) => (
           <div key={item.id} className="stage-row">
             <Button variant="ghost" onClick={() => setSelected(item.id)}>
-              {item.kind === "report" ? "AI 报告 · " : ""}
+              {item.kind === "report"
+                ? "AI 报告 · "
+                : item.kind === "verification"
+                  ? "前后验证 · "
+                  : item.kind === "verification_suite"
+                    ? "验收测试 · "
+                    : ""}
               {new Date(item.created_at).toLocaleString()} ·{" "}
               {labelPhase(item.phase)}
             </Button>

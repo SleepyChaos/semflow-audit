@@ -27,10 +27,10 @@ def test_pinned_source_verification_rejects_modified_library(tmp_path):
     from corpus_expansion_sources import verify
 
     source = tmp_path / "Library.qll"
-    source.write_text("import python\n")
+    source.write_text("import python\n", newline="\n")
     tree = entry(source, "ql/lib/", tmp_path)
     assert verify(source, tmp_path, "ql/lib/", tree)[0] == "import python\n"
-    source.write_text("import javascript\n")
+    source.write_text("import javascript\n", newline="\n")
     with pytest.raises(ValueError, match="differs from pinned tree"):
         verify(source, tmp_path, "ql/lib/", tree)
 
@@ -41,17 +41,17 @@ def test_complete_example_keeps_transitive_relative_helpers(tmp_path):
     folder = tmp_path / "Security" / "CWE-Test"
     folder.mkdir(parents=True)
     query = folder / "Test.ql"
-    query.write_text("import First\nimport python\n")
+    query.write_text("import First\nimport python\n", newline="\n")
     first, second = folder / "First.qll", folder / "Second.qll"
-    first.write_text("private import Second\n")
-    second.write_text("import First\nimport python\n")
+    first.write_text("private import Second\n", newline="\n")
+    second.write_text("import First\nimport python\n", newline="\n")
     tree = {**entry(first, "ql/src/", tmp_path), **entry(second, "ql/src/", tmp_path)}
     modules = local_modules(query, tmp_path, tree)
     assert modules == {
         "Security/CWE-Test/First.qll": "private import Second\n",
         "Security/CWE-Test/Second.qll": "import First\nimport python\n",
     }
-    second.write_text("import java\n")
+    second.write_text("import java\n", newline="\n")
     with pytest.raises(ValueError, match="differs from pinned tree"):
         local_modules(query, tmp_path, tree)
 

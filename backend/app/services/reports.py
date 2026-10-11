@@ -62,6 +62,12 @@ def build_report(session: Session, audit: AuditRun) -> dict:
         status: sum(row.status == status for row in instances)
         for status in ["confirmed", "excluded", "pending", "insufficient"]
     }
+    from app.services.repair_comparison import comparison_state
+
+    verification = [
+        {"repair_id": str(row.id), "comparison": comparison_state(session, row)}
+        for row in repairs
+    ]
     report = {
         "schema_version": "2",
         "reader_guide": {
@@ -70,7 +76,17 @@ def build_report(session: Session, audit: AuditRun) -> dict:
                 for row in instances
             ],
             "repairs": [
-                {"repair_id": str(row.id), "checks": explain_validation(row.validation)}
+                {
+                    "repair_id": str(row.id),
+                    "checks": explain_validation(
+                        row.validation,
+                        next(
+                            item["comparison"]
+                            for item in verification
+                            if item["repair_id"] == str(row.id)
+                        ),
+                    ),
+                }
                 for row in repairs
             ],
         },
@@ -116,6 +132,7 @@ def build_report(session: Session, audit: AuditRun) -> dict:
         "evidence": dump(evidence),
         "repairs": dump(repairs),
         "rules": dump(rules),
+        "verification": verification,
         "coverage": audit.coverage,
         "limitations": [
             "未报告告警不代表安全",

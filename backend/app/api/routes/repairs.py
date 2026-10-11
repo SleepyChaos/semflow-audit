@@ -25,13 +25,20 @@ def repairs(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     rows = session.exec(
         select(RepairRecord).where(RepairRecord.audit_id == audit_id)
     ).all()
-    return [
-        {
-            **row.model_dump(mode="json"),
-            "validation_summary": explain_validation(row.validation),
-        }
-        for row in rows
-    ]
+    from app.services.repair_comparison import acceptance_ready, comparison_state
+
+    result = []
+    for row in rows:
+        comparison = comparison_state(session, row)
+        result.append(
+            {
+                **row.model_dump(mode="json"),
+                "comparison": comparison,
+                "acceptance_ready": acceptance_ready(row, comparison),
+                "validation_summary": explain_validation(row.validation, comparison),
+            }
+        )
+    return result
 
 
 def owned_repair(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
@@ -59,8 +66,20 @@ def accept(
     workspace: LocalWorkspace,
 ):
     record = owned_repair(identifier, session, workspace)
-    if record.status != "checks_passed":
-        raise HTTPException(409, "请先完成所选测试和目标复扫；证据不足的补丁保持草稿")
+    from app.services.repair_comparison import acceptance_ready, comparison_state
+
+    comparison = comparison_state(session, record)
+    if record.status == "accepted":
+        raise HTTPException(409, "该补丁已接受，验收记录保留")
+    if not acceptance_ready(record, comparison):
+        raise HTTPException(
+            409,
+            "请先完成漏洞复现、补丁后阻断、正常功能保持和所选检查；语法通过不能代替修复验收",
+        )
+    if not body.test_reviewed or str(body.comparison_stage_id) != comparison.get(
+        "stage_id"
+    ):
+        raise HTTPException(409, "请审阅当前测试断言、前后结果与补丁，再确认接受")
     candidates = [
         session.get(Candidate, UUID(identifier)) for identifier in record.candidate_ids
     ]
@@ -76,6 +95,26 @@ def accept(
         "accepted",
         workspace.id,
         body.reason,
+    )
+    from app.persistence.stage_models import StageRun
+
+    session.add(
+        StageRun(
+            audit_id=record.audit_id,
+            kind="verification_acceptance",
+            status="completed",
+            phase="patch_accepted",
+            result={
+                "repair_id": str(record.id),
+                "comparison_stage_id": comparison["stage_id"],
+                "receipt_hash": comparison["receipt_hash"],
+                "suite_hash": comparison["identity"]["suite_hash"],
+                "actor_id": str(workspace.id),
+                "reason": body.reason,
+                "test_reviewed": True,
+                "scope": comparison["meaning"],
+            },
+        )
     )
     session.add(record)
     session.commit()

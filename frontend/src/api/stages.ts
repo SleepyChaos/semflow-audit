@@ -1,5 +1,6 @@
 import { apiJson, downloadArtifact } from "./backend"
 import { attachDecisionTimes } from "./candidate-history"
+import type { RepairComparison } from "./verification"
 export interface StageRun {
   id: string
   audit_id: string
@@ -61,6 +62,8 @@ export interface Evidence {
   digest: string
 }
 export interface RepairRecord {
+  comparison?: RepairComparison
+  acceptance_ready?: boolean
   validation_summary?: ValidationCheck[]
   id: string
   stage_id: string
@@ -181,8 +184,17 @@ export const addEvidence = (auditId: string, file: string, line: number) =>
   )
 export const getRepairs = (auditId: string) =>
   apiJson<RepairRecord[]>(`/audits/${auditId}/repairs`)
-export const acceptRepair = (id: string, reason: string) =>
-  post(`/repairs/${id}/accept`, { reason })
+export const acceptRepair = (
+  id: string,
+  reason: string,
+  comparisonId?: string,
+  testReviewed = false,
+) =>
+  post(`/repairs/${id}/accept`, {
+    reason,
+    comparison_stage_id: comparisonId,
+    test_reviewed: testReviewed,
+  })
 export const getRules = (language?: string, published = false) =>
   apiJson<RuleVersion[]>(
     `/rules/?${new URLSearchParams({ ...(language ? { language } : {}), published: String(published) })}`,

@@ -4,13 +4,28 @@ import { toast } from "sonner"
 import { acceptRepair, downloadDiff, type RepairRecord } from "@/api/stages"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { labelStatus } from "@/features/stages/stage-labels"
+import { RepairComparison } from "./RepairComparison"
 import { ValidationSummary } from "./ValidationSummary"
-export function RepairCard({ record }: { record: RepairRecord }) {
+export function RepairCard({
+  record,
+  suiteId = "",
+  busy = false,
+}: {
+  record: RepairRecord
+  suiteId?: string
+  busy?: boolean
+}) {
   const [reason, setReason] = useState("")
+  const [reviewedStage, setReviewedStage] = useState("")
+  const proofId = `${record.comparison?.stage_id ?? ""}:${record.comparison?.receipt_hash ?? ""}`
+  const reviewed =
+    reviewedStage === proofId && Boolean(record.comparison?.stage_id)
   const cache = useQueryClient()
   const accept = useMutation({
-    mutationFn: () => acceptRepair(record.id, reason),
+    mutationFn: () =>
+      acceptRepair(record.id, reason, record.comparison?.stage_id, reviewed),
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
   })
@@ -19,8 +34,8 @@ export function RepairCard({ record }: { record: RepairRecord }) {
       <header>
         <h4>修复尝试 {record.id.slice(0, 8)}</h4>
         <Badge variant="outline">
-          {record.status === "checks_passed"
-            ? "验证通过，待人工接受"
+          {record.acceptance_ready && record.status !== "accepted"
+            ? "前后对比通过，待人工接受"
             : record.status === "accepted"
               ? "已人工接受"
               : labelStatus(record.status)}
@@ -37,6 +52,13 @@ export function RepairCard({ record }: { record: RepairRecord }) {
           原始验证结果保存在技术详情中；通过已有检查不代表全部业务和漏洞测试都已通过。
         </p>
       )}
+      <RepairComparison
+        id={record.id}
+        comparison={record.comparison}
+        suiteId={suiteId}
+        busy={busy}
+        accepted={record.status === "accepted"}
+      />
       {record.changes.map((change, index) => (
         <details key={`${change.file}:${index}`}>
           <summary>{change.file} · 查看具体改动</summary>
@@ -65,7 +87,7 @@ export function RepairCard({ record }: { record: RepairRecord }) {
       >
         下载 Diff
       </Button>
-      {record.status === "checks_passed" ? (
+      {record.acceptance_ready && record.status !== "accepted" ? (
         <div className="stage-form">
           <label>
             补丁审阅理由
@@ -75,8 +97,21 @@ export function RepairCard({ record }: { record: RepairRecord }) {
               onChange={(event) => setReason(event.target.value)}
             />
           </label>
+          <label className="stage-check" htmlFor={`review-tests-${record.id}`}>
+            <Checkbox
+              id={`review-tests-${record.id}`}
+              aria-label="已审阅测试断言和前后结果"
+              checked={reviewed}
+              onCheckedChange={(value) =>
+                setReviewedStage(value === true ? proofId : "")
+              }
+            />
+            <span>我已核对测试断言、前后结果和补丁，认可所列测试范围。</span>
+          </label>
           <Button
-            disabled={reason.length < 10 || accept.isPending}
+            disabled={
+              !reviewed || reason.length < 10 || accept.isPending || busy
+            }
             onClick={() => accept.mutate()}
           >
             接受此补丁

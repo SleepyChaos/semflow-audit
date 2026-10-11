@@ -22,6 +22,7 @@ import { uniqueCandidates } from "@/features/audit-task/task-summary"
 import { StageHistory } from "@/features/stages/StageHistory"
 import { AIReportPanel } from "./AIReportPanel"
 import { RepairCard } from "./RepairCard"
+import { VerificationSuitePanel } from "./VerificationSuitePanel"
 export function RepairPanel({
   run,
   stages,
@@ -34,7 +35,8 @@ export function RepairPanel({
   const [selected, setSelected] = useState<string[]>([]),
     [paths, setPaths] = useState(""),
     [profile, setProfile] = useState("syntax"),
-    [rescan, setRescan] = useState(true)
+    [rescan, setRescan] = useState(true),
+    [suiteId, setSuiteId] = useState("")
   const cache = useQueryClient(),
     busy = stages.some((item) => ["queued", "running"].includes(item.status))
   const candidates = useQuery({
@@ -61,6 +63,7 @@ export function RepairPanel({
           .filter(Boolean),
         validation_profile: profile,
         rescan,
+        ...(suiteId ? { verification_suite_id: suiteId } : {}),
       }),
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
@@ -127,6 +130,15 @@ export function RepairPanel({
             </Link>
           </div>
         )}
+        <VerificationSuitePanel
+          auditId={run.id}
+          targets={selectedConfirmed}
+          suiteId={suiteId}
+          onSelect={setSuiteId}
+          modelReady={modelReady}
+          busy={busy}
+          stages={stages}
+        />
         <label>
           允许修改的关联文件（每行一个；源码证据文件自动加入）
           <textarea
@@ -179,7 +191,12 @@ export function RepairPanel({
       ) : null}
       {repairs.error ? <p role="alert">{repairs.error.message}</p> : null}
       {repairs.data?.map((record) => (
-        <RepairCard key={record.id} record={record} />
+        <RepairCard
+          key={record.id}
+          record={record}
+          suiteId={suiteId}
+          busy={busy}
+        />
       ))}
       <StageHistory stages={stages} />
     </section>

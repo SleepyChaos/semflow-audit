@@ -21,7 +21,7 @@ class ReportIssue(StrictModel):
     impact: str = Field(min_length=10, max_length=1200)
     fix_suggestions: list[str] = Field(min_length=1, max_length=6)
     verification_suggestions: list[str] = Field(min_length=1, max_length=6)
-    evidence_ids: list[str] = Field(default_factory=list, max_length=20)
+    evidence_ids: list[str] = Field(max_length=20)
 
     @model_validator(mode="after")
     def chinese(self):

@@ -34,9 +34,19 @@ def execute_stage(stage_id: str, resume: bool = False) -> None:
     provider = None
     try:
         stage = repository.get(stage_id)
+        if stage.kind == "verification":
+            from app.services.repair_comparison import ComparisonService
+
+            ComparisonService(stage_id).run()
+            return
         provider = CompatibleModel()
         if hasattr(provider, "bind_stage"):
             provider.bind_stage(stage_id, stage.prompt_version)
+        if stage.kind == "verification_suite":
+            from app.services.verification_suites import SuiteService
+
+            SuiteService(stage_id, provider).run()
+            return
         services = {
             "review": (ReviewService, build_review_graph),
             "repair": (RepairService, build_repair_graph),
