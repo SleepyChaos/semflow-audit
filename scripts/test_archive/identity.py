@@ -123,8 +123,8 @@ def environment(root, *, inspect_images=True):
         ast.literal_eval(node)
         for node in ast.walk(stage_tree)
         if isinstance(node, ast.Dict)
-        and {k.value for k in node.keys if isinstance(k, ast.Constant)}
-        == {"review", "repair", "rule", "scout"}
+        and {"review", "repair", "rule", "scout"}
+        <= {k.value for k in node.keys if isinstance(k, ast.Constant)}
     )
     commands = {
         "git": ["git", "--version"],

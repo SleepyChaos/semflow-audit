@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test"
+import { mockAuditApi } from "./fixtures/audit-api"
 
 test("空浏览器直接进入工作台，刷新仍不需要登录", async ({ page }) => {
+  await mockAuditApi(page)
   const errors: string[] = []
   const requests: string[] = []
   const authHeaders: string[] = []

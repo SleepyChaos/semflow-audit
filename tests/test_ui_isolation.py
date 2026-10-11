@@ -23,12 +23,13 @@ class UiIsolationTests(unittest.TestCase):
             "CODEQL_BIN=D:/semflow-audit/.tools/codeql/codeql.exe\n"
             "ARTIFACT_ROOT=D:/semflow-audit/artifacts\n"
         )
-        result = module.build_local_config(original, ROOT, 15440, 16380)
+        independent_root = ROOT.parent / "semflow-audit-ui"
+        result = module.build_local_config(original, independent_root, 15440, 16380)
         self.assertIn("127.0.0.1:15440/audit", result)
         self.assertIn("REDIS_URL=redis://127.0.0.1:16380/0", result)
         self.assertIn("AI_API_KEY=test-provider-key", result)
         self.assertIn("FRONTEND_HOST=http://127.0.0.1:5174", result)
-        self.assertIn("ARTIFACT_ROOT=" + (ROOT / "artifacts").as_posix(), result)
+        self.assertIn("ARTIFACT_ROOT=" + (independent_root / "artifacts").as_posix(), result)
         self.assertNotIn("D:/semflow-audit/", result)
 
     def test_refuses_original_project_root(self):
