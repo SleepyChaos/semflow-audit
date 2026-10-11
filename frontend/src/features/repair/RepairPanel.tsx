@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
+import { uniqueCandidates } from "@/features/audit-task/task-summary"
 import { useState } from "react"
 import { toast } from "sonner"
 import type { AuditRun } from "@/api/audits"
@@ -45,13 +47,13 @@ export function RepairPanel({
     queryFn: () => getRepairs(run.id),
     refetchInterval: busy ? 3000 : false,
   })
-  const confirmed = (candidates.data ?? []).filter(
+  const confirmed = uniqueCandidates(candidates.data ?? []).filter(
     (item) => item.status === "confirmed",
   )
   const start = useMutation({
     mutationFn: () =>
       startStage(run.id, "repair", {
-        candidate_ids: selected,
+        candidate_ids: selected.filter(id => confirmed.some(item => item.id === id)),
         allowed_paths: paths
           .split("\n")
           .map((item) => item.trim())
@@ -62,9 +64,11 @@ export function RepairPanel({
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
   })
+  const selectedConfirmed=selected.filter(id=>confirmed.some(item=>item.id===id))
+  const blocked=candidates.isPending ? "正在读取候选，请稍候" : candidates.error ? "候选读取失败，无法选择修复目标" : !confirmed.length ? "先确认缺陷" : !selectedConfirmed.length ? "请勾选要修复的已确认缺陷" : !modelReady ? "模型服务尚未配置" : busy ? "当前修复阶段正在执行" : null
   return (
     <section className="stage-section">
-      <h3>修复 Diff 与报告</h3>
+      <h3>审计报告</h3>
       <div className="stage-row">
         <Button
           variant="outline"
@@ -88,7 +92,7 @@ export function RepairPanel({
         </Button>
       </div>
       <p>报告可在修复前导出。修复只针对已确认缺陷，在隔离副本应用并验证。</p>
-      <div className="stage-form">
+      <h3>隔离修复</h3><p className="page-note">已选择 {selectedConfirmed.length} 个已确认缺陷</p><div className="stage-form">
         {confirmed.length ? (
           confirmed.map((item) => (
             <label
@@ -111,7 +115,7 @@ export function RepairPanel({
             </label>
           ))
         ) : (
-          <p>暂无人工确认的缺陷。</p>
+          <div><p>先确认缺陷</p><p className="page-note">修复只针对人工确认的候选。请先核对源码和判断依据。</p><Link className="text-action" to="/audits/$auditId" params={{auditId:run.id}} search={{stage:"review"}}>前往 AI 复审</Link></div>
         )}
         <label>
           允许修改的关联文件（每行一个；源码证据文件自动加入）
@@ -142,13 +146,16 @@ export function RepairPanel({
           />
           执行 CodeQL 复扫
         </label>
+        {blocked && confirmed.length > 0 ? <p className="action-hint">{blocked}</p> : null}
         <Button
-          disabled={!modelReady || !selected.length || busy || start.isPending}
+          disabled={Boolean(blocked) || start.isPending}
           onClick={() => start.mutate()}
         >
           生成并验证修复 Diff
         </Button>
       </div>
+      {candidates.error ? <p role="alert">候选读取失败：{candidates.error.message}</p> : null}
+      {start.error ? <p role="alert">修复提交失败：{start.error.message}</p> : null}
       {repairs.error ? <p role="alert">{repairs.error.message}</p> : null}
       {repairs.data?.map((record) => (
         <RepairCard key={record.id} record={record} />
