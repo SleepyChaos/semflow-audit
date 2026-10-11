@@ -16,9 +16,18 @@ export function RepairCard({ record }: { record: RepairRecord }) {
     <article className="candidate-card">
       <header>
         <h4>修复尝试 {record.id.slice(0, 8)}</h4>
-        <Badge variant="outline">{record.status === "checks_passed" ? "验证通过，待人工接受" : record.status === "accepted" ? "已人工接受" : record.status}</Badge>
+        <Badge variant="outline">
+          {record.status === "checks_passed"
+            ? "验证通过，待人工接受"
+            : record.status === "accepted"
+              ? "已人工接受"
+              : record.status}
+        </Badge>
       </header>
-      <p className="page-note">Diff：{record.changes.length} 个修改 · 人工接受：{record.acceptance_reason ? "已记录" : "尚未接受"}</p>
+      <p className="page-note">
+        Diff：{record.changes.length} 个修改 · 人工接受：
+        {record.acceptance_reason ? "已记录" : "尚未接受"}
+      </p>
       {record.changes.map((change, index) => (
         <details key={`${change.file}:${index}`}>
           <summary>
@@ -35,7 +44,9 @@ export function RepairCard({ record }: { record: RepairRecord }) {
           {JSON.stringify(record.validation, null, 2)}
         </pre>
       </details>
-      {accept.error ? <p role="alert">接受失败：{accept.error.message}</p> : null}
+      {accept.error ? (
+        <p role="alert">接受失败：{accept.error.message}</p>
+      ) : null}
       <Button
         variant="outline"
         onClick={() =>

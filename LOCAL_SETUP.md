@@ -24,3 +24,7 @@ Python 虚拟环境、前端依赖、CodeQL工具/查询包、审计产物均在
 日志：artifacts/local/{api,worker,frontend}.{out,err}.log。
 启动失败先检查 Docker Desktop 和本目录日志，原版仍可在 5173 使用。
 RAG 所需官方知识使用 scripts/seed_ui_xss_knowledge.py 导入（准备好后可运行）；规则发布仍需真实编译、样本/独立测试、项目回扫和人工验收。
+新版界面、代码位置、演示顺序与实际 RAG 限制见 docs/UI_WORKBENCH_DELIVERY.md。
+官方资料初始化（只在独立副本运行）：
+  .\.venv\Scripts\python.exe scripts/seed_ui_xss_knowledge.py
+此脚本保留固定来源 SHA 与 compiler-only 检查，不代替独立规则验收。

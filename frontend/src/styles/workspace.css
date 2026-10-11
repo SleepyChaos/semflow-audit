@@ -1,0 +1,354 @@
+/* V2 shell */
+.audit-shell {
+  grid-template-columns: 224px minmax(0, 1fr);
+  background: #fcfcfb;
+  color: #232321;
+  min-height: 100vh;
+}
+.audit-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-height: 0;
+  padding: 24px 12px 16px;
+  background: #f4f3f0;
+  border-right: 1px solid #e5e4e0;
+  overflow: auto;
+  gap: 14px;
+}
+.audit-brand {
+  font:
+    650 18px / 1.4 system-ui,
+    sans-serif;
+  gap: 10px;
+  padding: 0 12px 16px;
+  color: #171715;
+}
+.audit-brand > span {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+.sidebar-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.nav-group + .nav-group {
+  border-top: 1px solid #e3e2df;
+  padding-top: 18px;
+}
+.nav-caption {
+  font-size: 11px;
+  color: #85847f;
+  letter-spacing: 0.08em;
+  margin: 0 12px 10px;
+}
+.audit-nav {
+  position: relative;
+  color: #55554f;
+  background: transparent;
+  padding: 11px 13px;
+  margin: 3px 0;
+  border-radius: 4px;
+  font-weight: 450;
+  gap: 12px;
+  font-size: 13px;
+}
+.audit-nav:hover {
+  background: #eae9e5;
+  color: #222;
+}
+.audit-nav[aria-current="page"] {
+  color: #b95123;
+  background: #f4e8dd;
+  font-weight: 600;
+}
+.audit-nav[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  background: #d66a38;
+  border-radius: 2px;
+}
+.sidebar-project {
+  display: grid;
+  gap: 5px;
+  margin: 8px 12px 16px;
+  min-width: 0;
+}
+.sidebar-project strong {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.sidebar-project span {
+  font-size: 11px;
+  color: #85847f;
+}
+.select-task-link {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 12px;
+  color: #77766f;
+  font-size: 12px;
+}
+.environment-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border-top: 1px solid #e3e2df;
+  padding: 16px 7px 0;
+  margin-top: auto;
+  color: #77766f;
+  font-size: 11px;
+  text-align: left;
+}
+.environment-trigger > svg {
+  margin-left: auto;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d66a38;
+  flex-shrink: 0;
+}
+.status-dot.ready {
+  background: #668365;
+}
+.workspace-body {
+  min-width: 0;
+}
+.workspace-toolbar {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  border-bottom: 1px solid #e8e7e3;
+  background: #fcfcfb;
+  gap: 16px;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #74746d;
+}
+.breadcrumb a {
+  color: #3b3c35;
+}
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.workspace-edition {
+  font-size: 11px;
+  color: #96958e;
+}
+.audit-content {
+  padding: 32px;
+  max-width: 1700px;
+  margin: auto;
+}
+.page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+.page-heading h1 {
+  font-size: 29px;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+  font-weight: 650;
+}
+.page-heading p {
+  color: #85847f;
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 7px;
+}
+.page-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 13px;
+  border-radius: 4px;
+  background: #272724;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 550;
+}
+.button-link.outline {
+  background: transparent;
+  color: #33332e;
+  border: 1px solid #d8d7d2;
+}
+.button-link:hover {
+  opacity: 0.85;
+}
+.muted-copy {
+  font-size: 12px;
+  color: #85847f;
+}
+.empty-state {
+  text-align: center;
+  padding: 65px 20px;
+  border: 1px dashed #deddd7;
+  border-radius: 4px;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+.empty-state h1,
+.empty-state h2 {
+  font-weight: 600;
+  font-size: 20px;
+}
+.empty-state p {
+  color: #85847f;
+  font-size: 13px;
+}
+.empty-state a {
+  color: #a85029;
+}
+.environment-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  font-size: 13px;
+}
+.environment-details dt {
+  color: #85847f;
+}
+.environment-details dd {
+  text-align: right;
+}
+.detail-panel {
+  padding: 20px;
+  border-radius: 4px;
+}
+.detail-heading h2 {
+  font-size: 14px;
+}
+.detail-heading p {
+  font-size: 11px;
+}
+.stage-section > h3 {
+  font-size: 17px;
+}
+@media (max-width: 1100px) {
+  .audit-shell {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .audit-content {
+    padding: 24px;
+  }
+  .workspace-toolbar {
+    padding: 0 24px;
+  }
+}
+@media (max-width: 700px) {
+  .audit-shell {
+    display: block;
+  }
+  .audit-sidebar {
+    position: relative;
+    height: auto;
+    padding: 16px;
+    display: block;
+  }
+  .audit-brand {
+    padding: 0 0 14px;
+  }
+  .sidebar-navigation {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .nav-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .nav-caption {
+    width: 100%;
+    margin: 0;
+  }
+  .nav-group + .nav-group {
+    padding-top: 12px;
+  }
+  .audit-nav {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .sidebar-project {
+    width: 100%;
+    margin: 0;
+  }
+  .environment-trigger {
+    margin-top: 16px;
+    width: 100%;
+  }
+  .audit-content {
+    padding: 20px 16px;
+  }
+  .workspace-toolbar {
+    padding: 12px 16px;
+    min-height: 0;
+  }
+  .workspace-edition {
+    display: none;
+  }
+  .page-heading {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .page-heading h1 {
+    font-size: 24px;
+  }
+}
+
+.audit-shell {
+  display: grid;
+}
+.audit-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+.audit-brand {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.audit-nav {
+  display: flex;
+  align-items: center;
+}
+@media (max-width: 700px) {
+  .audit-shell {
+    display: block;
+  }
+  .audit-sidebar {
+    display: block;
+  }
+}

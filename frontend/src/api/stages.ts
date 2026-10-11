@@ -79,6 +79,7 @@ export interface RuleVersion {
   }[]
 }
 export interface KnowledgeDocument {
+  provenance?: { api_version?: string; license?: string; trust?: string }
   document_id: string
   title: string
   source: string

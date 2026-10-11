@@ -15,8 +15,10 @@ test("空浏览器直接进入工作台，刷新仍不需要登录", async ({ pa
   await expect(
     page.getByRole("heading", { name: "审计总览", exact: true }),
   ).toBeVisible()
-  await page.getByRole("button", {name: /本地环境/}).click()
-  await expect(page.getByRole("heading", {name: "执行环境", exact:true})).toBeVisible()
+  await page.getByRole("button", { name: /本地环境/ }).click()
+  await expect(
+    page.getByRole("heading", { name: "执行环境", exact: true }),
+  ).toBeVisible()
   await page.keyboard.press("Escape")
   await expect(page.getByText("无法读取审计任务", { exact: true })).toHaveCount(
     0,
@@ -94,9 +96,9 @@ test("接口失败显示真实错误并保留当前工作台", async ({ page }) 
     }),
   )
   await page.goto("/")
-  await expect(page.getByRole("alert").filter({hasText:"本地接口测试错误"})).toBeVisible(
-    { timeout: 15000 },
-  )
+  await expect(
+    page.getByRole("alert").filter({ hasText: "本地接口测试错误" }),
+  ).toBeVisible({ timeout: 15000 })
   await expect(page).toHaveURL(/\/$/)
   await expect(
     page.getByRole("heading", { name: "审计总览", exact: true }),

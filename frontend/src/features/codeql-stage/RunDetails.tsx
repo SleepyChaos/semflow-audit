@@ -129,7 +129,6 @@ export function RunDetails({
         ) : null}
       </header>
       <Tabs value={activeStage} onValueChange={onStageChange}>
-        
         <TabsContent value="codeql">
           {run.error ? (
             <Alert variant="destructive">
