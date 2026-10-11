@@ -59,7 +59,10 @@ def test_original_database_needs_exact_target_source_archive(tmp_path):
         )
     )
     with ZipFile(database / "src.zip", "w") as source:
-        source.writestr(str(root / "a.py").lstrip("/"), "eval(input())\n")
+        member = (root / "a.py").as_posix().lstrip("/")
+        if root.drive.endswith(":"):
+            member = member[0] + "_" + member[2:]
+        source.writestr(member, (root / "a.py").read_bytes())
     assert verify_database(database, root, audit, ["a.py"])["files"]
     (root / "a.py").write_text("int(input())\n")
     with pytest.raises(AuditError, match="完整归档"):

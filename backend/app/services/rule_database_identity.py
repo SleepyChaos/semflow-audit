@@ -31,6 +31,9 @@ def verify_database(database, root, audit, files):
                 if not path.is_relative_to(root.resolve()) or not path.is_file():
                     raise AuditError("目标文件不在冻结项目中")
                 member = path.as_posix().lstrip("/")
+                # CodeQL archives Windows drive paths as D_/..., not D:/....
+                if path.drive.endswith(":"):
+                    member = member[0] + "_" + member[2:]
                 original = path.read_bytes()
                 if member not in source.namelist() or source.read(member) != original:
                     raise AuditError("目标源码未被原数据库完整归档，不能声称基线漏检")

@@ -6,13 +6,25 @@ from pathlib import Path
 from app.domain.audit import AuditError
 
 # Source extraction processes receive no service credentials.
-ENV_KEYS = {"PATH", "HOME", "TMPDIR", "LANG", "LC_ALL", "JAVA_HOME", "SYSTEMROOT"}
+ENV_KEYS = {
+    "PATH",
+    "HOME",
+    "TMPDIR",
+    "LANG",
+    "LC_ALL",
+    "JAVA_HOME",
+    "SYSTEMROOT",
+    "TEMP",
+    "TMP",
+}
 
 
 def run_command(
     args: list[str], log: Path, timeout: int, runtime_path: Path | None = None
 ) -> None:
-    environment = {key: value for key, value in os.environ.items() if key in ENV_KEYS}
+    environment = {
+        key: value for key, value in os.environ.items() if key.upper() in ENV_KEYS
+    }
     if runtime_path is not None:
         environment["PATH"] = (
             str(runtime_path) + os.pathsep + environment.get("PATH", "")

@@ -13,6 +13,11 @@ from app.workflows.scanning import build_scan_graph
 def archive(path, entries):
     with ZipFile(path, "w") as bundle:
         for name, content in entries:
+            if isinstance(name, str):
+                info = ZipInfo(name)
+                # Preserve intentionally malformed paths on Windows as well.
+                info.filename = name
+                name = info
             bundle.writestr(name, content)
 
 
