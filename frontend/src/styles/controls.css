@@ -1,0 +1,70 @@
+/* Clear selection controls for the light audit workspace. */
+.audit-shell [data-slot="checkbox"] {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 2px solid #77746d;
+  border-radius: 4px;
+  background: #fff;
+  color: #272724;
+  box-shadow: none;
+  transition:
+    background-color 120ms,
+    border-color 120ms;
+}
+.audit-shell [data-slot="checkbox"]:not(:disabled):hover {
+  border-color: #272724;
+}
+.audit-shell [data-slot="checkbox"][data-state="checked"],
+.audit-shell [data-slot="checkbox"][data-state="indeterminate"] {
+  border-color: #272724;
+  background: #272724;
+  color: #fff;
+}
+.audit-shell [data-slot="checkbox-indicator"] {
+  display: grid;
+  place-items: center;
+  color: inherit;
+}
+.audit-shell [data-slot="checkbox-indicator"] svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+}
+.audit-shell [data-slot="checkbox"]:focus-visible {
+  outline: 2px solid #b95123;
+  outline-offset: 3px;
+}
+.audit-shell [data-slot="checkbox"]:disabled {
+  border-color: #a6a299;
+  background: #eeede9;
+  opacity: 1;
+  cursor: not-allowed;
+}
+.audit-shell [data-slot="checkbox"]:disabled[data-state="checked"] {
+  background: #68675f;
+  border-color: #68675f;
+  color: #fff;
+}
+.audit-shell .stage-check:has([data-slot="checkbox"]) {
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #d8d5ce;
+  border-radius: 4px;
+  background: #f8f7f4;
+}
+.audit-shell .stage-check:has([data-slot="checkbox"]):hover {
+  border-color: #a6a299;
+  background: #f2f1ec;
+}
+.audit-shell .stage-check:has([data-state="checked"]) {
+  border-color: #a6a299;
+  background: #eeede8;
+}
+.audit-shell .stage-check:has([data-slot="checkbox"]:focus-visible) {
+  border-color: #b95123;
+}
