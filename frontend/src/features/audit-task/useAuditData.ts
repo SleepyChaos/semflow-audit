@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
-import { getRuns } from "@/api/audits"
+import { getRun, getRuns } from "@/api/audits"
 import { getCandidates, getCapabilities, getStages } from "@/api/stages"
+import { useDiscoveryRefresh } from "./useDiscoveryRefresh"
 export function useAudits() {
   return useQuery({
     queryKey: ["audits"],
@@ -14,9 +15,22 @@ export function useAudits() {
         : false,
   })
 }
+export function useAudit(auditId: string | null) {
+  return useQuery({
+    queryKey: ["audit", auditId],
+    queryFn: () => getRun(auditId!),
+    enabled: Boolean(auditId),
+    retry: 1,
+    refetchInterval: (query) =>
+      query.state.data &&
+      ["queued", "running"].includes(query.state.data.status)
+        ? 2500
+        : false,
+  })
+}
 export function useAuditData(auditId: string) {
-  const audits = useAudits()
-  const run = audits.data?.find((item) => item.id === auditId)
+  const audit = useAudit(auditId)
+  const run = audit.data
   const stages = useQuery({
     queryKey: ["stages", auditId],
     queryFn: () => getStages(auditId),
@@ -29,8 +43,16 @@ export function useAuditData(auditId: string) {
         ? 2500
         : false,
   })
+  useDiscoveryRefresh([
+    ...(run ? [{ key: `audit:${auditId}`, auditId, status: run.status }] : []),
+    ...(stages.data ?? []).map((stage) => ({
+      key: `stage:${stage.id}`,
+      auditId,
+      status: stage.status,
+    })),
+  ])
   const busy =
-    run?.status === "running" ||
+    ["queued", "running"].includes(run?.status ?? "") ||
     stages.data?.some((stage) => ["queued", "running"].includes(stage.status))
   const candidates = useQuery({
     queryKey: ["candidates", auditId],
@@ -45,5 +67,5 @@ export function useAuditData(auditId: string) {
     retry: 1,
     staleTime: 15000,
   })
-  return { run, audits, stages, candidates, capabilities }
+  return { run, audit, stages, candidates, capabilities }
 }

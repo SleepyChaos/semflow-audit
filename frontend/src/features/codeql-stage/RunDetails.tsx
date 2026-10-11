@@ -75,7 +75,11 @@ export function RunDetails({
   const control = useMutation({
     mutationFn: (action: "cancel" | "recover") =>
       action === "cancel" ? cancelRun(run.id) : recoverRun(run.id),
-    onSuccess: () => cache.invalidateQueries({ queryKey: ["audits"] }),
+    onSuccess: () =>
+      Promise.all([
+        cache.invalidateQueries({ queryKey: ["audits"] }),
+        cache.invalidateQueries({ queryKey: ["audit", run.id] }),
+      ]),
     onError: (error: Error) => toast.error(error.message),
   })
   const finding = run.findings.find((item) => item.id === findingId)

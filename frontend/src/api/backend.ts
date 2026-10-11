@@ -1,13 +1,23 @@
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message)
+    this.name = "ApiError"
+  }
+}
 export async function apiFetch(path: string, options?: RequestInit) {
   const response = await fetch(`/api/v1${path}`, {
     ...options,
   })
   if (!response.ok) {
     const body = await response.json().catch(() => ({}))
-    throw new Error(
+    throw new ApiError(
       typeof body.detail === "string"
         ? body.detail
         : `请求失败 (${response.status})`,
+      response.status,
     )
   }
   return response

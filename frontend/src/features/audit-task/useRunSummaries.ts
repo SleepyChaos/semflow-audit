@@ -3,7 +3,15 @@ import { useMemo } from "react"
 import type { AuditRun } from "@/api/audits"
 import { getCandidates } from "@/api/stages"
 import { summarizeCandidates } from "./task-summary"
+import { useDiscoveryRefresh } from "./useDiscoveryRefresh"
 export function useRunSummaries(runs: AuditRun[]) {
+  useDiscoveryRefresh(
+    runs.map((run) => ({
+      key: `audit:${run.id}`,
+      auditId: run.id,
+      status: run.status,
+    })),
+  )
   const limited = useMemo(() => {
     let active = 0
     const waiting: Array<() => void> = []

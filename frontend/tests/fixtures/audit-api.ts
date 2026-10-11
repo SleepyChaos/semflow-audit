@@ -57,6 +57,7 @@ export async function mockAuditApi(
     const path = new URL(route.request().url()).pathname.replace("/api/v1", "")
     const data: Record<string, unknown> = {
       "/audits/": [audit],
+      "/audits/task-1": audit,
       "/audits/environment": {
         codeql_version: "2.23.5",
         error: null,
@@ -78,6 +79,10 @@ export async function mockAuditApi(
       "/rules/": [],
       "/rules/holdouts": [],
       ...overrides,
+    }
+    if (!(path in data) && /^\/audits\/[^/]+$/.test(path)) {
+      await route.fulfill({ status: 404, json: { detail: "审计任务不存在" } })
+      return
     }
     if (data[path] === "ERROR") {
       await route.fulfill({

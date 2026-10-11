@@ -24,13 +24,13 @@ export function AuditDetailPage({
       params: { auditId },
       search: { stage: next },
     })
-  if (data.audits.isPending) return <p role="status">正在读取审计任务…</p>
-  if (data.audits.error)
+  if (data.audit.isPending) return <p role="status">正在读取审计任务…</p>
+  if (data.audit.error)
     return (
       <div role="alert">
         <h1>无法读取审计任务</h1>
-        <p>{data.audits.error.message}</p>
-        <button type="button" onClick={() => data.audits.refetch()}>
+        <p>{data.audit.error.message}</p>
+        <button type="button" onClick={() => data.audit.refetch()}>
           重新读取
         </button>
       </div>
@@ -64,7 +64,10 @@ export function AuditDetailPage({
         <span>
           静态告警{" "}
           <strong>
-            {data.run.status === "completed" ? data.run.findings.length : "—"}
+            {data.run.coverage.dual_engine?.codeql?.status === "completed" ||
+            data.run.status === "completed"
+              ? data.run.findings.length
+              : "—"}
           </strong>
         </span>
         <span>

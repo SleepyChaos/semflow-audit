@@ -12,7 +12,7 @@ import {
   Wrench,
 } from "lucide-react"
 import { getEnvironment } from "@/api/audits"
-import { useAudits } from "@/features/audit-task/useAuditData"
+import { useAudit } from "@/features/audit-task/useAuditData"
 import { auditStages, languageName, normalizeStage } from "./navigation"
 
 const icons = {
@@ -26,8 +26,8 @@ export function AppSidebar({ onEnvironment }: { onEnvironment: () => void }) {
   const match = location.pathname.match(/^\/audits\/([^/]+)\/?$/)
   const auditId =
     match && match[1] !== "new" ? decodeURIComponent(match[1]) : null
-  const audits = useAudits()
-  const run = audits.data?.find((item) => item.id === auditId)
+  const audit = useAudit(auditId)
+  const run = audit.data
   const stage = normalizeStage(location.search.stage)
   const environment = useQuery({
     queryKey: ["environment"],
