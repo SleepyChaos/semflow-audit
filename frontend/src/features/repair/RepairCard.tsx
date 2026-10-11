@@ -4,6 +4,8 @@ import { toast } from "sonner"
 import { acceptRepair, downloadDiff, type RepairRecord } from "@/api/stages"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { labelStatus } from "@/features/stages/stage-labels"
+import { ValidationSummary } from "./ValidationSummary"
 export function RepairCard({ record }: { record: RepairRecord }) {
   const [reason, setReason] = useState("")
   const cache = useQueryClient()
@@ -21,25 +23,31 @@ export function RepairCard({ record }: { record: RepairRecord }) {
             ? "验证通过，待人工接受"
             : record.status === "accepted"
               ? "已人工接受"
-              : record.status}
+              : labelStatus(record.status)}
         </Badge>
       </header>
       <p className="page-note">
         Diff：{record.changes.length} 个修改 · 人工接受：
         {record.acceptance_reason ? "已记录" : "尚未接受"}
       </p>
+      {record.validation_summary ? (
+        <ValidationSummary checks={record.validation_summary} />
+      ) : (
+        <p className="page-note">
+          原始验证结果保存在技术详情中；通过已有检查不代表全部业务和漏洞测试都已通过。
+        </p>
+      )}
       {record.changes.map((change, index) => (
         <details key={`${change.file}:${index}`}>
-          <summary>
-            {change.file} · {change.reason}
-          </summary>
+          <summary>{change.file} · 查看具体改动</summary>
+          <p>{change.reason}</p>
           <pre className="source-code">
             {`--- 原文\n${change.old_text}\n+++ 新文\n${change.new_text}`}
           </pre>
         </details>
       ))}
       <details>
-        <summary>验证结果</summary>
+        <summary>验证结果（技术详情）</summary>
         <pre className="source-code">
           {JSON.stringify(record.validation, null, 2)}
         </pre>

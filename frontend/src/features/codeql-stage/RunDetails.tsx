@@ -202,7 +202,7 @@ export function RunDetails({
           <RepairPanel
             run={run}
             stages={(stages.data ?? []).filter(
-              (item) => item.kind === "repair",
+              (item) => item.kind === "repair" || item.kind === "report",
             )}
             modelReady={Boolean(capabilities.data?.model_configured)}
           />

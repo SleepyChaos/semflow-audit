@@ -10,6 +10,7 @@ import {
 } from "@/api/stages"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { labelPhase, labelStatus } from "./stage-labels"
 export function StageHistory({ stages }: { stages: StageRun[] }) {
   const [selected, setSelected] = useState<string | null>(null)
   const stage = stages.find((item) => item.id === selected)
@@ -39,9 +40,11 @@ export function StageHistory({ stages }: { stages: StageRun[] }) {
         stages.map((item) => (
           <div key={item.id} className="stage-row">
             <Button variant="ghost" onClick={() => setSelected(item.id)}>
-              {new Date(item.created_at).toLocaleString()} · {item.phase}
+              {item.kind === "report" ? "AI 报告 · " : ""}
+              {new Date(item.created_at).toLocaleString()} ·{" "}
+              {labelPhase(item.phase)}
             </Button>
-            <Badge variant="outline">{item.status}</Badge>
+            <Badge variant="outline">{labelStatus(item.status)}</Badge>
             {["failed", "cancelled"].includes(item.status) ? (
               <Button
                 size="sm"
@@ -79,7 +82,11 @@ export function StageHistory({ stages }: { stages: StageRun[] }) {
       )}
       {stage ? (
         <details open>
-          <summary>执行详情 · {stage.model ?? "尚未调用模型"}</summary>
+          <summary>执行详情 · {stage.model ?? "模型信息未记录"}</summary>
+          <p>
+            执行步骤：{stage.phase} · 原始状态：{stage.status}
+            。执行完成表示本次任务结束，不代表安全检查全部通过。
+          </p>
           {stage.error ? <p role="alert">{stage.error}</p> : null}
           <pre className="source-code">
             {JSON.stringify(

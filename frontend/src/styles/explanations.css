@@ -1,0 +1,93 @@
+.reader-explanation,
+.validation-summary {
+  margin: 18px 0;
+  padding: 20px;
+  background: #f6f5f1;
+  border: 1px solid #dedbd4;
+  border-left: 3px solid #c96335;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+.reader-location {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.reader-location > span,
+.reader-explanation dt {
+  color: #6a6258;
+}
+.reader-explanation dl > div {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 16px;
+  margin: 12px 0;
+}
+.reader-boundary {
+  margin-top: 16px;
+  color: #716a61;
+  font-size: 12px;
+}
+.validation-summary h4 {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+.validation-check {
+  padding: 14px 0;
+  border-top: 1px solid #dedbd4;
+}
+.validation-check:first-child {
+  margin-top: 14px;
+}
+.validation-check dt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+.validation-check dt > span {
+  background: #fff;
+  border: 1px solid #c9c3b9;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+.reader-next-step {
+  margin-top: 6px;
+  color: #655344;
+}
+@media (max-width: 600px) {
+  .reader-explanation,
+  .validation-summary {
+    padding: 16px;
+  }
+  .reader-explanation dl > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+}
+
+.ai-report-body > h4 {
+  margin: 24px 0 10px;
+  font-weight: 600;
+}
+.ai-report-body p {
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+.ai-report-body ul {
+  padding-left: 22px;
+  list-style: disc;
+}
+.ai-report-body li {
+  margin: 8px 0;
+}
+
+.ai-report-body {
+  font-size: 14px;
+  max-width: 1080px;
+}

@@ -1,0 +1,41 @@
+export const statusLabels: Record<string, string> = {
+  queued: "等待执行",
+  running: "正在执行",
+  completed: "本次执行结束",
+  failed: "执行失败",
+  cancelled: "已取消",
+  awaiting_confirmation: "等待人工确认",
+  partial: "部分完成",
+  not_run: "未执行",
+  blocked: "检查受阻",
+  supported: "证据支持，待人工判断",
+  excluded: "证据支持排除",
+  insufficient: "证据不足",
+  unknown: "尚未确定",
+  pending: "待判断",
+  documented: "已记录说明",
+  passed: "通过",
+  needs_review: "仍需复核",
+}
+export const phaseLabels: Record<string, string> = {
+  write_chinese_report: "AI 正在撰写中文分析",
+  chinese_report_ready: "AI 中文报告已生成",
+  queued: "等待后台任务",
+  hypotheses_ready: "候选已产生，等待复核",
+  awaiting_human_decisions: "等待人工判断",
+  awaiting_patch_acceptance: "等待人工审阅补丁",
+  discovery_ready: "发现结果已就绪",
+  prepare_semantics: "核对源码与修复目标",
+  generate_diff: "生成修复建议",
+  validate: "执行验证",
+  validation: "执行验证",
+  save_validation: "保存检查结果",
+  completed: "执行结束",
+  retrieve: "检索知识材料",
+  development: "编译与样例检查",
+  generate: "生成规则",
+  inspect_semantics: "核查源码事实",
+}
+export const labelStatus = (status: string) => statusLabels[status] ?? status
+export const labelPhase = (phase: string) =>
+  phaseLabels[phase] ?? "查看执行详情"

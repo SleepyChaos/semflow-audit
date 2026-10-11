@@ -15,7 +15,25 @@ export interface StageRun {
   usage: Record<string, number>
   created_at: string
 }
+export interface CandidateExplanation {
+  title: string
+  location: string
+  status: string
+  observation: string
+  source_quote: string
+  risk: string
+  remediation: string
+  next_step: string
+  boundary: string
+}
+export interface ValidationCheck {
+  label: string
+  status: string
+  description: string
+  next_step: string
+}
 export interface Candidate {
+  explanation?: CandidateExplanation
   id: string
   audit_id: string
   stage_id: string
@@ -43,6 +61,7 @@ export interface Evidence {
   digest: string
 }
 export interface RepairRecord {
+  validation_summary?: ValidationCheck[]
   id: string
   stage_id: string
   candidate_ids: string[]
@@ -80,6 +99,36 @@ export interface RuleVersion {
     version: string
   }[]
 }
+export interface AIReportIssue {
+  candidate_id: string
+  title: string
+  explanation: string
+  impact: string
+  fix_suggestions: string[]
+  verification_suggestions: string[]
+  evidence_ids: string[]
+}
+export interface AuditReport {
+  candidates: Candidate[]
+  ai_report?: {
+    status: string
+    stage_id?: string | null
+    model?: string
+    error?: string | null
+    created_at?: string
+    narrative?: {
+      overview: string
+      issues: AIReportIssue[]
+      repair_review: string
+      limitations: string[]
+      next_steps: string[]
+    }
+  }
+}
+export const getReport = (id: string) =>
+  apiJson<AuditReport>(`/audits/${id}/report`)
+export const startReport = (id: string, force = false) =>
+  post<StageRun>(`/audits/${id}/report-analysis`, { force })
 export interface KnowledgeDocument {
   provenance?: { api_version?: string; license?: string; trust?: string }
   document_id: string

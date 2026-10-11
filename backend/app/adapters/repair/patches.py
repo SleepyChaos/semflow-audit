@@ -12,7 +12,13 @@ LOCKFILES = {"package-lock.json", "uv.lock", "poetry.lock", "bun.lock"}
 
 
 def safe_file(root: Path, name: str) -> Path:
-    if not name or "\\" in name or ":" in name or Path(name).is_absolute():
+    if (
+        not name
+        or name.startswith("/")
+        or "\\" in name
+        or ":" in name
+        or Path(name).is_absolute()
+    ):
         raise AuditError("补丁文件路径无效")
     path = root / name
     if any(

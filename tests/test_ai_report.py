@@ -1,0 +1,244 @@
+import pytest
+from app.contracts.ai_report import AIReportResponse
+from app.domain.audit import AuditError
+from app.services.report_generation import (
+    report_source,
+    source_fingerprint,
+    validate_response,
+)
+
+
+def source():
+    return {
+        "audit": {
+            "id": "task",
+            "project_name": "任意项目",
+            "snapshot_hash": "snapshot",
+            "language": "python",
+            "status": "completed",
+            "findings": [],
+            "coverage": {},
+        },
+        "summary": {"static_alerts": 0},
+        "candidates": [
+            {
+                "id": "one",
+                "title": "English title",
+                "description": "Source-specific details",
+                "status": "pending",
+                "evidence_ids": ["source"],
+                "location": {"file": "other.py", "line": 10},
+            }
+        ],
+        "evidence": [
+            {
+                "id": "source",
+                "kind": "code",
+                "reference": {"file": "other.py", "start_line": 10},
+                "content": "return user_input",
+                "snapshot_hash": "snapshot",
+                "digest": "digest",
+            }
+        ],
+        "decisions": [],
+        "repairs": [],
+        "rules": [],
+        "coverage": {},
+        "stages": [],
+    }
+
+
+def response():
+    return AIReportResponse.model_validate(
+        {
+            "overview": "本项目存在一项待确认的安全候选，需要核对输入的实际来源。",
+            "issues": [
+                {
+                    "candidate_id": "one",
+                    "title": "输出处理需要复核",
+                    "explanation": "该函数返回输入，是否存在风险取决于响应类型和已有防护。",
+                    "impact": "若不可信内容作为网页代码处理，可能影响访问者。",
+                    "fix_suggestions": ["核实响应类型，按输出上下文处理不可信输入。"],
+                    "verification_suggestions": ["比较正常输入与攻击输入的实际响应。"],
+                    "evidence_ids": ["source"],
+                }
+            ],
+            "repair_review": "尚无修复记录，不能声称修复已通过。",
+            "limitations": ["没有执行运行时攻击验证。"],
+            "next_steps": ["核对源码并记录人工判断。"],
+        }
+    )
+
+
+def test_report_sources_are_project_specific_and_never_include_credentials_or_prompt_history():
+    data = source()
+    data["stages"] = [
+        {
+            "kind": "report",
+            "model_config_snapshot": {"api_key": "secret"},
+            "result": {"old_report": "old"},
+        }
+    ]
+    assert "secret" not in str(report_source(data))
+    assert source_fingerprint(data) == source_fingerprint(source())
+    changed = source()
+    changed["candidates"][0]["status"] = "confirmed"
+    assert source_fingerprint(changed) != source_fingerprint(data)
+
+
+def test_unknown_or_cross_candidate_evidence_is_rejected():
+    result = response()
+    result.issues[0].evidence_ids = ["invented"]
+    with pytest.raises(AuditError):
+        validate_response(result, report_source(source()))
+
+
+def test_model_cannot_silently_omit_candidates_or_add_new_verdicts():
+    result = response()
+    result.issues = []
+    with pytest.raises(AuditError):
+        validate_response(result, report_source(source()))
+    with pytest.raises(ValueError):
+        AIReportResponse.model_validate({**response().model_dump(), "confirmed": True})
+
+
+def test_chinese_narrative_is_required_and_valid_response_does_not_modify_judgment():
+    data = report_source(source())
+    validate_response(response(), data)
+    assert data["candidates"][0]["status"] == "pending"
+    with pytest.raises(ValueError):
+        AIReportResponse.model_validate(
+            {**response().model_dump(), "overview": "English-only report"}
+        )
+
+
+def test_report_redacts_embedded_credentials_and_preserves_saved_uncertainty():
+    data = source()
+    data["repairs"] = [
+        {
+            "validation": {
+                "tests": {"output": "Authorization: Bearer synthetic-private-value"}
+            }
+        }
+    ]
+    assessment = {
+        "candidate_id": "one",
+        "reason": "response type unknown",
+        "missing_premises": ["HTML response"],
+        "runtime_unknowns": ["deployment"],
+        "counterevidence_ids": [],
+    }
+    data["stages"] = [
+        {"kind": "review", "result": {"batches": [{"assessments": [assessment]}]}}
+    ]
+    projected = report_source(data)
+    assert "synthetic-private-value" not in str(projected)
+    assert "HTML response" in str(projected)
+    before = source_fingerprint(data)
+    assessment["missing_premises"] = ["different uncertainty"]
+    assert before != source_fingerprint(data)
+
+
+def test_reports_batch_large_candidate_sets_without_omitting_any_ids():
+    from app.services.report_materials import report_batches
+
+    data = report_source(source())
+    data["candidates"] = [
+        {**data["candidates"][0], "id": str(index)} for index in range(41)
+    ]
+    batches = report_batches(data)
+    assert len(batches) > 1
+    assert [row["id"] for batch in batches for row in batch["candidates"]] == [
+        str(i) for i in range(41)
+    ]
+    assert all(len(batch["candidates"]) <= 8 for batch in batches)
+
+
+def test_source_literals_and_connection_credentials_are_redacted():
+    from app.services.report_materials import redact
+
+    value = "api_key='synthetic-value' sk-syntheticcredential123 https://user:synthetic-password@host/"
+    result = redact(value)
+    assert "synthetic" not in result
+    assert "[凭据已隐藏]" in result
+
+
+def test_batched_generation_includes_every_candidate_in_final_ai_narrative(tmp_path):
+    import hashlib
+    import json
+    from types import SimpleNamespace
+
+    from app.services.report_generation import ReportService
+
+    data = report_source(source())
+    data["candidates"] = [
+        {**data["candidates"][0], "id": str(index)} for index in range(41)
+    ]
+    (tmp_path / "report-source.json").write_text(json.dumps(data), encoding="utf-8")
+    calls = []
+
+    class Provider:
+        def generate(self, purpose, payload, schema):
+            calls.append(payload)
+            narrative = response().model_dump()
+            narrative["issues"] = [
+                {**narrative["issues"][0], "candidate_id": row["id"]}
+                for row in payload["candidates"]
+            ]
+            return schema.model_validate(narrative)
+
+    service = ReportService.__new__(ReportService)
+    service.stage_id, service.directory, service.provider = (
+        "test-only",
+        tmp_path,
+        Provider(),
+    )
+    service.repository = SimpleNamespace(
+        active=lambda *a: None, update=lambda *a, **kw: None
+    )
+    fingerprint = hashlib.sha256(
+        json.dumps(data, ensure_ascii=False, sort_keys=True).encode()
+    ).hexdigest()
+    result = service.generate(
+        {"source_fingerprint": fingerprint, "material_fingerprint": fingerprint}
+    )
+    assert len(calls) == 6
+    assert [issue["candidate_id"] for issue in result["narrative"]["issues"]] == [
+        str(i) for i in range(41)
+    ]
+
+
+def test_flask_config_literals_are_redacted_and_current_judgments_are_retained():
+    from app.services.report_materials import redact, report_batches
+
+    for text in [
+        "app.secret_key = 'SYNTHETIC_FLASK_SECRET'",
+        "app.config['SECRET_KEY'] = 'SYNTHETIC_FLASK_SECRET'",
+        "refresh_token='SYNTHETIC_FLASK_SECRET'",
+        '"password": "SYNTHETIC_FLASK_SECRET"',
+    ]:
+        assert "SYNTHETIC_FLASK_SECRET" not in redact(text)
+    data = report_source(source())
+    data["candidates"].append({**data["candidates"][0], "id": "two"})
+    data["decisions"] = [
+        {"candidate_id": "two", "reason": "Unique current decision"}
+    ] + [{"candidate_id": "one", "reason": str(i)} for i in range(40)]
+    data["coverage"] = {
+        "dual_engine": {
+            "codeql": {"status": "failed"},
+            "scout": {"status": "completed", "uninspected_windows": 4},
+        }
+    }
+    batch = report_batches(data)[0]
+    assert {row["candidate_id"] for row in batch["decisions"]} == {"one", "two"}
+    assert batch["coverage"]["dual_engine"]["codeql"]["status"] == "failed"
+    assert batch["coverage"]["dual_engine"]["scout"]["uninspected_windows"] == 4
+
+
+def test_private_fingerprint_detects_secret_changes_without_sending_them():
+    data = source()
+    data["repairs"] = [{"changes": [{"new_text": "password='SYNTHETIC_OLD'"}]}]
+    before = source_fingerprint(data)
+    data["repairs"][0]["changes"][0]["new_text"] = "password='SYNTHETIC_NEW'"
+    assert source_fingerprint(data) != before
+    assert "SYNTHETIC_NEW" not in str(report_source(data))

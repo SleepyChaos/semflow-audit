@@ -55,12 +55,16 @@ def create_stage(
     run = session.exec(
         select(AuditRun).where(AuditRun.id == audit_id).with_for_update()
     ).one()
-    if kind not in {"review", "repair", "rule", "scout"}:
+    if kind not in {"review", "repair", "rule", "scout", "report"}:
         raise HTTPException(409, "此记录不支持后台重跑")
-    ready = run.status == "completed" or (
-        run.status == "failed"
-        and kind in {"review", "repair", "scout"}
-        and run.coverage.get("dual_engine", {}).get("review_ready", False)
+    ready = (
+        (kind == "report" and run.status == "failed")
+        or run.status == "completed"
+        or (
+            run.status == "failed"
+            and kind in {"review", "repair", "scout"}
+            and run.coverage.get("dual_engine", {}).get("review_ready", False)
+        )
     )
     if not ready:
         raise HTTPException(409, "需要先完成静态审计")
@@ -73,11 +77,22 @@ def create_stage(
     ).first()
     if active:
         raise HTTPException(409, "该阶段已有正在执行的任务")
+    if kind == "report":
+        from app.services.report_generation import source_fingerprint
+        from app.services.reports import build_report
+
+        inputs = {"source_fingerprint": source_fingerprint(build_report(session, run))}
     stage = StageRun(
         audit_id=audit_id,
         kind=kind,
         inputs=inputs,
-        prompt_version={"review": "9", "repair": "2", "rule": "8", "scout": "7"}[kind],
+        prompt_version={
+            "review": "9",
+            "repair": "2",
+            "rule": "8",
+            "scout": "7",
+            "report": "1",
+        }[kind],
     )
     session.add(stage)
     session.commit()
@@ -219,11 +234,24 @@ def recover(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
 @router.get("/audits/{audit_id}/candidates")
 def candidates(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     owned_run(audit_id, session, workspace)
-    return session.exec(
+    from app.services.result_explanations import explain_candidate
+
+    rows = session.exec(
         select(Candidate)
         .where(Candidate.audit_id == audit_id)
         .order_by(Candidate.created_at)
     ).all()
+    sources = session.exec(select(Evidence).where(Evidence.audit_id == audit_id)).all()
+    evidence_data = [row.model_dump(mode="json") for row in sources]
+    return [
+        {
+            **row.model_dump(mode="json"),
+            "explanation": explain_candidate(
+                row.model_dump(mode="json"), evidence_data
+            ),
+        }
+        for row in rows
+    ]
 
 
 @router.get("/candidates/{identifier}/decisions")

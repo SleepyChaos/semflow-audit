@@ -36,7 +36,7 @@ export function CandidateWorkspace({
             key={c.id}
             onClick={() => setSelected(c.id)}
           >
-            <span>{c.title}</span>
+            <span>{c.explanation?.title ?? c.title}</span>
             <small>
               {c.weakness} · {humanStatuses[c.status] ?? c.status}
             </small>

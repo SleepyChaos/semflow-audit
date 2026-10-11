@@ -7,7 +7,9 @@ from sqlmodel import select
 from app.adapters.artifacts import ArtifactStore
 from app.api.deps import LocalWorkspace, SessionDep
 from app.api.routes.audits import owned_run
-from app.contracts.stages import RepairAcceptance
+from app.api.routes.stages import create_stage
+from app.contracts.stages import RepairAcceptance, StrictModel
+from app.core.audit_config import audit_settings
 from app.domain.audit import AuditError
 from app.persistence.stage_models import Candidate, RepairRecord
 from app.services.reports import build_report, markdown_report
@@ -18,9 +20,18 @@ router = APIRouter(tags=["repairs", "reports"])
 @router.get("/audits/{audit_id}/repairs")
 def repairs(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     owned_run(audit_id, session, workspace)
-    return session.exec(
+    from app.services.result_explanations import explain_validation
+
+    rows = session.exec(
         select(RepairRecord).where(RepairRecord.audit_id == audit_id)
     ).all()
+    return [
+        {
+            **row.model_dump(mode="json"),
+            "validation_summary": explain_validation(row.validation),
+        }
+        for row in rows
+    ]
 
 
 def owned_repair(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
@@ -75,6 +86,40 @@ def accept(
     }
 
 
+class ReportRequest(StrictModel):
+    force: bool = False
+
+
+@router.post("/audits/{audit_id}/report-analysis")
+def generate_report(
+    audit_id: UUID, body: ReportRequest, session: SessionDep, workspace: LocalWorkspace
+):
+    from app.persistence.stage_models import StageRun
+    from app.services.report_generation import source_fingerprint
+
+    if not audit_settings.AI_MODEL or not audit_settings.AI_BASE_URL:
+        raise HTTPException(409, "请先配置模型服务，中文 AI 报告不能使用模板代替")
+    document = build_report(session, owned_run(audit_id, session, workspace))
+    active = session.exec(
+        select(StageRun).where(
+            StageRun.audit_id == audit_id,
+            StageRun.kind == "report",
+            StageRun.status.in_(["queued", "running"]),
+        )
+    ).first()
+    if active:
+        return active
+    if document["ai_report"]["status"] == "ready" and not body.force:
+        return session.get(StageRun, UUID(document["ai_report"]["stage_id"]))
+    return create_stage(
+        audit_id,
+        "report",
+        {"source_fingerprint": source_fingerprint(document)},
+        session,
+        workspace,
+    )
+
+
 @router.get("/audits/{audit_id}/report")
 def report(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     return build_report(session, owned_run(audit_id, session, workspace))
@@ -83,6 +128,8 @@ def report(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
 @router.get("/audits/{audit_id}/report.md", response_class=PlainTextResponse)
 def report_markdown(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     document = build_report(session, owned_run(audit_id, session, workspace))
+    if document["ai_report"]["status"] != "ready":
+        raise HTTPException(409, "AI 中文报告尚未生成或结果已变化，请先生成或更新报告")
     return PlainTextResponse(
         markdown_report(document),
         headers={"Content-Disposition": f'attachment; filename="{audit_id}-report.md"'},

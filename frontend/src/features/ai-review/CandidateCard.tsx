@@ -6,10 +6,13 @@ import {
   decideCandidate,
   type Evidence,
   getDecisions,
+  getReport,
   type StageRun,
 } from "@/api/stages"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { labelStatus } from "@/features/stages/stage-labels"
+import { ReaderExplanation } from "./ReaderExplanation"
 export function CandidateCard({
   candidate,
   evidence,
@@ -26,6 +29,30 @@ export function CandidateCard({
     [ids, setIds] = useState(candidate.evidence_ids),
     [history, setHistory] = useState(false)
   const cache = useQueryClient()
+  const report = useQuery({
+    queryKey: ["report", candidate.audit_id],
+    queryFn: () => getReport(candidate.audit_id),
+    staleTime: 5000,
+  })
+  const issue =
+    report.data?.ai_report?.status === "ready"
+      ? report.data.ai_report.narrative?.issues.find(
+          (item) => item.candidate_id === candidate.id,
+        )
+      : undefined
+  const explanation =
+    issue && candidate.explanation
+      ? {
+          ...candidate.explanation,
+          title: issue.title,
+          observation: issue.explanation,
+          risk: issue.impact,
+          remediation: issue.fix_suggestions.join("；"),
+          next_step: issue.verification_suggestions.join("；"),
+          boundary:
+            "以上由 AI 根据本任务证据撰写。验证建议不代表已经执行，人工判断单独记录。",
+        }
+      : candidate.explanation
   const decisions = useQuery({
     queryKey: ["decisions", candidate.id],
     queryFn: () => getDecisions(candidate.id),
@@ -66,7 +93,7 @@ export function CandidateCard({
             {candidate.weakness} /{" "}
             {candidate.origin === "ai" ? "AI 候选" : "静态告警"}
           </span>
-          <h3>{candidate.title}</h3>
+          <h3>{explanation?.title ?? candidate.title}</h3>
         </div>
         <span className="status-label">
           {{
@@ -78,15 +105,27 @@ export function CandidateCard({
         </span>
       </header>
 
+      <p className="page-note">
+        {issue
+          ? "AI 中文分析与修复建议"
+          : "通用类型导读；具体 AI 分析可在「修复与报告」中生成。"}
+      </p>
+      {explanation ? (
+        <ReaderExplanation explanation={explanation} />
+      ) : (
+        <p>{candidate.description}</p>
+      )}
       <div className="assessment-strip">
         <span>
           原始模型建议：
           {candidate.model_assessment === "unknown"
-            ? "未知（unknown）"
-            : candidate.model_assessment}
+            ? "尚未作出建议"
+            : labelStatus(candidate.model_assessment)}
         </span>
         {assessment && (
-          <span>复核历史建议：{String(assessment.assessment)}（建议）</span>
+          <span>
+            复核历史建议：{labelStatus(String(assessment.assessment))}（建议）
+          </span>
         )}
       </div>
       {!evidence.length && (
@@ -135,7 +174,8 @@ export function CandidateCard({
         </div>
       ))}
       <details>
-        <summary>候选说明与判断要求</summary>
+        <summary>原始模型说明与判断要求</summary>
+        <p>{candidate.title}</p>
         <p>{candidate.description}</p>
         <p>勾选依据后填写理由。仅人工确认计入已确认缺陷。</p>
       </details>

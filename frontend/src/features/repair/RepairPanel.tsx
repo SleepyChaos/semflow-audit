@@ -4,8 +4,6 @@ import { useState } from "react"
 import { toast } from "sonner"
 import type { AuditRun } from "@/api/audits"
 import {
-  downloadReport,
-  downloadReportJson,
   getCandidates,
   getRepairs,
   type StageRun,
@@ -22,6 +20,7 @@ import {
 } from "@/components/ui/select"
 import { uniqueCandidates } from "@/features/audit-task/task-summary"
 import { StageHistory } from "@/features/stages/StageHistory"
+import { AIReportPanel } from "./AIReportPanel"
 import { RepairCard } from "./RepairCard"
 export function RepairPanel({
   run,
@@ -84,30 +83,7 @@ export function RepairPanel({
               : null
   return (
     <section className="stage-section">
-      <h3>审计报告</h3>
-      <div className="stage-row">
-        <Button
-          variant="outline"
-          onClick={() =>
-            downloadReport(run.id).catch((error: Error) =>
-              toast.error(error.message),
-            )
-          }
-        >
-          导出 Markdown 报告
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            downloadReportJson(run.id).catch((error: Error) =>
-              toast.error(error.message),
-            )
-          }
-        >
-          导出 JSON 报告
-        </Button>
-      </div>
-      <p>报告可在修复前导出。修复只针对已确认缺陷，在隔离副本应用并验证。</p>
+      <AIReportPanel auditId={run.id} modelReady={modelReady} />
       <h3>隔离修复</h3>
       <p className="page-note">
         已选择 {selectedConfirmed.length} 个已确认缺陷
@@ -121,6 +97,7 @@ export function RepairPanel({
               htmlFor={`repair-${run.id}-${item.id}`}
             >
               <Checkbox
+                aria-label={item.title}
                 id={`repair-${run.id}-${item.id}`}
                 checked={selected.includes(item.id)}
                 onCheckedChange={(checked) =>
@@ -131,7 +108,7 @@ export function RepairPanel({
                   )
                 }
               />
-              {item.title}
+              {item.explanation?.title ?? item.title}
             </label>
           ))
         ) : (
@@ -171,6 +148,11 @@ export function RepairPanel({
             )}
           </SelectContent>
         </Select>
+        <p className="action-hint">
+          {profile === "syntax"
+            ? "语法检查只检查代码能否解析。要验证正常业务和攻击输入，请准备项目依赖及测试，并选择项目测试。"
+            : "项目测试需要镜像中已有依赖及项目内的测试；平台不会自动安装依赖。请检查测试是否同时覆盖正常输入与攻击输入。"}
+        </p>
         <label className="stage-check" htmlFor={`rescan-${run.id}`}>
           <Checkbox
             id={`rescan-${run.id}`}

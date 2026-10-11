@@ -80,7 +80,9 @@ test("原始未知建议和历史 supported 建议分别显示", async ({ page }
     ],
   })
   await page.goto("/audits/task-1?stage=review")
-  await expect(page.getByText("原始模型建议：未知（unknown）")).toBeVisible()
-  await expect(page.getByText("复核历史建议：supported（建议）")).toBeVisible()
+  await expect(page.getByText("原始模型建议：尚未作出建议")).toBeVisible()
+  await expect(
+    page.getByText("复核历史建议：证据支持，待人工判断（建议）"),
+  ).toBeVisible()
   await expect(page.getByText("待确认", { exact: true }).first()).toBeVisible()
 })
