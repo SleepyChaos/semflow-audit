@@ -1,0 +1,480 @@
+{
+  "direction": "discovery",
+  "accessed_at": "2026-10-05",
+  "datasets": [
+    {
+      "id": "owasp-python",
+      "name": "OWASP BenchmarkPython",
+      "official_url": "https://github.com/OWASP-Benchmark/BenchmarkPython",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "raw/discovery/owasp-python"
+      ],
+      "download_status": "full_source_and_expected_csv",
+      "test_role": "检测正负例、CWE覆盖、误报率",
+      "limitations": "1230行=452正例+778负例、14类别；预期CSV和代码中的答案标记需隔离；未运行",
+      "license": "GPL-3.0",
+      "version": "f1291485808b66e20ddb6b01b10dc71b3df8c8ba",
+      "previously_used": "no local prior execution found; source exposure still needs audit",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "realvuln",
+      "name": "RealVuln",
+      "official_url": "https://github.com/kolega-ai/Real-Vuln-Benchmark",
+      "languages": [
+        "python",
+        "javascript",
+        "typescript"
+      ],
+      "local_paths": [
+        "raw/discovery/realvuln"
+      ],
+      "download_status": "metadata_and_2_full_target_sources",
+      "test_role": "项目级发现、业务逻辑漏洞、安全负例",
+      "limitations": "发行宣称140项目，实际只取Flask和DVNA完整源码；manifest 3.1.0与README 3.0.0不一致；教育项目非自然CVE总体；其他告警需复核",
+      "license": "Apache-2.0 framework; DVNA MIT; Flask target license unresolved",
+      "version": "7a710251f55c17d32d3adcb13d37468e2e3b9e4a",
+      "previously_used": "labels viewed earlier; full target source newly collected",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "vulngym",
+      "name": "Tencent VulnGym",
+      "official_url": "https://github.com/Tencent/VulnGym",
+      "languages": [
+        "multiple; filter by full repository"
+      ],
+      "local_paths": [
+        "raw/discovery/vulngym"
+      ],
+      "download_status": "complete_annotation_files_not_target_repositories",
+      "test_role": "Agent主动取证、入口/危险操作/跨模块路径定位",
+      "limitations": "184报告、408入口、393人工确认；不含23仓库完整源码；官方评分是覆盖/召回而非precision；模型不得读取trace",
+      "license": "CC-BY-4.0 annotations; upstream source licenses separate",
+      "version": "cd69f7e163e08485ab5496115ae03439cda6e27e / v0.1.4",
+      "previously_used": "earlier annotations collected; copy with provenance, not a new blind set",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "sastbench",
+      "name": "SastBench",
+      "official_url": "https://github.com/RivalSecurity/sastbench",
+      "languages": [
+        "multiple"
+      ],
+      "local_paths": [
+        "raw/discovery/sastbench"
+      ],
+      "download_status": "complete_original_json",
+      "test_role": "告警复审、误报过滤、弃权校准",
+      "limitations": "2737告警=299TP/2438近似FP；Py/JS/TS候选1313项仍需语言审核；不是从零发现召回测试；只允许to_analyzer进入模型",
+      "license": "Apache-2.0 benchmark; upstream projects separate",
+      "version": "b8d95b7720491b21d039b7504999577ba7ebb12b",
+      "previously_used": "earlier metadata and subset collected",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "crosscommit",
+      "name": "CrossCommitVuln-Bench",
+      "official_url": "https://github.com/motornomad/crosscommitvuln-bench",
+      "languages": [
+        "python"
+      ],
+      "local_paths": [
+        "raw/discovery/crosscommit"
+      ],
+      "download_status": "full_benchmark_archive_not_target_repositories",
+      "test_role": "跨模块组合缺陷与增量锚点研究",
+      "limitations": "论文15CVE+6排除项；当前55完整项中的新增40项待人工复核，不能合称论文黄金集；当前平台不实现跨提交图",
+      "license": "CC-BY-4.0 annotations; MIT scripts; upstream separate",
+      "version": "e544e645fe164d62e5cbd5241ad49707ea786c73",
+      "previously_used": "original 15 annotations viewed earlier",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "openssf",
+      "name": "OpenSSF CVE Benchmark",
+      "official_url": "https://github.com/ossf-cve-benchmark/ossf-cve-benchmark",
+      "languages": [
+        "javascript",
+        "typescript"
+      ],
+      "local_paths": [
+        "raw/discovery/openssf"
+      ],
+      "download_status": "fixed_metadata_archive",
+      "test_role": "自然CVE修复前后定位、规则外推",
+      "limitations": "223个CVE元数据；元数据不等于完整项目。部分已用于旧pilot，应按repo/CVE排除",
+      "license": "MIT metadata; upstream separate",
+      "version": "91c59fd54b2b768c0f310bb0027d2ac59cdf74d4",
+      "previously_used": "previous development source",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "new-project-pairs",
+      "name": "6个新增JS项目配对快照",
+      "official_url": "https://github.com/ossf-cve-benchmark/ossf-cve-benchmark",
+      "languages": [
+        "javascript"
+      ],
+      "local_paths": [
+        "raw/project-pairs"
+      ],
+      "download_status": "6_complete_pre_post_snapshots",
+      "test_role": "同目标根因的发现/规则/修复候选集",
+      "limitations": "6/6双快照完整；已排除旧20-pair pilot仓库；未完成全部历史暴露检查、oracle/根因校准、输入去标签；不能称已认证安全负例",
+      "license": "each snapshot retains upstream license; review pending",
+      "version": "12 fixed source commits recorded in local manifest",
+      "previously_used": "not run; candidates, not certified untouched holdout",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "secbenchjs",
+      "name": "SecBench.js",
+      "official_url": "https://github.com/cristianstaicu/SecBench.js",
+      "languages": [
+        "javascript"
+      ],
+      "local_paths": [
+        "raw/discovery/secbenchjs"
+      ],
+      "download_status": "complete_framework_and_600_test_entries",
+      "test_role": "JS偏门包/CWE、回归规则、单元级安全验证素材",
+      "limitations": "600项、278含fixedVersion、573含sinkLocation；npm依赖包源码未下载；测试尚未运行；安全测试不等于业务功能测试",
+      "license": "no standalone license found; local research, no redistribution",
+      "version": "5d362353550a8baa42bba34edd26e5fb86d41b60",
+      "previously_used": "no prior local run found",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "secjs",
+      "name": "SecJS / ForgeJS / JudgeJS",
+      "official_url": "https://github.com/SecJS-Vuln-Benchmark/SecJS-Benchmark",
+      "languages": [
+        "javascript"
+      ],
+      "local_paths": [
+        "raw/discovery/secjs"
+      ],
+      "download_status": "framework_metadata_only",
+      "test_role": "项目级标注和评分方法参考",
+      "limitations": "ArenaJS数据未公开在仓库；不计为已收集可测项目",
+      "license": "Apache-2.0 framework; upstream separate",
+      "version": "1bda0329805128bebb6581012642233a75c1c515",
+      "previously_used": "earlier framework mentioned",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "eyeballvul",
+      "name": "eyeballvul",
+      "official_url": "https://github.com/timothee-chauvin/eyeballvul",
+      "languages": [
+        "multiple"
+      ],
+      "local_paths": [
+        "raw/discovery/eyeballvul"
+      ],
+      "download_status": "fixed_heads_directory_metadata_only",
+      "test_role": "按漏洞公开时间拆分和持续新CVE候选",
+      "limitations": "上游39981漏洞/13093快照/10005仓库不是本地下载量；仅heads/根目录/年月份tree及info日期字段，不含完整漏洞记录或项目；递归tree超15MB失败，废弃响应已清理；训练截止未确认",
+      "license": "MIT framework; data/upstream terms require separate review",
+      "version": "framework 76a5d6c6ee7257fad10846934ab8863f60b52eff; data 288b718adda4f001425da5ffe65af74a166545f1",
+      "previously_used": "new metadata; not evaluated",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "vicbench",
+      "name": "VICBench",
+      "official_url": "https://arxiv.org/abs/2608.12246",
+      "languages": [
+        "python",
+        "java",
+        "cpp"
+      ],
+      "local_paths": [],
+      "download_status": "paper_only_dataset_unverified",
+      "test_role": "引入漏洞提交识别、历史切片方法参考",
+      "limitations": "论文100条VIC/88项目，不是本地已下载样本；未确认公开数据下载入口",
+      "license": "paper local reading only",
+      "version": "arxiv v1",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "vloc",
+      "name": "Vulnerability Localization Benchmark (VLoc Bench)",
+      "official_url": "https://github.com/cisco-foundation-ai/vulnerability-localization-benchmark",
+      "languages": [
+        "python",
+        "javascript",
+        "typescript",
+        "java",
+        "go",
+        "rust",
+        "php"
+      ],
+      "local_paths": [],
+      "download_status": "online_primary_source_verified_local_download_failed",
+      "test_role": "Agent全仓库文件定位及修复前后对照",
+      "limitations": "官方500任务/290仓库，文件gold来自patch而非精确根因；给定CWE不是完全无提示发现；post标签不代表整项目安全；需区分超时/拒绝与真负例；本轮未下载manifest/项目",
+      "license": "Apache-2.0 framework; upstream source licenses separate",
+      "version": "not locally frozen; do not use mutable main for an experiment",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection"
+    },
+    {
+      "id": "vex-bench",
+      "name": "VEX-Bench",
+      "official_url": "https://github.com/steven1518/vex-bench",
+      "languages": [
+        "python",
+        "go",
+        "java"
+      ],
+      "local_paths": [],
+      "download_status": "online_primary_source_verified_local_download_failed",
+      "test_role": "供应链漏洞可达性与配置/环境证据复审",
+      "limitations": "75案例/67CVE/35项目为上游规模；任务给定依赖CVE，不是新漏洞发现；Python需筛选，JS不覆盖；数据/完整项目未下载",
+      "license": "not locally verified; inspect official LICENSE before redistribution",
+      "version": "not locally frozen; do not use mutable main for an experiment",
+      "previously_used": "not evaluated",
+      "test_execution": "not_run_this_collection"
+    }
+  ],
+  "papers": [
+    {
+      "id": "sastbench",
+      "title": "SastBench: A Benchmark for Testing Agentic SAST Triage",
+      "year": 2026,
+      "official_url": "https://arxiv.org/abs/2601.02941",
+      "local_paths": [
+        "papers/discovery/2601.02941v1.pdf"
+      ],
+      "publication_status": "arXiv preprint",
+      "relevance": "复审任务与正负分布",
+      "affiliation": "not verified",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "realvuln",
+      "title": "RealVuln: Benchmarking Rule-Based, General-Purpose LLM, and Security-Specialized Scanners on Real-World Code",
+      "year": 2026,
+      "official_url": "https://arxiv.org/abs/2604.13764",
+      "local_paths": [
+        "papers/discovery/2604.13764v1.pdf"
+      ],
+      "publication_status": "arXiv preprint",
+      "relevance": "项目级扫描器比较；原论文26 Python与当前140项目分开",
+      "affiliation": "not verified",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "vulngym",
+      "title": "VulnGym: Benchmarking Coding Agents for Repository-Level Vulnerability Detection",
+      "year": 2026,
+      "official_url": "https://arxiv.org/abs/2608.02001",
+      "local_paths": [
+        "papers/discovery/vulngym-2608.02001v1.pdf"
+      ],
+      "publication_status": "arXiv preprint",
+      "relevance": "端到端发现与oracle定位/证据子任务",
+      "affiliation": "Tencent and academic collaborators verified from repository",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "crosscommit",
+      "title": "CrossCommitVuln-Bench: A Dataset of Multi-Commit Python Vulnerabilities Invisible to Per-Commit Static Analysis",
+      "year": 2026,
+      "official_url": "https://arxiv.org/abs/2604.21917",
+      "local_paths": [
+        "papers/discovery/2604.21917v1.pdf"
+      ],
+      "publication_status": "AIware 2026 acceptance stated on arXiv/official artifact",
+      "relevance": "跨提交组合漏洞",
+      "affiliation": "not verified",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "secjs",
+      "title": "Large Language Models Cannot Reliably Detect Vulnerabilities in JavaScript: The First Systematic Benchmark and Evaluation",
+      "year": 2025,
+      "official_url": "https://arxiv.org/abs/2512.01255",
+      "local_paths": [
+        "papers/discovery/2512.01255v1.pdf"
+      ],
+      "publication_status": "arXiv preprint",
+      "relevance": "完整项目、标签和稳健性",
+      "affiliation": "not verified",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "secbenchjs",
+      "title": "SecBench.js: An Executable Security Benchmark Suite for Server-Side JavaScript",
+      "year": 2023,
+      "official_url": "https://github.com/cristianstaicu/SecBench.js",
+      "local_paths": [
+        "papers/discovery/icse2023-SecBenchJS.pdf"
+      ],
+      "publication_status": "ICSE 2023 mature benchmark",
+      "relevance": "可执行安全回归素材，非2026论文",
+      "affiliation": "not verified",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "vicbench",
+      "title": "VICBench: A Multi-Language Benchmark for Code Vulnerability Detection",
+      "year": 2026,
+      "official_url": "https://arxiv.org/abs/2608.12246",
+      "local_paths": [
+        "papers/discovery/vicbench-2608.12246v1.pdf"
+      ],
+      "publication_status": "arXiv preprint",
+      "relevance": "历史任务，非当前主测试",
+      "affiliation": "not verified",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "eyeballvul",
+      "title": "eyeballvul: a future-proof benchmark for vulnerability detection in the wild",
+      "year": 2024,
+      "official_url": "https://arxiv.org/abs/2407.08708",
+      "local_paths": [],
+      "publication_status": "arXiv preprint; current artifact updated in 2026",
+      "relevance": "时间分割；旧方法文献补充",
+      "affiliation": "not verified",
+      "read_scope": "source abstract/method or artifact protocol inspected; not a complete systematic review"
+    },
+    {
+      "id": "vloc-report",
+      "title": "Vulnerability Localization Benchmark: Measuring Agentic Security Analysis at Repository Scale",
+      "year": 2026,
+      "official_url": "https://cisco-foundation-ai.github.io/vulnerability-localization-benchmark/technical-report.pdf",
+      "local_paths": [],
+      "publication_status": "official technical report; no peer-reviewed venue verified",
+      "relevance": "定位与修复版克制；官方部分失败计TN需单列",
+      "affiliation": "Cisco Foundation AI / Yale / CMU，官方报告/发布说明",
+      "read_scope": "official paper/report and artifact protocol inspected; local PDF download failed SSL timeout",
+      "download_status": "failed_SSL_connection_timeout"
+    },
+    {
+      "id": "vex-bench",
+      "title": "VEX-Bench: Benchmarking LLM Agents for Assessing Exploitability of Software Supply Chain Vulnerabilities",
+      "year": 2026,
+      "official_url": "https://arxiv.org/abs/2609.08040",
+      "local_paths": [],
+      "publication_status": "EMNLP 2026 acceptance stated by official project and Red Hat; proceedings forthcoming at collection date",
+      "relevance": "可达性、配置、环境的证据标签；不是端到端新漏洞发现",
+      "affiliation": "Red Hat / Purdue，官方发布说明核实",
+      "read_scope": "official paper/report and artifact protocol inspected; local PDF download failed SSL timeout",
+      "download_status": "failed_SSL_connection_timeout"
+    }
+  ],
+  "downloads": [
+    {
+      "file": "raw/discovery/owasp-python",
+      "exists": true,
+      "source": "https://github.com/OWASP-Benchmark/BenchmarkPython",
+      "fixed_revision": "f1291485808b66e20ddb6b01b10dc71b3df8c8ba"
+    },
+    {
+      "file": "raw/discovery/realvuln",
+      "exists": true,
+      "source": "https://github.com/kolega-ai/Real-Vuln-Benchmark",
+      "fixed_revision": "7a710251f55c17d32d3adcb13d37468e2e3b9e4a"
+    },
+    {
+      "file": "raw/discovery/vulngym",
+      "exists": true,
+      "source": "https://github.com/Tencent/VulnGym",
+      "fixed_revision": "cd69f7e163e08485ab5496115ae03439cda6e27e / v0.1.4"
+    },
+    {
+      "file": "raw/discovery/sastbench",
+      "exists": true,
+      "source": "https://github.com/RivalSecurity/sastbench",
+      "fixed_revision": "b8d95b7720491b21d039b7504999577ba7ebb12b"
+    },
+    {
+      "file": "raw/discovery/crosscommit",
+      "exists": true,
+      "source": "https://github.com/motornomad/crosscommitvuln-bench",
+      "fixed_revision": "e544e645fe164d62e5cbd5241ad49707ea786c73"
+    },
+    {
+      "file": "raw/discovery/openssf",
+      "exists": true,
+      "source": "https://github.com/ossf-cve-benchmark/ossf-cve-benchmark",
+      "fixed_revision": "91c59fd54b2b768c0f310bb0027d2ac59cdf74d4"
+    },
+    {
+      "file": "raw/project-pairs",
+      "exists": true,
+      "source": "https://github.com/ossf-cve-benchmark/ossf-cve-benchmark",
+      "fixed_revision": "12 fixed source commits recorded in local manifest"
+    },
+    {
+      "file": "raw/discovery/secbenchjs",
+      "exists": true,
+      "source": "https://github.com/cristianstaicu/SecBench.js",
+      "fixed_revision": "5d362353550a8baa42bba34edd26e5fb86d41b60"
+    },
+    {
+      "file": "raw/discovery/secjs",
+      "exists": true,
+      "source": "https://github.com/SecJS-Vuln-Benchmark/SecJS-Benchmark",
+      "fixed_revision": "1bda0329805128bebb6581012642233a75c1c515"
+    },
+    {
+      "file": "raw/discovery/eyeballvul",
+      "exists": true,
+      "source": "https://github.com/timothee-chauvin/eyeballvul",
+      "fixed_revision": "framework 76a5d6c6ee7257fad10846934ab8863f60b52eff; data 288b718adda4f001425da5ffe65af74a166545f1"
+    },
+    {
+      "file": "papers/discovery/2601.02941v1.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2601.02941",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/discovery/2604.13764v1.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2604.13764",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/discovery/vulngym-2608.02001v1.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2608.02001",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/discovery/2604.21917v1.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2604.21917",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/discovery/2512.01255v1.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2512.01255",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/discovery/icse2023-SecBenchJS.pdf",
+      "exists": true,
+      "source": "https://github.com/cristianstaicu/SecBench.js",
+      "fixed_revision": null
+    },
+    {
+      "file": "papers/discovery/vicbench-2608.12246v1.pdf",
+      "exists": true,
+      "source": "https://arxiv.org/abs/2608.12246",
+      "fixed_revision": null
+    }
+  ],
+  "validation": "local SHA256 and file validation in manifests/local-integrity.json; benchmark execution not performed"
+}

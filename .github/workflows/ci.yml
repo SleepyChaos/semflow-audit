@@ -3,6 +3,9 @@ on: [push, pull_request]
 jobs:
   backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: system
     services:
       postgres:
         image: pgvector/pgvector:pg17
@@ -22,7 +25,7 @@ jobs:
           python-version: '3.14'
       - run: uv sync --project backend --group dev --locked
       - run: ../.venv/bin/alembic upgrade head
-        working-directory: backend
+        working-directory: system/backend
       - run: .venv/bin/ruff check backend/app
       - run: .venv/bin/pytest -m "not integration" -q
   frontend:
@@ -33,10 +36,10 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: system/frontend/package-lock.json
       - run: npm ci
-        working-directory: frontend
+        working-directory: system/frontend
       - run: ./node_modules/.bin/biome check src/api src/features
-        working-directory: frontend
+        working-directory: system/frontend
       - run: npm run build
-        working-directory: frontend
+        working-directory: system/frontend

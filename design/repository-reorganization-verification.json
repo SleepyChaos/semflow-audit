@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-12",
+  "scope": "Repository directory migration; no new model-quality evaluation",
+  "full_nonintegration_tests": {
+    "passed": 246,
+    "deselected_real_tool_integration": 2,
+    "subtests_passed": 4,
+    "working_directory": "system"
+  },
+  "backend_and_migration_ruff": "passed",
+  "frontend_build": "passed",
+  "dataset_verification": {
+    "bundles": 39,
+    "members": 17271,
+    "sha256": "passed"
+  },
+  "clean_checkout_dataset_restore": "passed_in_temporary_directory",
+  "historical_archive_verification": {
+    "20261009-workspace-v1": "passed_archive_only",
+    "20261009-workspace-v2": "passed_archive_only",
+    "20261009-workspace-v3": "passed_archive_only"
+  },
+  "competition_imports": {
+    "files": 37,
+    "original_bytes_preserved": true
+  },
+  "primary_readme_links": "all_local_targets_exist",
+  "runtime_storage": "Repository-root .env and artifacts preserved; Compose project semflow-audit explicit"
+}

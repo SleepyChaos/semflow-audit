@@ -1,0 +1,148 @@
+{
+  "date": "2026-10-11",
+  "scope": "Existing local research copies; equal hashes reuse one repository file",
+  "copies": [
+    {
+      "source_path": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/papers/2608.00692.pdf",
+      "repository_path": "benchmarks/papers/repair/vul4py-2608.00692.pdf",
+      "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0",
+      "bytes": 497766,
+      "url": "https://arxiv.org/pdf/2608.00692",
+      "origin": "earlier-paper-collection"
+    },
+    {
+      "source_path": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/papers/2511.08462v5.pdf",
+      "repository_path": "benchmarks/papers/rules/qlcoder-arxiv-v5.pdf",
+      "sha256": "c9e6b28b94264236c7d990014e1cf3f140bf68d5d7d2e06e31535086dfbe84fe",
+      "bytes": 1656927,
+      "url": "https://arxiv.org/pdf/2511.08462v5",
+      "origin": "earlier-paper-collection"
+    },
+    {
+      "source_path": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/papers/2601.19494.pdf",
+      "repository_path": "research/papers/methods/2601.19494.pdf",
+      "sha256": "adc40e7877b2d478a69c12c1729f80a4c5e4eb9ff846a014e70e9eb2b86a6528",
+      "bytes": 3536934,
+      "url": "https://arxiv.org/pdf/2601.19494",
+      "origin": "earlier-paper-collection"
+    },
+    {
+      "source_path": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/papers/2608.16187.pdf",
+      "repository_path": "research/papers/methods/2608.16187.pdf",
+      "sha256": "7d05dd23c7a6f76ad0e6fec2bc0a5adff559295b7ccd93d7c823c2d202fc6373",
+      "bytes": 725350,
+      "url": "https://arxiv.org/pdf/2608.16187",
+      "origin": "earlier-paper-collection"
+    },
+    {
+      "source_path": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/papers/2506.23644.pdf",
+      "repository_path": "research/papers/methods/2506.23644.pdf",
+      "sha256": "b8410dd88194df835f2010f245d8d10c3e57f803b78fed32d5a1281c2745f431",
+      "bytes": 1931947,
+      "url": "https://arxiv.org/pdf/2506.23644",
+      "origin": "earlier-paper-collection"
+    },
+    {
+      "source_path": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/papers/2601.10865.pdf",
+      "repository_path": "research/papers/methods/2601.10865.pdf",
+      "sha256": "becaeb4bd7911e292f2a5ebfc4ad9b40dadbf0d1cd813b4a22d977032ae1bb9c",
+      "bytes": 3793889,
+      "url": "https://arxiv.org/pdf/2601.10865",
+      "origin": "earlier-paper-collection"
+    },
+    {
+      "source_path": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/papers/2601.02941v1.pdf",
+      "repository_path": "benchmarks/papers/discovery/2601.02941v1.pdf",
+      "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d",
+      "bytes": 994585,
+      "url": "https://arxiv.org/pdf/2601.02941v1",
+      "origin": "earlier-paper-collection"
+    },
+    {
+      "source_path": "/Users/chaos/Desktop/SemflowAudit_测试方案资料_20261011_v2.2/02_基准论文/PatchEval_2511.11019v1.pdf",
+      "repository_path": "benchmarks/papers/repair/patcheval-2511.11019v1.pdf",
+      "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f",
+      "bytes": 1905170,
+      "url": "https://arxiv.org/pdf/2511.11019v1",
+      "version": "arXiv v1",
+      "origin": "test-plan-package-v2.2"
+    },
+    {
+      "source_path": "/Users/chaos/Desktop/SemflowAudit_测试方案资料_20261011_v2.2/02_基准论文/QLCoder_ICLR2026.pdf",
+      "repository_path": "benchmarks/papers/rules/qlcoder-iclr2026.pdf",
+      "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa",
+      "bytes": 2079381,
+      "url": "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2adf01ab15adde8820622f7f24bd516b-Abstract-Conference.html",
+      "version": "ICLR 2026 正式论文",
+      "origin": "test-plan-package-v2.2"
+    },
+    {
+      "source_path": "/Users/chaos/Desktop/SemflowAudit_测试方案资料_20261011_v2.2/02_基准论文/RealVuln_2604.13764v1.pdf",
+      "repository_path": "benchmarks/papers/discovery/2604.13764v1.pdf",
+      "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7",
+      "bytes": 594873,
+      "url": "https://arxiv.org/pdf/2604.13764v1",
+      "version": "arXiv v1",
+      "origin": "test-plan-package-v2.2"
+    },
+    {
+      "source_path": "/Users/chaos/Desktop/SemflowAudit_测试方案资料_20261011_v2.2/04_竞品论文/Antiproof_2607.12316v1.pdf",
+      "repository_path": "research/papers/competitors/Antiproof_2607.12316v1.pdf",
+      "sha256": "c256592b3284f4fb90b382c864ef381c39858363a52c26a37d4fb4ef86826bd5",
+      "bytes": 429438,
+      "url": "https://arxiv.org/pdf/2607.12316v1",
+      "version": "v1",
+      "origin": "test-plan-package-v2.2"
+    },
+    {
+      "source_path": "/Users/chaos/Desktop/SemflowAudit_测试方案资料_20261011_v2.2/04_竞品论文/OpenAnt_2606.19149v2.pdf",
+      "repository_path": "research/papers/competitors/OpenAnt_2606.19149v2.pdf",
+      "sha256": "44db75a63fc191bbb0a761c30b4213ddc8d6c5cec99f5365993c4bfd5994366a",
+      "bytes": 282341,
+      "url": "https://arxiv.org/pdf/2606.19149v2",
+      "version": "v2",
+      "origin": "test-plan-package-v2.2"
+    },
+    {
+      "source_path": "/Users/chaos/Desktop/SemflowAudit_测试方案资料_20261011_v2.2/04_竞品论文/QLPro_2506.23644v3.pdf",
+      "repository_path": "research/papers/methods/2506.23644.pdf",
+      "sha256": "b8410dd88194df835f2010f245d8d10c3e57f803b78fed32d5a1281c2745f431",
+      "bytes": 1931947,
+      "url": "https://arxiv.org/pdf/2506.23644v3",
+      "version": "v3",
+      "origin": "test-plan-package-v2.2"
+    },
+    {
+      "source_path": "/Users/chaos/Desktop/SemflowAudit_测试方案资料_20261011_v2.2/04_竞品论文/RepoAudit_2501.18160v1.pdf",
+      "repository_path": "research/papers/competitors/RepoAudit_2501.18160v1.pdf",
+      "sha256": "d79aac5d856b6fe573d2e8c17fa82e7f416af4393bb6cd44469f8cf2f7d8753d",
+      "bytes": 1021392,
+      "url": "https://arxiv.org/pdf/2501.18160v1",
+      "version": "v1",
+      "origin": "test-plan-package-v2.2"
+    },
+    {
+      "source_path": "/Users/chaos/Desktop/SemflowAudit_测试方案资料_20261011_v2.2/05_竞品原始材料/代码审计低/证据1.pdf",
+      "repository_path": "research/papers/competitors/证据1.pdf",
+      "sha256": "17bf1566641f4cea097ad26e0b3ffd7c621841b79965a79820c37125a7e2608c",
+      "bytes": 1407117,
+      "url": "用户提供的竞品文件夹",
+      "version": "原件逐字节保留",
+      "origin": "test-plan-package-v2.2"
+    },
+    {
+      "source_path": "/Users/chaos/Documents/GitHub/semflow-audit/.local-workspace/paper-reading/20261009-two-levels/IRIS-ICLR2025-arxiv-v3.pdf",
+      "repository_path": "research/papers/rules/iris-arxiv-v3.pdf",
+      "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+      "bytes": 1888032,
+      "origin": "two-level-reading-package"
+    },
+    {
+      "source_path": "/Users/chaos/Documents/GitHub/semflow-audit/.local-workspace/paper-reading/20261009-two-levels/SemTaint-2026-v1.pdf",
+      "repository_path": "research/papers/methods/2601.10865.pdf",
+      "sha256": "becaeb4bd7911e292f2a5ebfc4ad9b40dadbf0d1cd813b4a22d977032ae1bb9c",
+      "bytes": 3793889,
+      "origin": "two-level-reading-package"
+    }
+  ]
+}
