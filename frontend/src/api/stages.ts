@@ -1,4 +1,5 @@
 import { apiJson, downloadArtifact } from "./backend"
+import { attachDecisionTimes } from "./candidate-history"
 export interface StageRun {
   id: string
   audit_id: string
@@ -29,6 +30,7 @@ export interface Candidate {
   model_assessment: string
   novelty: string
   identity_key: string
+  latest_decision_at?: string
   location: { file?: string; line?: number }
 }
 export interface Evidence {
@@ -105,8 +107,10 @@ const post = <T>(path: string, body?: unknown) =>
   })
 export const getStages = (auditId: string) =>
   apiJson<StageRun[]>(`/audits/${auditId}/stages`)
-export const getCandidates = (auditId: string) =>
-  apiJson<Candidate[]>(`/audits/${auditId}/candidates`)
+export const getCandidates = async (auditId: string) =>
+  attachDecisionTimes(
+    await apiJson<Candidate[]>(`/audits/${auditId}/candidates`),
+  )
 export const getEvidence = (auditId: string) =>
   apiJson<Evidence[]>(`/audits/${auditId}/evidence`)
 export const getCapabilities = () =>

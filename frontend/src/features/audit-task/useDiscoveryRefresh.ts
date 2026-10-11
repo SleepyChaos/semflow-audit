@@ -19,6 +19,8 @@ export function useDiscoveryRefresh(
     for (const auditId of changed) {
       void cache.invalidateQueries({ queryKey: ["candidates", auditId] })
       void cache.invalidateQueries({ queryKey: ["evidence", auditId] })
+      void cache.invalidateQueries({ queryKey: ["repairs", auditId] })
     }
+    if (changed.size) void cache.invalidateQueries({ queryKey: ["rules"] })
   }, [cache, entries])
 }

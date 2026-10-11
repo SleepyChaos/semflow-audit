@@ -6,10 +6,23 @@ export function uniqueCandidates(candidates: Candidate[]) {
   for (const candidate of candidates) {
     const key = candidate.identity_key || candidate.id,
       previous = identities.get(key)
+    const rank = (status: string) =>
+      ["confirmed", "excluded"].includes(status)
+        ? 2
+        : status === "insufficient"
+          ? 1
+          : 0
+    const previousTime = previous?.latest_decision_at
+      ? Date.parse(previous.latest_decision_at)
+      : 0
+    const candidateTime = candidate.latest_decision_at
+      ? Date.parse(candidate.latest_decision_at)
+      : 0
     if (
       !previous ||
-      (previous.status === "pending" && candidate.status !== "pending") ||
-      previous.status === candidate.status
+      (candidateTime || previousTime
+        ? candidateTime >= previousTime
+        : rank(candidate.status) >= rank(previous.status))
     )
       identities.set(key, candidate)
   }
