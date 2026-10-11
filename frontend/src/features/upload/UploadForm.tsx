@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { LoaderCircle, Upload } from "lucide-react"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { uploadRun } from "@/api/audits"
 import { getRules } from "@/api/stages"
@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
-export function UploadForm({ onCreated }: { onCreated: (id: string) => void }) {
+export function UploadForm({ onCreated, initialRuleId }: { onCreated: (id: string) => void; initialRuleId?: string }) {
   const [file, setFile] = useState<File | null>(null)
   const [name, setName] = useState("")
   const [language, setLanguage] = useState("python")
@@ -20,6 +20,9 @@ export function UploadForm({ onCreated }: { onCreated: (id: string) => void }) {
     queryKey: ["published-rules", language],
     queryFn: () => getRules(language, true),
   })
+  useEffect(() => {
+    if (initialRuleId && rules.data?.some(rule => rule.id === initialRuleId && rule.status === "published" && rule.language === language)) setRuleIds([initialRuleId])
+  }, [initialRuleId, rules.data, language])
   const input = useRef<HTMLInputElement>(null)
   const cache = useQueryClient()
   const mutation = useMutation({
@@ -81,6 +84,8 @@ export function UploadForm({ onCreated }: { onCreated: (id: string) => void }) {
             : "ZIP · 最多 20 MB"}
         </span>
       </button>
+      {mutation.error ? <p role="alert">上传失败：{mutation.error.message}，已保留所选文件和输入。</p> : null}
+      {initialRuleId && rules.isSuccess && !rules.data.some(rule => rule.id === initialRuleId && rule.status === "published") ? <p role="status">携带的规则不属于当前语言或尚未发布，请切换语言或重新选择。</p> : null}
       <FieldGroup>
         <p className="text-sm text-muted-foreground">
           上传后并发运行 CodeQL 标准扫描与 Agent 独立粗筛，随后在 AI

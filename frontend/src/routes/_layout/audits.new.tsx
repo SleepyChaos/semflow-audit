@@ -1,3 +1,3 @@
 import {createFileRoute} from "@tanstack/react-router"
-import {PageHeader} from "@/features/shell/PageHeader"
-export const Route=createFileRoute("/_layout/audits/new")({component:()=> <PageHeader title="新建审计" description="上传源码 ZIP，创建独立审计任务"/>})
+import {NewAuditPage} from "@/features/audit-task/NewAuditPage"
+export const Route=createFileRoute("/_layout/audits/new")({validateSearch:(search:Record<string,unknown>):{ruleId?:string}=>({ruleId:typeof search.ruleId==="string"?search.ruleId:undefined}),component:()=> <NewAuditPage ruleId={Route.useSearch().ruleId}/>})
