@@ -1,11 +1,12 @@
+name: semflow-audit-ui
 services:
   db:
     image: pgvector/pgvector:pg17
     environment:
       POSTGRES_USER: audit
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/init_local.py first}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure the independent local environment first}
       POSTGRES_DB: audit
-    ports: ["127.0.0.1:55439:5432"]
+    ports: ["127.0.0.1:${UI_DB_PORT:-15440}:5432"]
     volumes: ["audit-db:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U audit -d audit"]
@@ -14,7 +15,7 @@ services:
       retries: 20
   redis:
     image: redis:7.4.2-alpine
-    ports: ["127.0.0.1:6389:6379"]
+    ports: ["127.0.0.1:${UI_REDIS_PORT:-16380}:6379"]
     command: ["redis-server", "--appendonly", "yes"]
     volumes: ["audit-redis:/data"]
 volumes:
