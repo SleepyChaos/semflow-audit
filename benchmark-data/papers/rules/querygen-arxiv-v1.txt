@@ -1,0 +1,998 @@
+Towards Scalable and Cost-Efficient Vulnerability Detection:
+A Study on Automatic Query Generation
+IVANA CLAIRINE IRSAN,Singapore Management University, Singapore
+RATNADIRA WIDYASARI,Singapore Management University, Singapore
+HUIHUI HUANG,Singapore Management University, Singapore
+TING ZHANG,Monash University, Australia
+YUE LIU,Singapore Management University, Singapore
+OUH ENG LIEH,Singapore Management University, Singapore
+SHAR LWIN KHIN,Singapore Management University, Singapore
+KANG HONG JIN,University of Sydney, Australia
+DAVID LO,Singapore Management University, Singapore
+Static analysis remains a cornerstone of software security, yet the effectiveness of tools such as CodeQL is
+often limited by the substantial manual effort required to develop high-coverage query suites. While large
+language models (LLMs) have emerged as a potential solution for automated code reasoning, their practical
+utility in generating structured, executable security queries remains underexplored. In this paper, we conduct
+an empirical study to evaluate the ability of LLMs to synthesize CodeQL queries using vulnerability data from
+the National Vulnerability Database. Through this investigation, we explore the potential of using LLMs as an
+automatic CodeQL query generator. Subsequently, we systematically evaluate the performance of various LLM
+architectures across a diverse set of real-world vulnerabilities, measuring their ability to improve detection
+coverage and precision. Our findings reveal that LLM-generated queries significantly enhance the baseline
+CodeQL queries, yielding 82% improvement in average F1-score. Furthermore, we provide a detailed cost-
+benefit analysis showing that while direct LLM-based scanning of entire repositories is often computationally
+and financially prohibitive, leveraging LLMs to synthesize CodeQL queries offers a scalable and cost-effective
+alternative for large-scale vulnerability detection. Our results suggest that LLMs can effectively bridge the gap
+between unstructured vulnerability reports and formal static analysis specifications, offering a scalable path
+toward comprehensive automated vulnerability detection.
+ACM Reference Format:
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin,
+Kang Hong Jin, and David Lo. 2026. Towards Scalable and Cost-Efficient Vulnerability Detection: A Study on
+Automatic Query Generation. 1, 1 (September 2026), 20 pages. https://doi.org/10.1145/nnnnnnn.nnnnnnn
+Authors’ Contact Information: Ivana Clairine Irsan, ivanairsan@smu.edu.sg, Singapore Management University, Singapore;
+Ratnadira Widyasari, ratnadiraw@smu.edu.sg, Singapore Management University, Singapore; Huihui Huang, hhhuang@
+smu.edu.sg, Singapore Management University, Singapore; Ting Zhang, Ting.Zhang@monash.edu, Monash University,
+Australia; Yue Liu, liuyue@smu.edu.sg, Singapore Management University, Singapore; Ouh Eng Lieh, elouh@smu.edu.sg,
+Singapore Management University, Singapore; Shar Lwin Khin, lkshar@smu.edu.sg, Singapore Management University,
+Singapore; Kang Hong Jin, hongjin.kang@sydney.edu.au, University of Sydney, Australia; David Lo, davidlo@smu.edu.sg,
+Singapore Management University, Singapore.
+Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee
+provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the
+full citation on the first page. Copyrights for components of this work owned by others than the author(s) must be honored.
+Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires
+prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+©2026 Copyright held by the owner/author(s). Publication rights licensed to ACM.
+ACM XXXX-XXXX/2026/9-ART
+https://doi.org/10.1145/nnnnnnn.nnnnnnn
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+arXiv:2609.10412v1  [cs.SE]  9 Sep 2026
+2
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin, Kang Hong
+Jin, and David Lo
+1 Introduction
+Software vulnerabilities continue to pose severe security risks to modern software systems [18].
+High-impact incidents such as Log4Shell [8] and Spring4Shell [33] disrupted thousands of applica-
+tions in Java ecosystems, causing widespread financial damage and demonstrating how a single
+vulnerability can escalate into a global security crisis. Such incidents underscore the critical need for
+proactive vulnerability detection. Rather than reacting after a compromise has occurred, security
+efforts must learn from historical vulnerabilities to anticipate and prevent their recurrence.
+To this end, static application security testing (SAST) tools are widely adopted in industrial soft-
+ware development due to their ability to analyze source code without execution. This enables early
+detection in the software development lifecycle (SDLC), significantly reducing remediation costs
+compared to dynamic testing approaches. However, the effectiveness of SAST tools fundamentally
+depends on manually written vulnerability rules. These rules must accurately encode complex
+vulnerability patterns, yet recent empirical evaluations [ 16] reveal that SAST tools detect only
+12.7% of real-world vulnerabilities, even when multiple tools are combined. Consequently, over 70%
+of vulnerabilities remain undetected due to the limited coverage and specificity of existing rule sets.
+Among SAST tools, CodeQL [ 16, 27, 30] has gained widespread adoption in both academia
+and industry due to its semantic code representation, which is based on data flow and control
+flow modeling, and its queryable code database paradigm. CodeQL enables security practitioners
+to write declarative queries to detect vulnerability patterns. However, writing CodeQL rules is
+notoriously difficult: it requires expertise in program analysis, familiarity with CodeQL libraries,
+and a deep understanding of vulnerability semantics. This creates a rule-authoring bottleneck,
+resulting in insufficient detection coverage. Meanwhile, large language models (LLMs) have shown
+strong capabilities in structured code generation, including generating source code, program repair
+patches, and SQL queries. This raises a compelling question:Can LLMs help generate effective
+CodeQL vulnerability queries to expand detection coverage and reduce reliance on manual security
+expertise?
+In this paper, we explore the potential of bridging the gap between LLMs and static analysis
+through an empirical study of an automated framework that generates CodeQL queries from NVD
+data.
+Overall, our framework extracts patterns from VFCs and natural language descriptions to guide
+an LLM in synthesizing executable CodeQL queries via structured prompt engineering and iterative
+refinement. Our evaluation on Java vulnerabilities, which is based on the MITRE “Top 25 Most
+Dangerous Software Weaknesses" [23] demonstrates that LLM-generated queries significantly
+expand detection coverage. Specifically, our empirical results demonstrate that LLM-generated
+queries increased true positive detections by 263% compared to default CodeQL queries, notably
+without a significant increase in the False Detection Rate (FDR).
+This paper makes the following contributions:
+• Comprehensive Evaluation of LLMs: We perform an extensive benchmarking of multiple
+state-of-the-art (SOTA) LLMs, spanning both proprietary and open-source architectures, to
+evaluate their efficacy in automated CodeQL query synthesis.
+• High-Impact Security Analysis: We assess the capability of LLMs to generate queries targeting
+the most dangerous CWE IDs, addressing the practical necessity of securing real-world software
+against high-risk vulnerability classes.
+• Practicality and Cost-Efficiency Assessment: We provide a rigorous analysis of the monetary
+and computational overhead associated with LLM-driven detection. Furthermore, we benchmark
+our approach against established SAST tools and state-of-the-art function-level deep learning
+models to evaluate its viability for industrial deployment.
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+Towards Scalable and Cost-Efficient Vulnerability Detection:
+A Study on Automatic Query Generation 3
+• Collaborative Vulnerability Detection: We show that the collaboration between LLM-driven
+query synthesis and static analysis provides a scalable pathway for future research in autonomous
+and practical vulnerability detection.
+2 Background
+2.1 Static Analyzers
+Static analyzers are tools designed to examine source code, bytecode, or binaries for potential
+vulnerabilities, bugs, or code quality issues without executing the program. They operate by
+modeling program structures (e.g., control flow and data flow) or by matching predefined patterns,
+enabling early detection of defects in the SDLC. This early detection can reduce the cost of fixing
+issues compared to post-deployment remediation. Among static analyzers, semantic analysis
+tools that enable inter-procedural vulnerability detection are particularly beneficial for security
+vulnerability detection. They can trace complex data flows (e.g., tainted user input propagation)
+that syntactic tools, which rely on simple pattern matching, often miss.
+CodeQL [16, 27, 30], a semantic static analysis engine developed by GitHub, exemplifies this
+capability by treating source code as a relational database. It parses code into an abstract syntax
+tree (AST), then constructs a queryable database of code elements (e.g., variables, functions, and
+control flows). Users can then write declarative queries in CodeQL’s logic-based language (similar
+to SQL) to identify vulnerability patterns—for instance, tracing how untrusted input (sources)
+reaches sensitive operations (sinks) in data flow analyses. This flexibility makes CodeQL widely
+adopted in industry and academia for detecting complex vulnerabilities across large codebases,
+including Java programs with intricate class hierarchies and inter-procedural dependencies. We
+selected CodeQL over alternative SAST tools such as Semgrep due to its native support for whole-
+program inter-procedural analysis; notably, Semgrep’s open-source Community Edition is limited
+to intra-procedural, single-function analysis by design, and cross-function taint tracking is only
+available in its proprietary paid tier [26].
+However, CodeQL’s power is constrained by the quality of its queries. Writing effective CodeQL
+queries requires two forms of expertise: (1) deep knowledge of the target language’s vulnerabil-
+ity semantics (e.g., how cross-site scripting (XSS) manifests in Java’s server-side code) and (2)
+proficiency in CodeQL’s query syntax (e.g., defining data flow configurations and filtering false
+positives). These two requirements create a significant barrier of adoption for most developers, who
+may understand Java security but lack the skills to translate that knowledge into precise CodeQL
+queries. As a result, many organizations only use the prebuilt queries from the official CodeQL
+repositories. However, this leads to critical gaps in vulnerability coverage, as evidenced by recent
+empirical evaluations of Java static analyzers [16].
+2.2 Motivation
+The official CodeQL repository provides a set of prebuilt queries for Java vulnerability detection, but
+these queries fail to cover many common and high-impact vulnerability patterns. This limitation is
+particularly concerning given the prevalence of Java in enterprise systems and the severity of its
+associated security risks. For example, Cross-Site Scripting (CWE-79), which is ranked among the
+top five most dangerous software weaknesses in 2025. Despite this, CodeQL’s standard Java security
+suite provides only a single prebuilt query for non-Android applications, leaving a significant portion
+of web-based enterprise vulnerabilities unaddressed. This query adopts a taint analysis that checks
+whether user-controlled input (sources, such as HttpServletRequest.getParameter()) flows
+into sensitive output operations (sinks, such asJspWriter.print()) without proper sanitization.
+While this rule captures basic XSS patterns, it overlooks alternative attack vectors frequently
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+4
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin, Kang Hong
+Jin, and David Lo
+encountered in real-world Java applications. Specifically, it fails to account for novel sources and
+sinks documented in recent vulnerability reports, which remain undetected by static, prebuilt query
+suites.
+These limitations indicate a pressing need to enhance CodeQL’s detection coverage by generating
+queries that address real-world vulnerability patterns beyond simple source-to-sink flows. However,
+writing such queries manually is challenging and requires deep domain expertise in both Java
+security and static analysis. In this context, LLMs present a promising opportunity. LLMs have
+demonstrated strong capabilities in generating structured code and query logic from natural
+language descriptions, suggesting their potential to support or automate CodeQL query authoring.
+On the other hand, directly utilizing LLMs to scan entire repositories for vulnerable code presents
+significant practical challenges. For non-open-source projects, uploading entire codebases to a
+third-party provider poses a critical security risk by potentially exposing sensitive intellectual
+property. Even for open-source projects where confidentiality is less of a concern, the financial and
+temporal costs can be prohibitive at the repository level.
+Our preliminary experiments on utilizing only the LLM agent as a vulnerability detector high-
+lighted these operational inefficiencies during a full-repository scan of theaerospike-client-java
+repository1, which comprises 395 files and 3,719 functions. We selected this specific project for
+our cost-analysis baseline by randomly sampling from the subset of evaluations where our LLM-
+generated queries achieved a high Average F1-Score (more than 0.80). Consequently, we utilize this
+repository as a preliminary benchmark to evaluate the operational costs associated with scanning
+a single, real-world project.
+Using the Moonshot Kimi K2.5 model, which we selected for its optimal performance to cost
+ratio, the scan required over 44 hours to complete and cost approximately 17 USD for a single
+iteration. To identify the most suitable model, a researcher might need to benchmark several LLMs,
+which could easily exceed ten times the cost of a single Kimi K2.5 iteration. For instance, conducting
+a full repository scan using Sonnet 4.5 would be approximately six times more expensive. When
+multiplied across several candidate models, these cumulative financial and temporal requirements
+make direct repository-wide LLM scanning impractical for standard development cycles.
+Furthermore, manual sampling revealed multiple false positive alerts, with many non-vulnerable
+files incorrectly flagged. For larger enterprise-scale repositories, such monetary and time require-
+ments would likely dissuade developers from integrating direct LLM scanning into their workflows.
+3 Methodology
+Fig. 1. Overview of our query generation pipeline.
+1https://github.com/aerospike/aerospike-client-java
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+Towards Scalable and Cost-Efficient Vulnerability Detection:
+A Study on Automatic Query Generation 5
+3.1 Research Questions
+To better understand the capabilities, limitations, and practical implications of LLM-generated
+queries, we address the following key research questions (RQs):
+RQ1: How well do LLMs perform in generating compilable CodeQL queries?CodeQL queries
+are significantly more complex and have fewer publicly available training examples compared to
+common languages such as SQL, meaning LLM exposure to CodeQL may be inherently limited.
+It is therefore essential to evaluate which models are capable of producing syntactically correct,
+compilable queries before any downstream use. To address this RQ, we conducted experiments
+across a diverse set of both open-source and commercial LLMs to measure their performance in
+generating compilable queries. In this experiment, we include DeepSeek R1 [12], Grok Code Fast
+1 [38], Gemini 3 Flash Preview [10], Kimi [31], Kimi K2 Thinking [32], Llama 3.3 [11], Minimax
+M2.1 [22], Qwen 3 Coder [39], GPT 5.2 Codex [24], and Claude Sonnet 4.5 [2].
+RQ2: How well do the LLM-generated queries perform in detecting real-world vulnera-
+bilities?Compilability is a necessary but not sufficient condition for utility; a syntactically valid
+query may still fail to detect actual vulnerabilities in practice. To address this RQ, we evaluated the
+detection performance of LLM-generated queries against CodeQL and PDBERT [20] baselines at
+file-level granularity on a set of real-world, high-impact software vulnerabilities.
+RQ3: Under what conditions do LLM-generated queries perform better or worse?Identifying
+the scenarios in which LLM-generated queries succeed or fail is key to understanding their practical
+utility and guiding developers on where automation offers the greatest benefit. To address this RQ,
+we used CVEs with short fixes as a proxy for intra-procedural vulnerabilities [36] and compared
+LLM-generated query performance on these localized flaws against inter-procedural vulnerabilities.
+RQ4: Which LLM setup provides the best trade-off between effectiveness and cost?High
+operational cost is a practical barrier to adopting LLMs for automated query generation, making it
+important to identify configurations that balance detection effectiveness with efficiency. To address
+this RQ, we evaluated each model’s detection performance relative to its operational cost, deriving
+actionable guidelines for developers building automated CodeQL query generators from existing
+vulnerability reports.
+3.2 Pipeline Overview
+As motivated in Section 2, directly scanning repositories with LLMs is cost-prohibitive, while
+existing CodeQL queries suffer from limited vulnerability coverage. Our pipeline bridges this
+gap by automatically generating vulnerability-specific CodeQL queries from VFCs (Figure 1),
+decomposing the task into three phases:semantic analysis,guided synthesis, anditerative refinement.
+In the first phase, theVulnerability Assessor and Reasonerevaluates the VFC to determine its
+suitability for generalization and extracts its core semantic characteristics. Subsequently, the
+Relevant Documentation Retrieveridentifies pertinent CodeQL APIs via a Retrieval-Augmented
+Generation (RAG) component to provide a grounded context for synthesis. In the final phase, our
+specialized agents, i.e., thePredicate GeneratorandQuery Generator, incrementally construct and
+compose reusable logical predicates into a complete query. To ensure practical utility, each query is
+validated by aCompilability Checker, with any identified syntactic errors being resolved through
+iterative correction by theSyntax Refiner. We treat each file within a VFC as a distinct data point.
+Specifically, we use each modified segment to generate a corresponding CodeQL query, which we
+define asCVE-code segment pairs. Consequently, a single CVE may result in multiple queries if it
+involves extensive code changes spanning different files.
+The interactions within the framework are organized among the following actors:
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+6
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin, Kang Hong
+Jin, and David Lo
+(1) Vulnerability Assessor and Reasoner.This LLM agent is responsible for evaluating whether
+a given VFC is relevant and generalizable into a detection pattern. It reasons over the commit
+changes and summarizes the core characteristics of the fixed vulnerability. If a VFC is determined
+to be irrelevant or lacks a generalizable pattern for mining, it is discarded, and the synthesis
+pipeline is terminated for that specific instance.
+(2) Relevant Documentation Retriever.The primary objective of this agent is to identify and
+retrieve the specific CodeQL APIs required for synthesizing predicates and queries. Given
+the vast library of available CodeQL functions, the agent enhances generation efficiency by
+constraining the search space to only the most relevant candidates. Specifically, the agent utilizes
+a CWE-ID as a query for an LLM-based search engine, which is tasked with extracting the
+standard APIs and predicates typically employed to model and detect that specific vulnerability
+class.
+(3) CodeQL Predicate Generator.This agent identifies vulnerability patterns from pairs of VFCs
+and their vulnerable versions. By leveraging retrieved documentation, it translates these patterns
+into CodeQL predicates (i.e., used to describe logical relations in CodeQL that capture aspects
+of vulnerability behavior). By generating predicates rather than full queries, the agent can focus
+on converting unstructured logic into formal code without the overhead of query structural
+requirements.
+(4) CodeQL Query Generator.This agent composes the generated predicates into a complete
+query designed to identify vulnerabilities based on the learned patterns. Since CodeQL utilizes
+a “select-from-where” structure similar to SQL, the Query Generator orchestrates the generated
+predicates and integrates them into a complete query, ensuring they satisfy the structural
+requirements of a functional query. Ultimately, the separation of concerns allows the Predicate
+Generator to focus on low-level semantic logic, while the Query Generator manages the high-
+level orchestration and syntactic integration.
+(5) Compilability Checker.This component utilizes the CodeQL compiler to verify that the
+generated predicates and queries are syntactically valid and compilable.
+(6) Syntax Refiner.If compilation fails, the Syntax Refiner agent is triggered to automatically
+correct errors. This refinement process is iterative, allowing up to three attempts to achieve
+successful compilation of the predicates and query.
+4 Experimental Setup
+We perform extensive experimental evaluations of the automatic query generation and demonstrate
+its practical effectiveness in detecting vulnerabilities in real-world Java repositories compared to
+the standard CodeQL. Through a series of controlled experiments on a benchmark of known CVEs,
+we evaluate the performance of LLM-synthesized CodeQL queries.
+4.1 Data
+In our study, we used CVEs reported in NVD. The main dataset is a collection of CVEs from
+MoreFixes [1].
+4.1.1 CVE for Pattern Mining.We utilized the MoreFixes dataset [ 1] as the primary source of VFCs
+or security patches for our vulnerability pattern mining phase and utilized the CVEs related to the
+Java programming language in this study.
+To ensure the practical relevance of our study, we further refined our selection based on CWE-ID,
+focusing on the top 15 most dangerous software weaknesses as defined by the MITRE 2025 CWE Top
+25 [23].2 Finally, we selected the most recent CVEs available in the MoreFixes database, reserving
+2https://cwe.mitre.org/top25/archive/2025/2025_cwe_top25.html
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+Towards Scalable and Cost-Efficient Vulnerability Detection:
+A Study on Automatic Query Generation 7
+the latest 20% from each category as the test set. We limited our selection to a maximum of 20
+CVE-code segment pairs to serve as seeds for the pattern mining process. However, we found that
+several of the initial 15 CWE categories were underrepresented in the NVD. Consequently, we
+narrowed our final scope to 10 CWE IDs that contained a minimum of 20 code segments for pattern
+extraction. The only exception was CWE-434, which provided 19 CVE-code segment pairs; all other
+selected categories reached the 20-pair threshold. The details about the data that we used in the
+vulnerability pattern mining are presented in Table 1.
+Table 1. Distribution of selected CWE categories and experimental data.
+CWE ID CWE Description #CVE
+Mining
+Seed
+#CVE
+Test
+Data
+CWE-22 Path Traversal 16 9
+CWE-78 OS Command Injection 1 5
+CWE-79 Cross-site Scripting 10 37
+CWE-89 SQL Injection 7 8
+CWE-94 Code Injection 7 8
+CWE-352 Cross-Site Request Forgery 10 17
+CWE-434 Unrestricted Upload of File with
+Dangerous Type
+5 4
+CWE-502 Deserialization of Untrusted Data 10 15
+CWE-787 Out-of-bounds Write 6 7
+CWE-862 Missing Authorization 8 2
+Total 10 Categories 80 112
+4.1.2 CVE Evaluation Dataset.We extracted a subset of the MoreFixes dataset spanning the same
+10 CWE categories used in the pattern mining phase. To construct this test set, we sampled up to
+20 of the most recent CVEs per category. We applied two primary exclusion criteria to ensure data
+quality and experimental integrity: (1) each VFC must involve no more than five modified files,
+and (2) the CVE must not have been included in the initial vulnerability pattern mining phase to
+prevent data leakage.
+4.2 Baseline
+For our baseline comparison, we evaluated the detection efficacy of CodeQL when utilizing LLM-
+generated queries against the default Java security queries provided in the official CodeQL reposi-
+tory.3
+Additionally, we included PDBERT [20] as a representative baseline based on deep-learning.
+PDBERT is a transformer-based model pre-trained using novel objectives, namely Control Depen-
+dency Prediction (CDP) and Data Dependency Prediction (DDP), which can boost the understanding
+of vulnerable code during fine-tuning. We selected this approach because it demonstrated supe-
+rior performance over other contenders in a 2026 comparative study that evaluates vulnerability
+detection techniques on the repository level [ 36]. Crucially, that study included a time-aware
+evaluation framework to eliminate the risk of data leakage from the test set. Notably, PDBERT can
+3https://github.com/github/codeql/blob/main/java/ql/src/Security
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+8
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin, Kang Hong
+Jin, and David Lo
+be seamlessly adapted to the Java language without requiring the program to be built, mirroring
+the "build-free" CodeQL configuration used in our experiments.
+Regarding a direct LLM-based detection baseline, we omit this approach from our study due
+to its prohibitive operational costs and limited feasibility for large-scale deployment. Preliminary
+experiments showed that scanning a single repository using the budget-friendly Kimi K2.5 model
+costs 17 USD for a single-shot prompt. Scaling this evaluation to over 100 projects benchmark
+would exceed 1,500 USD, a figures that ignores the necessity of evaluating frontier models, which
+can be up to six times more expensive, i.e., Sonnet 4.5 cost in OpenRouter is 6 times more expensive
+than Kimi K2.5. Furthermore, advanced LLM-based techniques such as VulTrial [37] are similarly
+cost-inefficient. While VulTrial reported a cost of 7.46 USD for 435 curated samples, applying that
+logic to a single repository with 3,719 functions would cost 64 USD using the now-outdated GPT-3.5.
+Projecting this across 100 repositories would exceed 6,000 USD for a single scan. Using GPT-4o, the
+cost per repo jumps to approximately 180 USD, totaling 18,000 USD for the full benchmark. These
+costs would further escalate if developers of security scanners performed multiple scans or utilized
+even higher-tier models, making direct LLM detection financially unsustainable compared to the
+automatic query-generation approach.
+Beyond operational costs, omitting direct LLM-based detection inherently protects intellectual
+property and data confidentiality. By avoiding the need to transmit proprietary source code to third-
+party providers, our methodology sidesteps the legal and security hurdles common in enterprise
+environments.
+While one could argue that deploying open-weights models like Kimi K2.5 locally could mitigate
+these privacy concerns, the required infrastructure remains inaccessible for most organizations.
+For context, hosting the full Kimi K2.5 model requires a minimum of four NVIDIA H200 GPUs [35],
+with individual units retailing between 30,000 and 40,000 USD. Including the necessary high-
+performance computing (HPC) setup, the total capital expenditure for local hosting ranges from
+150,000 to 300,000 USD [3]. Such a prohibitive upfront investment is rarely viable for startups or
+small-to-medium enterprises (SMEs), further validating our approach of using LLMs to generate
+portable, locally-executable CodeQL queries.
+4.3 LLMs Selection
+In this study, we evaluated a diverse suite of LLMs for the automated synthesis of CodeQL queries.
+Our selection process was primarily guided by the top-performing models in the programming
+category on OpenRouter [25]. We included the three highest-ranked models and supplemented
+them with representative architectures such as Moonshot Kimi K2.5, which were integrated into the
+OpenRouter platform on January 27, 2026. Furthermore, we incorporated OpenAI GPT 5.2 Codex
+into our evaluation. Despite its absence from the current top 10 rankings, OpenAI’s widespread
+adoption [28] makes it a critical baseline. This selection strategy ensures a broad representation of
+proprietary models from leading providers, including X, OpenAI, Google, Moonshot AI, Meta, and
+Anthropic, thereby enhancing the diversity and robustness of our comparative analysis.
+4.4 Implementation Details
+In this experiment, we utilized CodeQL v2.17.3, which supports the “no-build" feature for project
+analysis. All databases in this study were constructed using the –build-mode noneflag. This
+approach ensures that we can evaluate each project without being restricted by specific environment
+or build-tooling constraints.
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+Towards Scalable and Cost-Efficient Vulnerability Detection:
+A Study on Automatic Query Generation 9
+For the language model infrastructure, we utilized the OpenRouter API 4, which allowed for
+precise monitoring of the experiment’s monetary costs. This setup effectively simulates a real-world
+production environment where independent hosting of large-scale models is often prohibitive due
+to the high hardware and maintenance requirements.
+4.5 Evaluation Metrics
+Following previous work [17], we evaluate the detection performance of the generated queries
+using three key metrics: Total Detected Vulnerabilities (#Detected), Average False Discovery Rate
+(AvgFDR), and the Average F1-score (AvgF1).
+We define our evaluation over a dataset 𝐷={𝑃 1, . . . , 𝑃𝑛 }, where each project 𝑃𝑖 contains a
+known set of ground-truth vulnerable program files𝑉 𝑣𝑢𝑙
+𝑃 . A vulnerability is considered successfully
+detected if at least one identified file,𝐹𝑖𝑙𝑒∈𝐹𝑖𝑙𝑒𝑠 𝑃, intersects with the ground truth:
+𝐹𝑖𝑙𝑒∩𝑉 𝑣𝑢𝑙
+𝑃 ≠∅(1)
+The metrics are formally defined as follows. First, we determine the number of valid vulnerable
+paths for a project𝑃:
+#𝑉 𝑢𝑙𝐹𝑖𝑙𝑒(𝑃)=|{𝐹𝑖𝑙𝑒∈𝐹𝑖𝑙𝑒𝑠 𝑃 |𝐹𝑖𝑙𝑒∩𝑉 𝑣𝑢𝑙
+𝑃 ≠∅}|(2)
+Project-level Recall is defined as a binary indicator,𝑅𝑒𝑐(𝑃)= 1if# 𝑉 𝑢𝑙𝐹𝑖𝑙𝑒(𝑃)> 0and0otherwise.
+Consequently, the aggregate detection count is given by:
+#𝐷𝑒𝑡𝑒𝑐𝑡𝑒𝑑(𝐷)=
+∑︁
+𝑃∈𝐷
+𝑅𝑒𝑐(𝑃)(3)
+Project-level Precision, 𝑃𝑟𝑒𝑐(𝑃) , is defined as the ratio of valid vulnerable files to the total
+retrieved files:
+𝑃𝑟𝑒𝑐(𝑃)= #𝑉 𝑢𝑙𝐹𝑖𝑙𝑒(𝑃)
+|𝐹𝑖𝑙𝑒𝑠 𝑃 | (4)
+From this, we derive the Average False Discovery Rate across the dataset, which is inversely
+related to precision:
+𝐴𝑣𝑔𝐹 𝐷𝑅(𝐷)=avg 𝑃∈𝐷,|𝐹𝑖𝑙𝑒𝑠 𝑃 |>0 (1−𝑃𝑟𝑒𝑐(𝑃))(5)
+Finally, the Average F1-score (AvgF1) is calculated as the mean harmonic mean of precision and
+recall across all projects in𝐷:
+𝐴𝑣𝑔𝐹1(𝐷)= 1
+|𝐷|
+∑︁
+𝑃∈𝐷
+2·𝑃𝑟𝑒𝑐(𝑃) ·𝑅𝑒𝑐(𝑃)
+𝑃𝑟𝑒𝑐(𝑃) +𝑅𝑒𝑐(𝑃) (6)
+We address potential mathematical instabilities by imposing specific constraints on these calcu-
+lations. Since 𝑃𝑟𝑒𝑐(𝑃) is undefined when no paths are retrieved (|𝐹𝑖𝑙𝑒𝑠 𝑃 |= 0), AvgFDR is computed
+only over the subset of projects where at least one result is produced. In contrast, AvgF1 remains
+robust across the entire dataset; when no files are detected,𝑅𝑒𝑐(𝑃)= 0naturally forces the F1-score
+for that project to zero, regardless of the precision value.
+5 Results
+In this section, we present the results to our research questions.
+RQ1: LLMs Performance in Generating Compilable CodeQL Query
+Table 2 presents the results of our initial attempt to generate predicates and queries without an
+additional syntax-refining stage. In this experiment, we observed that nearly all models struggled
+4https://openrouter.ai/
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+10
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin, Kang Hong
+Jin, and David Lo
+Table 2. Model performance in generating compilable predicates and queries withoutsyntax refiner.
+Base Model # Compilable Queries
+Gemini 3 Flash Preview 17
+DeepSeek R1 5
+Grok Code Fast 1 5
+Kimi K2 Thinking 0
+Kimi K2.5 4
+Llama 3.3 0
+Minimax M2.1 0
+Qwen 3 Coder 0
+GPT 5.2 Codex 2
+Claude Sonnet 4.5 0
+to translate vulnerability patterns into compilable CodeQL code, suggesting that these models lack
+sufficient familiarity with CodeQL’s specific syntactical requirements.
+Consequently, we introduced aSyntax Refiner Agentin an attempt to address the syntactic
+limitations and enhance the overall compilability of the generated queries. This agent is designed
+to iteratively correct uncompilable code with a maximum of three repair attempts. Furthermore,
+we explored a hybrid strategy by incorporating Gemini 3 Flash Preview, i.e., the model with the
+highest success rate in generating compilable queries, as a specialized “syntax specialist" for more
+expensive models such as GPT 5.2 Codex and Sonnet 4.5. This approach seeks to exploit Gemini 3
+Flash Preview’s superior syntactical knowledge of CodeQL while simultaneously reducing overall
+financial costs.
+Table 3. Model performance in generating compilable predicates and queries withsyntax refiner.
+Base Model Syntax Refiner #Compilable Queries Duration (Hour) Cost (USD)
+Gemini 3 FP = base model 123 8 9.25
+DeepSeek R1 = base model 5 18 0.00
+Grok Code F1 = base model 57 4 3.03
+Kimi K2 T = base model 51 12 12.70
+Kimi K2.5 = base model 96 24 12.99
+Llama 3.3 = base model 0 4 0.77
+Minimax M2.1 = base model 11 34 8.78
+Qwen 3 Coder = base model 3 3 0.76
+GPT 5.2 Codex Gemini 3 FP 105 6 17.15
+Sonnet 4.5 Gemini 3 FP 120 14 37.10
+Based on the experimental results presented in Table 3, we observe that the syntax refiner plays
+a critical role in the automatic generation of CodeQL queries. By providing iterative feedback, it
+effectively directs the LLM to produce compilable code. Furthermore, Gemini 3 Flash Preview’s
+capability for constructing syntactically correct queries was once again demonstrated by a signifi-
+cant increase in success rates. Notably, the hybrid approach successfully repaired up to 120 queries
+that were previously incorrectly composed by Sonnet 4.5, highlighting the value of cross-model
+syntax refinement.
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+Towards Scalable and Cost-Efficient Vulnerability Detection:
+A Study on Automatic Query Generation 11
+Table 4. Model performance in detecting real-world vulnerabilities.
+Model #Detected (/112)
+(↑)
+Detection Rate
+(%) (↑)
+Avg FDR (%) (↓) Avg F1 Score(↑)
+CodeQL 19 16.96 89.19 13.20
+PDBERT 6 5.36 43.06 12.06
+Gemini 3 FP 3 2.68 79.48 4.74
+Grok Code Fast 1 25 22.32 95.20 7.90
+Kimi K2.5 50 44.64 89.9224.04
+Minimax M2.1 8 7.14 93.43 6.84
+GPT 5.2 Codex +
+Gemini 3 FP
+27 24.11 83.84 21.47
+Claude Sonnet
+4.5 + Gemini 3 FP
+51 45.54 93.13 11.94
+Answer to RQ1
+All evaluated LLMs exhibited a lack of syntactic fluency regarding CodeQL’s syntax, resulting
+in low compilation success rates when limited to a single-shot generation. To address this
+bottleneck, an iterative syntax refinement proved highly effective in resolving lexical errors.
+RQ2: Effectiveness of Generated Queries in Detecting Real-World Vulnerabilities
+Table 4 summarizes the performance of our automatically generated queries compared to Cod-
+eQL’s default query set. Our experimental results reveal varying strengths among the models. While
+Claude Sonnet 4.5 achieved the highest vulnerability detection rate at 45.54%, this performance was
+offset by a higher FDR. In contrast, Kimi K2.5 demonstrated higher balance; it trailed Sonnet 4.5 by
+only a single CVE in terms of detection but maintained a FDR that was more than three percentage
+points lower. Consequently, Kimi K2.5 achieved the highest overall average F1-score of 24.04%.
+This represents an 82% improvement of average F1-Score over the CodeQL baseline, suggesting
+that our automated synthesis approach is a more practical alternative for real-world deployment.
+Interestingly, Gemini 3 Flash Preview, which previously exhibited superior proficiency in gener-
+ating compilable queries, failed to correctly translate the underlying logic of vulnerability patterns
+into semantically meaningful CodeQL queries. This performance gap suggests that while Gemini 3
+is highly effective as asyntax refiner, it lacks the deeper reasoning capabilities required to act as a
+primarylogic reasonerfor complex query synthesis.
+Answer to RQ2
+While Claude Sonnet 4.5 leads in raw discovery, Kimi K2.5 achieves a superior precision-recall
+balance, outperforming the standard CodeQL suite by 82% in F1-score. This demonstrates that
+LLM-synthesized queries effectively surpass the baselines in real-world applications.
+RQ3: Where Automated Generation Performs Better
+In an effort to further optimize our automated generation process, we conducted additional
+experiments to explore the impact of patch complexity on model performance. Based on the
+intuition that LLMs may distill information more effectively from concise contexts, we investigated
+whether restricting the input to CVEs with “short fixes", defined as changes involving no more
+than 10 lines within a single file, improves the quality of the generated queries. For this phase,
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+12
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin, Kang Hong
+Jin, and David Lo
+we selected the three highest-performing models from our initial evaluations: Kimi K2.5, GPT 5.2
+Codex (paired with Gemini 3 Flash), and Sonnet 4.5 (paired with Gemini 3 Flash Preview).
+Table 5 summarizes the results of mining vulnerability patterns from short CVEs when evaluated
+against the full test suite. This setup tests whether models can better identify the core characteristics
+of a vulnerability when provided with highly focused context. Our results indicate that Sonnet 4.5
+was the only model to benefit from this restriction, increasing its Avg F1-score by 63% (from 11.94%
+to 19.49%). Conversely, Codex and Kimi K2.5 experienced significant performance degradation,
+suggesting that these models leverage the broader context of larger patches to craft more effective
+queries.
+Subsequently, we evaluated the performance of the generated queries specifically on CVEs
+with short changes, as presented in Tables 6 and 7. This configuration explores whether detecting
+atomic vulnerabilities is inherently easier. This inquiry is particularly rigorous because the limited
+ground truth in short changes severely penalizes the detection rate; a meaningful query must hit
+one exact file to be counted as successful. Our findings confirm that the generated queries are
+indeed semantically precise, as evidenced by the low AvgFDR and high detection rate achieved
+by Codex. This phenomenon demonstrates that Codex successfully distilled the “essence" of the
+vulnerabilities into precise logic, achieving a detection rate significantly higher than the CodeQL
+baseline. Notably, the highest overall Avg F1-score was achieved by utilizing GPT 5.2 Codex to
+mine patterns from the full dataset and then applying them to detect vulnerabilities in short-change
+CVEs, i.e., intra-procedural vulnerabilities.
+Answer to RQ3
+Using all available information from a vulnerability report is the most effective way to generate
+a query. However, these queries are most helpful for catching small, localized bugs, which are
+characteristic of intra-procedural vulnerabilities.
+Table 5. Model performance in detection of real-world vulnerabilities - vuln pattern seed: short CVEs, test: all.
+Model #Detected (/112)
+(↑)
+Detection Rate
+(%) (↑)
+Avg FDR (%) (↓) Avg F1 Score(↑)
+CodeQL
+(Baseline)
+19 16.96 89.19 13.20
+Kimi K2.5 17 15.18 86.12 14.50
+GPT 5.2 Codex +
+Gemini 3 FP
+2 1.79 94.57 2.69
+Claude Sonnet
+4.5 + Gemini 3 FP
+31 27.68 84.96 19.49
+RQ 4: Cost-Effectiveness and Practicality of Automatic Query Generation
+Figure 2 illustrates the trade-off between computational cost and detection performance across
+the evaluated models. While Kimi K2.5 does not achieve the absolute highest number of detections
+(#Detected), it yields the superior Average F1-score at a highly efficient cost point. Specifically, the
+model generated 96 CodeQL queries for less than 13 USD, successfully detecting 50 CVEs within
+the benchmark. This represents a 263% increase in the detection rate over the CodeQL baseline,
+rising from 19 to 50 detected vulnerabilities. These results suggest that Kimi K2.5 serves as a highly
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+Towards Scalable and Cost-Efficient Vulnerability Detection:
+A Study on Automatic Query Generation 13
+Table 6. Model performance in detection of real-world vulnerabilities - vuln pattern seed: short CVEs, test:
+short CVEs.
+Model #Detected (/25)
+(↑)
+Detection Rate
+(%) (↑)
+Avg FDR (%) (↓) Avg F1 Score(↑)
+CodeQL
+(Baseline)
+5 20 92.95 10.43
+Kimi K2.5 7 28 87.44 23.53
+GPT 5.2 Codex +
+Gemini 3 FP
+1 4756.90
+Claude Sonnet
+4.5 + Gemini 3 FP
+10 3280.3924.32
+cost-effective alternative for automatically synthesizing CodeQL queries from vulnerability reports
+to bolster software security.
+Our experiments involving the detection of CVEs with short fixes further underscore the practical
+utility of Kimi K2.5. From both a budgetary and performance perspective, it represents the most
+viable LLM for real-world vulnerability pattern mining; it consistently outperforms the standard
+CodeQL baseline while remaining 65% more affordable than Sonnet 4.5 and 25% cheaper than
+GPT 5.2 Codex. This dual efficiency in cost and performance confirms its suitability for practical
+deployment, particularly for automated learning tasks aimed at maintaining and updating CodeQL
+query packages in rapidly evolving security environments.
+0 10 20 30
+T otal Computational Cost (USD via OpenRouter)
+5
+10
+15
+20
+25Average F1-score
+CodeQL
+Gemini 3 FP
+Kimi K2.5
+Minimax M2.1
+GPT 5.2 Codex +
+Gemini 3 FP
+Sonnet 4.5 +
+Gemini 3 FP
+Fig. 2. Cost-efficiency visualization for automated CodeQL query generation.The area of each marker is
+proportional to the #Detected.
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+14
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin, Kang Hong
+Jin, and David Lo
+Table 7. Model performance in detection of real-world vulnerabilities - vuln pattern seed: all, test: short CVEs.
+Model #Detected (/25)
+(↑)
+Detection Rate
+(%) (↑)
+Avg FDR (%) (↓) Avg F1 Score(↑)
+CodeQL
+(Baseline)
+5 20 92.95 10.43
+PDBERT 3 12 50 19.35
+Kimi K2.5 10 40 89.68 16.41
+GPT 5.2 Codex +
+Gemini 3 FP
+10 4075.31 30.53
+Claude Sonnet
+4.5 + Gemini 3 FP
+12 4894.50 9.87
+Answer to RQ4
+Kimi K2.5 represents the most viable LLM for practical deployment, offering an optimal balance
+between computational budget and detection performance. It achieved a superior Average
+F1-score by synthesizing 96 CodeQL queries for under USD 13, successfully detecting 50 CVEs.
+Furthermore, Kimi K2.5 is 65% more affordable than Claude Sonnet 4.5 and 25% cheaper than
+GPT 5.2 Codex, while consistently outperforming the CodeQL baseline.
+6 Discussion
+6.1 False Positive Observation
+While LLM-generated queries outperformed CodeQL in detection rates while maintaining compa-
+rable False Discovery Rates (FDR), we observed a notable volume of false alarms. To investigate
+potential remediations, we analyzed the query derived from the fix for CVE-2022-40152, which
+achieved high recall but low precision. This query, presented in Listing 1, was designed to identify
+recursive method calls lacking both depth parameters and guard conditions. The LLM successfully
+captured the essential logic for identifying recursion and defined two predicates to act as recursion-
+depth checkers; however, due to space limitations, some auxiliary details are omitted from the
+listing.
+Despite the seemingly sound logic, this query flagged over 500 files, prompting a manual review
+of the alerts. Analysis of a representative false positive in the novel-plus repository 5 revealed that
+the flagged segment was unreachable “dead code”.
+Although the CodeQL alert was technically accurate, as logic poses a legitimate risk if executed,
+the specific code segment is never called within the application. Theoretically, the method triggers
+an out-of-bounds error when called withInteger.MAX_VALUE as ‘day‘ parameter. However, because
+this path is inactive, it poses no real-world exploit risk and is therefore categorized as a false positive.
+This finding suggests that future research should integrate query generation with reachability
+analysis to filter out inactive code paths and reduce manual verification efforts. Such filtering is
+particularly valuable given that dead code is a widespread phenomenon in Java applications [4, 5],
+and its presence systematically inflates false positive rates in static analysis pipelines.
+5https://github.com/201206030/novel-plus/blob/f3f37721b119820f95e4dd9d8643e03355085d32/novel-admin/src/main
+/java/com/java2nb/common/utils/TimeUtils.java#L158
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+Towards Scalable and Cost-Efficient Vulnerability Detection:
+A Study on Automatic Query Generation 15
+importjava
+classRecursiveMethod extends Method {
+RecursiveMethod() {...}
+}
+MethodCall getARecursiveCall() {...}
+}
+predicatehasDepthTrackingParameter(RecursiveMethod m) {...}
+predicatehasDepthLimitGuard(RecursiveMethod m) {...}
+fromRecursiveMethod m
+wherenot hasDepthTrackingParameter(m) and not hasDepthLimitGuard(m)
+selectm, "Recursive method lacks depth limiting mechanisms, potentially leading to
+stack exhaustion (CWE-787)."
+Listing 1. LLM-generated CodeQL query for CVE-2022-40152.
+6.2 Lessons Learned and Implications
+CWE-79
+(n=37)
+CWE-89
+(n=8)
+CWE-352
+(n=17)
+CWE-22
+(n=9)
+CWE-78
+(n=5)
+CWE-502
+(n=15)
+CWE-787
+(n=7)
+CWE-94
+(n=8)
+CWE-434
+(n=4)
+CWE-862
+(n=2)
+CWE Category
+0
+2
+4
+6
+8
+10
+12Number of Detected CVEs
+13
+1
+10
+8
+3
+5
+4
+2 2 2
+8
+1
+13
+8
+4
+7
+3 3
+2 22 2
+6 6
+0
+5
+1
+2
+1
+22
+0
+5
+3
+1
+3
+2
+1 1 1
+Architectures
+Kimi K2.5
+Sonnet 4.5 + Gemini 3 FP
+GPT 5.2 Codex + Gemini 3 FP
+CodeQL
+Fig. 3. Comparative analysis of detection counts for the top 10 CWE classes.
+Developers cannot rely solely on the prepackaged queries in CodeQL.Despite its wide-
+spread adoption and endorsement by industry leaders such as Microsoft [ 21] and GitHub [ 9],
+CodeQL’s efficacy in detecting modern, high-impact vulnerabilities remains notably constrained.
+Our experiments, which were conducted on a diverse subset of vulnerabilities from the last five
+years, reveal a detection rate of less than 20% when using standard CodeQL query suites. This
+performance suggests that while the framework provides a robust engine for semantic analysis,
+the official, prebuilt query suites struggle to maintain pace with an increasingly sophisticated
+and rapidly evolving software vulnerabilities. Consequently, achieving comprehensive detection
+coverage remains heavily dependent on the manual, time-intensive curation of custom queries by
+security experts.
+While evaluated LLMs consistently outperform the standard CodeQL baseline, our results
+indicate that no single model dominates all vulnerability categories.Figure 3 presents a
+comparative analysis of detection capabilities categorized by CWE ID. Across all categories, both
+the Sonnet 4.5 and Gemini 3 Flash Preview hybrid, as well as Kimi K2.5, consistently outperform
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+16
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin, Kang Hong
+Jin, and David Lo
+standard CodeQL queries in vulnerability detection. These results underscore the significant
+potential of leveraging LLMs to automatically mine vulnerability patterns from reported CVEs,
+thereby bolstering repository resilience against dangerous software vulnerabilities.
+Furthermore, our findings suggest that LLM configurations can be optimized based on specific
+security requirements and vulnerability classes. For instance, XSS vulnerabilities (CWE-79) are
+most effectively addressed using Sonnet 4.5 as the base model for pattern mining. Conversely, Kimi
+K2.5 demonstrates superior efficacy in handling Cross-Site Request Forgery (CSRF), OS Command
+Injection, Deserialization of Untrusted Data, and Code Injection.
+These performance variations likely stem from the distinct data distributions utilized during each
+model’s pre-training phase. Although the specific composition of proprietary training datasets is
+rarely disclosed by providers, our study provides empirical evidence identifying which models excel
+at detecting specific vulnerability classes. These findings offer valuable insights into the relative
+strengths of each model across diverse security categories. For example, projects that utilize SQL
+integration are susceptible to CWE-89 (SQL Injection) vulnerabilities; therefore, they might benefit
+more from mining vulnerability patterns using Kimi K2.5.
+Notably, all LLM-generated queries successfully detected every vulnerability in the CWE-862
+test set, despite the limited amount of historical training data available for the models. In prac-
+tice, maintaining a multi-model ensemble can maximize detection rates across diverse CWE IDs,
+ultimately strengthening the overall security posture of the software.
+Function-level analysis may not fully capture repository-level vulnerabilities.In our ex-
+periments, PDBERT performed worse than CodeQL. This happened even though we made the
+evaluation easier for PDBERT by only analyzing specific functions and using a fairly balanced
+sample from the MoreFixes dataset (1010 vulnerable functions and 1223 non-vulnerable functions).
+Furthermore, we also computed the precision, recall, and Avg F1-Score on the file level, identical to
+the CodeQL evaluation.
+One of the reasons for this is that not all vulnerabilities can be simplified down to a single
+function. For example, CVE-2022-46688, a CSRF vulnerability in Jenkins—was fixed by adding a
+@RequirePOST annotation rather than changing the code logic inside the function. When a tool
+only looks at the function itself, it likely ignores this annotation and fails to recognize it as the root
+cause of the vulnerability.
+Real challenge is in filtering false positive.Our experiments demonstrate that LLM-generated
+queries significantly improve vulnerability detection rates compared to standard CodeQL queries.
+As our study demonstrates a significant leap in recall, future research can build upon this foundation
+by prioritizing advanced false-positive filtering to refine the precision of LLM-generated queries.
+Such advancements would likely lead to a higher average F1-score, effectively bridging the gap
+between high detection capabilities and the need for reduced manual verification in automated
+security analysis.
+7 Related Work
+A highly-significant research area that converts textual information into a query is the text-to-
+SQL study [13]. The evolution of text-to-SQL research has progressed from early rule-based and
+template-driven systems [15, 40], which lacked the scalability to handle linguistic diversity, to so-
+phisticated deep neural architectures. While initial sequence-to-sequence models like Seq2SQL [41]
+and RYANSQL [6] introduced sketch-based generation to improve generalization, they frequently
+struggled with complex constructs like nested subqueries. This led to the adoption of pre-trained
+language models (PLMs) such as BERT [7] and RoBERTa [19], which, when fine-tuned, significantly
+enhanced structural comprehension [41]. Despite these advancements, the high cost of task-specific
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+Towards Scalable and Cost-Efficient Vulnerability Detection:
+A Study on Automatic Query Generation 17
+fine-tuning and limited cross-domain adaptability remained persistent challenges. The current
+era is instead defined by LLMs such as GPT-4 and LLaMA [34], shifting research toward prompt
+engineering, in-context learning, and chain-of-thought reasoning. Modern frameworks like SQL-
+PaLM [29] and StructGPT [14] leverage these capabilities to achieve state-of-the-art performance
+in complex SQL generation without exhaustive retraining.
+Building on this momentum, recent security research has introduced IRIS [17], a neuro-symbolic
+framework that uses LLMs to infer CWE-specific source and sink labels for third-party library
+APIs, which are then integrated into a CodeQL engine to identify vulnerability paths. While IRIS
+enhances static analysis by automating specification discovery, it still relies on predefined query
+templates that only support taint analysis vulnerability detection. In contrast, we examine whether
+LLMs can move beyond simple labeling to autonomously generate complete, executable CodeQL
+queries by bypassing rigid templates and domain-specific fine-tuning.
+Additionally, recent research has highlighted the limitations of function-centric detection by
+shifting the focus toward repository-level contexts [36]. VulEval’s authors demonstrate that captur-
+ing cross-functional dependencies significantly improves detection precision and recall compared
+to traditional intra-procedural methods. While VulEval emphasizes the importance of repository-
+wide context for evaluating deep learning models, it primarily focuses on identifying existing
+vulnerabilities within a graph-based or sequence-based representation and has been experimented
+on C/C++ projects. In contrast, our work leverages Java repository-level information not just for
+detection, but as a semantic foundation for autonomously synthesizing CodeQL queries, enabling
+the transformation of high-level repository context into executable security logic.
+8 Conclusion and Future Work
+In this work, we provide empirical evidence that leveraging LLMs to recognize and translate vul-
+nerability patterns from NVD entries significantly improves detection rates without compromising
+precision. Our experiments demonstrate that patterns mined via Kimi K2.5 and translated into
+CodeQL queries achieve a 263% improvement in detection performance compared to baseline
+methods. Notably, this methodology mitigates data confidentiality concerns, as it eliminates the
+need to submit project-specific source code to third-party LLM providers.
+While repeated LLM inference can be cost-prohibitive, we found that Kimi K2.5 offers an optimal
+balance between CodeQL syntax proficiency and reasoning capability. Furthermore, for tasks
+requiring deeper logic, such as the initial vulnerability pattern mining, we observed that high-
+reasoning models such as GPT 5.2 Codex or Claude Sonnet 4.5 can be effectively paired with Gemini
+3 Flash Preview. In this hybrid configuration, the latter serves as a cost-effective syntax corrector,
+significantly reducing operational expenses compared to utilizing standalone frontier models for
+both initial generation and refinement.
+Looking ahead, we intend to investigate the cross-language transferability of LLM-mined patterns.
+For instance, adapting C/C++ vulnerability logic to detect similar flaws in Java projects. Such
+research is critical because existing CVE datasets are predominantly composed of C/C++ entries,
+while widely used languages like Python and Java have a smaller fraction of reported vulnerabilities.
+This data imbalance presents a valuable opportunity to explore cross-language vulnerability transfer,
+potentially leading to more robust CodeQL representations that are less dependent on language-
+specific datasets.
+Data Availability
+For transparency and reproducibility, we have made our study’s replication package, including all
+associated code and scripts, publicly available at https://figshare.com/s/b4cc715fa3415a52bad5?f
+ile=63158995 (DOI: 10.6084/m9.figshare.31866559). Additionally, the raw datasets used for query
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+18
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin, Kang Hong
+Jin, and David Lo
+generation and performance evaluation are archived at https://figshare.com/s/523e6adee7278c8dad
+f6 (DOI: 10.6084/m9.figshare.31866628).
+References
+[1] Jafar Akhoundali, Sajad Rahim Nouri, Kristian Rietveld, and Olga Gadyatskaya. 2024. MoreFixes: A large-scale dataset
+of CVE fix commits mined through enhanced repository discovery. InProceedings of the 20th International Conference
+on Predictive Models and Data Analytics in Software Engineering. 42–51.
+[2] Anthropic. 2025. Introducing Claude Sonnet 4.5. https://www.anthropic.com/news/claude-sonnet-4-5. Accessed:
+2026-03-23.
+[3] Erik Bernhardsson. 2024. The Price of an NVIDIA H200. Modal Blog, https://modal.com/blog/nvidia-h200-price-article.
+Accessed: March 27, 2026.
+[4] Danilo Caivano, Pietro Cassieri, Simone Romano, and Giuseppe Scanniello. 2021. An exploratory study on dead
+methods in open-source java desktop applications. InProceedings of the 15th ACM/IEEE International Symposium on
+Empirical Software Engineering and Measurement (ESEM). 1–11.
+[5] Danilo Caivano, Pietro Cassieri, Simone Romano, and Giuseppe Scanniello. 2023. On the spread and evolution of dead
+methods in Java desktop applications: an exploratory study.Empirical Software Engineering28, 3 (2023), 64.
+[6] DongHyun Choi, Myeong Cheol Shin, EungGyun Kim, and Dong Ryeol Shin. 2021. Ryansql: Recursively applying
+sketch-based slot fillings for complex text-to-sql in cross-domain databases.Computational Linguistics47, 2 (2021),
+309–332.
+[7] Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. Bert: Pre-training of deep bidirectional
+transformers for language understanding. InProceedings of the 2019 conference of the North American chapter of the
+association for computational linguistics: human language technologies, volume 1 (long and short papers). 4171–4186.
+[8] Apache Software Foundation. 2021. CVE-2021-44228 (Log4Shell) Advisory. https://logging.apache.org/log4j/2.x/secur
+ity.html
+[9] GitHub. 2024.About code scanning with CodeQL. https://docs.github.com/en/code-security/concepts/code-
+scanning/codeql/about-code-scanning-with-codeql Documentation.
+[10] Google. 2025. Introducing Gemini 3 Flash: Our Most Capable Small Model. https://blog.google/products-and-
+platforms/products/gemini/gemini-3-flash/. Accessed: 2026-03-23.
+[11] Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ahmad Al-Dahle, Aiesha
+Letman, Akhil Mathur, Alan Schelten, Alex Vaughan, et al . 2024. The llama 3 herd of models.arXiv preprint
+arXiv:2407.21783(2024).
+[12] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Peiyi Wang, Qihao Zhu, Runxin Xu, Ruoyu Zhang, Shirong Ma,
+Xiao Bi, et al. 2025. DeepSeek-R1 incentivizes reasoning in LLMs through reinforcement learning.Nature645, 8081
+(2025), 633–638.
+[13] Zijin Hong, Zheng Yuan, Qinggang Zhang, Hao Chen, Junnan Dong, Feiran Huang, and Xiao Huang. 2025. Next-
+generation database interfaces: A survey of llm-based text-to-sql.IEEE Transactions on Knowledge and Data Engineering
+(2025).
+[14] Jinhao Jiang, Kun Zhou, Zican Dong, Keming Ye, Wayne Xin Zhao, and Ji-Rong Wen. 2023. Structgpt: A general
+framework for large language model to reason over structured data.arXiv preprint arXiv:2305.09645(2023).
+[15] Fei Li and H. V. Jagadish. 2014. Constructing an interactive natural language interface for relational databases. 8, 1
+(Sept. 2014), 73–84. doi:10.14778/2735461.2735468
+[16] Kaixuan Li, Sen Chen, Lingling Fan, Ruitao Feng, Han Liu, Chengwei Liu, Yang Liu, and Yixiang Chen. 2023. Comparison
+and evaluation on static application security testing (sast) tools for java. InProceedings of the 31st ACM Joint European
+Software Engineering Conference and Symposium on the Foundations of Software Engineering. 921–933.
+[17] Ziyang Li, Saikat Dutta, and Mayur Naik. [n. d.]. IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabili-
+ties. InThe Thirteenth International Conference on Learning Representations.
+[18] Ruyan Lin, Yulong Fu, Wei Yi, Jincheng Yang, Jin Cao, Zhiqiang Dong, Fei Xie, and Hui Li. 2024. Vulnerabilities and
+security patches detection in OSS: a survey.Comput. Surveys57, 1 (2024), 1–37.
+[19] Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer,
+and Veselin Stoyanov. 2019. Roberta: A robustly optimized bert pretraining approach.arXiv preprint arXiv:1907.11692
+(2019).
+[20] Zhongxin Liu, Zhijie Tang, Junwei Zhang, Xin Xia, and Xiaohu Yang. 2024. Pre-training by predicting program
+dependencies for vulnerability analysis tasks. InProceedings of the IEEE/ACM 46th International Conference on Software
+Engineering. 1–13.
+[21] Microsoft Power Pages Team. 2023. Strengthen your Power Pages security with CodeQL code scan. https://www.micros
+oft.com/en-us/power-platform/blog/power-pages/strengthen-your-power-pages-security-with-codeql-code-scan/
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+Towards Scalable and Cost-Efficient Vulnerability Detection:
+A Study on Automatic Query Generation 19
+Accessed: 2026-03-23.
+[22] MiniMax, :, Aili Chen, Aonian Li, Bangwei Gong, Binyang Jiang, Bo Fei, Bo Yang, Boji Shan, Changqing Yu, Chao
+Wang, Cheng Zhu, Chengjun Xiao, Chengyu Du, Chi Zhang, Chu Qiao, Chunhao Zhang, Chunhui Du, Congchao
+Guo, Da Chen, Deming Ding, Dianjun Sun, Dong Li, Enwei Jiao, Haigang Zhou, Haimo Zhang, Han Ding, Haohai
+Sun, Haoyu Feng, Huaiguang Cai, Haichao Zhu, Jian Sun, Jiaqi Zhuang, Jiaren Cai, Jiayuan Song, Jin Zhu, Jingyang Li,
+Jinhao Tian, Jinli Liu, Junhao Xu, Junjie Yan, Junteng Liu, Junxian He, Kaiyi Feng, Ke Yang, Kecheng Xiao, Le Han,
+Leyang Wang, Lianfei Yu, Liheng Feng, Lin Li, Lin Zheng, Linge Du, Lingyu Yang, Lunbin Zeng, Minghui Yu, Mingliang
+Tao, Mingyuan Chi, Mozhi Zhang, Mujie Lin, Nan Hu, Nongyu Di, Peng Gao, Pengfei Li, Pengyu Zhao, Qibing Ren,
+Qidi Xu, Qile Li, Qin Wang, Rong Tian, Ruitao Leng, Shaoxiang Chen, Shaoyu Chen, Shengmin Shi, Shitong Weng,
+Shuchang Guan, Shuqi Yu, Sichen Li, Songquan Zhu, Tengfei Li, Tianchi Cai, Tianrun Liang, Weiyu Cheng, Weize
+Kong, Wenkai Li, Xiancai Chen, Xiangjun Song, Xiao Luo, Xiao Su, Xiaobo Li, Xiaodong Han, Xinzhu Hou, Xuan
+Lu, Xun Zou, Xuyang Shen, Yan Gong, Yan Ma, Yang Wang, Yiqi Shi, Yiran Zhong, Yonghong Duan, Yongxiang Fu,
+Yongyi Hu, Yu Gao, Yuanxiang Fan, Yufeng Yang, Yuhao Li, Yulin Hu, Yunan Huang, Yunji Li, Yunzhi Xu, Yuxin Mao,
+Yuxuan Shi, Yuze Wenren, Zehan Li, Zelin Li, Zhanxu Tian, Zhengmao Zhu, Zhenhua Fan, Zhenzhen Wu, Zhichao Xu,
+Zhihang Yu, Zhiheng Lyu, Zhuo Jiang, Zibo Gao, Zijia Wu, Zijian Song, and Zijun Sun. 2025. MiniMax-M1: Scaling
+Test-Time Compute Efficiently with Lightning Attention. arXiv:2506.13585 [cs.CL] https://arxiv.org/abs/2506.13585
+[23] MITRE. 2025. 2025 CWE Top 25 Most Dangerous Software Weaknesses. https://cwe.mitre.org/top25/archive/2025/2
+025_cwe_top25.html Accessed: 2026-01-19.
+[24] OpenAI. 2025.GPT 5.2 Codex: Technical Report and Model Card. Technical Report. OpenAI. https://cdn.openai.com/p
+df/ac7c37ae-7f4c-4442-b741-2eabdeaf77e0/oai_5_2_Codex.pdf Accessed: 2026-03-23.
+[25] OpenRouter. 2026. LLM Model Rankings: Programming Category. https://openrouter.ai/rankings?category=progra
+mming#categories. Accessed: 2026-01-19.
+[26] Semgrep, Inc. 2024. Perform cross-file analysis. https://semgrep.dev/docs/semgrep-code/semgrep-pro-engine-intro
+Accessed: 2025.
+[27] Mingjie Shen, Akul Abhilash Pillai, Brian A Yuan, James C Davis, and Aravind Machiry. 2025. Finding 709 Defects in
+258 Projects: An Experience Report on Applying CodeQL to Open-Source Embedded Software (Experience Paper).
+Proceedings of the ACM on Software Engineering2, ISSTA (2025), 1077–1100.
+[28] Ze Sheng, Zhicheng Chen, Shuning Gu, Heqing Huang, Guofei Gu, and Jeff Huang. 2025. Llms in software security: A
+survey of vulnerability detection techniques and insights.Comput. Surveys58, 5 (2025), 1–35.
+[29] Ruoxi Sun, Sercan Ö Arik, Alex Muzio, Lesly Miculicich, Satya Gundabathula, Pengcheng Yin, Hanjun Dai, Hootan
+Nakhost, Rajarishi Sinha, Zifeng Wang, et al. 2023. Sql-palm: Improved large language model adaptation for text-to-sql
+(extended).arXiv preprint arXiv:2306.00739(2023).
+[30] Tamás Szabó. 2023. Incrementalizing production codeql analyses. InProceedings of the 31st ACM Joint European
+Software Engineering Conference and Symposium on the Foundations of Software Engineering. 1716–1726.
+[31] Kimi Team, Tongtong Bai, Yifan Bai, Yiping Bao, SH Cai, Yuan Cao, Y Charles, HS Che, Cheng Chen, Guanduo Chen,
+et al. 2026. Kimi K2. 5: Visual Agentic Intelligence.arXiv preprint arXiv:2602.02276(2026).
+[32] Kimi Team, Yifan Bai, Yiping Bao, Y Charles, Cheng Chen, Guanduo Chen, Haiting Chen, Huarong Chen, Jiahao Chen,
+Ningxin Chen, et al. 2025. Kimi k2: Open agentic intelligence.arXiv preprint arXiv:2507.20534(2025).
+[33] VMware Spring Team. 2022. CVE-2022-22965 (Spring4Shell) Advisory. https://spring.io/blog/2022/03/31/spring-
+framework-rce-early-announcement
+[34] Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée Lacroix, Baptiste
+Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, et al. 2023. Llama: Open and efficient foundation language models.
+arXiv preprint arXiv:2302.13971(2023).
+[35] Unsloth AI. 2025. Kimi-K2.5 Model Documentation and Hardware Requirements. https://unsloth.ai/docs/models/kimi-
+k2.5. Accessed: 2026-03-27.
+[36] Xin-Cheng Wen, Xinchen Wang, Yujia Chen, Ruida Hu, David Lo, and Cuiyun Gao. 5555. From Function to Repository:
+Towards Repository-Level Evaluation of Software Vulnerability Detection .IEEE Transactions on Software Engineering
+01 (Feb. 5555), 1–17. doi:10.1109/TSE.2026.3662145
+[37] Ratnadira Widyasari, Martin Weyssow, Ivana Clairine Irsan, Han Wei Ang, Frank Liauw, Eng Lieh Ouh, Lwin Khin
+Shar, Hong Jin Kang, and David Lo. 2025. Let the trial begin: A mock-court approach to vulnerability detection using
+llm-based agents.arXiv preprint arXiv:2505.10961(2025).
+[38] xAI. 2025.Grok Code Fast 1 Model Card. Technical Report. xAI. https://data.x.ai/2025-08-26-grok-code-fast-1-model-
+card.pdf Accessed: 2026-03-23.
+[39] An Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chang Gao, Chengen Huang,
+Chenxu Lv, Chujie Zheng, Dayiheng Liu, Fan Zhou, Fei Huang, Feng Hu, Hao Ge, Haoran Wei, Huan Lin, Jialong Tang,
+Jian Yang, Jianhong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang, Jing Zhou, Jingren Zhou, Junyang Lin, Kai Dang,
+Keqin Bao, Kexin Yang, Le Yu, Lianghao Deng, Mei Li, Mingfeng Xue, Mingze Li, Pei Zhang, Peng Wang, Qin Zhu,
+, Vol. 1, No. 1, Article . Publication date: September 2026.
+20
+Ivana Clairine Irsan, Ratnadira Widyasari, Huihui Huang, Ting Zhang, Yue Liu, Ouh Eng Lieh, Shar Lwin Khin, Kang Hong
+Jin, and David Lo
+Rui Men, Ruize Gao, Shixuan Liu, Shuang Luo, Tianhao Li, Tianyi Tang, Wenbiao Yin, Xingzhang Ren, Xinyu Wang,
+Xinyu Zhang, Xuancheng Ren, Yang Fan, Yang Su, Yichang Zhang, Yinger Zhang, Yu Wan, Yuqiong Liu, Zekun Wang,
+Zeyu Cui, Zhenru Zhang, Zhipeng Zhou, and Zihan Qiu. 2025. Qwen3 Technical Report. arXiv:2505.09388 [cs.CL]
+https://arxiv.org/abs/2505.09388
+[40] Tao Yu, Rui Zhang, Kai Yang, Michihiro Yasunaga, Dongxu Wang, Zifan Li, James Ma, Irene Li, Qingning Yao, Shanelle
+Roman, Zilin Zhang, and Dragomir Radev. 2018. Spider: A Large-Scale Human-Labeled Dataset for Complex and Cross-
+Domain Semantic Parsing and Text-to-SQL Task. InProceedings of the 2018 Conference on Empirical Methods in Natural
+Language Processing. Association for Computational Linguistics, Brussels, Belgium, 3911–3921. doi:10.18653/v1/D18-
+1425
+[41] Victor Zhong, Caiming Xiong, and Richard Socher. 2017. Seq2sql: Generating structured queries from natural language
+using reinforcement learning.arXiv preprint arXiv:1709.00103(2017).
+, Vol. 1, No. 1, Article . Publication date: September 2026.

@@ -1,0 +1,172 @@
+{
+  "kind": "test_plan_document",
+  "document_id": "SEMFLOW-TEST-PLAN-EXPLANATION-1.1",
+  "document_version": "1.1",
+  "basis_plan_version": "v4.1",
+  "date": "2026-10-11",
+  "scope_note": "本收据标识方案文档及引用依据，不代表任何基准已执行或已通过。",
+  "output": {
+    "path": "docs/testing/项目测试方案说明_v1.1.docx",
+    "bytes": 52632,
+    "sha256": "a813a1a3de811b42e9ada887738befe6a8c789ac740dd6d24c837d5a55650cec"
+  },
+  "sources": [
+    {
+      "path": "docs/testing/simple-three-module-test-plan.md",
+      "bytes": 18301,
+      "sha256": "15654bd4db6a7434fd987063ad087c9951eadf84892e698d075652cf81a47b84"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+      "bytes": 594873,
+      "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7"
+    },
+    {
+      "path": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+      "bytes": 1905170,
+      "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+      "bytes": 2079381,
+      "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa"
+    }
+  ],
+  "user_provided_competitor_sources": [
+    {
+      "path": "缺乏修复功能/只有建议没有修复.doc",
+      "bytes": 11264,
+      "sha256": "55a4695aafcf8ad5f4eec76cf816ce2f899ff2d21a9d77610da78c9947ab27b9"
+    },
+    {
+      "path": "代码审计低/代码审计效率低.doc",
+      "bytes": 11264,
+      "sha256": "0ae2c830891e6c0fb23198d30cc963d7cab4c5781a7ea2a582a7bea345ce1f6f"
+    },
+    {
+      "path": "代码审计低/证据1.pdf",
+      "bytes": 1407117,
+      "sha256": "17bf1566641f4cea097ad26e0b3ffd7c621841b79965a79820c37125a7e2608c"
+    }
+  ],
+  "full_targets": {
+    "audit_realvuln": {
+      "projects": 26,
+      "vulnerability_labels": 676,
+      "fp_traps": 120
+    },
+    "audit_owasp_python": {
+      "cases": 1230,
+      "positive": 452,
+      "negative": 778
+    },
+    "repair_patcheval": {
+      "tasks": 1000,
+      "dynamic_tasks": 230
+    },
+    "rules_qlcoder": {
+      "java_cves": 176,
+      "cwe_types": 42
+    }
+  },
+  "qa": {
+    "rendered_pages": 12,
+    "visually_reviewed_pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "chapters": 5,
+    "tables": 9,
+    "xml_parsing": "passed",
+    "source_hyperlinks": 13,
+    "runtime_python": "3.12.14",
+    "renderer_sha256": "876d5993324e2faaaa96a68a4f7504642e9a07e6df265b385b2baa03b231369e",
+    "agent_naming_check": "passed",
+    "previous_version_unchanged": "passed",
+    "source_hash_alignment": "passed"
+  },
+  "public_reference_check_date": "2026-10-11",
+  "supersedes": {
+    "document_id": "SEMFLOW-TEST-PLAN-EXPLANATION-1.0",
+    "output": {
+      "path": "docs/testing/项目测试方案说明_v1.0.docx",
+      "bytes": 51630,
+      "sha256": "d4a9764d471a9f03ca5cea4dbab78b2ebf875be36a8e8705b1b84cc30eab5f63"
+    },
+    "basis_snapshot": {
+      "path": "docs/testing/simple-three-module-test-plan-v4.md",
+      "bytes": 16514,
+      "sha256": "6fef7d980da80e77d47f8939d9dd5efffbc658968ca5312a8139ece575bdb251"
+    }
+  },
+  "change_summary": "统一ScoutAgent及其他Agent角色名称，补充职责与Prompt版本映射；全量测试范围、论文成绩和竞品测试协议保持原口径。",
+  "agent_names": {
+    "ScoutAgent": "独立漏洞发现",
+    "ReviewAgent": "统一取证复核",
+    "RepairAgent": "代码修复与反馈修订",
+    "RuleGeneratorAgent": "规则生成与反馈修订"
+  },
+  "agent_naming_scope": "文档中的功能角色命名，映射现有服务及受控工作流；未新增或重命名代码类。",
+  "agent_role_implementation_sources": [
+    {
+      "path": "backend/app/services/scouting.py",
+      "bytes": 16473,
+      "sha256": "da3ca55cffbf19463bd351ff3e7ccc2395aa5b944119dc4e0da3da408876369e"
+    },
+    {
+      "path": "backend/app/services/unified_review.py",
+      "bytes": 11788,
+      "sha256": "6449eda22b6312eac38f1dd07a2eb3bbe451cca10b2de35930ad935845abc799"
+    },
+    {
+      "path": "backend/app/services/repair_semantics.py",
+      "bytes": 14975,
+      "sha256": "09d00786c94dec9b21e49fd9ce7873107edde7a930f37e8dd1e6526d74e36b76"
+    },
+    {
+      "path": "backend/app/services/rule_synthesis.py",
+      "bytes": 14670,
+      "sha256": "cfbf74a4771dbe1ff35ee4a1658efe50914d39a345c7b6b5837d91e0a670fb8e"
+    },
+    {
+      "path": "backend/app/workflows/scouting.py",
+      "bytes": 832,
+      "sha256": "3c48d480b0d83a63de3ab9bc991399518e93d687aa0cbe9870c826dbbdd9db8a"
+    },
+    {
+      "path": "backend/app/workflows/unified_review.py",
+      "bytes": 949,
+      "sha256": "bd256f292e48ed37bd4efcdc83d486f9cc46c35dcdbb85563f026dcd6035a1f9"
+    },
+    {
+      "path": "backend/app/workflows/repair.py",
+      "bytes": 2967,
+      "sha256": "27fcd1241d2c082614900fa1f459aa972172993038aae5639e765646aeb3e4be"
+    },
+    {
+      "path": "backend/app/workflows/rules.py",
+      "bytes": 3261,
+      "sha256": "17966ccd1895d20f989d40a7cab66df176fced5e0536167ec5e3622463df937d"
+    },
+    {
+      "path": "backend/app/api/routes/stages.py",
+      "bytes": 11918,
+      "sha256": "890894ae244599f8f72fadab6177156d473eae00b41f60b64754c65d4f9e6bb4"
+    }
+  ],
+  "presentation": {
+    "path": "docs/testing/project-test-plan.html",
+    "bytes": 36473,
+    "sha256": "78cb7fe255c5ce7801b411a8c0f5a2407b949e442ffec62158b02c5a494a1212"
+  }
+}

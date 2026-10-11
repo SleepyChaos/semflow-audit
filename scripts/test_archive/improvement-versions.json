@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "grouping": "documented_project_improvements_not_dates_or_prompt_numbers",
+  "improvements": [
+    {
+      "id": "IMPROVE-00",
+      "name": "基础四阶段原型",
+      "status": "历史基线",
+      "change": "初始任务隔离、静态扫描、AI复核、隔离修复、RAG规则与人工发布门。",
+      "version_scope": "早期原型与live-model批次；CodeQL和Prompt按原收据。没有完整工作树冻结，不作为今日源码版本。",
+      "result_scope": "50项普通回归、真实链路集成与静态微基准分开；live-model失败完整保留。",
+      "path_prefixes": [
+        "artifacts/benchmarks/e244a60d-",
+        "artifacts/benchmarks/live-model-",
+        "artifacts/benchmarks/external-oracles-",
+        "artifacts/benchmarks/rag-",
+        "artifacts/benchmarks/real-js-",
+        "artifacts/benchmarks/rule-holdout-",
+        "artifacts/js-validator-verification/",
+        "artifacts/benchmark-run",
+        "artifacts/bandit-benchmark",
+        "artifacts/external-oracles-run",
+        "artifacts/final-integration",
+        "artifacts/live-model-run",
+        "artifacts/live-regression",
+        "artifacts/live-followup",
+        "artifacts/live-rule-validation",
+        "artifacts/real-cve-run",
+        "artifacts/rag-benchmark",
+        "artifacts/rule-holdout-run"
+      ],
+      "reports": [
+        "docs/research/benchmark-results.md",
+        "docs/research/benchmark-summary.json",
+        "docs/research/live-model-results.md",
+        "docs/research/live-model-summary.json",
+        "docs/research/supplemental-benchmark-summary.json"
+      ]
+    },
+    {
+      "id": "IMPROVE-01",
+      "name": "M1/M2/M3首轮改进",
+      "status": "历史改进",
+      "change": "首轮模型治理、复核分层、规则生成与独立验收改进。",
+      "version_scope": "phase-one批次和thinking/library分项对照；不得用当前默认Prompt覆盖原组别。",
+      "result_scope": "67项普通回归与1项真实集成分开；模型质量只读对应真实模型实验。",
+      "path_prefixes": [
+        "artifacts/benchmarks/phase-one-",
+        "artifacts/benchmarks/thinking-control-",
+        "artifacts/benchmarks/library-control-",
+        "artifacts/phase-one-",
+        "artifacts/thinking-control",
+        "artifacts/library-control"
+      ],
+      "reports": [
+        "docs/research/phase-one-test-results.md",
+        "docs/research/phase-one-test-summary.json"
+      ]
+    },
+    {
+      "id": "IMPROVE-02",
+      "name": "候选执行反馈与工作流测量",
+      "status": "历史改进",
+      "change": "规则候选开发执行、可恢复反馈循环、节点时序与证据复用；Flask和真实项目配对接入。",
+      "version_scope": "实验rule5/review3；默认入口和实验分支不同。Flask baseline/live与real-pair各自独立批次。",
+      "result_scope": "87项普通回归与集成另列；真实项目资源失败及补测保留。",
+      "path_prefixes": [
+        "artifacts/benchmarks/flask-",
+        "artifacts/benchmarks/real-pair-",
+        "artifacts/phase-two-"
+      ],
+      "reports": [
+        "docs/research/phase-two-results.md",
+        "docs/research/phase-two-summary.json"
+      ]
+    },
+    {
+      "id": "IMPROVE-03",
+      "name": "受限规格与模板化QL生成",
+      "status": "历史改进",
+      "change": "规则生成范围收敛、官方模板、编译/开发反馈和动态查询缓存纠正。",
+      "version_scope": "rule-ablation/framework-ablation/dev-feedback；旧K受限规格作为后续比较基线，组别和Prompt仍依manifest。",
+      "result_scope": "修正前动态缓存评估作废；修正后主实验和开发反馈分别保存。",
+      "path_prefixes": [
+        "artifacts/benchmarks/rule-ablation-",
+        "artifacts/benchmarks/framework-",
+        "artifacts/benchmarks/dev-feedback-",
+        "artifacts/benchmarks/spec-probe",
+        "artifacts/benchmarks/ablation-preflight",
+        "artifacts/research/rule-generation-",
+        "artifacts/rule-ablation-",
+        "artifacts/framework-",
+        "artifacts/dev-feedback-",
+        "artifacts/manual-model-baseline",
+        "artifacts/rule-cache-",
+        "artifacts/rule-oracle-"
+      ],
+      "reports": [
+        "docs/research/rule-generation-ablation-results.md",
+        "docs/research/rule-generation-ablation-summary.json"
+      ]
+    },
+    {
+      "id": "IMPROVE-04",
+      "name": "语义修复与双集合RAG规则",
+      "status": "历史改进",
+      "change": "修复语义解释/补证和双集合检索、源码理解、角色路由、有限候选。",
+      "version_scope": "repair1→2，rule2→6；semantic多批与legacy-rag匹配旧集复测。旧版对照不改标为新版本。",
+      "result_scope": "单开发案例规则0/3→3/3；旧集v6仅1/18，旧K15/18。任务/预算分开；保留退化结果。",
+      "path_prefixes": [
+        "artifacts/benchmarks/semantic-",
+        "artifacts/benchmarks/legacy-rag-",
+        "artifacts/materials/rag-corpus-v2/",
+        "artifacts/research/embedding-"
+      ],
+      "reports": [
+        "docs/research/semantic-development-results.md",
+        "docs/research/semantic-development-summary.json",
+        "docs/research/legacy-rag-matched-results.md",
+        "docs/research/legacy-rag-matched-summary.json"
+      ]
+    },
+    {
+      "id": "IMPROVE-05",
+      "name": "RAG规则稳定化与语料验证",
+      "status": "历史改进，Rule8沿用",
+      "change": "上下文精简、阶段合同、进度纠正、有限source扩展；官方语料编译/开发验证与embedding索引。",
+      "version_scope": "rule7→8；rag-stabilization两批、v7/v8source对照、语料v3/v4分列。当前Rule8继承此能力，不重写历史测试身份。",
+      "result_scope": "共同6000输出预算完整v8为15/18；旧K复用第一轮；8000预算source扩展另列。",
+      "path_prefixes": [
+        "artifacts/benchmarks/rag-stabilization",
+        "artifacts/benchmarks/v7-",
+        "artifacts/benchmarks/v8-",
+        "artifacts/materials/rag-corpus-v3/",
+        "artifacts/materials/rag-corpus-v4/",
+        "artifacts/research/corpus-coverage-",
+        "artifacts/research/rag-",
+        "artifacts/research/default-retrieval-",
+        "artifacts/research/product-",
+        "artifacts/research/runtime-v8-",
+        "artifacts/research/worker-v8-"
+      ],
+      "reports": [
+        "docs/research/rag-stabilization-results.md",
+        "docs/research/rag-stabilization-summary.json",
+        "docs/research/rag-corpus-expansion-results.md",
+        "docs/research/rag-corpus-expansion-summary.json",
+        "docs/research/rag-corpus-expansion-v3-results.md",
+        "docs/research/rag-corpus-expansion-v3-summary.json"
+      ]
+    },
+    {
+      "id": "IMPROVE-06",
+      "name": "双引擎发现与统一复核首版",
+      "status": "历史改进",
+      "change": "CodeQL与独立Scout并发发现，保留分支失败/覆盖并统一复核。接入三链路首轮校准。",
+      "version_scope": "pipeline2，初始Scout1/Review4；dual-discovery多个诊断批与calibration-v1。校准同时对照旧/新修复、Rule8和静态工具，是混合测试。",
+      "result_scope": "最终六自建样例支持正例1/3；校准中规则/修复未过正式准入，不称全部链路完成正式验收。",
+      "path_prefixes": [
+        "artifacts/benchmarks/dual-discovery-",
+        "artifacts/research/formal/",
+        "artifacts/research/formal-preparation/",
+        "artifacts/research/worker-dual-"
+      ],
+      "reports": [
+        "docs/research/dual-engine-development-results.md",
+        "docs/research/dual-engine-development-summary.json",
+        "benchmark-data/experiments/calibration-results.md",
+        "benchmark-data/experiments/calibration-summary.json",
+        "benchmark-data/experiments/repair-calibration-report.md",
+        "benchmark-data/experiments/failure-analysis.md",
+        "benchmark-data/experiments/owasp-upstream-comparison.md"
+      ]
+    },
+    {
+      "id": "IMPROVE-07",
+      "name": "复核覆盖、分页与绑定纠正",
+      "status": "历史改进",
+      "change": "复核分页恢复、覆盖预算、小模块预读、源码条件与运行未知分离、符号绑定。",
+      "version_scope": "discovery-retest v1诊断/v2最终；最终Scout3/Review6。批次v2是本轮迭代，不能与Repair2混用。",
+      "result_scope": "原候选池59/59已复核；新增支持4主根因。原CodeQL复用，新Scout独立报告。",
+      "path_prefixes": [
+        "artifacts/research/discovery-retest/"
+      ],
+      "reports": [
+        "benchmark-data/experiments/discovery-retest-results.md",
+        "benchmark-data/experiments/discovery-retest-summary.json"
+      ]
+    },
+    {
+      "id": "IMPROVE-08",
+      "name": "模板输入与业务检查覆盖",
+      "status": "历史组合版本",
+      "change": "加入模板/配置输入、业务优先级和按安全属性的调查任务，补齐实际输入。",
+      "version_scope": "最终Scout5/Review7；v2粗筛+v3补读+v4/v5复审+v6单次补测，各配置哈希独立。",
+      "result_scope": "24/31是组合支持结果，扩大输入/预算；新增EJS静态命中不算Agent独立收益。",
+      "path_prefixes": [
+        "artifacts/research/discovery-coverage/"
+      ],
+      "reports": [
+        "benchmark-data/experiments/discovery-coverage-results.md",
+        "benchmark-data/experiments/discovery-coverage-summary.json"
+      ]
+    },
+    {
+      "id": "IMPROVE-09",
+      "name": "语义判断与失败隔离",
+      "status": "历史组合版本/后续旧版对照",
+      "change": "语义判断、来源引用、反证与失败隔离；历史样例及机制回放。",
+      "version_scope": "Scout6/Review8，discovery-semantics v1…v7；OWASP56。OWASP48的base冻结源码/旧平台对照也归此组，保留实际base配置。",
+      "result_scope": "29/31是有效历史合并/补测；OWASP56不是全量1230AI。回放不是新未暴露端到端验收。",
+      "path_prefixes": [
+        "artifacts/research/discovery-semantics/",
+        "artifacts/research/discovery-generalization/",
+        "artifacts/research/owasp-discovery/",
+        "artifacts/research/owasp48/20261007-evolution/versions/base/",
+        "artifacts/research/owasp48/20261007-evolution/runs/base/"
+      ],
+      "reports": [
+        "benchmark-data/experiments/discovery-semantic-results.md",
+        "benchmark-data/experiments/discovery-semantic-summary.json",
+        "benchmark-data/experiments/owasp-discovery-results.md",
+        "benchmark-data/experiments/owasp-discovery-summary.json",
+        "benchmark-data/experiments/discovery-generality-review.md",
+        "benchmark-data/experiments/discovery-generality-summary.json"
+      ]
+    },
+    {
+      "id": "IMPROVE-10",
+      "name": "通用语义循环与当前默认版本",
+      "status": "当前默认能力归档",
+      "change": "AST入口、条件化框架语义、业务政策/缺保护区分、最终值反证和分组独立复审。仓库迁移没有改变实现。",
+      "version_scope": "Scout7/Review9/Repair2/Rule8；OWASP48 revision-01是最终候选。当前源码WORKSPACE哈希另存；历史revision-01收据不能直接等同当前整个工作树。",
+      "result_scope": "48例验收revision-01 TP18/FP2、P90%、R75%、F1 81.82%；开发集和验收集分开，已暴露仅作回归。迁移43项行为测试只是选定检查。",
+      "path_prefixes": [
+        "artifacts/research/owasp48/",
+        "artifacts/competitors/ocr-build-receipt.json"
+      ],
+      "reports": [
+        "benchmark-data/experiments/owasp48-final-comparison.md",
+        "benchmark-data/experiments/owasp48-final-summary.json",
+        "docs/workspace-migration-review.md"
+      ]
+    },
+    {
+      "id": "EXPERIMENT-10-ASTROID",
+      "name": "Astroid上下文实验分支",
+      "status": "实验分支，非默认/非最终候选",
+      "change": "Astroid增强上下文等多项改变，仅保留开发实验。",
+      "version_scope": "OWASP48 revision-02/development-02及revision-02源码identity；用更具体路径覆盖主系列归属。",
+      "result_scope": "与revision-01开发准确率相同、token更高；不把revision-02当作最终验收版本。",
+      "path_prefixes": [
+        "artifacts/research/owasp48/20261007-evolution/versions/revision-02/",
+        "artifacts/research/owasp48/20261007-evolution/runs/revision-02/"
+      ],
+      "reports": []
+    },
+    {
+      "id": "SHARED-ENVIRONMENT",
+      "name": "共享工具环境历史收据",
+      "status": "共享环境，不是项目改进版本",
+      "change": "共享Bandit/Flask oracle工具冻结清单。",
+      "version_scope": "环境收据按原文件哈希保留，不能自动应用于所有历史运行。",
+      "result_scope": "只用于定位依赖，不构成某个改进版本的成绩。",
+      "path_prefixes": [
+        "artifacts/competitors/bandit-freeze.txt",
+        "artifacts/competitors/flask-oracle-freeze.txt"
+      ],
+      "reports": []
+    },
+    {
+      "id": "VALIDATION-10-SUPPLEMENT",
+      "name": "当前默认能力的新样本补测",
+      "status": "补充验证，非产品改进版本",
+      "change": "默认 Scout7/Review9 的96个新文件、Repair1/2的10个自建联合测试、冻结Rule8候选的新数据流探针及实际浏览器/可靠性回归；未改生产代码。",
+      "version_scope": "20261009-supplemental-v1；各配置和Prompt哈希独立；新脚本与当前产品发行版本分开。",
+      "result_scope": "目标CWE评分平台TP33/FP12/TN36/FN15；Repair1 10/10、Repair2 9/10；规则旧候选15/18；有效GUI10/11；自然项目/人工盲审等门槛仍未完成。",
+      "path_prefixes": [
+        "artifacts/research/supplemental/20261009-v1/"
+      ],
+      "reports": [
+        "docs/research/supplemental-20261009-results.md",
+        "docs/research/supplemental-20261009-summary.json",
+        "docs/research/supplemental-20261009-plan.md"
+      ]
+    },
+    {
+      "id": "VALIDATION-10-CHAIN-COMPLETION",
+      "name": "当前默认版本真实 Worker／浏览器链路补测",
+      "status": "部分执行，审批服务额度阻塞",
+      "change": "真实 Chrome ZIP 上传、独立 Celery Worker、CodeQL＋Scout、Review9；两语言修复合同校准和全量可靠性；保留脚本失败与尚未评估的修复／规则／报告链路，未改生产代码。",
+      "version_scope": "20261009-chain-completion v1/v2 已执行；v3 仅准备恢复并做普通保障检查；Scout7/Review9/Repair2/Rule8；各 runner／输入／配置独立冻结。",
+      "result_scope": "全量230项通过、3项新增归档保障通过；4个真实Scout＋2个Review完成，22调用；v1证据断言错误、v2定位错误保留；不能声明所有链路完成或通过。",
+      "path_prefixes": [
+        "artifacts/research/chain-completion/"
+      ],
+      "reports": [
+        "docs/research/chain-completion-20261009-plan.md",
+        "docs/research/chain-completion-20261009-results.md",
+        "docs/research/chain-completion-20261009-summary.json"
+      ]
+    }
+  ]
+}

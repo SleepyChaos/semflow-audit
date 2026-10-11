@@ -1,0 +1,168 @@
+{
+  "kind": "test_plan_document",
+  "date": "2026-10-11",
+  "scope_note": "本收据标识方案文档及引用依据，不代表任何基准已执行或已通过。",
+  "full_targets": {
+    "audit_realvuln": {
+      "projects": 26,
+      "vulnerability_labels": 676,
+      "fp_traps": 120
+    },
+    "audit_owasp_python": {
+      "cases": 1230,
+      "positive": 452,
+      "negative": 778
+    },
+    "repair_patcheval": {
+      "tasks": 1000,
+      "dynamic_tasks": 230
+    },
+    "rules_qlcoder": {
+      "java_cves": 176,
+      "cwe_types": 42
+    }
+  },
+  "user_provided_competitor_sources": [
+    {
+      "path": "缺乏修复功能/只有建议没有修复.doc",
+      "bytes": 11264,
+      "sha256": "55a4695aafcf8ad5f4eec76cf816ce2f899ff2d21a9d77610da78c9947ab27b9"
+    },
+    {
+      "path": "代码审计低/代码审计效率低.doc",
+      "bytes": 11264,
+      "sha256": "0ae2c830891e6c0fb23198d30cc963d7cab4c5781a7ea2a582a7bea345ce1f6f"
+    },
+    {
+      "path": "代码审计低/证据1.pdf",
+      "bytes": 1407117,
+      "sha256": "17bf1566641f4cea097ad26e0b3ffd7c621841b79965a79820c37125a7e2608c"
+    }
+  ],
+  "agent_names": {
+    "ScoutAgent": "独立漏洞发现",
+    "ReviewAgent": "统一取证复核",
+    "RepairAgent": "代码修复与反馈修订",
+    "RuleGeneratorAgent": "规则生成与反馈修订"
+  },
+  "agent_naming_scope": "文档中的功能角色命名，映射现有服务及受控工作流；未新增或重命名代码类。",
+  "public_reference_check_date": "2026-10-11",
+  "public_references": [
+    "https://arxiv.org/abs/2604.13764v1",
+    "https://github.com/OWASP-Benchmark/BenchmarkPython",
+    "https://arxiv.org/abs/2511.11019v1",
+    "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2adf01ab15adde8820622f7f24bd516b-Abstract-Conference.html",
+    "https://arxiv.org/abs/2601.19239v2",
+    "https://github.com/PurCL/RepoAudit",
+    "https://arxiv.org/abs/2506.23644v3",
+    "https://arxiv.org/abs/2607.12316v1",
+    "https://arxiv.org/abs/2606.19149v2",
+    "https://github.com/semgrep/semgrep",
+    "https://github.com/alibaba/open-code-review",
+    "https://docs.github.com/en/enterprise-cloud@latest/code-security/responsible-use/security-and-quality-ai-features",
+    "https://semgrep.dev/blog/2026/semgrep-autofix-public-beta/",
+    "https://codeql.github.com/docs/codeql-overview/about-codeql/",
+    "https://docs.semgrep.dev/writing-rules/rule-defined-fix",
+    "https://semgrep.dev/blog/2026/introducing-semgrep-agentic-workflows-automate-deep-vulnerability-hunting-at-scale/"
+  ],
+  "document_id": "SEMFLOW-TEST-PLAN-EXPLANATION-2.1",
+  "document_version": "2.1",
+  "basis_plan_version": "v6",
+  "output": {
+    "path": "docs/testing/项目测试方案说明_v2.1.docx",
+    "bytes": 43316,
+    "sha256": "7b4ba1999fb7e0a81bf51dcae5f9099967f8b06144f4f12994a7b133b72c3dfa"
+  },
+  "sources": [
+    {
+      "path": "docs/testing/simple-three-module-test-plan.md",
+      "bytes": 7298,
+      "sha256": "247c548ab99acc2b06a7c18a74d8e7b6ed79fdc15fd36ccffd8cba636171d943"
+    },
+    {
+      "path": "docs/testing/test-plan-reference-index.md",
+      "bytes": 4658,
+      "sha256": "445a0bec6ed03c819fefba3d3000e108593aaa0fa41d98c133a1a92c3d43e6e9"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+      "bytes": 594873,
+      "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7"
+    },
+    {
+      "path": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+      "bytes": 1905170,
+      "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+      "bytes": 2079381,
+      "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa"
+    }
+  ],
+  "presentation": {
+    "path": "docs/testing/project-test-plan.html",
+    "bytes": 24835,
+    "sha256": "d8c05d2c9e6f2ae78205c44dce117dbeb46ccc4f513f5eb87bc7eb72e34e8c67"
+  },
+  "supersedes": {
+    "document_id": "SEMFLOW-TEST-PLAN-EXPLANATION-2.0",
+    "output": {
+      "path": "docs/testing/项目测试方案说明_v2.0.docx",
+      "bytes": 51044,
+      "sha256": "12e08a157fc3e0e829eae2f97e0507abb82744191e1baa970ac08c0fd5d78f1c"
+    },
+    "basis_snapshot": {
+      "path": "docs/testing/simple-three-module-test-plan-v5.md",
+      "bytes": 21824,
+      "sha256": "2864d8226a8e4604117a5a159276bbfbac29c44ec8e43d6b6afa425e826db3c0"
+    }
+  },
+  "change_summary": "正文精简为4页；全部A4纵向，统一页边距与表格样式；保留五章、完整测试目标、必要论文成绩和两份竞品表；论文与文档按用途整理为桌面资料包。",
+  "qa": {
+    "rendered_pages": 4,
+    "visually_reviewed_pages": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "chapters": 5,
+    "tables": 7,
+    "source_hyperlinks": 4,
+    "all_pages_same_a4_portrait": true,
+    "page_size_cm": [
+      21,
+      29.7
+    ],
+    "margins_cm": {
+      "top": 1.9,
+      "bottom": 1.8,
+      "left": 2.1,
+      "right": 2.1
+    },
+    "capability_matrix_projects": 11,
+    "capability_columns": 6,
+    "xml_parsing": "passed",
+    "agent_naming_check": "passed",
+    "removed_sections_check": "passed",
+    "parentheses_check": "passed",
+    "previous_versions_unchanged": "passed",
+    "source_hash_alignment": "passed",
+    "word_html_tables_alignment": "passed",
+    "html_navigation_check": "passed",
+    "runtime_python": "3.12.14",
+    "text_characters": 3191,
+    "prior_text_characters": 7513
+  },
+  "package": {
+    "id": "SEMFLOW-TEST-PLAN-20261011-2.1",
+    "desktop_destination": "/Users/chaos/Desktop/SemflowAudit_测试方案资料_20261011_v2.1",
+    "file_count": 22,
+    "pdf_count": 8,
+    "manifest_sha256": "edab96193241b9886fb88945ceb9f5a7f1c677a6e76eed65ba25436501b738ee",
+    "source_copy_checks": "passed",
+    "desktop_copy_status": "passed",
+    "desktop_file_hash_verification": "22/22 passed"
+  }
+}

@@ -1,0 +1,346 @@
+{
+  "kind": "test_plan_document",
+  "date": "2026-10-11",
+  "scope_note": "本收据标识方案文档及引用依据，不代表任何基准已执行或已通过。",
+  "full_targets": {
+    "audit_realvuln": {
+      "projects": 26,
+      "vulnerability_labels": 676,
+      "fp_traps": 120
+    },
+    "audit_owasp_python": {
+      "cases": 1230,
+      "positive": 452,
+      "negative": 778
+    },
+    "repair_patcheval": {
+      "tasks": 1000,
+      "dynamic_tasks": 230
+    },
+    "rules_qlcoder": {
+      "java_cves": 176,
+      "cwe_types": 42
+    }
+  },
+  "user_provided_competitor_sources": [
+    {
+      "path": "缺乏修复功能/只有建议没有修复.doc",
+      "bytes": 11264,
+      "sha256": "55a4695aafcf8ad5f4eec76cf816ce2f899ff2d21a9d77610da78c9947ab27b9"
+    },
+    {
+      "path": "代码审计低/代码审计效率低.doc",
+      "bytes": 11264,
+      "sha256": "0ae2c830891e6c0fb23198d30cc963d7cab4c5781a7ea2a582a7bea345ce1f6f"
+    },
+    {
+      "path": "代码审计低/证据1.pdf",
+      "bytes": 1407117,
+      "sha256": "17bf1566641f4cea097ad26e0b3ffd7c621841b79965a79820c37125a7e2608c"
+    }
+  ],
+  "agent_names": {
+    "ScoutAgent": "独立漏洞发现",
+    "ReviewAgent": "统一取证复核",
+    "RepairAgent": "代码修复与反馈修订",
+    "RuleGeneratorAgent": "规则生成与反馈修订"
+  },
+  "agent_naming_scope": "文档中的功能角色命名，映射现有服务及受控工作流；未新增或重命名代码类。",
+  "public_reference_check_date": "2026-10-11",
+  "document_id": "SEMFLOW-TEST-PLAN-EXPLANATION-2.0",
+  "document_version": "2.0",
+  "basis_plan_version": "v5",
+  "output": {
+    "path": "docs/testing/项目测试方案说明_v2.0.docx",
+    "bytes": 51044,
+    "sha256": "12e08a157fc3e0e829eae2f97e0507abb82744191e1baa970ac08c0fd5d78f1c"
+  },
+  "sources": [
+    {
+      "path": "docs/testing/simple-three-module-test-plan.md",
+      "bytes": 21824,
+      "sha256": "2864d8226a8e4604117a5a159276bbfbac29c44ec8e43d6b6afa425e826db3c0"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+      "bytes": 594873,
+      "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7"
+    },
+    {
+      "path": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+      "bytes": 1905170,
+      "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+      "bytes": 2079381,
+      "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa"
+    }
+  ],
+  "presentation": {
+    "path": "docs/testing/project-test-plan.html",
+    "bytes": 41281,
+    "sha256": "b5535d9a01befbdd87f373151c2e30d337dad8b94402989a48d52704818c07e0"
+  },
+  "supersedes": {
+    "document_id": "SEMFLOW-TEST-PLAN-EXPLANATION-1.2",
+    "output": {
+      "path": "docs/testing/项目测试方案说明_v1.2.docx",
+      "bytes": 52627,
+      "sha256": "02deddc50b93a9b31ea3c9ff381148c394210b46297b728c7b4203e58412803d"
+    },
+    "basis_snapshot": {
+      "path": "docs/testing/simple-three-module-test-plan-v4.2.md",
+      "bytes": 18266,
+      "sha256": "54f515c183ce683eee33de28efc23c59e6f8f284baa66e10ecbe5cae75a03de2"
+    }
+  },
+  "change_summary": "改为项目多智能体设计介绍；删除统一测试方法、版本归档及各模块和竞品的执行流程；增加11个项目范围与6项能力矩阵、三个功能模块的竞品对照表。",
+  "agent_role_implementation_sources": [
+    {
+      "path": "backend/app/services/scouting.py",
+      "bytes": 16473,
+      "sha256": "da3ca55cffbf19463bd351ff3e7ccc2395aa5b944119dc4e0da3da408876369e"
+    },
+    {
+      "path": "backend/app/services/unified_review.py",
+      "bytes": 11788,
+      "sha256": "6449eda22b6312eac38f1dd07a2eb3bbe451cca10b2de35930ad935845abc799"
+    },
+    {
+      "path": "backend/app/services/repair_semantics.py",
+      "bytes": 14975,
+      "sha256": "09d00786c94dec9b21e49fd9ce7873107edde7a930f37e8dd1e6526d74e36b76"
+    },
+    {
+      "path": "backend/app/services/rule_synthesis.py",
+      "bytes": 14670,
+      "sha256": "cfbf74a4771dbe1ff35ee4a1658efe50914d39a345c7b6b5837d91e0a670fb8e"
+    },
+    {
+      "path": "backend/app/workflows/scouting.py",
+      "bytes": 832,
+      "sha256": "3c48d480b0d83a63de3ab9bc991399518e93d687aa0cbe9870c826dbbdd9db8a"
+    },
+    {
+      "path": "backend/app/workflows/unified_review.py",
+      "bytes": 949,
+      "sha256": "bd256f292e48ed37bd4efcdc83d486f9cc46c35dcdbb85563f026dcd6035a1f9"
+    },
+    {
+      "path": "backend/app/workflows/repair.py",
+      "bytes": 2967,
+      "sha256": "27fcd1241d2c082614900fa1f459aa972172993038aae5639e765646aeb3e4be"
+    },
+    {
+      "path": "backend/app/workflows/rules.py",
+      "bytes": 3261,
+      "sha256": "17966ccd1895d20f989d40a7cab66df176fced5e0536167ec5e3622463df937d"
+    },
+    {
+      "path": "backend/app/api/routes/stages.py",
+      "bytes": 11918,
+      "sha256": "890894ae244599f8f72fadab6177156d473eae00b41f60b64754c65d4f9e6bb4"
+    }
+  ],
+  "design_sources": [
+    {
+      "path": "docs/architecture.md",
+      "bytes": 4371,
+      "sha256": "97b1269a58004fd40c2797fb6759c1bafd1f6457a86a7597d84680e827139410"
+    },
+    {
+      "path": "docs/product-workflow.md",
+      "bytes": 2336,
+      "sha256": "970e9f91c6e4e437d3d6339313461b7a0bf326fb211d42e174b8b0f2416df34a"
+    }
+  ],
+  "competitor_scope_matrix": {
+    "capabilities": [
+      "规则静态检测",
+      "AI主动发现",
+      "证据复核",
+      "代码补丁",
+      "修复验证",
+      "检测规则生成"
+    ],
+    "projects": [
+      {
+        "project": "本项目\nSemflow Audit",
+        "capabilities": {
+          "规则静态检测": "有\nCodeQL",
+          "AI主动发现": "有\nScoutAgent",
+          "证据复核": "有\nReviewAgent",
+          "代码补丁": "有\nRepairAgent",
+          "修复验证": "部分\n项目测试、复扫",
+          "检测规则生成": "有\nRuleGeneratorAgent"
+        }
+      },
+      {
+        "project": "CodeQL CLI [15]",
+        "capabilities": {
+          "规则静态检测": "有\nQL 查询",
+          "AI主动发现": "未列",
+          "证据复核": "部分\n数据流路径",
+          "代码补丁": "未列",
+          "修复验证": "未列",
+          "检测规则生成": "未列\n支持手写查询"
+        }
+      },
+      {
+        "project": "Semgrep CE [11,16]",
+        "capabilities": {
+          "规则静态检测": "有\n规则扫描",
+          "AI主动发现": "未列",
+          "证据复核": "部分\n匹配与路径",
+          "代码补丁": "部分\n规则定义替换",
+          "修复验证": "未列",
+          "检测规则生成": "未列\n支持手写规则"
+        }
+      },
+      {
+        "project": "Alibaba\nOpenCodeReview [12]",
+        "capabilities": {
+          "规则静态检测": "未列\n审查规则匹配",
+          "AI主动发现": "有\n审查 Agent",
+          "证据复核": "有\n定位与反思",
+          "代码补丁": "未列",
+          "修复验证": "未列",
+          "检测规则生成": "未列"
+        }
+      },
+      {
+        "project": "GitHub CodeQL\nCopilot Autofix [13]",
+        "capabilities": {
+          "规则静态检测": "有\nCodeQL",
+          "AI主动发现": "未列\n本组合范围",
+          "证据复核": "部分\n告警上下文",
+          "代码补丁": "有\nAI 补丁",
+          "修复验证": "部分\n复扫及测试评估",
+          "检测规则生成": "未列\nCodeQL 生成"
+        }
+      },
+      {
+        "project": "Semgrep 平台\nAI 产品组合 [14,17]",
+        "capabilities": {
+          "规则静态检测": "有\nPro 引擎",
+          "AI主动发现": "有\nAgentic Workflows",
+          "证据复核": "有\nAssistant 复核",
+          "代码补丁": "有\nAutofix PR",
+          "修复验证": "部分\n升级影响分析",
+          "检测规则生成": "未列\n自动生成入口"
+        }
+      },
+      {
+        "project": "RepoAudit [7]",
+        "capabilities": {
+          "规则静态检测": "部分\n语法与数据流",
+          "AI主动发现": "有\nDFBScanAgent",
+          "证据复核": "有\n数据流验证",
+          "代码补丁": "未列",
+          "修复验证": "未列",
+          "检测规则生成": "未列"
+        }
+      },
+      {
+        "project": "QLPro [8]",
+        "capabilities": {
+          "规则静态检测": "有\nCodeQL",
+          "AI主动发现": "部分\nAPI 语义分析",
+          "证据复核": "部分\n投票与路径",
+          "代码补丁": "未列",
+          "修复验证": "未列",
+          "检测规则生成": "有\nCodeQL 生成"
+        }
+      },
+      {
+        "project": "Antiproof [9]",
+        "capabilities": {
+          "规则静态检测": "有\n合成检测器",
+          "AI主动发现": "部分\n检测器驱动",
+          "证据复核": "有\n可利用性证明",
+          "代码补丁": "未列",
+          "修复验证": "未列\n补丁验证",
+          "检测规则生成": "有\n静态检测器"
+        }
+      },
+      {
+        "project": "OpenAnt [10]",
+        "capabilities": {
+          "规则静态检测": "部分\n静态拆解",
+          "AI主动发现": "有\nLLM 发现",
+          "证据复核": "有\n对抗与动态验证",
+          "代码补丁": "未列",
+          "修复验证": "未列\n补丁验证",
+          "检测规则生成": "未列"
+        }
+      },
+      {
+        "project": "QLCoder [4]",
+        "capabilities": {
+          "规则静态检测": "有\n生成查询执行",
+          "AI主动发现": "未列\n已知 CVE 输入",
+          "证据复核": "部分\n双版本命中",
+          "代码补丁": "未列",
+          "修复验证": "未列",
+          "检测规则生成": "有\nCodeQL 生成"
+        }
+      }
+    ],
+    "legend": {
+      "有": "所列范围提供该能力",
+      "部分": "能力有限或形式不同",
+      "未列": "核对的公开材料未列出对应功能"
+    },
+    "reference_date": "2026-10-11"
+  },
+  "public_references": [
+    "https://arxiv.org/abs/2604.13764v1",
+    "https://github.com/OWASP-Benchmark/BenchmarkPython",
+    "https://arxiv.org/abs/2511.11019v1",
+    "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2adf01ab15adde8820622f7f24bd516b-Abstract-Conference.html",
+    "https://arxiv.org/abs/2601.19239v2",
+    "https://github.com/PurCL/RepoAudit",
+    "https://arxiv.org/abs/2506.23644v3",
+    "https://arxiv.org/abs/2607.12316v1",
+    "https://arxiv.org/abs/2606.19149v2",
+    "https://github.com/semgrep/semgrep",
+    "https://github.com/alibaba/open-code-review",
+    "https://docs.github.com/en/enterprise-cloud@latest/code-security/responsible-use/security-and-quality-ai-features",
+    "https://semgrep.dev/blog/2026/semgrep-autofix-public-beta/",
+    "https://codeql.github.com/docs/codeql-overview/about-codeql/",
+    "https://docs.semgrep.dev/writing-rules/rule-defined-fix",
+    "https://semgrep.dev/blog/2026/introducing-semgrep-agentic-workflows-automate-deep-vulnerability-hunting-at-scale/"
+  ],
+  "qa": {
+    "rendered_pages": 11,
+    "visually_reviewed_pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "chapters": 5,
+    "tables": 9,
+    "xml_parsing": "passed",
+    "source_hyperlinks": 16,
+    "runtime_python": "3.12.14",
+    "agent_naming_check": "passed",
+    "removed_sections_check": "passed",
+    "parentheses_check": "passed",
+    "previous_version_unchanged": "passed",
+    "source_hash_alignment": "passed",
+    "word_html_matrix_alignment": "passed",
+    "capability_matrix_projects": 11,
+    "capability_columns": 6,
+    "capability_matrix_landscape_page": 8,
+    "html_navigation_check": "passed"
+  }
+}

@@ -27,9 +27,12 @@ codeql-dbs/
 # Frontend production output
 /backend/app/frontend/
 
-# Local evaluation source, gold labels and third-party reading material
+# Local unpacked evaluation inputs; versioned bundles live in benchmark-data/datasets
 /benchmark-data/raw/
-/benchmark-data/papers/
 /benchmark-data/evaluator-only/
 /benchmark-data/model-inputs/
 /benchmark-data/manifests/local-*.json
+
+# Office lock files
+.~*
+~$*

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "observed_on": "2026-10-11",
+  "timezone": "Asia/Shanghai",
+  "plan": "docs/testing/current-three-module-test-plan.md",
+  "status": "design_only_not_test_execution",
+  "git_head": "001d26c24ec1102a427e361b48fcce84b9373144",
+  "working_tree_dirty": true,
+  "scope": "Selected local implementation, prompts, locks and design/test evidence; not full workspace or runtime snapshot",
+  "observed_defaults": {
+    "entry": "account_free_local_workspace",
+    "stages": {
+      "scout": "7",
+      "review": "9",
+      "repair": "2",
+      "rule": "8"
+    },
+    "rule_purpose": "review_anchor",
+    "rule_strategy": "auto"
+  },
+  "source_declared_limits_not_runtime_observations": {
+    "stage_max_calls": 24,
+    "stage_max_tokens": 100000,
+    "stage_max_seconds": 300,
+    "repair_attempts": 3,
+    "python_query_pack": "codeql/python-queries@1.6.0",
+    "javascript_query_pack": "codeql/javascript-queries@1.4.0"
+  },
+  "runtime_environment_status": "not_observed_for_this_plan",
+  "actual_model_status": "not_observed_for_this_plan",
+  "improvement_group_status": "current account-free workbench improvement requires new mapping before execution; do not inherit historical IMPROVE-10 blindly",
+  "selected_file_count": 24,
+  "selected_files_sha256": {
+    "backend/app/api/routes/stages.py": "890894ae244599f8f72fadab6177156d473eae00b41f60b64754c65d4f9e6bb4",
+    "backend/app/api/routes/audits.py": "877ef61ed8cae827ad1941a5c14277ca43bf9ed846c0c875efbe60bd8beb0669",
+    "backend/app/api/deps.py": "9f82290c3dcde05d89020bd97ae5b1bd620870b0b95bf7bcd69adb4079dc3c9c",
+    "backend/app/contracts/stages.py": "1f715e6e8b3d24c8e2d2a7045d8da51b001b7d77ddcea8a3cd09ac11d175a536",
+    "backend/app/core/audit_config.py": "f6945a9c8944c9adf362458eae6d0ab2be7aacc1ac413684ccde089dc86079e8",
+    "backend/app/persistence/workspace.py": "7b9f86494de5f7afe5dff48cf53465f8eab0242ce7a933928d383bc95de8ba1b",
+    "backend/app/services/rule_holdouts.py": "683b772e761069f59fb31519c607ccec06056d8566c8da94472b4a454f1cc409",
+    "backend/app/services/repair_semantics.py": "09d00786c94dec9b21e49fd9ce7873107edde7a930f37e8dd1e6526d74e36b76",
+    "backend/app/prompts/scout.v7.txt": "970c120e7b8135d734d5969e11c5866acaf76afb8d3b795cd04589a96c919a14",
+    "backend/app/prompts/review.v9.txt": "23ffa572db5b619f93c92d8e7b56de15106bb35a980b7cb444585460fbb4775d",
+    "backend/app/prompts/repair.v2.txt": "b941740c265cf168e83fcd3961299859c34a2b23799067ffcdc5a79d4647f93d",
+    "backend/app/prompts/rule.v8.txt": "cc5f3cfe9212b5129f89efb7ed33dd16497281643e863ff6643f8d8d2eb8ec98",
+    "frontend/tests/workbench.spec.ts": "6d4a1ba3266fd858965e8a0dbe78a7b4d9336554f7c26edfefc35795bb727fdd",
+    "frontend/playwright.config.ts": "3362c95a987c94f5b5118085338659ae3d58f1c851319db87ea35a1e0935d31d",
+    "tests/test_local_workspace.py": "18c48169d507c737fd71709bb7e23f8651c0c92ba79fd4b3277156af6e0c3ace",
+    "tests/conftest.py": "5ee6b50a0e85cfb9ac7d5bc7f0d5f279047a98773b1aa80e944c4a5a4767b662",
+    "uv.lock": "fdc09a0e5590dfb8c79fdd63cf5288f13aac0d87ecf416f38d65b4ae72ea4c4d",
+    "frontend/package-lock.json": "f58a011bf1309bbb884ab6a3a4eabb3c2c039af40b6d127edadcaa3eaa960e47",
+    "scripts/test_archive/improvement-versions.json": "e07d313be22054b0f07a078dc28a9b2a5491654921d8d98396672cffa6516fef",
+    "docs/architecture.md": "97b1269a58004fd40c2797fb6759c1bafd1f6457a86a7597d84680e827139410",
+    "docs/product-workflow.md": "970e9f91c6e4e437d3d6339313461b7a0bf326fb211d42e174b8b0f2416df34a",
+    "benchmark-data/test-programs/classification-draft-v2.md": "c77b0b4b0adb9a888e4a1df0745c6870c7b910fdfb5e10d54b13c19948f00a53",
+    "docs/research/supplemental-20261009-results.md": "5ed2e38552358b77c0d17811cc153e20034da3e4651bef7a3c05a138a42f097f",
+    "docs/research/chain-completion-20261009-results.md": "82f9bf7b7ce37b8837990d16de9bdcc1eb606d3bfe82296845b4405f4c1b1253"
+  },
+  "selected_manifest_sha256": "3b4435619394c5373d3db31c9acb905801e4bb99ce1c6e5b6008501d94610ece",
+  "excluded": [
+    ".env contents",
+    "credentials",
+    "uploaded projects",
+    "raw model input/output",
+    "private labels/hidden test contents"
+  ],
+  "execution_requirements": "Freeze full relevant implementation, runner/scorer, input, labels, actual settings/runtime/model/corpus before running; allocate new immutable archive after execution",
+  "plan_id": "TESTPLAN-20261011-v1"
+}

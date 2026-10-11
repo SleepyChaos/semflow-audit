@@ -1,0 +1,234 @@
+{
+  "kind": "test_plan_document",
+  "date": "2026-10-11",
+  "scope_note": "本收据标识方案文档及引用依据，不代表任何基准已执行或已通过。",
+  "full_targets": {
+    "audit_realvuln": {
+      "projects": 26,
+      "vulnerability_labels": 676,
+      "fp_traps": 120
+    },
+    "audit_owasp_python": {
+      "cases": 1230,
+      "positive": 452,
+      "negative": 778
+    },
+    "repair_patcheval": {
+      "tasks": 1000,
+      "dynamic_tasks": 230
+    },
+    "rules_qlcoder": {
+      "java_cves": 176,
+      "cwe_types": 42
+    }
+  },
+  "user_provided_competitor_sources": [
+    {
+      "path": "缺乏修复功能/只有建议没有修复.doc",
+      "bytes": 11264,
+      "sha256": "55a4695aafcf8ad5f4eec76cf816ce2f899ff2d21a9d77610da78c9947ab27b9"
+    },
+    {
+      "path": "代码审计低/代码审计效率低.doc",
+      "bytes": 11264,
+      "sha256": "0ae2c830891e6c0fb23198d30cc963d7cab4c5781a7ea2a582a7bea345ce1f6f"
+    },
+    {
+      "path": "代码审计低/证据1.pdf",
+      "bytes": 1407117,
+      "sha256": "17bf1566641f4cea097ad26e0b3ffd7c621841b79965a79820c37125a7e2608c"
+    }
+  ],
+  "agent_names": {
+    "ScoutAgent": "独立漏洞发现",
+    "ReviewAgent": "统一取证复核",
+    "RepairAgent": "代码修复与反馈修订",
+    "RuleGeneratorAgent": "规则生成与反馈修订"
+  },
+  "agent_naming_scope": "文档中的功能角色命名，映射现有服务及受控工作流；未新增或重命名代码类。",
+  "public_reference_check_date": "2026-10-11",
+  "public_references": [
+    "https://arxiv.org/abs/2604.13764v1",
+    "https://github.com/OWASP-Benchmark/BenchmarkPython",
+    "https://arxiv.org/abs/2511.11019v1",
+    "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2adf01ab15adde8820622f7f24bd516b-Abstract-Conference.html",
+    "https://arxiv.org/abs/2601.19239v2",
+    "https://github.com/PurCL/RepoAudit",
+    "https://arxiv.org/abs/2506.23644v3",
+    "https://arxiv.org/abs/2607.12316v1",
+    "https://arxiv.org/abs/2606.19149v2",
+    "https://github.com/semgrep/semgrep",
+    "https://github.com/alibaba/open-code-review",
+    "https://docs.github.com/en/enterprise-cloud@latest/code-security/responsible-use/security-and-quality-ai-features",
+    "https://semgrep.dev/blog/2026/semgrep-autofix-public-beta/",
+    "https://codeql.github.com/docs/codeql-overview/about-codeql/",
+    "https://docs.semgrep.dev/writing-rules/rule-defined-fix",
+    "https://semgrep.dev/blog/2026/introducing-semgrep-agentic-workflows-automate-deep-vulnerability-hunting-at-scale/"
+  ],
+  "design_sources": [
+    {
+      "path": "docs/architecture.md",
+      "bytes": 4371,
+      "sha256": "97b1269a58004fd40c2797fb6759c1bafd1f6457a86a7597d84680e827139410"
+    },
+    {
+      "path": "docs/product-workflow.md",
+      "bytes": 2336,
+      "sha256": "970e9f91c6e4e437d3d6339313461b7a0bf326fb211d42e174b8b0f2416df34a"
+    }
+  ],
+  "agent_role_implementation_sources": [
+    {
+      "path": "backend/app/services/scouting.py",
+      "bytes": 16473,
+      "sha256": "da3ca55cffbf19463bd351ff3e7ccc2395aa5b944119dc4e0da3da408876369e"
+    },
+    {
+      "path": "backend/app/services/unified_review.py",
+      "bytes": 11788,
+      "sha256": "6449eda22b6312eac38f1dd07a2eb3bbe451cca10b2de35930ad935845abc799"
+    },
+    {
+      "path": "backend/app/services/repair_semantics.py",
+      "bytes": 14975,
+      "sha256": "09d00786c94dec9b21e49fd9ce7873107edde7a930f37e8dd1e6526d74e36b76"
+    },
+    {
+      "path": "backend/app/services/rule_synthesis.py",
+      "bytes": 14670,
+      "sha256": "cfbf74a4771dbe1ff35ee4a1658efe50914d39a345c7b6b5837d91e0a670fb8e"
+    },
+    {
+      "path": "backend/app/workflows/scouting.py",
+      "bytes": 832,
+      "sha256": "3c48d480b0d83a63de3ab9bc991399518e93d687aa0cbe9870c826dbbdd9db8a"
+    },
+    {
+      "path": "backend/app/workflows/unified_review.py",
+      "bytes": 949,
+      "sha256": "bd256f292e48ed37bd4efcdc83d486f9cc46c35dcdbb85563f026dcd6035a1f9"
+    },
+    {
+      "path": "backend/app/workflows/repair.py",
+      "bytes": 2967,
+      "sha256": "27fcd1241d2c082614900fa1f459aa972172993038aae5639e765646aeb3e4be"
+    },
+    {
+      "path": "backend/app/workflows/rules.py",
+      "bytes": 3261,
+      "sha256": "17966ccd1895d20f989d40a7cab66df176fced5e0536167ec5e3622463df937d"
+    },
+    {
+      "path": "backend/app/api/routes/stages.py",
+      "bytes": 11918,
+      "sha256": "890894ae244599f8f72fadab6177156d473eae00b41f60b64754c65d4f9e6bb4"
+    }
+  ],
+  "document_id": "SEMFLOW-TEST-PLAN-EXPLANATION-2.2",
+  "document_version": "2.2",
+  "basis_plan_version": "v7",
+  "output": {
+    "path": "docs/testing/项目测试方案说明_v2.2.docx",
+    "bytes": 50709,
+    "sha256": "9dce59af32077da3dce8d2e920b9e113d4f182258b495a1ddae6d817beac6c1c"
+  },
+  "sources": [
+    {
+      "path": "docs/testing/simple-three-module-test-plan.md",
+      "bytes": 21903,
+      "sha256": "312ff16d928a20c5603a960f1a92538f81f0d582e2f2d3f0862fe17d24460d55"
+    },
+    {
+      "path": "docs/testing/test-plan-reference-index.md",
+      "bytes": 4658,
+      "sha256": "315d0cf582afb79bdc2f07f2135648ad4c335cbfeabff79e27466275a32ddc96"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+      "bytes": 594873,
+      "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7"
+    },
+    {
+      "path": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+      "bytes": 1905170,
+      "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+      "bytes": 2079381,
+      "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa"
+    }
+  ],
+  "presentation": {
+    "path": "docs/testing/project-test-plan.html",
+    "bytes": 40227,
+    "sha256": "9550c04846f2433513e31d287c650e860ee22d769cf04c59fa4f6ee5f0f29228"
+  },
+  "restored_body_from": {
+    "path": "docs/testing/项目测试方案说明_v2.0.docx",
+    "bytes": 51044,
+    "sha256": "12e08a157fc3e0e829eae2f97e0507abb82744191e1baa970ac08c0fd5d78f1c"
+  },
+  "competitor_tables_from": {
+    "path": "docs/testing/项目测试方案说明_v2.1.docx",
+    "bytes": 43316,
+    "sha256": "7b4ba1999fb7e0a81bf51dcae5f9099967f8b06144f4f12994a7b133b72c3dfa"
+  },
+  "supersedes": {
+    "document_id": "SEMFLOW-TEST-PLAN-EXPLANATION-2.1",
+    "output": {
+      "path": "docs/testing/项目测试方案说明_v2.1.docx",
+      "bytes": 43316,
+      "sha256": "7b4ba1999fb7e0a81bf51dcae5f9099967f8b06144f4f12994a7b133b72c3dfa"
+    },
+    "basis_snapshot": {
+      "path": "docs/testing/simple-three-module-test-plan-v6.md",
+      "bytes": 7298,
+      "sha256": "247c548ab99acc2b06a7c18a74d8e7b6ed79fdc15fd36ccffd8cba636171d943"
+    }
+  },
+  "change_summary": "恢复说明版2.0的全部段落和前7份表格；两份竞品表沿用说明版2.1的内容、列宽与排版；三个分节均采用相同A4纵向尺寸和页边距。",
+  "qa": {
+    "rendered_pages": 11,
+    "visually_reviewed_pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "chapters": 5,
+    "tables": 9,
+    "source_hyperlinks": 16,
+    "all_pages_same_a4_portrait": true,
+    "previous_body_restored_exactly": "passed",
+    "first_seven_tables_preserved": "passed",
+    "competitor_table_xml_matches_v2_1": "passed",
+    "untouched_package_parts_preserved": "passed",
+    "previous_versions_unchanged": "passed",
+    "word_html_table_alignment": "passed",
+    "source_hash_alignment": "passed",
+    "page_size_cm": [
+      21,
+      29.7
+    ],
+    "capability_matrix_page": 8,
+    "module_comparison_page": 9
+  },
+  "package": {
+    "id": "SEMFLOW-TEST-PLAN-20261011-2.2",
+    "desktop_destination": "/Users/chaos/Desktop/SemflowAudit_测试方案资料_20261011_v2.2",
+    "file_count": 22,
+    "pdf_count": 8,
+    "manifest_sha256": "32a09465993ad42f80a72133b6217b1b58ca9414ff7639fac9ce2ef1f35dd8cc",
+    "source_copy_checks": "passed",
+    "desktop_copy_status": "passed",
+    "desktop_file_hash_verification": "22/22 passed"
+  }
+}

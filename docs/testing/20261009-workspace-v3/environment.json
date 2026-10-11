@@ -1,0 +1,1243 @@
+{
+  "scope": "Current archive-time observation; never inherited by historical results",
+  "platform": "macOS-15.7.2-arm64-arm-64bit-Mach-O",
+  "architecture": "arm64",
+  "python": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 17.0.0 (clang-1700.6.4.2)]",
+  "python_executable": "/Users/chaos/Documents/GitHub/semflow-audit/.venv/bin/python",
+  "installed_python_packages": [
+    "Jinja2==3.1.6",
+    "Mako==1.3.12",
+    "MarkupSafe==3.0.3",
+    "PyJWT==2.13.0",
+    "PyYAML==6.0.3",
+    "Pygments==2.20.0",
+    "SQLAlchemy==2.0.51",
+    "alembic==1.19.1",
+    "amqp==5.4.0",
+    "annotated-doc==0.0.4",
+    "annotated-types==0.7.0",
+    "anyio==4.14.2",
+    "app==0.1.0",
+    "argon2-cffi-bindings==25.1.0",
+    "argon2-cffi==25.1.0",
+    "ast_serialize==0.8.0",
+    "astroid==4.3.3",
+    "attrs==26.1.0",
+    "backoff==2.2.1",
+    "bcrypt==5.0.0",
+    "billiard==4.3.0",
+    "celery==5.6.3",
+    "certifi==2026.6.17",
+    "cffi==2.0.0",
+    "charset-normalizer==3.5.2",
+    "click-didyoumean==0.3.1",
+    "click-plugins==1.1.1.2",
+    "click-repl==0.4.0",
+    "click==8.4.2",
+    "coverage==7.15.4",
+    "detect-installer==0.1.0",
+    "distro==1.9.0",
+    "dkimpy==1.1.8",
+    "dnspython==2.8.0",
+    "docstring_parser==0.18.0",
+    "email-validator==2.3.0",
+    "emails==1.1.2",
+    "fastapi-cli==0.0.32",
+    "fastapi-cloud-cli==0.21.0",
+    "fastapi==0.141.1",
+    "fastar==0.11.0",
+    "filetype==1.2.0",
+    "h11==0.16.0",
+    "haystack-ai==3.3.0",
+    "httpcore2==2.13.1",
+    "httpcore==1.0.9",
+    "httptools==0.8.0",
+    "httpx2==2.13.1",
+    "httpx==0.28.1",
+    "idna==3.18",
+    "iniconfig==2.3.0",
+    "jiter==0.17.0",
+    "jsonpatch==1.33",
+    "jsonpointer==3.1.1",
+    "jsonschema-specifications==2025.9.1",
+    "jsonschema==4.26.0",
+    "kombu==5.6.2",
+    "langchain-core==1.6.6",
+    "langchain-protocol==0.0.19",
+    "langgraph-checkpoint-postgres==3.1.2",
+    "langgraph-checkpoint==4.2.0",
+    "langgraph-prebuilt==1.1.0",
+    "langgraph-sdk==0.4.5",
+    "langgraph==1.2.12",
+    "langsmith==0.14.3",
+    "lazy_imports==1.2.0",
+    "librt==0.15.0",
+    "markdown-it-py==4.2.0",
+    "mdurl==0.1.2",
+    "more-itertools==11.1.0",
+    "mypy==2.3.1",
+    "mypy_extensions==1.1.0",
+    "networkx==3.7",
+    "numpy==2.5.3",
+    "openai==3.24.0",
+    "orjson==3.12.0",
+    "ormsgpack==1.12.2",
+    "packaging==26.2",
+    "pathspec==1.1.1",
+    "pgvector==0.5.0",
+    "pluggy==1.6.0",
+    "posthog==7.62.0",
+    "prek==0.4.14",
+    "prompt_toolkit==3.0.53",
+    "psycopg-binary==3.3.4",
+    "psycopg-pool==3.3.3",
+    "psycopg==3.3.4",
+    "puremagic==2.2.0",
+    "pwdlib==0.3.1",
+    "pycparser==3.0",
+    "pydantic-extra-types==2.11.1",
+    "pydantic-settings==2.15.0",
+    "pydantic==2.13.4",
+    "pydantic_core==2.46.4",
+    "pytest==9.1.1",
+    "python-dateutil==2.9.0.post0",
+    "python-dotenv==1.2.2",
+    "python-multipart==0.0.32",
+    "redis==6.4.0",
+    "referencing==0.37.0",
+    "requests-toolbelt==1.0.0",
+    "requests==2.34.2",
+    "rich-toolkit==0.20.1",
+    "rich==15.0.0",
+    "rignore==0.7.6",
+    "rpds-py==2026.6.3",
+    "ruff==0.16.4",
+    "sentry-sdk==2.68.1",
+    "shellingham==1.5.4",
+    "six==1.17.0",
+    "sniffio==1.3.1",
+    "sqlmodel==0.0.39",
+    "starlette==1.3.1",
+    "tenacity==9.1.4",
+    "tqdm==4.70.1",
+    "tree-sitter-javascript==0.25.0",
+    "tree-sitter-typescript==0.23.2",
+    "tree-sitter==0.26.0",
+    "truststore==0.10.4",
+    "ty==0.0.74",
+    "typer==0.27.1",
+    "typing-inspection==0.4.2",
+    "typing_extensions==4.15.0",
+    "tzdata==2026.2",
+    "tzlocal==5.4.4",
+    "urllib3==2.7.0",
+    "uuid_utils==0.17.1",
+    "uvicorn==0.49.0",
+    "uvloop==0.22.1",
+    "vine==5.1.0",
+    "watchfiles==1.2.0",
+    "wcwidth==0.9.1",
+    "websockets==16.0",
+    "xxhash==4.0.1",
+    "zizmor==1.29.0",
+    "zstandard==0.25.0"
+  ],
+  "configuration": {
+    "values": {
+      "CODEQL_BIN": "codeql",
+      "CODEQL_PYTHON_BIN": "python3.11",
+      "PYTHON_QUERY_PACK": "codeql/python-queries@1.6.0",
+      "JAVASCRIPT_QUERY_PACK": "codeql/javascript-queries@1.4.0",
+      "SCAN_TIMEOUT": 900,
+      "CODEQL_THREADS": 2,
+      "CODEQL_RAM": 2048,
+      "AI_MODEL": "deepseek-v4.1-flash",
+      "AI_TIMEOUT": 90,
+      "AI_MAX_OUTPUT_TOKENS": 6000,
+      "AI_REVIEW_TOKENS": 0,
+      "AI_SCOUT_TOKENS": 3000,
+      "AI_REPAIR_TOKENS": 0,
+      "AI_RULE_TOKENS": "6000",
+      "AI_THINKING_MODE": "disabled",
+      "AI_STAGE_MAX_CALLS": 24,
+      "AI_STAGE_MAX_TOKENS": 100000,
+      "AI_STAGE_MAX_SECONDS": 300,
+      "EMBEDDING_MODEL": "doubao-embedding-vision",
+      "EMBEDDING_REVISION": "doubao-embedding-vision-251215",
+      "EMBEDDING_DIMENSIONS": "2048",
+      "SEMANTIC_CONTEXT_CHARS": 40000,
+      "SEMANTIC_TOOL_LIMIT": 8,
+      "REPAIR_ATTEMPTS": 3,
+      "VALIDATOR_PYTHON_IMAGE": "ai-code-audit-validator:local",
+      "VALIDATOR_JS_IMAGE": "node:22-bookworm-slim",
+      "VALIDATOR_TIMEOUT": 120
+    },
+    "sources": {
+      "CODEQL_BIN": "source_default",
+      "CODEQL_PYTHON_BIN": "source_default",
+      "PYTHON_QUERY_PACK": "source_default",
+      "JAVASCRIPT_QUERY_PACK": "source_default",
+      "SCAN_TIMEOUT": "source_default",
+      "CODEQL_THREADS": "source_default",
+      "CODEQL_RAM": "source_default",
+      "AI_MODEL": "local_dotenv",
+      "AI_TIMEOUT": "source_default",
+      "AI_MAX_OUTPUT_TOKENS": "source_default",
+      "AI_REVIEW_TOKENS": "source_default",
+      "AI_SCOUT_TOKENS": "source_default",
+      "AI_REPAIR_TOKENS": "source_default",
+      "AI_RULE_TOKENS": "local_dotenv",
+      "AI_THINKING_MODE": "local_dotenv",
+      "AI_STAGE_MAX_CALLS": "source_default",
+      "AI_STAGE_MAX_TOKENS": "source_default",
+      "AI_STAGE_MAX_SECONDS": "source_default",
+      "EMBEDDING_MODEL": "local_dotenv",
+      "EMBEDDING_REVISION": "local_dotenv",
+      "EMBEDDING_DIMENSIONS": "local_dotenv",
+      "SEMANTIC_CONTEXT_CHARS": "source_default",
+      "SEMANTIC_TOOL_LIMIT": "source_default",
+      "REPAIR_ATTEMPTS": "source_default",
+      "VALIDATOR_PYTHON_IMAGE": "source_default",
+      "VALIDATOR_JS_IMAGE": "source_default",
+      "VALIDATOR_TIMEOUT": "source_default"
+    },
+    "scope": "Archive process configuration; not a probe of running API/Worker"
+  },
+  "commands": {
+    "git": {
+      "status": "observed",
+      "exit_code": 0,
+      "value": "git version 2.50.1 (Apple Git-155)"
+    },
+    "uv": {
+      "status": "observed",
+      "exit_code": 0,
+      "value": "uv 0.11.2 (02036a8ba 2026-03-26 aarch64-apple-darwin)"
+    },
+    "node": {
+      "status": "observed",
+      "exit_code": 0,
+      "value": "v26.0.0"
+    },
+    "npm": {
+      "status": "observed",
+      "exit_code": 0,
+      "value": "11.12.1"
+    },
+    "docker": {
+      "status": "observed",
+      "exit_code": 0,
+      "value": "Docker version 29.5.2, build 79eb04c"
+    },
+    "codeql": {
+      "status": "observed",
+      "exit_code": 0,
+      "value": "{\n  \"productName\" : \"CodeQL\",\n  \"vendor\" : \"GitHub\",\n  \"version\" : \"2.23.5\",\n  \"sha\" : \"546be98d25dd0adfa6d38793f6ed6d26a020bfad\",\n  \"branches\" : [\n    \"codeql-cli-2.23.5\"\n  ],\n  \"copyright\" : \"Copyright (C) 2019-2025 GitHub, Inc.\",\n  \"unpackedLocation\" : \"/opt/homebrew/Caskroom/codeql/2.23.5/codeql\",\n  \"configFileLocation\" : \"/Users/chaos/.config/codeql/config\",\n  \"configFileFound\" : false,\n  \"overlayVersion\" : 4,\n  \"features\" : {\n    \"analysisSummaryV2Default\" : true,\n    \"buildModeOption\" : true,\n    \"bundleSupportsIncludeDiagnostics\" : true,\n    \"bundleSupportsIncludeLogs\" : true,\n    \"databaseInterpretResultsSupportsSarifRunProperty\" : true,\n    \"featuresInVersionResult\" : true,\n    \"indirectTracingSupportsStaticBinaries\" : false,\n    \"informsAboutUnsupportedPathFilters\" : true,\n    \"supportsPython312\" : true,\n    \"mrvaPackCreate\" : true,\n    \"threatModelOption\" : true,\n    \"traceCommandUseBuildMode\" : true,\n    \"v2ramSizing\" : true,\n    \"mrvaPackCreateMultipleQueries\" : true,\n    \"setsCodeqlRunnerEnvVar\" : true,\n    \"sarifMergeRunsFromEqualCategory\" : true,\n    \"forceOverwrite\" : true,\n    \"generateSummarySymbolMap\" : true,\n    \"pythonDefaultIsToNotExtractStdlib\" : true,\n    \"queryServerRunQueries\" : true,\n    \"queryServerTrimCacheWithMode\" : true,\n    \"builtinExtractorsSpecifyDefaultQueries\" : true\n  }\n}"
+    },
+    "codeql_extractor_python": {
+      "status": "observed",
+      "exit_code": 0,
+      "value": "Python 3.11.15"
+    }
+  },
+  "dependency_locks": {
+    "uv.lock": "fdc09a0e5590dfb8c79fdd63cf5288f13aac0d87ecf416f38d65b4ae72ea4c4d",
+    "frontend/package-lock.json": "d8d5fc256b75114ef3de3f8d2e35ede074def38f621fc3359ee8b30b7c0eaac2",
+    "scripts/tools/codeql-lsp/package-lock.json": "2c2776f240428d9091e6d254afeb2c85c5930134b612a1e15f9623edf5890792"
+  },
+  "locked_python_packages": [
+    {
+      "name": "alembic",
+      "version": "1.19.1"
+    },
+    {
+      "name": "amqp",
+      "version": "5.4.0"
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.4"
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.7.0"
+    },
+    {
+      "name": "anyio",
+      "version": "4.14.2"
+    },
+    {
+      "name": "anyio",
+      "version": "4.15.1"
+    },
+    {
+      "name": "app",
+      "version": "0.1.0"
+    },
+    {
+      "name": "argon2-cffi",
+      "version": "25.1.0"
+    },
+    {
+      "name": "argon2-cffi-bindings",
+      "version": "25.1.0"
+    },
+    {
+      "name": "ast-serialize",
+      "version": "0.8.0"
+    },
+    {
+      "name": "astroid",
+      "version": "4.3.3"
+    },
+    {
+      "name": "attrs",
+      "version": "26.1.0"
+    },
+    {
+      "name": "backoff",
+      "version": "2.2.1"
+    },
+    {
+      "name": "bcrypt",
+      "version": "5.0.0"
+    },
+    {
+      "name": "billiard",
+      "version": "4.3.0"
+    },
+    {
+      "name": "celery",
+      "version": "5.6.3"
+    },
+    {
+      "name": "certifi",
+      "version": "2026.6.17"
+    },
+    {
+      "name": "cffi",
+      "version": "2.0.0"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.5.2"
+    },
+    {
+      "name": "click",
+      "version": "8.4.2"
+    },
+    {
+      "name": "click-didyoumean",
+      "version": "0.3.1"
+    },
+    {
+      "name": "click-plugins",
+      "version": "1.1.1.2"
+    },
+    {
+      "name": "click-repl",
+      "version": "0.4.0"
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6"
+    },
+    {
+      "name": "coverage",
+      "version": "7.15.4"
+    },
+    {
+      "name": "detect-installer",
+      "version": "0.1.0"
+    },
+    {
+      "name": "distro",
+      "version": "1.9.0"
+    },
+    {
+      "name": "dkimpy",
+      "version": "1.1.8"
+    },
+    {
+      "name": "dnspython",
+      "version": "2.8.0"
+    },
+    {
+      "name": "docstring-parser",
+      "version": "0.18.0"
+    },
+    {
+      "name": "email-validator",
+      "version": "2.3.0"
+    },
+    {
+      "name": "emails",
+      "version": "1.1.2"
+    },
+    {
+      "name": "fastapi",
+      "version": "0.141.1"
+    },
+    {
+      "name": "fastapi-cli",
+      "version": "0.0.32"
+    },
+    {
+      "name": "fastapi-cloud-cli",
+      "version": "0.21.0"
+    },
+    {
+      "name": "fastar",
+      "version": "0.11.0"
+    },
+    {
+      "name": "filetype",
+      "version": "1.2.0"
+    },
+    {
+      "name": "greenlet",
+      "version": "3.5.2"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0"
+    },
+    {
+      "name": "haystack-ai",
+      "version": "3.3.0"
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9"
+    },
+    {
+      "name": "httpcore2",
+      "version": "2.13.1"
+    },
+    {
+      "name": "httptools",
+      "version": "0.8.0"
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1"
+    },
+    {
+      "name": "httpx2",
+      "version": "2.13.1"
+    },
+    {
+      "name": "httpx2-jsfetch",
+      "version": "1.0"
+    },
+    {
+      "name": "idna",
+      "version": "3.18"
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0"
+    },
+    {
+      "name": "jinja2",
+      "version": "3.1.6"
+    },
+    {
+      "name": "jiter",
+      "version": "0.17.0"
+    },
+    {
+      "name": "jsonpatch",
+      "version": "1.33"
+    },
+    {
+      "name": "jsonpointer",
+      "version": "3.1.1"
+    },
+    {
+      "name": "jsonschema",
+      "version": "4.26.0"
+    },
+    {
+      "name": "jsonschema-specifications",
+      "version": "2025.9.1"
+    },
+    {
+      "name": "kombu",
+      "version": "5.6.2"
+    },
+    {
+      "name": "langchain-core",
+      "version": "1.6.6"
+    },
+    {
+      "name": "langchain-protocol",
+      "version": "0.0.19"
+    },
+    {
+      "name": "langgraph",
+      "version": "1.2.12"
+    },
+    {
+      "name": "langgraph-checkpoint",
+      "version": "4.2.0"
+    },
+    {
+      "name": "langgraph-checkpoint-postgres",
+      "version": "3.1.2"
+    },
+    {
+      "name": "langgraph-prebuilt",
+      "version": "1.1.0"
+    },
+    {
+      "name": "langgraph-sdk",
+      "version": "0.4.5"
+    },
+    {
+      "name": "langsmith",
+      "version": "0.14.3"
+    },
+    {
+      "name": "lazy-imports",
+      "version": "1.2.0"
+    },
+    {
+      "name": "librt",
+      "version": "0.15.0"
+    },
+    {
+      "name": "mako",
+      "version": "1.3.12"
+    },
+    {
+      "name": "markdown-it-py",
+      "version": "4.2.0"
+    },
+    {
+      "name": "markupsafe",
+      "version": "3.0.3"
+    },
+    {
+      "name": "mdurl",
+      "version": "0.1.2"
+    },
+    {
+      "name": "more-itertools",
+      "version": "11.1.0"
+    },
+    {
+      "name": "mypy",
+      "version": "2.3.1"
+    },
+    {
+      "name": "mypy-extensions",
+      "version": "1.1.0"
+    },
+    {
+      "name": "networkx",
+      "version": "3.7"
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.3"
+    },
+    {
+      "name": "openai",
+      "version": "3.24.0"
+    },
+    {
+      "name": "orjson",
+      "version": "3.12.0"
+    },
+    {
+      "name": "ormsgpack",
+      "version": "1.12.2"
+    },
+    {
+      "name": "packaging",
+      "version": "26.2"
+    },
+    {
+      "name": "pathspec",
+      "version": "1.1.1"
+    },
+    {
+      "name": "pgvector",
+      "version": "0.5.0"
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0"
+    },
+    {
+      "name": "posthog",
+      "version": "7.62.0"
+    },
+    {
+      "name": "prek",
+      "version": "0.4.14"
+    },
+    {
+      "name": "prompt-toolkit",
+      "version": "3.0.53"
+    },
+    {
+      "name": "psycopg",
+      "version": "3.3.4"
+    },
+    {
+      "name": "psycopg-binary",
+      "version": "3.3.4"
+    },
+    {
+      "name": "psycopg-pool",
+      "version": "3.3.3"
+    },
+    {
+      "name": "puremagic",
+      "version": "2.2.0"
+    },
+    {
+      "name": "pwdlib",
+      "version": "0.3.1"
+    },
+    {
+      "name": "pycparser",
+      "version": "3.0"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.13.4"
+    },
+    {
+      "name": "pydantic-core",
+      "version": "2.46.4"
+    },
+    {
+      "name": "pydantic-extra-types",
+      "version": "2.11.1"
+    },
+    {
+      "name": "pydantic-settings",
+      "version": "2.15.0"
+    },
+    {
+      "name": "pygments",
+      "version": "2.20.0"
+    },
+    {
+      "name": "pyjwt",
+      "version": "2.13.0"
+    },
+    {
+      "name": "pytest",
+      "version": "9.1.1"
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0"
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.2"
+    },
+    {
+      "name": "python-multipart",
+      "version": "0.0.32"
+    },
+    {
+      "name": "pyyaml",
+      "version": "6.0.3"
+    },
+    {
+      "name": "redis",
+      "version": "6.4.0"
+    },
+    {
+      "name": "referencing",
+      "version": "0.37.0"
+    },
+    {
+      "name": "requests",
+      "version": "2.34.2"
+    },
+    {
+      "name": "requests-toolbelt",
+      "version": "1.0.0"
+    },
+    {
+      "name": "rich",
+      "version": "15.0.0"
+    },
+    {
+      "name": "rich-toolkit",
+      "version": "0.20.1"
+    },
+    {
+      "name": "rignore",
+      "version": "0.7.6"
+    },
+    {
+      "name": "rpds-py",
+      "version": "2026.6.3"
+    },
+    {
+      "name": "ruff",
+      "version": "0.16.4"
+    },
+    {
+      "name": "sentry-sdk",
+      "version": "2.68.1"
+    },
+    {
+      "name": "shellingham",
+      "version": "1.5.4"
+    },
+    {
+      "name": "six",
+      "version": "1.17.0"
+    },
+    {
+      "name": "smokeshow",
+      "version": "0.5.0"
+    },
+    {
+      "name": "sniffio",
+      "version": "1.3.1"
+    },
+    {
+      "name": "sqlalchemy",
+      "version": "2.0.51"
+    },
+    {
+      "name": "sqlmodel",
+      "version": "0.0.39"
+    },
+    {
+      "name": "starlette",
+      "version": "1.3.1"
+    },
+    {
+      "name": "tenacity",
+      "version": "9.1.4"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.70.1"
+    },
+    {
+      "name": "tree-sitter",
+      "version": "0.26.0"
+    },
+    {
+      "name": "tree-sitter-javascript",
+      "version": "0.25.0"
+    },
+    {
+      "name": "tree-sitter-typescript",
+      "version": "0.23.2"
+    },
+    {
+      "name": "truststore",
+      "version": "0.10.4"
+    },
+    {
+      "name": "ty",
+      "version": "0.0.74"
+    },
+    {
+      "name": "typer",
+      "version": "0.27.1"
+    },
+    {
+      "name": "typing-extensions",
+      "version": "4.15.0"
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.2"
+    },
+    {
+      "name": "tzdata",
+      "version": "2026.2"
+    },
+    {
+      "name": "tzlocal",
+      "version": "5.4.4"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.7.0"
+    },
+    {
+      "name": "uuid-utils",
+      "version": "0.17.1"
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.49.0"
+    },
+    {
+      "name": "uvloop",
+      "version": "0.22.1"
+    },
+    {
+      "name": "vine",
+      "version": "5.1.0"
+    },
+    {
+      "name": "watchfiles",
+      "version": "1.2.0"
+    },
+    {
+      "name": "wcwidth",
+      "version": "0.9.1"
+    },
+    {
+      "name": "websockets",
+      "version": "16.0"
+    },
+    {
+      "name": "xxhash",
+      "version": "4.0.1"
+    },
+    {
+      "name": "zizmor",
+      "version": "1.29.0"
+    },
+    {
+      "name": "zstandard",
+      "version": "0.25.0"
+    }
+  ],
+  "locked_frontend_packages": {
+    "node_modules/@babel/code-frame": "7.29.7",
+    "node_modules/@babel/compat-data": "7.29.7",
+    "node_modules/@babel/core": "7.29.7",
+    "node_modules/@babel/core/node_modules/semver": "6.3.1",
+    "node_modules/@babel/generator": "7.29.8",
+    "node_modules/@babel/helper-compilation-targets": "7.29.7",
+    "node_modules/@babel/helper-compilation-targets/node_modules/semver": "6.3.1",
+    "node_modules/@babel/helper-globals": "7.29.7",
+    "node_modules/@babel/helper-module-imports": "7.29.7",
+    "node_modules/@babel/helper-module-transforms": "7.29.7",
+    "node_modules/@babel/helper-string-parser": "7.29.7",
+    "node_modules/@babel/helper-validator-identifier": "7.29.7",
+    "node_modules/@babel/helper-validator-option": "7.29.7",
+    "node_modules/@babel/helpers": "7.29.7",
+    "node_modules/@babel/parser": "7.29.9",
+    "node_modules/@babel/template": "7.29.7",
+    "node_modules/@babel/traverse": "7.29.8",
+    "node_modules/@babel/types": "7.29.8",
+    "node_modules/@biomejs/biome": "2.5.15",
+    "node_modules/@biomejs/cli-darwin-arm64": "2.5.15",
+    "node_modules/@biomejs/cli-darwin-x64": "2.5.15",
+    "node_modules/@biomejs/cli-linux-arm64": "2.5.15",
+    "node_modules/@biomejs/cli-linux-arm64-musl": "2.5.15",
+    "node_modules/@biomejs/cli-linux-x64": "2.5.15",
+    "node_modules/@biomejs/cli-linux-x64-musl": "2.5.15",
+    "node_modules/@biomejs/cli-win32-arm64": "2.5.15",
+    "node_modules/@biomejs/cli-win32-x64": "2.5.15",
+    "node_modules/@corvu/utils": "0.4.2",
+    "node_modules/@floating-ui/core": "1.8.0",
+    "node_modules/@floating-ui/dom": "1.8.0",
+    "node_modules/@floating-ui/react-dom": "2.1.9",
+    "node_modules/@floating-ui/utils": "0.2.12",
+    "node_modules/@hey-api/codegen-core": "0.9.1",
+    "node_modules/@hey-api/json-schema-ref-parser": "1.4.4",
+    "node_modules/@hey-api/openapi-ts": "0.99.0",
+    "node_modules/@hey-api/shared": "0.5.0",
+    "node_modules/@hey-api/spec-types": "0.2.0",
+    "node_modules/@hey-api/types": "0.1.4",
+    "node_modules/@hookform/resolvers": "5.9.1",
+    "node_modules/@internationalized/number": "3.6.8",
+    "node_modules/@jridgewell/gen-mapping": "0.3.13",
+    "node_modules/@jridgewell/remapping": "2.3.5",
+    "node_modules/@jridgewell/resolve-uri": "3.1.2",
+    "node_modules/@jridgewell/sourcemap-codec": "1.6.0",
+    "node_modules/@jridgewell/trace-mapping": "0.3.31",
+    "node_modules/@jsdevtools/ono": "7.1.3",
+    "node_modules/@kobalte/core": "0.13.14",
+    "node_modules/@kobalte/utils": "0.9.2",
+    "node_modules/@lukeed/ms": "2.0.2",
+    "node_modules/@oxc-project/types": "0.152.0",
+    "node_modules/@playwright/test": "1.62.1",
+    "node_modules/@radix-ui/number": "1.1.3",
+    "node_modules/@radix-ui/primitive": "1.1.7",
+    "node_modules/@radix-ui/react-arrow": "1.1.15",
+    "node_modules/@radix-ui/react-avatar": "1.2.6",
+    "node_modules/@radix-ui/react-checkbox": "1.3.11",
+    "node_modules/@radix-ui/react-collection": "1.1.15",
+    "node_modules/@radix-ui/react-compose-refs": "1.1.5",
+    "node_modules/@radix-ui/react-context": "1.2.2",
+    "node_modules/@radix-ui/react-dialog": "1.1.23",
+    "node_modules/@radix-ui/react-direction": "1.1.4",
+    "node_modules/@radix-ui/react-dismissable-layer": "1.1.19",
+    "node_modules/@radix-ui/react-dropdown-menu": "2.1.24",
+    "node_modules/@radix-ui/react-focus-guards": "1.1.6",
+    "node_modules/@radix-ui/react-focus-scope": "1.1.16",
+    "node_modules/@radix-ui/react-id": "1.1.4",
+    "node_modules/@radix-ui/react-label": "2.1.15",
+    "node_modules/@radix-ui/react-menu": "2.1.24",
+    "node_modules/@radix-ui/react-popper": "1.3.7",
+    "node_modules/@radix-ui/react-portal": "1.1.17",
+    "node_modules/@radix-ui/react-presence": "1.1.10",
+    "node_modules/@radix-ui/react-primitive": "2.1.10",
+    "node_modules/@radix-ui/react-radio-group": "1.4.7",
+    "node_modules/@radix-ui/react-roving-focus": "1.1.19",
+    "node_modules/@radix-ui/react-scroll-area": "1.2.18",
+    "node_modules/@radix-ui/react-select": "2.3.7",
+    "node_modules/@radix-ui/react-separator": "1.1.15",
+    "node_modules/@radix-ui/react-slot": "1.3.3",
+    "node_modules/@radix-ui/react-tabs": "1.1.21",
+    "node_modules/@radix-ui/react-tooltip": "1.2.16",
+    "node_modules/@radix-ui/react-use-callback-ref": "1.1.4",
+    "node_modules/@radix-ui/react-use-controllable-state": "1.2.6",
+    "node_modules/@radix-ui/react-use-effect-event": "0.0.5",
+    "node_modules/@radix-ui/react-use-is-hydrated": "0.1.3",
+    "node_modules/@radix-ui/react-use-layout-effect": "1.1.4",
+    "node_modules/@radix-ui/react-use-previous": "1.1.4",
+    "node_modules/@radix-ui/react-use-rect": "1.1.4",
+    "node_modules/@radix-ui/react-use-size": "1.1.4",
+    "node_modules/@radix-ui/react-visually-hidden": "1.2.11",
+    "node_modules/@radix-ui/rect": "1.1.3",
+    "node_modules/@rolldown/binding-android-arm-eabi": "1.2.12",
+    "node_modules/@rolldown/binding-android-arm64": "1.2.12",
+    "node_modules/@rolldown/binding-darwin-arm64": "1.2.12",
+    "node_modules/@rolldown/binding-darwin-x64": "1.2.12",
+    "node_modules/@rolldown/binding-freebsd-x64": "1.2.12",
+    "node_modules/@rolldown/binding-linux-arm-gnueabihf": "1.2.12",
+    "node_modules/@rolldown/binding-linux-arm64-gnu": "1.2.12",
+    "node_modules/@rolldown/binding-linux-arm64-musl": "1.2.12",
+    "node_modules/@rolldown/binding-linux-ppc64-gnu": "1.2.12",
+    "node_modules/@rolldown/binding-linux-s390x-gnu": "1.2.12",
+    "node_modules/@rolldown/binding-linux-x64-gnu": "1.2.12",
+    "node_modules/@rolldown/binding-linux-x64-musl": "1.2.12",
+    "node_modules/@rolldown/binding-openharmony-arm64": "1.2.12",
+    "node_modules/@rolldown/binding-win32-arm64-msvc": "1.2.12",
+    "node_modules/@rolldown/binding-win32-x64-msvc": "1.2.12",
+    "node_modules/@rolldown/pluginutils": "1.0.1",
+    "node_modules/@solid-primitives/event-listener": "2.4.6",
+    "node_modules/@solid-primitives/keyed": "1.5.3",
+    "node_modules/@solid-primitives/map": "0.4.13",
+    "node_modules/@solid-primitives/media": "2.3.6",
+    "node_modules/@solid-primitives/props": "3.2.4",
+    "node_modules/@solid-primitives/refs": "1.1.4",
+    "node_modules/@solid-primitives/resize-observer": "2.2.0",
+    "node_modules/@solid-primitives/rootless": "1.5.4",
+    "node_modules/@solid-primitives/static-store": "0.1.4",
+    "node_modules/@solid-primitives/storage": "1.3.11",
+    "node_modules/@solid-primitives/transition-group": "1.1.2",
+    "node_modules/@solid-primitives/trigger": "1.2.4",
+    "node_modules/@solid-primitives/utils": "6.4.1",
+    "node_modules/@standard-schema/utils": "0.3.0",
+    "node_modules/@swc/core": "1.16.13",
+    "node_modules/@swc/core-darwin-arm64": "1.16.13",
+    "node_modules/@swc/core-darwin-x64": "1.16.13",
+    "node_modules/@swc/core-linux-arm-gnueabihf": "1.16.13",
+    "node_modules/@swc/core-linux-arm64-gnu": "1.16.13",
+    "node_modules/@swc/core-linux-arm64-musl": "1.16.13",
+    "node_modules/@swc/core-linux-ppc64-gnu": "1.16.13",
+    "node_modules/@swc/core-linux-s390x-gnu": "1.16.13",
+    "node_modules/@swc/core-linux-x64-gnu": "1.16.13",
+    "node_modules/@swc/core-linux-x64-musl": "1.16.13",
+    "node_modules/@swc/core-win32-arm64-msvc": "1.16.13",
+    "node_modules/@swc/core-win32-ia32-msvc": "1.16.13",
+    "node_modules/@swc/core-win32-x64-msvc": "1.16.13",
+    "node_modules/@swc/counter": "0.1.3",
+    "node_modules/@swc/helpers": "0.5.23",
+    "node_modules/@swc/types": "0.1.28",
+    "node_modules/@tailwindcss/node": "4.3.3",
+    "node_modules/@tailwindcss/oxide": "4.3.3",
+    "node_modules/@tailwindcss/oxide-android-arm64": "4.3.3",
+    "node_modules/@tailwindcss/oxide-darwin-arm64": "4.3.3",
+    "node_modules/@tailwindcss/oxide-darwin-x64": "4.3.3",
+    "node_modules/@tailwindcss/oxide-freebsd-x64": "4.3.3",
+    "node_modules/@tailwindcss/oxide-linux-arm-gnueabihf": "4.3.3",
+    "node_modules/@tailwindcss/oxide-linux-arm64-gnu": "4.3.3",
+    "node_modules/@tailwindcss/oxide-linux-arm64-musl": "4.3.3",
+    "node_modules/@tailwindcss/oxide-linux-x64-gnu": "4.3.3",
+    "node_modules/@tailwindcss/oxide-linux-x64-musl": "4.3.3",
+    "node_modules/@tailwindcss/oxide-wasm32-wasi": "4.3.3",
+    "node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/@emnapi/core": "1.11.1",
+    "node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/@emnapi/runtime": "1.11.1",
+    "node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/@emnapi/wasi-threads": "1.2.2",
+    "node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/@napi-rs/wasm-runtime": "1.1.4",
+    "node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/@tybys/wasm-util": "0.10.2",
+    "node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/tslib": "2.8.1",
+    "node_modules/@tailwindcss/oxide-win32-arm64-msvc": "4.3.3",
+    "node_modules/@tailwindcss/oxide-win32-x64-msvc": "4.3.3",
+    "node_modules/@tailwindcss/vite": "4.3.3",
+    "node_modules/@tanstack/history": "1.162.4",
+    "node_modules/@tanstack/match-sorter-utils": "9.1.2",
+    "node_modules/@tanstack/query-core": "5.104.1",
+    "node_modules/@tanstack/query-devtools": "5.104.1",
+    "node_modules/@tanstack/react-query": "5.104.1",
+    "node_modules/@tanstack/react-query-devtools": "5.104.1",
+    "node_modules/@tanstack/react-router": "1.170.41",
+    "node_modules/@tanstack/react-router-devtools": "1.167.2",
+    "node_modules/@tanstack/react-store": "0.11.2",
+    "node_modules/@tanstack/react-table": "8.21.3",
+    "node_modules/@tanstack/router-core": "1.171.34",
+    "node_modules/@tanstack/router-devtools": "1.167.2",
+    "node_modules/@tanstack/router-devtools-core": "1.168.2",
+    "node_modules/@tanstack/router-generator": "1.167.40",
+    "node_modules/@tanstack/router-plugin": "1.168.42",
+    "node_modules/@tanstack/router-utils": "1.162.3",
+    "node_modules/@tanstack/store": "0.11.2",
+    "node_modules/@tanstack/table-core": "8.21.3",
+    "node_modules/@tanstack/virtual-file-routes": "1.162.0",
+    "node_modules/@types/json-schema": "7.0.15",
+    "node_modules/@types/node": "26.6.4",
+    "node_modules/@types/react": "19.3.0",
+    "node_modules/@types/react-dom": "19.3.0",
+    "node_modules/@vitejs/plugin-react-swc": "4.3.3",
+    "node_modules/agent-base": "6.0.2",
+    "node_modules/ansi-colors": "4.1.3",
+    "node_modules/ansis": "4.4.0",
+    "node_modules/argparse": "2.0.1",
+    "node_modules/aria-hidden": "1.2.6",
+    "node_modules/asynckit": "0.4.0",
+    "node_modules/axios": "1.20.0",
+    "node_modules/babel-dead-code-elimination": "1.0.12",
+    "node_modules/baseline-browser-mapping": "2.11.27",
+    "node_modules/browserslist": "4.29.3",
+    "node_modules/bundle-name": "4.1.1",
+    "node_modules/c12": "3.3.4",
+    "node_modules/call-bind-apply-helpers": "1.0.2",
+    "node_modules/caniuse-lite": "1.0.30001814",
+    "node_modules/chokidar": "5.0.0",
+    "node_modules/class-variance-authority": "0.7.1",
+    "node_modules/clsx": "2.1.1",
+    "node_modules/color-support": "1.1.3",
+    "node_modules/combined-stream": "1.0.8",
+    "node_modules/commander": "15.0.0",
+    "node_modules/confbox": "0.2.4",
+    "node_modules/convert-source-map": "2.0.0",
+    "node_modules/cookie-es": "3.1.1",
+    "node_modules/copy-anything": "4.1.5",
+    "node_modules/cross-spawn": "7.0.6",
+    "node_modules/csstype": "3.2.3",
+    "node_modules/debug": "4.4.3",
+    "node_modules/default-browser": "5.5.1",
+    "node_modules/default-browser-id": "5.0.1",
+    "node_modules/define-lazy-prop": "3.0.0",
+    "node_modules/defu": "6.1.7",
+    "node_modules/delayed-stream": "1.0.0",
+    "node_modules/destr": "2.0.5",
+    "node_modules/detect-libc": "2.1.2",
+    "node_modules/detect-node-es": "1.1.0",
+    "node_modules/diff": "8.0.4",
+    "node_modules/dotenv": "17.4.2",
+    "node_modules/dunder-proto": "1.0.1",
+    "node_modules/electron-to-chromium": "1.5.444",
+    "node_modules/enhanced-resolve": "5.26.0",
+    "node_modules/es-define-property": "1.0.1",
+    "node_modules/es-errors": "1.3.0",
+    "node_modules/es-object-atoms": "1.1.2",
+    "node_modules/es-set-tostringtag": "2.1.0",
+    "node_modules/escalade": "3.2.0",
+    "node_modules/exsolve": "1.1.1",
+    "node_modules/fdir": "6.5.0",
+    "node_modules/follow-redirects": "1.16.1",
+    "node_modules/form-data": "4.0.6",
+    "node_modules/fsevents": "2.3.2",
+    "node_modules/function-bind": "1.1.2",
+    "node_modules/gensync": "1.0.0-beta.2",
+    "node_modules/get-intrinsic": "1.3.0",
+    "node_modules/get-nonce": "1.0.1",
+    "node_modules/get-proto": "1.0.1",
+    "node_modules/get-tsconfig": "4.14.0",
+    "node_modules/giget": "3.3.1",
+    "node_modules/goober": "2.1.19",
+    "node_modules/gopd": "1.2.0",
+    "node_modules/graceful-fs": "4.2.11",
+    "node_modules/has-symbols": "1.1.0",
+    "node_modules/has-tostringtag": "1.0.2",
+    "node_modules/hasown": "2.0.4",
+    "node_modules/https-proxy-agent": "5.0.1",
+    "node_modules/is-docker": "3.0.0",
+    "node_modules/is-in-ssh": "1.0.0",
+    "node_modules/is-inside-container": "1.0.0",
+    "node_modules/is-wsl": "3.1.1",
+    "node_modules/isbot": "5.2.2",
+    "node_modules/isexe": "2.0.0",
+    "node_modules/jiti": "2.7.0",
+    "node_modules/js-tokens": "4.0.0",
+    "node_modules/js-yaml": "4.2.0",
+    "node_modules/jsesc": "3.1.0",
+    "node_modules/json5": "2.2.3",
+    "node_modules/lightningcss": "1.32.0",
+    "node_modules/lightningcss-android-arm64": "1.32.0",
+    "node_modules/lightningcss-darwin-arm64": "1.32.0",
+    "node_modules/lightningcss-darwin-x64": "1.32.0",
+    "node_modules/lightningcss-freebsd-x64": "1.32.0",
+    "node_modules/lightningcss-linux-arm-gnueabihf": "1.32.0",
+    "node_modules/lightningcss-linux-arm64-gnu": "1.32.0",
+    "node_modules/lightningcss-linux-arm64-musl": "1.32.0",
+    "node_modules/lightningcss-linux-x64-gnu": "1.32.0",
+    "node_modules/lightningcss-linux-x64-musl": "1.32.0",
+    "node_modules/lightningcss-win32-arm64-msvc": "1.32.0",
+    "node_modules/lightningcss-win32-x64-msvc": "1.32.0",
+    "node_modules/lru-cache": "5.1.1",
+    "node_modules/lucide-react": "1.50.0",
+    "node_modules/magic-string": "0.30.21",
+    "node_modules/math-intrinsics": "1.1.0",
+    "node_modules/mime-db": "1.52.0",
+    "node_modules/mime-types": "2.1.35",
+    "node_modules/ms": "2.1.3",
+    "node_modules/nanoid": "3.3.19",
+    "node_modules/node-releases": "2.0.57",
+    "node_modules/ohash": "2.0.12",
+    "node_modules/open": "11.0.0",
+    "node_modules/path-key": "3.1.1",
+    "node_modules/pathe": "2.0.3",
+    "node_modules/perfect-debounce": "2.1.0",
+    "node_modules/picocolors": "1.1.1",
+    "node_modules/picomatch": "4.0.7",
+    "node_modules/pkg-types": "2.3.3",
+    "node_modules/pkg-types/node_modules/confbox": "0.3.1",
+    "node_modules/playwright": "1.62.1",
+    "node_modules/playwright-core": "1.62.1",
+    "node_modules/postcss": "8.5.28",
+    "node_modules/powershell-utils": "0.1.0",
+    "node_modules/prettier": "3.9.9",
+    "node_modules/proxy-from-env": "2.1.0",
+    "node_modules/rc9": "3.1.0",
+    "node_modules/react": "19.3.0",
+    "node_modules/react-dom": "19.3.0",
+    "node_modules/react-error-boundary": "6.1.6",
+    "node_modules/react-hook-form": "7.89.0",
+    "node_modules/react-icons": "5.7.0",
+    "node_modules/react-remove-scroll": "2.7.2",
+    "node_modules/react-remove-scroll-bar": "2.3.8",
+    "node_modules/react-style-singleton": "2.2.3",
+    "node_modules/readdirp": "5.1.1",
+    "node_modules/remove-accents": "0.5.0",
+    "node_modules/resolve-pkg-maps": "1.0.0",
+    "node_modules/rolldown": "1.2.12",
+    "node_modules/run-applescript": "7.1.0",
+    "node_modules/scheduler": "0.28.0",
+    "node_modules/semver": "7.8.4",
+    "node_modules/seroval": "1.6.8",
+    "node_modules/seroval-plugins": "1.6.8",
+    "node_modules/shebang-command": "2.0.0",
+    "node_modules/shebang-regex": "3.0.0",
+    "node_modules/solid-js": "1.9.15",
+    "node_modules/solid-js/node_modules/seroval": "1.5.6",
+    "node_modules/solid-js/node_modules/seroval-plugins": "1.5.6",
+    "node_modules/solid-presence": "0.2.0",
+    "node_modules/solid-prevent-scroll": "0.1.11",
+    "node_modules/solid-transition-group": "0.2.3",
+    "node_modules/sonner": "2.0.8",
+    "node_modules/source-map-js": "1.2.2",
+    "node_modules/superjson": "2.2.6",
+    "node_modules/tailwind-merge": "3.7.0",
+    "node_modules/tailwindcss": "4.3.3",
+    "node_modules/tapable": "2.3.3",
+    "node_modules/tinyglobby": "0.2.17",
+    "node_modules/tslib": "2.8.1",
+    "node_modules/tw-animate-css": "1.4.0",
+    "node_modules/typescript": "6.0.3",
+    "node_modules/undici-types": "8.9.0",
+    "node_modules/unplugin": "3.4.0",
+    "node_modules/update-browserslist-db": "1.3.3",
+    "node_modules/use-callback-ref": "1.3.3",
+    "node_modules/use-sidecar": "1.1.3",
+    "node_modules/use-sync-external-store": "1.7.0",
+    "node_modules/vite": "8.3.2",
+    "node_modules/vite/node_modules/fsevents": "2.3.3",
+    "node_modules/vite/node_modules/lightningcss": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-android-arm64": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-darwin-arm64": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-darwin-x64": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-freebsd-x64": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-linux-arm-gnueabihf": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-linux-arm64-gnu": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-linux-arm64-musl": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-linux-x64-gnu": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-linux-x64-musl": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-win32-arm64-msvc": "1.33.0",
+    "node_modules/vite/node_modules/lightningcss-win32-x64-msvc": "1.33.0",
+    "node_modules/webpack-virtual-modules": "0.6.2",
+    "node_modules/which": "2.0.2",
+    "node_modules/wsl-utils": "0.3.1",
+    "node_modules/yallist": "3.1.1",
+    "node_modules/zod": "4.6.5"
+  },
+  "observed_frontend_packages": {
+    "react": "19.3.0",
+    "vite": "8.3.2",
+    "typescript": "6.0.3",
+    "@playwright/test": "1.62.1"
+  },
+  "stage_defaults_from_source": {
+    "review": "9",
+    "repair": "2",
+    "rule": "8",
+    "scout": "7"
+  },
+  "prompt_files": {
+    "backend/app/prompts/repair.v1.txt": "12ca016d6f5d0b9afa6e862190c0d997d5ffc854240b6401a279542557cb5695",
+    "backend/app/prompts/repair.v2.txt": "b941740c265cf168e83fcd3961299859c34a2b23799067ffcdc5a79d4647f93d",
+    "backend/app/prompts/review.v1.txt": "146a71477b816ff5f702544a414dc99a001db2f5ba29f1a25cdbe0a1049249e0",
+    "backend/app/prompts/review.v10.txt": "0d68266d423c9b5c0f08917afde6e42641d1f482b1a6ff1e661160bda8d44cf3",
+    "backend/app/prompts/review.v2.txt": "12021d7dac6581054855248569c0bfdab0b029d4715268054380702faafa56a3",
+    "backend/app/prompts/review.v3.txt": "f20426d4c740b1eabcfa7d12c4114a39e810d05dac063451cc1008cea2f75184",
+    "backend/app/prompts/review.v4.txt": "f2d0332a8fc8bc4cd4734d86795e4b714b0748f3e8ce259a9e4e7268f23a1358",
+    "backend/app/prompts/review.v5.txt": "497c21dbc11a4b2aded3e4d26245a1ea831c3b127070a6501fba436a8fdaee8b",
+    "backend/app/prompts/review.v6.txt": "6db0638261e8f0c5842a43787556c7732d6d9fc6a874b6df95ac2233f49ab4b9",
+    "backend/app/prompts/review.v7.txt": "58f8edd675371bb2706c0779d7d46cc43c4a417f213960c37bb15e9d0617ece0",
+    "backend/app/prompts/review.v8.txt": "0b24d50f53f6a7dafa6dabd5750ebe67b65af6e38297471609c30120e1502d59",
+    "backend/app/prompts/review.v9.txt": "23ffa572db5b619f93c92d8e7b56de15106bb35a980b7cb444585460fbb4775d",
+    "backend/app/prompts/rule.v1.txt": "dc672087483d2c2d67260eabae2a7f6bd2957095a981998d174447c68597efc0",
+    "backend/app/prompts/rule.v2.txt": "e39f6e7b638769fb552521a7711a66ad1fcdf2defb32d86325e2b990b86e49e8",
+    "backend/app/prompts/rule.v3.txt": "a066db137854c5cf20f86697185bc4befa61264e1a7ae4d349fece9c1df4342e",
+    "backend/app/prompts/rule.v4.txt": "c5428880e7728f7195d299bbcb5d909be27c9d1342f43d0268c6809c00b3a098",
+    "backend/app/prompts/rule.v5.txt": "89ddd1fa508587a8888b00321cbd354dcf6d391105c1ea4b28bc46be091ce7bd",
+    "backend/app/prompts/rule.v6.txt": "4b2c849bc7ad8073c007c009d871836b0cdbf77b71c2bf95f346585cbce1bf1a",
+    "backend/app/prompts/rule.v7.txt": "b473ffbc75cc0305ea5f3235c30f562486a128213308de8c6acf8adb4f687ada",
+    "backend/app/prompts/rule.v8.txt": "cc5f3cfe9212b5129f89efb7ed33dd16497281643e863ff6643f8d8d2eb8ec98",
+    "backend/app/prompts/scout.v1.txt": "0d27e00bdd4814b28e6329f6dc49511af64a868a2ce41412cfb94dffc4428d31",
+    "backend/app/prompts/scout.v2.txt": "7e5dfc8a86adeb5d57d6de18c20bca803a5e9da69d4b63d30efd46cb87827ac3",
+    "backend/app/prompts/scout.v3.txt": "325a78b5ea503efb6194651e0d0329d87f52548936a9ba8224b5a2f5530d2f39",
+    "backend/app/prompts/scout.v4.txt": "13d78a26b04e06de58d6292fec428eec70e270763d796c1f0e95ef98a66ef6d1",
+    "backend/app/prompts/scout.v5.txt": "a393061770b34b615aa10a515c6d07de0393d75efa229e064668bdde21d55d28",
+    "backend/app/prompts/scout.v6.txt": "46a6cd4be26c27612ccaf5748546859caa7f1f73eb365bbe2a733b433d26acef",
+    "backend/app/prompts/scout.v7.txt": "970c120e7b8135d734d5969e11c5866acaf76afb8d3b795cd04589a96c919a14",
+    "backend/app/prompts/scout.v8.txt": "05c2f63cfffb33d6cbc74cc059cf3cb25f7a1607b071116b275c9c12128c6188"
+  },
+  "compose_sha256": "5b4b767b5f7db4d69cb86006263764216c28d37566ac59a6d0aef7fe5bc0439b",
+  "service_images": {
+    "db": "pgvector/pgvector:pg17",
+    "redis": "redis:7.4.2-alpine",
+    "python_validator": "ai-code-audit-validator:local",
+    "javascript_validator": "node:22-bookworm-slim"
+  },
+  "service_image_identities": {
+    "db": {
+      "status": "not_observed",
+      "reason": "offline_archive_no_service_access",
+      "value": null
+    },
+    "redis": {
+      "status": "not_observed",
+      "reason": "offline_archive_no_service_access",
+      "value": null
+    },
+    "python_validator": {
+      "status": "not_observed",
+      "reason": "offline_archive_no_service_access",
+      "value": null
+    },
+    "javascript_validator": {
+      "status": "not_observed",
+      "reason": "offline_archive_no_service_access",
+      "value": null
+    }
+  },
+  "service_image_scope": "Local image store, not a claim about currently running containers",
+  "corpus_status": "not_queried; use historical corpus receipts, not the current DB",
+  "secret_content_archived": false
+}

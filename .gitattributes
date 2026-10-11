@@ -1,0 +1,10 @@
+*.pdf binary
+*.doc binary
+*.docx binary
+*.png binary
+*.tar.gz binary
+*.zip binary
+# Preserve upstream text extraction and author README bytes for checksum provenance.
+benchmark-data/papers/**/*.txt -whitespace
+benchmark-data/papers/**/*.html -whitespace
+benchmark-data/dataset-notes/*README.md -whitespace

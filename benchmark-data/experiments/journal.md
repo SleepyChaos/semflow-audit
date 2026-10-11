@@ -159,3 +159,24 @@
 - 迁移前 627 个候选文件和当前分支历史 469 个 blob 的常见凭据格式检查无命中；暂存内容及忽略边界另行核查。原始测试源码、论文、评测答案、环境和 artifacts 仍只在本地。
 - Docker 现有项目标签核对为 ai-code-audit；本地 .env 固定 Compose 项目名，并验证配置解析，继续沿用原数据卷。没有启动/重启服务、GUI 测试或新模型实验。
 - [迁移说明](../../docs/workspace-migration.md)与[方案索引](../../docs/research/codeql-llm-proposals-index.md)更新。实验 next_action 和历史效果口径保持；今后从新根目录继续。
+
+## 2026-10-09 补测开始
+
+用户已整理旧测试并授权补测与索引更新。旧 workspace-v1 冻结副本校验通过。补测计划见 docs/research/supplemental-20261009-plan.md；独立产物根 artifacts/research/supplemental/20261009-v1。现有一个 10-05 排队 review 保持原状，补测使用独立禁用研究账号与新阶段。
+
+## 2026-10-09 新样本补测完成
+
+- 原始产物 artifacts/research/supplemental/20261009-v1；两批新OWASP48排除旧200文件，11类各24正/24负，先完整运行再评分。平台96例 TP33/FP12/TN36/FN15，P73.33%/R68.75%/F1 70.97%；目标标签外告警保留人工待裁决。
+- 新自建10修复任务经正常/安全/参考补丁校准；Repair1 10/10、Repair2 9/10，JS所有权因语义证据不足失败/未评估，完整分母保留。固定18个历史full_v8规则在12个新源文件上通过15/18，三个Python XSS候选遗漏包装返回；没有新规则生成调用或自动发布。
+- 33项可靠性回归＋5项新数据/归档测试通过，9项归档重复核查不重复计数。有效Chrome GUI10/11，手机退出入口被隐藏；保留缺浏览器、入口CORS、保留域名夹具等先前尝试，四个GUI账号及8个合成任务/凭据均清理。API/Vite只停止本轮启动实例。
+- 真实模型68阶段272调用，输入2129581/输出385875token，实际响应deepseek-v4-1-flash-260910；账单金额未知，并行负载不用于公平时延排名。没有改生产代码/Prompt，也未据结果补跑调分。
+- 新结果/机器汇总见 docs/research/supplemental-20261009-results.md、supplemental-20261009-summary.json；按VALIDATION-10-SUPPLEMENT归档，新workspace-v2，不覆盖旧workspace-v1。后续自然项目、人工金标/盲审、RAG消融和真实Worker浏览器全流程仍单列待做。
+
+## 2026-10-09 全链路继续补测：部分完成，审批服务阻塞
+
+- 全量启用真实工具回归230通过，0失败/错误/跳过；新3项汇总/归档保障通过，17项复查中14项与全量重叠，累计不同测试233。
+- Python/Flask和JS/Express派生项目各两次真实浏览器上传扫描，4个Scout、2个Review完成；22次真实模型调用，输入129065/输出24016token，实际模型deepseek-v4-1-flash-260910。两个缺陷合同在v2模型前经正常/安全/参考补丁校准。
+- v1源码证据类型断言错误、校准导入路径失败；v2同名任务严格定位失败，均保留，不以产品故障或真实模型质量失败统计。真实修复/规则/索引/最终报告页面链路未完成。
+- 自动审批服务因usage limit无法审核后续命令（非安全性拒绝），命令未执行；不绕过。仅做本地文件整理和普通测试，v3保存v2审计ID准备恢复，未执行模型流程。
+- 独立队列无默认任务消费；本轮API/Vite/Worker已停，临时账号/checkpoint/0600凭据保留供恢复，数据库清理及共享语料最终复验待审批恢复。
+- 报告docs/research/chain-completion-20261009-results.md解释各测试用途和限制；新workspace-v3/VALIDATION-10-CHAIN-COMPLETION，旧归档不覆盖。

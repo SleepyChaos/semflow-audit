@@ -1,0 +1,2627 @@
+QRS: A Rule-Synthesizing Neuro-Symbolic Triad for
+Autonomous Vulnerability Discovery
+George Tsigkourakos1 and Constantinos Patsakis 1,2
+1Department of Informatics, University of Piraeus, 80 Karaoli & Dimitriou str.,
+18534 Piraeus, Greece
+2Information Management Systems Institute of Athena Research Centre, Greece
+Abstract
+Static Application Security Testing (SAST) tools are integral to modern DevSecOps
+pipelines, yet tools like CodeQL, Semgrep, and SonarQube remain fundamentally constrained:
+they require expert-crafted queries, generate excessive false positives, and detect only prede-
+fined vulnerability patterns. Recent work has explored augmenting SAST with Large Lan-
+guage Models (LLMs), but these approaches typically use LLMs to triage existing tool outputs
+rather than to reason about vulnerability semantics directly.
+We introduce QRS (Query, Review, Sanitize), a neuro-symbolic framework that inverts
+this paradigm. Rather than filtering results from static rules, QRS employs three autonomous
+agents that generate CodeQL queries from a structured schema definition and few-shot ex-
+amples, then validate findings through semantic reasoning and automated exploit synthesis.
+This architecture enables QRS to discover vulnerability classes beyond predefined patterns
+while substantially reducing false positives. We evaluate QRS on full Python packages rather
+than isolated snippets. In 20 historical CVEs in popular PyPI libraries, QRS achieves 90.6%
+detection accuracy. Applied to the 100 most-downloaded PyPI packages, QRS identified
+39 medium-to-high-severity vulnerabilities, 5 of which were assigned new CVEs, 5 received
+documentation updates, while the remaining 29 were independently discovered by concur-
+rent researchers, validating both the severity and discoverability of these findings. QRS
+accomplishes this with low time overhead and manageable token costs, demonstrating that
+LLM-driven query synthesis and code review can complement manually curated rule sets and
+uncover vulnerability patterns that evade existing industry tools.
+Keywords:Static Application Security Testing, Vulnerability detection, Large Language
+Models, CodeQL
+1 Introduction
+Static Application Security Testing (SAST) tools have become a cornerstone of modern software
+security practices, embedded in secure Software Development Lifecycles (SDLCs) and DevSecOps
+pipelines across the industry. Tools such as CodeQL [31], Semgrep/Opengrep [13, 64], Bandit [68]
+and SonarQube [76] enable developers to identify potential vulnerabilities before code reaches
+production. However, these tools suffer from fundamental limitations that undermine their ef-
+fectiveness in practice. For instance, traditional SAST operates by pattern-matching predefined
+rule sets, rendering it largely blind to the underlying application logic and semantic context. This
+creates a constant race between emerging vulnerability patterns and the rules designed to detect
+them. When rules are too narrow, complex vulnerabilities slip through undetected. On the con-
+trary, when rules are too broad, developers face an overwhelming volume of false positives that
+undermines trust in the tooling and consumes valuable engineering time to triage. Thus, fatigue
+from the numerous false positives may lead developers to ignore the reported issues [45]. Customiz-
+ing these tools to balance precision and recall requires significant expertise in query languages and
+deep familiarity with the target codebase, expertise that many development teams lack.
+1
+arXiv:2602.09774v1  [cs.CR]  10 Feb 2026
+The security of the open-source software supply chain compounds these challenges. Modern
+applications depend heavily on third-party libraries, yet developers routinely trust popular pack-
+ages without thorough review. This implicit trust is increasingly exploited: supply-chain attacks
+have surged in recent years, with malicious or vulnerable code propagating through widely used
+dependencies. The recent cases of XZ Utils [4] and Shai-Hulud worm [1] are fine examples of
+open-source software compromise that led to the infection of thousands of hosts and repositories,
+despite the existence of SAST tooling. Thus, while SAST tools can scan dependencies, their
+rigid rule-based approach struggles to identify novel vulnerability patterns or context-dependent
+security issues in unfamiliar codebases.
+Large Language Models (LLMs) offer a potential remedy through their capacity for semantic
+understanding and contextual reasoning. Recent work has explored the application of LLMs
+to vulnerability detection, taking advantage of their ability to comprehend code logic beyond
+surface-level patterns [46, 78, 41, 22]. However, LLMs are fundamentally prediction-based systems,
+sophisticated pattern matchers that lack mechanisms for self-verification. Without being grounded
+in external tools or structured workflows, they hallucinate vulnerabilities, miss critical context,
+and produce inconsistent results. Directly prompting an LLM to review code yields unreliable
+findings that still require extensive human validation. Moreover, they heavily rely on training
+datasets [41] and tend to degrade when evaluated on large codebases.
+In this work, we introduce QRS (Query,Review,Sanitize), a hybrid framework that combines
+the precision of SAST with the semantic reasoning capabilities of LLMs through a pipeline of three
+autonomous agents. Rather than replacing traditional tools or relying solely on LLM inference,
+QRS orchestrates both in an iterative, mutually reinforcing workflow pipeline. Unlike prior works
+like LLMxCPG [46] and QLPro [43], which require expensive fine-tuning, QRS demonstrates that
+generic LLMs can synthesize complex CodeQL logic using a lightweight schema definition. The
+framework generates vulnerability-detection queries from a structured schema definition and few-
+shot examples, eliminating the need for manually maintained rule sets while preserving the rigor
+of static analysis and strengthening the final output through evidence-based reasoning. In this
+regard, the QRS framework decouples the vulnerability detection process into three specialized
+agents, each augmented with custom toolsets:
+•TheQuery (Q) agentsynthesizes CodeQL queries from self-imposed hypotheses, after
+being injected with a concise knowledge schema, translating high-level vulnerability descrip-
+tions into precise static analysis rules without requiring manual query authorship.
+•TheReview (R) agentperforms a semantic reachability verification, analyzing the code
+contextsurroundingeachpotentialfinding, tracingdataflowsfromsourcetosink, thoroughly
+assessing exploitability, and generating exploitation suggestions before submitting validated
+findings.
+•TheSanitize (S) agentperforms a final context-free and evidence-only assessment in
+a clean environment, pruning false positives and consolidating results to produce high-
+confidence vulnerability reports, while assigning labels to each finding.
+This architecture effectively mimics the workflow of an expert code auditor while maintaining low
+context windows, a bounded runtime, and manageable token costs, which are critical for practical
+deployment at scale.
+To assess the efficacy of QRS, we evaluate our framework in two complementary settings. First,
+we evaluated the detection accuracy on 20 historical vulnerabilities in popular PyPI libraries using
+precompiled high-level strategy instructions, demonstrating that QRS reliably identifies known
+vulnerability patterns. Second, we apply QRS to the 100 most popular PyPI packages as of
+November 2025, simulating real-world discovery conditions in heavily monitored source code.
+Main contributions.We introduce QRS, a highly configurable and extendable multi-agent
+framework that demonstrates practical security applications beyond benchmark performance. Our
+evaluation against the 100 most popular PyPI packages identified 34 CVEs, 5 of which we timely
+responsibly disclosed and received a CVE (CVSS range 4.5–8.6), and 5 additional issues that were
+acknowledged by the maintainer updates on documentation. The newly discovered CVEs affected
+packages that surpass 1.8 billion monthly downloads, are maintained by over 800 contributors,
+2
+and are dependencies of more than 2 million repositories. The vulnerabilities persisted despite
+being scanned by GitHub’s automated toolchain of CodeQL, Dependabot, and AI-enabled Copilot
+Autofix, and were patched within less than a month, and in most cases, within a few days. The
+findings include complex vulnerability classes, such as TOCTOU Race Conditions, ASN.1 octet
+memory exhaustion, and Path Traversal chains, demonstrating the framework’s ability to detect
+exotic patterns that evade traditional static code analysis and security expert reviews. Contrary
+to the current state of the art, QRS uses LLMs to craft CodeQL queries and, using agentic
+loops, prunes noise, labels the results, prioritizes them, and explores their exploitability. Thus, we
+demonstrate that LLM architectures can assist in discovering complex real-world security issues
+at scale, including cases missed by existing automated tools.
+Outline.The remainder of this article is structured as follows. In section 2, we introduce the
+framework and detail the agents, their roles, capabilities, configuration inputs, and the artifacts
+they produce. Next, in section 3, we deep dive into our experimental setup and metrics. We
+benchmark QRS with both traditional and LLM-based approaches in section 4. Discussions about
+the framework follow in section 5. Then, we provide an overview of the background and related
+work in section 6. We conclude with section 7 and the ethics behind our work in??and??. In
+the Appendix, we provide extensive artifacts, prompts, and metrics about QRS.
+2 The QRS Methodology
+2.1 Scope
+QRS targets a practical threat scenario end-to-end, identifying exploitable vulnerabilities in source
+code before attackers discover and weaponize them in production. Thus, we assume defenders have
+access to the source code and seek to minimize manual review effort while maximizing detection
+of genuine security issues. Moreover, we assume defenders have access to LLMs that they use
+to craft their CodeQL queries. Note that all CodeQL queries are executed locally, and LLMs
+parse only the specific tool output, not the entire codebase. Therefore, the codebase is not
+fully exposed to an LLM. Moreover, we do not evaluate adversarial code intentionally crafted
+to evade LLM-guided query synthesis, which remains an important direction for future work.
+As such, our experimental setup does not address: (i) vulnerabilities in compiled extensions or
+native code, (ii) logic vulnerabilities requiring dynamic analysis, (iii) supply-chain attacks at
+the package distribution level (e.g., compromised PyPI uploads), and (iv) adversarial evasion
+where attackers specifically craft code to bypass QRS detection. Finally, since there are tools
+to efficiently determine whether a specific library is known to be vulnerable, we do not consider
+imported libraries whose code is not provided in the package.
+These exclusions reflect practical scoping decisions rather than fundamental limitations. Com-
+piled extensions and native code require binary analysis techniques outside CodeQL’s source-level
+approach. Logic vulnerabilities that necessitate dynamic analysis constitute a complementary
+threat class that is better addressed by fuzzing or runtime testing. Distribution-level supply-chain
+attacks (e.g., compromised PyPI uploads) occur outside the source code and require monitor-
+ing of package repositories rather than code analysis. Finally, while adversarial evasion remains
+theoretically possible, our evaluation against heavily-scrutinized production packages suggests
+that current obfuscation techniques in legitimate codebases do not significantly impede detection.
+These boundaries align with standard SAST threat models and do not diminish QRS’s utility for
+its intended use case: identifying exploitable vulnerabilities in source code prior to deployment.
+2.2 Overview
+QRS is a modular, configurable, rule-synthesizing, neuro-symbolic triad of autonomous agents
+that collaborate to detect and validate security vulnerabilities. The framework is model-agnostic;
+it unifies model APIs via LiteLLM [49], providing compatibility with Gemini, Claude, GPT, and
+DeepSeek (both Chat and Reasoner variants). The architecture balances contextual understanding
+with computational efficiency through a hybrid approach combining custom-built tooling with
+LLM-based reasoning and AI agents.
+3
+The architectural separation of agents renders QRS inherently model and language-agnostic.
+Since CodeQL provides unified relational representations (ASTs, CFGs, DFGs) [28] for languages
+such as C/C++, Java, Go, and JavaScript [33], QRS can handle any supported language. By
+swapping the target language’s QL knowledge predicates, it can scale across diverse technology
+stacks without requiring fundamental architectural re-engineering. Our experimental setup in
+section 3 focuses on Python packages and a set of distinct configurations; nonetheless, it can
+be easily ported to support other programming languages. To extend functionality, an update
+on knowledge and system prompts is sufficient to switch to any CodeQL-supported analysis.
+Additionally, QRS can be configured to run with a set of attributes per agent, including model,
+temperature, iterations, maximum output tokens, and other generic caching attributes, according
+to the user’s needs.
+agentic loop agentic loop
+iterative loop
+PrepromptHigh-LevelRequirements Q Agent R Agent S Agent FinalReport
+KnowledgeBase
+optional findings verified
+feed
+group_findings_by_mitre
+Static T ools
+clustering
+search_cve
+Static T ools
+onlinesearch
+get_package_profile
+execute_query
+fixup_query
+create_report
+LLM T ools
+extract_code_snippet
+grep_search
+trace_flow
+submit_finding
+LLM T ools
+verify_finding
+flag_finding
+LLM T ools
+Figure 1: Overview of the QRS framework architecture.
+Figure 1 illustrates the framework’s architecture. The three core components are: theQ agent
+(hypothesis and query generation and refinement engine), which synthesizes CodeQL queries from
+minimal documentation; theR agent(review, exploitation suggestion and reasoning engine),
+which performs semantic verification of potential findings by analyzing sources, sinks and code
+flows with reasoning; and theS agentarbitration and finding sanitization engine), which renders
+final verdicts, filters false positives and assigns multiple labels to findings. Each agent operates
+with a dedicated toolset and iterates up to a user-defined limit. Custom static preprocessing
+utilities execute before each agent to prepare inputs, and all output reports undergo manual
+expert review for final acceptance or rejection of the findings.
+Eachscancanbeconfiguredtoinvolveanycombinationofmodels, iterations, maximumtokens,
+and temperature variations. For the sake of brevity, the model combinations stayed within the
+same family, a ‘big’ model to craft queries and ‘smaller’ ones to review code or produce Proof-of-
+Concept (PoC) exploitation snippets, e.g., GPT-5.1 forQ, and GPT-4.1 forRandS, except for
+DeepSeek, which provides only Chat and Reasoner models. The same configuration on maximum
+iterations, output tokens, and temperatures of 0 and 1 has been tested. We evaluate temperature
+settings of 0 and 1 because temperature behavior varies across model families, and these values
+represent reasonable bounds for code generation and review tasks with negligible hallucinations.
+All agents have a structured markdown input in theirsystem_promptwith a declarative Role
+-who the agent is, Goal -what is its purpose, Tools -what are its new skills, Strategy -how to
+tackle tasks, andExampleswhen necessary. Each agent has an additional section of instructions
+specific to the task.
+2.3 Query Generation
+TheQagent serves as the framework’s primary reasoning engine, generating high-level security
+hypotheses into executable CodeQL logic. Unlike traditional SAST,Qoperates as a generative
+synthesis engine that dynamically constructs and refines queries tailored to the library’s context.
+Besides hypotheses, the agent focuses on the severity levels provided and assigns a CWE to
+4
+each hypothesis. The main workflow is governed by the following modules:Structural Library
+Reconnaissance,Retrieval-Augmented QL Schema Learning, andIterative Syntax Refinementwith
+self-healing capabilities.
+Structural Library Reconnaissance.To address the ‘cold-start’ problem, inherent in zero rule
+knowledge analysis, theQagent can run theget_package_profileutility. This custom utility
+captures file paths, line numbers, import dependencies, and package metadata. The agent runs
+this tool only once during initialization; the tool performs a lightweight static scan and generates
+a JSON artifact of the scanned library, see Listing 6 in the Appendix.
+Retrieval-Augmented Schema.The operation without pre-defined query rules requires a criti-
+cal component of our framework. TheQagent is initialized with a compact contextknowledge.md
+file, which serves as a sparse schema definition. The file contains CodeQL syntax primitives and
+canonical patterns, see Listing 7 in the Appendix.
+Iterative Refinement.CodeQL’s declarative syntax is strict, often leading to compilation fail-
+ures in LLM-generated code. When a generated query fails to execute, the agent enters a recovery
+fixup_querysubroutine (see Listing 1 in Appendix) for: (i)Isolation: The failed raw query
+and compilation errors (stderr) are moved to a dedicated, ephemeral context thread, preventing
+‘context pollution’ and ensuring focus on the same hypothesis, severity, and CWE targets. (ii)Re-
+finement: The agent attempts to patch the failed query’s logic based on each error in an iterative
+manner. (iii)Constraint: This separate agentic loop is bounded by a retry budget (default: 3
+attempts). If the query still fails after budget exhaustion, the results are returned to the main
+thread, forcing the agent to either change approach or discard this hypothesis.
+Successfully compiled queries, as shown in Listing 4 in the Appendix, are executed locally
+against the CodeQL database and are sent back to theQagent to correlate the output with
+the original hypothesis to refine it accordingly. These structured findings are then served as
+a navigational map for the downstreamRagent using thecreate_reporttool in JSON/Sarif
+format.
+2.3.1 Natural Language Steering Strategy
+To accommodate targeted audit requirements or specific bug-hunting scenarios, theQagent im-
+plements a Natural Language Steering interface configuration. This mechanism allows researchers
+to inject an additional high-level directive via apreprompt.mdfile, see Listing 9 in the Appendix,
+and instruct the agent to focus on specific types of vulnerabilities (e.g., CWEs), severities, or even
+set restrictions and adjust the weights of each scan. This way, the framework can be extended
+into a broader-spectrum scanner that bridges the gap between human intuition and automated
+analysis.
+2.4 Semantic Review & Exploitation
+WhileQagent can identify vulnerability patterns based on structural logic, it lacks semantic
+depth to determine exploitability, whether a code snippet can actually be exploited. TheR
+agent is a semantic verification and evidence-gathering engine that acts as an investigator before
+solving a crime. It is a cognitive workflow, with a report of potential findings in hand, trying to
+identify points of interest in the codebase. The main workflow here is based on four components:
+MITRE Taxonomy-Driven Clustering,Iterative Context Reconstruction,Evidence-Based judgment
+& Reasoning, andExploitation. The output of these tasks is handed over in JSON/Sarif format
+to the downstream Sanitization (S) agent after all verdict submissions have been completed.
+MITRE Taxonomy-Driven Clustering.Raw results without semantics can often lead to
+context window degradation or the omission of more complex scenarios. As coding patterns
+and anti-patterns tend to recur, findings are clustered by relevance according to MITRE’s CWE
+database hierarchy [50]. By pivoting from file locations into groups of findings, we changeR’s
+viewpoint to a taxonomy-driven review, based on: severity, prevalence, likelihood, CWE ID, and
+related CWE IDs. Each group is also minified to remove duplicates in file locations, code flows,
+and unnecessary fields. Each cluster is then processed in an isolated context thread, with its
+own iteration budget set to10×Nf indings, ensuring thread context separation. This may lead to
+duplicate entries, since the same finding may appear multiple times inQqueries and be mutated
+5
+in various cluster definitions. An extra ‘pattern-stuttering’ elimination mechanism on duplicate
+findings with slight variations exists post-Rrun.
+Iterative Context Reconstruction.Unlike a traditional SAST tool that alerts a developer
+with static snapshots of findings, theRagent iteratively interrogates the codebase to reason and
+validate. Two semantic-slicing tools are used for this purpose. First,trace_flowmaps the flow
+of a propagation path from the source to the sink with a line tolerance limit of 1 to 3 surrounding
+lines. Beneath this tool is a single parameterized, hard-coded CodeQL predicate query with
+sink-to-source and tolerance parameters. Then,grep_searchis a sandboxed local grep search
+capability. It enables the agent to perform a pattern-enabled grep under a restricted local path.
+Bounded raw code snippet extraction is also available and is usually the most preferred tool of
+tested AI models, as we will see later on subsection 3.5.
+Evidence & Reasoning judgment.To enhance the traditional binary true-positive/false-
+positive verdict system, we introduce a more nuanced evidence-based classification. TheRagent
+is required to provide classic SAST fields, i.e.,file_path:start_line, alongside reasoning, code
+context, and data flow analysis, forcing the agent to prove the verdict claim as a: (i)True Positive
+(TP) (Confidence≥90%): A vulnerable code pattern finding, with a high degree of confidence.
+Requires generating a minimal exploit snippet, a scenario, the prerequisites to enable the attack,
+the likelihood, the impact, and the exploitability level. (ii)Manual Review (MR) (Confidence
+≥70%): Similar to a TP, but the complexity of the exploit chain or the agent’s decision horizon
+deems it unable to reach a certainty. (iii)False Positive (FP): A non-vulnerable code pattern. By
+forcing the model to generate the above, we leverage the chain-of-thought effect [6, 37, 63, 21],
+allowing the agent to articulate a plausible exploitation path.
+Exploitation Synthesis.To bridge the gap between theoretical reachability and practical ex-
+ploitability, theRagent must strongly verify practical exploitability. Once a vulnerability candi-
+date is semantically verified and ready to be submitted as a finding, the agent plays an additional
+adversarial role and must synthesize a minimal Proof-of-Concept (PoC) working exploit. This in-
+volves constraint solving; the prerequisites to materialize the attack scenario, artifact construction;
+the payload, and a semantic verification, a scenario for the attack, including the scenario’s cat-
+egory (e.g., Remote code execution), likelihood (low-high), impact (low-high), and exploitability
+(low-high), see Listing 2 and Listing 3 in the Appendix.
+2.4.1 Natural Language Steering Strategy
+Similarly toQ, theRagent implements a natural language steering interface capability, allowing
+the injection of an extra high-level directive via apreprompt.mdstrategy, see Listing 5 in the
+Appendix, and steers the agent to look for specific types of vulnerabilities, CWEs, TP or FP
+indicators, and critical focus areas, adjusting weights of each review process.
+2.5 Sanitization & Verdict
+The final component of the neuro-symbolic triad is theSagent. The agent is designed to function
+as an independent judge of the holistic picture. WhileQandRcollaborate hand-in-hand in
+context, to avoid potential cascading of hallucinations, theSagent is a ‘clean slate’ and adds a
+final verdict on what the other two ‘reported’. Compared to the other two agents that run their
+tools according to their preferences, theSagent populates context in a series.
+AgentSis modular, minimal, and detachable from the workflow. Yet, the agent reduces noise
+as a context-free review protocol and assigns taxonomies on each finding, while strengthening or
+weakeningR’s decisions, and adding insights for expert analysts on each finding being examined
+through three verification layers:Novelty Verification,Operational Analysis, andVulnerability
+Classification.
+Novelty Verification.To distinguish between known technical debt and genuine zero-day
+threats, the agent integrates a retrieval tool that directly queries the Common Vulnerabilities
+and Exposures (CVE) database [57] to determine whether the issue is a repetition of a published
+CVE or a novel finding. To avoid direct CVE correlation with the finding being examined, the
+agent callssearch_cveafter the review phase has completed, just to assign a label.
+6
+Operational Analysis.Frequent sources of false positives in static analysis are: the absence of
+context, API reachability (e.g., the vulnerability is in deprecated or internal-only code), and non-
+production code (e.g., the vulnerability is in a test suite for the actual library). The agent analyzes
+the surrounding logic, code flows, and file paths, respectively, to determine the operational scope
+of each finding before reaching a verdict.
+Vulnerability Classification.Before finalizing, the agent applies a multi-label tagging tax-
+onomy to move further away from the binary true/false positive result, and adds actionable in-
+telligence concerns. The available flags are (i)KNOWN_CVE: already published CVE, matching the
+finding; (ii)ZERO_DAY:afindingwithnomatchingCVE,hightocriticalseverity, andrelativelyeasy
+to exploit; (iii)NOVEL_FINDING: a finding with no matching CVE, medium to high severity, and
+exploitability uncertainty; (iv)BUILD_SCRIPT | TEST_CODE: a finding found in a build script or a
+test/example/smoke code; (v)EXPLOITABILITY: a vulnerability with exploitability and prerequi-
+site concerns in context; (vi)HALLUCINATION: the claimed code context does not match the finding;
+(vii)CODE_SMELL: not a vulnerability but a best-practice issue, and (viii)CONTEXT_MISMATCH: the
+finding does not align with the package. Upon completion, each finalized verdict as seen in List-
+ing 8 is appended toR’s respective artifact as seen in Listing 2, presenting an enhanced and
+curated JSON/Sarif output to the expert security analyst.
+3 Framework validation
+According to the TIOBE index [79], Python is the most popular language. Moreover, there is the
+Python Package Index (PyPI), a centralized repository of open-source Python packages. Thus,
+using PyPI as a reference point, we can establish a ground-truth dataset in a real-world setting and
+maximize the potential impact of the research. As such, we evaluate QRS on two datasets: first,
+the Historical 20 (Hist20) dataset to establish the framework’s detection accuracy, and second, a
+real-world production dataset on the Top 100 (Top100) PyPI packages.
+Framework configuration.Since QRS can run with any model combination, we use higher-
+reasoning models forQagent and lower forRandS, to limit token consumption on less intensive
+tasks. To avoid cross-model contamination, we keep each configuration within the same model
+family and assign temperature values of 0 and 1, corresponding to deterministic and creative sam-
+pling, respectively. We annotate models in short with their respective temperature configuration
+subscripts as explained in Table 1.
+Table 1: Model configuration matrix
+Short Q Model R + S Models Temp
+C0 claude-sonnet-4-5 claude-haiku-4-5 0.0
+C1 claude-sonnet-4-5 claude-haiku-4-5 1.0
+DC0 deepseek-chat deepseek-chat 0.0
+DC1 deepseek-chat deepseek-chat 1.0
+DR0 deepseek-reasoner deepseek-reasoner 0.0
+DR1 deepseek-reasoner deepseek-reasoner 1.0
+G0 gemini-3-pro-preview gemini-2.5-pro 0.0
+G1 gemini-3-pro-preview gemini-2.5-pro 1.0
+GPT0 gpt-5.1 gpt-4.1 0.0
+GPT1 gpt-5.1 gpt-4.1 1.0
+3.1 Dataset Construction
+To collect these two datasets, we used the official Python Index Project [23] and a snapshot of the
+most downloaded PyPI packages from the Open-Source project ‘Top PyPI Packages’ [34], as of
+November 2025. We implemented an automated crawler to retrieve archived source distributions
+fromPyPI’srepositoryfordirectanalysis. Nofurtherprocessingwasperformed, sinceQRSaccepts
+archived packages and handles extraction and CodeQL database generation.
+7
+3.2 Metrics Definitions
+Vulnerability detection in our datasets lacks the binary labels of curated lab benchmarks. We
+establish ground truth through a multi-stage process and define metrics through expert review
+as (i)True Positive (TP)/Manual Review (MR): The finding describes a genuine or al-
+most certain vulnerability. Findings with too many prerequisites are considered TP, since the
+code snippet is vulnerable, but includes exploitability concerns, in agreement with expert review.
+(ii)False Positive (FP): The finding describes a non-vulnerable code snippet. Either the at-
+tack vector is non-feasible or mitigated by the runtime context. (iii)True Negative (TN): The
+finding describes a non-vulnerable code snippet, in agreement with expert review, and (iv)False
+Negative (FN): The finding describes a missed vulnerability. To calculate metrics, we use the
+confusion matrix of Table 2. Note that our metric definition makes them objective and rigorous.
+For example, we do not simply declare a new vulnerability and mark it as positive; it is verified
+by the package owners and through CVE publication. Thus, although the ground-truth labeling
+is more limited, especially for Top100, the results remain subject to expert judgment and main-
+tainer feedback, introducing unavoidable subjectivity despite our efforts to standardize validation.
+However, this approach does not inflate our results.
+Table 2: Confusion Matrix: S Agent vs Human (H) Verdict
+Classification S agent→Human Interpretation
+TP TP/MR→TP S + H correct acceptance
+FP TP/MR→FP S incorrectly flagged
+TN FP→FP S + H correct rejection
+FN FP→TP S missed vulnerability
+3.3 Historical 20 Dataset
+To establish baselines, we curate a dataset of 20 PyPI package versions with reported CVEs,
+containing 20 CVEs spanning 2018–2025 across 12 CWE categories (see Table 3). Each package
+contains at least one CVE with a published advisory right before patch application. We aim to
+cover a diverse set of vulnerability classes spanning from Code Execution, Cross-Site Scripting
+(XSS), or Denial-of-Service (Re/DoS), to more contextualized classes that require understanding
+of HTTP Request Smuggling, Sensitive Information Disclosure between 30x redirects on protocol
+downgrades (from HTTPS to HTTP), or incomplete validations on cookie header parsing and file
+uploads. Of course, due to the limited sample size (N=20), metrics on the Hist20 dataset should
+be interpreted with caution.
+Consensus.To assess functionality and efficacy, QRS ran with 4 basic configurations (C0, G0,
+GPT0, DR0), included natural language instructions, and focused only on a subset of CWEs, with
+the CVE search tool disabled to avoid direct correlation. QRS detected 19/20 CVEs across Hist20
+packages in Table 3, with an average configuration consensus of 2.7/4. This means that at least 3
+configurations are required to guarantee catching 95% of the CVEs (G0 achieved 16/20), as seen
+in Table 4, while achieving a high prediction performance output (see Table 5).
+3.4 The Top 100 Dataset
+After initial validation on Hist20 across the aforementioned baseline configurations, we evaluate
+the framework on real-world discovery capabilities. We collect the 100 most popular PyPI pack-
+ages, but unlike Hist20, this dataset does not include a priori knowledge or a steering strategy.
+The package selection criteria arePopularity(highest monthly download counts) andMainte-
+nance, with packages actively maintained to ensure responsible disclosure. Nevertheless, it may
+underestimate detection rates on less-maintained codebases where vulnerabilities are more likely
+to persist. As a result, the packages in our dataset are very popular, ranging from 144 million
+downloads per month (snowflake_connector_python-4.0.0) to 1.4 billion downloads per month
+(boto3-1.40.64). Almost all packages (96%) have a GitHub repository, with contributors ranging
+8
+Table 3: Hist20: Known CVE Composition
+Package CVE CVSS Vulnerability Type
+aiohttp-3.8.5 CVE-2023-47627 7.5 HTTP Req. Smuggle
+aiohttp-3.9.1 CVE-2024-23334 7.5 Path Traversal
+cryptography-39.0 CVE-2023-23931 4.8 Memory Corruption
+django-4.1 CVE-2023-31047 9.8 Validation Bypass
+django-4.2 CVE-2023-36053 7.5 ReDoS
+fastapi-0.65.1 CVE-2021-32677 8.1 CSRF
+jinja2-3.1.2 CVE-2024-22195 6.1 XSS
+jinja2-3.1.5 CVE-2025-27516 5.4 Sandbox Escape
+lxml-4.2.4 CVE-2018-19787 6.1 XSS
+lxml-4.6.2 CVE-2021-28957 6.1 XSS
+pillow-8.0 CVE-2022-22817 9.8 Arbitrary Code Exec.
+pillow-10.1 CVE-2023-50447 9.8 Arbitrary Code Exec.
+pydantic-1.8 CVE-2021-29510 7.5 DoS
+pydantic-2.3 CVE-2024-3772 5.9 ReDoS
+pyyaml-5.3 CVE-2020-1747 9.8 Arbitrary Code Exec.
+requests-2.19 CVE-2018-18074 7.5 Info Disclosure
+requests-2.30 CVE-2023-32681 6.1 Info Disclosure
+setuptools-69.1.1 CVE-2024-6345 8.8 Remote Code Exec.
+urllib3-1.26.17 CVE-2023-45803 4.2 Info Disclosure
+werkzeug-2.2.2 CVE-2023-23934 2.6 Cookie Injection
+Table 4: Hist20: CVE Detection
+CVE C 0 DR0 G0 GPT0 Consensus
+CVE-2023-47627 4/4
+CVE-2024-23334 2/4
+CVE-2023-23931 2/4
+CVE-2023-31047 1/4
+CVE-2023-36053 1/4
+CVE-2021-32677 0/4
+CVE-2024-22195 3/4
+CVE-2025-27516 2/4
+CVE-2018-19787 4/4
+CVE-2021-28957 1/4
+CVE-2022-22817 4/4
+CVE-2023-50447 4/4
+CVE-2021-29510 4/4
+CVE-2024-3772 3/4
+CVE-2020-14343 4/4
+CVE-2018-18074 4/4
+CVE-2023-32681 1/4
+CVE-2024-6345 4/4
+CVE-2023-45803 3/4
+CVE-2023-23934 2/4
+Total 12/20 15/20 16/20 10/20 2.7/4
+Table 5: Hist20: Prediction Performance Metrics
+Config Correct/Predict Accuracy Precision Recall F1
+C0 102/118 86.44% 75.76% 75.76% 0.758
+DR0 29/32 90.62% 86.96% 100.00% 0.930
+G0 57/67 85.07% 69.70% 100.00% 0.821
+GPT0 69/93 74.19% 44.12% 75.00% 0.556
+from 3 (typing_inspection-0.4.2) to 892 (pygments-2.19.2), and commits ranging from 37 (mdurl-
+0.1.2) to 57.9k (grpcio-1.76.0), indicating that the packages are very vibrant. The full details
+about the dataset and metadata can be found in the Appendix Table 17.
+We evaluated QRS on an open-world dataset across 10 configurations (5 model families×
+9
+2 temperature settings×100 packages). We allowed the framework to operate autonomously,
+without predefined CWE and focus-point targets or specific CodeQL queries. At the time of
+writing, QRS discovered 29 previously known vulnerabilities, identified 5 new ones, and received 5
+acknowledgements. Note that there are pending issues under discussion with the developers that
+will result in additional CVEs, and will be taken into account for our current metrics.
+29 Previously known vulnerabilities.QRS successfully rediscovered the precise vulnerable
+code locations for 29 previously reported CVEs across this dataset. These vulnerabilities span
+packages that have either been patched in subsequent releases or remain documented as unsafe
+API usage patterns. Note that the majority of these vulnerabilities are high or critical; 21 have a
+CVSSscoreofatleast7.5. QRSalsoproducedaccurateverdictsdistinguishingbetweenexploitable
+or mitigated code and labeled each finding respectively (see Table 12). It should be noted that
+the rediscovery was not due to any model training or to search engine queries from the LLM,
+as it was identified through each agent’s tooling capabilities.Q’s CodeQL queries pointed out
+potential code snippets of interest,Rtraced the code flow through the review phase, and finally
+Sutilized thesearch_cvetool and assigned the correspondingKNOWN_CVElabel alongside the
+CVE ID. Clearly, if these 29 vulnerabilities had not been previously disclosed by researchers, QRS
+would have identified them, demonstrating its capabilities compared to traditional tools or bug
+bounty programs.
+5 Novel vulnerabilities.Furthermore, QRS identified 5 previously unreported vulnerabilities
+across 4 packages. These vulnerabilities are complex in nature, e.g., Time-of-Check-Time-of-Use
+(TOCTOU) Race Conditions, Memory exhaustion Denial-of-Service, Path traversal via depen-
+dencies, and were missed by maintainers, security researchers, or automated tooling, including
+GitHub’s CodeQL queries. These packages collectively surpass 1.8 billion monthly downloads, are
+maintained by over 800 contributors, and are dependencies of more than 2 million other reposito-
+ries. All vulnerabilities were responsibly disclosed to the maintainers and were patched within a
+few days after reporting, underscoring their validity and severity. The resulting CVEs are:
+•CVE-2025-68146 [Moderate - 6.3] - Race Conditions in filelock < 3.20.0[52]: The
+package (351M monthly downloads, 55 contributors, 696k dependencies) provides widely-
+usedplatform-independentfilelockingmechanisms, usedextensivelyinbuildsystems, virtual
+environments, and a critical dependency on major projects such as PyTorch [71], Poetry [66],
+and HuggingFace Transformers [44]. QRS identified a local TOCTOU issue affecting locking
+mechanisms on both Linux and Windows platforms, which could corrupt or destroy files via
+symlink manipulation, exfiltrate sensitive metadata, or cause a Denial-of-Service (DoS). As
+a workaround, the maintainers suggested soft-locking mechanisms.
+•CVE-2026-22701 [Moderate - 5.3]- Race Condition in filelock < 3.20.3[53]: A
+follow-up disclosure after patching CVE-2025-68146 on soft-locking mechanisms. The lo-
+cal TOCTOU issue affected soft-locking mechanisms via symlink manipulation, leading to
+inconsistent states and DoS.
+•CVE-2026-22702 [Moderate - 4.5] - Chained Race Condition in virtualenv <
+20.36.1[54]: OneofthemostpopularvirtualenvironmentisolationdependenciesforPython
+(273Mmonthlydownloads, 151contributors, 493kdependencies). QRShighlightedachained
+exploitation path that combines 2 findings in a 3-stage attack scenario via environment
+variables. In short, the flow included symlink manipulation in the application’s data path, a
+lock-race condition, and corruption of data in locally shared temporary directories, leading
+to cache poisoning, information disclosure, and a lock-starvation DoS.
+•CVE-2026-23949 [High - 8.6] - Zip Slip Path Traversal in jaraco.context 5.2.0 -
+6.1.0 affecting setuptools-80.9.0[56]: A cross-package dependency vulnerability, tracked
+insetuptools(880M monthly downloads, 546 contributors, 806k dependencies) using the
+vendoredjaraco.context[17, 16] (91M monthly downloads, 18 contributors, 14k dependen-
+cies) utility package, effectively affecting almost the entire PyPI ecosystem. QRS identified
+the flow of context across Python versions during archive extraction and traced the zip-
+slip Path Traversal vulnerability, introduced between versions, which allowed ‘../‘ sequences
+to bypass extraction filters and extract outside intended directories. This was affected by
+10
+remote resources and could result in overwriting system files, information leakage, and a
+potential DoS.
+•CVE-2026-23490 [High 7.5] - ASN.1 Memory Exhaustion in pyasn1 < 0.6.1[55]:
+A foundational package for ASN.1 parsing (367M monthly downloads, 13 contributors, 18k
+dependencies), used in cryptographic protocols and certificate validation. QRS highlighted
+that a malformed remote REL-OID (Relative Object Identifier) could trigger unbounded
+recursion during parsing and cause memory exhaustion. Any service accepting a specially
+crafted ASN.1 payload, while using the package, was a potential victim of a severe DoS
+attack.
+Notably, all PoC exploit suggestions were accurate and effectively reproduced the issue.
+5 Acknowledgments.We distinguish between CVE-assigned vulnerabilities and acknowledged
+issues based on maintainer response rather than our own severity assessment. Five findings of
+comparable technical complexity received documentation updates rather than CVEs, reflecting
+maintainer judgment about exploitability in practice. They were disputed due to concerns about
+exploitability or limited lateral movement. Since actions were taken, we have respected the main-
+tainers’ decisions and have not pursued further escalation, while noting that the vulnerable code
+patterns remain and that it is up to the individual’s security mindset to mitigate them. More
+precisely, QRS identified the following:
+•Path Traversal in numpy-2.3.4[59]: NumPy’sf2pyFortran Python interface accepts
+modules that enable attackers to read local files outside intended directories with an include
+traversal statement. As the exploitation requires the victim to accept and process a malicious
+f90module, the maintainers raised exploitability concerns.
+•Code Execution in numpy-2.3.4: Thef2pyFortran interface may also accept modules
+that enable attackers to execute arbitrary commands locally, under the same user’s privilege
+context, with a specially crafted Python payload set in a parameter passed down to numpy’s
+eval. Both vulnerabilities were briefly addressed in NumPy’s documentation [58].
+•DoS in jsonschema-4.25.1[15]: The schema validation logic is susceptible to catastrophic
+backtracking when processing specially crafted malicious JSON schemas inpatternkey-
+words. A commit [14] was added by the maintainers regarding the responsibility of users
+while processing untrusted input data.
+•Weak RNG & Race Condition in s3transfer-0.14[12]: The S3 download implemen-
+tation uses a weak random generator for temporary file names that enable a TOCTOU
+file replacement via symlinks at predicted paths. AWS acknowledged this as informational,
+citing its Shared Responsibility Model [11] as the primary mechanism for delegating local
+filesystem security to customers.
+•CookieJar Deserialization in aiohttp-3.13.2[3]: TheCookiejar.load()method wraps
+apickle.load()implementation, enabling a deserialization attack vector on attacker-
+controlled cookiejar files. This was privately disclosed in their advisory, and we were re-
+quested to provide a backwards-compatible remediation (see Figure 2.
+3.5 QRS Metrics
+For the Top100 dataset, we run a broader configuration across 1000 scans to obtain robust insights
+and model behavior using the framework. We collect multi-dimensional performance metrics
+across QRS’s pipeline. The metrics span the triad of agents, including query-generation efficiency,
+runtime data, LLM classification performance, and tool-calling capabilities, and we compare them
+with relevant tools and prior research.
+Query Generation.The CodeQL query generation capabilities of each model family vary sub-
+stantially, as seen in Table 6, given the absence of pre-training. These discrepancies in configu-
+ration outputs have direct implications for the framework’s efficiency, underscoring Claude’s and
+11
+Figure 2: GitHub Advisory aiohttp.
+Table 6: Top100: CodeQL Agent Efficiency
+Config # Queries W/ Results W/O Results Failed Fail Rate
+C0 1437 1007 430 416 28.95%
+C1 1461 993 468 421 28.82%
+DC0 997 621 376 571 57.27%
+DC1 999 579 420 620 62.06%
+DR0 1516 771 745 861 56.79%
+DR1 1555 801 754 802 51.58%
+G0 1553 1089 464 413 26.59%
+G1 1447 930 517 470 32.48%
+GPT0 1451 786 665 861 59.34%
+GPT1 1371 630 741 935 68.20%
+W/ Results: queries that compiled and returned findings.W/O Results: queries that compiled but
+returned no findings.Failed: queries with compilation or validation errors.
+Gemini’s query-synthesis capabilities relative to the degraded performance of the other models.
+Lower temperatures, in most cases, seem preferable for deterministic syntactic precision.
+Performance.A consistent pattern emerges across all configurations, regarding high accuracy
+and recall substantially exceeding precision as seen in Table 7. This asymmetry is a design
+decision, as FN (missed vulnerabilities) carries greater risk compared to FP, as QRS is hunting for
+unknown vulnerabilities. The trade-off is appropriate for a supply-chain scanning tool that aims
+for comprehensive coverage over an analyst’s workload, since this workload has also been greatly
+minimized and contextualized from theSagent.
+Table 7: Top100: Prediction Performance Metrics
+Config Correct/Predict Accuracy Precision Recall F1
+C0 892/954 93.50% 44.23% 92.00% 0.597
+C1 884/942 93.84% 43.96% 85.11% 0.580
+DC0 84/105 80.00% 22.22% 100.00% 0.364
+DC1 72/90 80.00% 48.57% 100.00% 0.654
+DR0 72/131 54.96% 24.36% 100.00% 0.392
+DR1 83/143 58.04% 24.05% 100.00% 0.388
+G0 264/318 83.02% 37.97% 85.71% 0.526
+G1 223/266 83.83% 41.67% 96.77% 0.583
+GPT0 219/283 77.39% 27.27% 100.00% 0.429
+GPT1 163/252 64.68% 26.27% 93.94% 0.411
+Average configuration metrics.Claude and Gemini demonstrate higher token consumption
+and consume all iterations, as instructed, for a timely and comprehensive scan. GPT consis-
+tently did not comply with instructions and terminated prematurely, yielding poorer results.
+DeepSeek-chat also tends to finish faster, as there are fewer quality findings for review, compared
+12
+to DeepSeek-reasoner, which performs in a decent and cost-effective manner, as seen in Table 8.
+Both Hist20 and Top100 datasets display similar average metrics. LLM API call caching from
+providers is not taken into account, as we cannot measure this effectively, so the costs refer to the
+worst cost scenario (no-caching) [9, 18, 36, 62]. Extended metrics can be found at Appendix B.
+Table 8: Top100: Average Performance Metrics
+Config Avg Runtime Avg Cost Avg Tokens Q + R + S Iter.
+C0 12m22s $1.453 706k 19 + 18 + 12
+C1 9m48s $1.228 561k 19 + 16 + 12
+DC0 10m1s $0.061 212k 18 + 6 + 3
+DC1 9m57s $0.064 221k 18 + 5 + 3
+DR0 21m26s $0.078 263k 19 + 10 + 3
+DR1 19m17s $0.080 268k 19 + 11 + 3
+G0 11m42s $1.034 406k 20 + 9 + 4
+G1 11m19s $0.989 383k 20 + 8 + 3
+GPT0 8m7s $0.2240 153k 12 + 4 + 5
+GPT1 8m12s $0.2232 152k 12 + 5 + 5
+Total 203h 45m $543.34 332.8M 30646
+Toolset calling.As instructed, allQagents only run package profiling once and then start
+executing their queries. Gemini tends to avoid fixing queries and instead relies on brute-force
+direct execution. Claude uses the toolsets more consistently, as it was the only model that detected
+almost all 39 vulnerabilities. All configurations seem to prefer extracting raw code snippets, and
+most avoid directly tracing code flows (flows may also be provided by theQagent, diminishing
+this need). Note that API calls include parallel function calling [10, 39, 61, 20], showing inflated
+toolcall summaries versus the maximum iteration setting. Both Hist20 and Top100 datasets also
+display similar average tool calling behavior as seen in Table 9.
+Table 9: Top 100: Average Tool Calling.
+CodeQL Tools Reviewer Tools Sanity
+Config pp eq fq ecs gs tf sf Iterations
+C0 1.0 12.7 1.9 27.1 3.5 1.8 12.3 12
+C1 1.0 12.7 2.0 25.3 3.3 1.6 11.5 12
+DC0 1.0 8.6 2.2 3.9 1.0 0.0 1.1 3
+DC1 1.0 8.3 2.7 3.0 1.0 0.0 0.9 3
+DR0 1.0 13.1 2.9 7.1 2.0 0.0 1.5 3
+DR1 1.0 12.9 3.4 7.6 2.1 0.0 1.6 3
+G0 1.0 14.9 0.7 5.3 0.9 0.0 3.5 4
+G1 1.0 13.6 0.9 4.9 0.7 0.0 3.0 3
+GPT0 1.0 12.5 3.2 6.8 0.6 0.0 3.3 5
+GPT1 1.0 11.7 3.1 5.7 0.7 0.1 3.0 5
+Q Max Iterations: 20,R Max Iterations: 10×N (N: number of finding clusters).Notation:pp:
+package_profile, eq: execute_query, fq: fixup_query, ecs: extr_code_snip, gs: grep_search, tf:
+trace_flow, sf: submit_finding
+Consensus.The Top100 findings indicate that an overall average of 2.7/10 in configuration
+consensus, similar to Hist20, is required to detect any potential vulnerability (known or novel).
+Regarding newly discovered CVEs, an average of 3.8/10 consensus is required for any novel finding
+or zero-day, suggesting that at least 4 overlapping configurations are needed to detect vulnerabil-
+ities. For CVE detections, see Table 11.
+Based on the nature of the Top100 packages,Qhypotheses andRfindings spanned across
+115 CWEs, with the most important categories being: (i)Injection & Code Execution: CWE-502,
+CWE-094, CWE-078 with a category subtotal of 1369 findings, (ii)Path Traversal & File System
+Access: CWE-022, CWE-073, CWE-059 with a subtotal of 670, (iii)Denial-of-Service & Re-
+source Exhaustion: CWE-1333, CWE-400 with a subtotal of 578, (iv)Cryptographic Weaknesses:
+CWE-798, CWE-327 with a subtotal of 470, and (v)Race Conditions & Concurrency: CWE-362,
+13
+CWE-367 with a subtotal of 87, with Claude dominating across all categories. For extended CWE
+distribution metrics, see Figure 6 in the Appendix.
+False Positive reduction.QRS addresses alert fatigue by utilizing theSagent as a post-review
+filtering hook. In our worst-case scenario (C0) with a 64.8% reduction rate, the security expert
+would have to review 140 TP findings for the Top100 dataset. Claude also tends to dominate total
+finding counts, but reduces final verdicts to manageable numbers as seen in Table 10.
+Table 10: Top 100: TP Finding Reduction from R to S Agent
+Config R→S Reduction Reduction%
+C0 398→140 258 64.8%
+C1 300→103 197 65.7%
+DC0 73→27 46 63.0%
+DC1 61→35 26 42.6%
+DR0 99→90 9 9.1%
+DR1 104→85 19 18.3%
+G0 104→85 19 18.3%
+G1 87→80 7 8.0%
+GPT0 173→104 69 39.9%
+GPT1 203→129 74 36.5%
+False Negative rate.The framework’s primary limitation is precision rather than recall, as
+the FN rate is minimal and gets eliminated with overlapping scans. More precisely, the FN rate
+in Hist20 is 2.2% (9/406), and in Top100 it is just 0.3% (14/3748). This demonstrates that
+QRS achieves near-complete recall, effectively detecting more than 99% of vulnerabilities in a
+production set.
+4 Empirical Observations
+4.1 Failed CVE-2021-32677 detection
+CVE-2021-32677 (FastAPI open redirect) was not detected by any model configuration. Manual
+inspection revealed that the vulnerability requires reasoning about HTTP redirect semantics and
+framework-specific routing behavior, patterns not captured by our current QL knowledge base.
+More precisely, the vulnerability stems from the fact that requests with content type text/plain
+are exempt from CORS preflights. The latter does not match any specific code pattern. However,
+extending the knowledge schema of QRS with web framework routing primitives could potentially
+identify further vulnerabilities.
+4.2 Comparison against SAST tools
+To demonstrate the advantages over purely syntactic pattern matching, we benchmark QRS
+against 3 widely-known open-source tools, namely Opengrep-v.1.15.1 [64], an open-source fork of
+Semgrep, using the standard community Python Semgrep ruleset [74], Bandit-v1.9.3 [68], a more
+sophisticated AST-based Python scanner, and CodeQL-v2.23.0 using the library’s ruleset [26].
+The former two tools exhibited severe alert fatigue on the Top100 dataset. More precisely,
+Opengrep generated 1251 warnings, Bandit generated 653 medium-to-high-severity alerts (more
+than 48k if low-severity alerts are included), and CodeQL generated 136. Compared with our nois-
+iest configuration (i.e., C0), which produced 140 TP candidate findings, we demonstrate a superior
+signal-to-noise ratio than the two tools and include more meaningful findings than CodeQL.
+More precisely, using all 39 vulnerabilities on Table 11 as ground truth, Opengrep and Cod-
+eQL failed to detect any novel CVE, whereas Bandit pinpointed a potential Path Traversal in
+setuptools, with no clear indication of howtarfile.extractallwas actually vulnerable. Open-
+grep and Bandit primarily detected vulnerabilities involving direct use of dangerous functions (e.g.,
+evalandpickle.load) that match simple syntactic patterns, yet without any context. CodeQL,
+with its standard Python security query suite [29], was unable to find any of the related issues. The
+reader may refer to Table 12 for detection metrics. However, beyond simple syntactic patterns,
+QRS detected vulnerabilities requiring data flow analysis or cross-module reasoning.
+14
+Table 11: Top100: CVE Detection Results and Comparison with Static Analysis Tools.
+CVE Package Configurations (Agreement) Bandit Semgrep CodeQL Score
+Known CVEs (Rediscovered)
+CVE-2020-13091 pandas-2.3.3 C0,1, G0,1, GPT0,1, DC1, DR0,1 (9/10) 9.8
+CVE-2019-6446 numpy-2.3.4 C0,1, DC0, G0, GPT0 (6/10) 9.8
+CVE-2019-8341 jinja2-3.1.6 C0,1, GPT0,1, DR0, G0 (6/10) 9.8
+CVE-2014-0012 jinja2-3.1.6 C0,1, G0,1, DC0,1 (5/10) 4.4
+CVE-2014-1402 jinja2-3.1.6 C0,1, G0,1, DC0,1 (5/10) 4.4
+CVE-2022-22817 pillow-12.0.0 C0, G1, GPT1, DR1 (4/10) 9.8
+CVE-2024-53899 virtualenv-20.35.4 DR0,1, GPT0,1 (4/10) 7.8
+CVE-2023-50447 pillow-12.0.0 C0, GPT0, DR1 (3/10) 8.1
+CVE-2024-34062 tqdm-4.67.1 G0, DC0, GPT1 (3/10) 4.4
+CVE-2014-3007 pillow-12.0.0 G0,1, GPT0 (3/10) 10
+CVE-2017-18342 pyyaml-6.0.3 C0, G1 (2/10) 9.8
+CVE-2019-20477 pyyaml-6.0.3 C0, G1 (2/10) 9.8
+CVE-2015-8557 pygments-2.19.2 GPT0,1 (2/10) 9.8
+CVE-2020-14343 pyyaml-6.0.3 C0, G1 (2/10) 9.8
+CVE-2020-1747 pyyaml-6.0.3 C0, G1 (2/10) 9.8
+CVE-2021-33503 urllib3-2.5.0 C0, G0 (2/10) 7.5
+CVE-2022-45061 idna-3.11 C0,1 (2/10) 7.5
+CVE-2024-23334 aiohttp-3.13.2 C0,1 (2/10) 7.5
+CVE-2025-43859 h11-0.16.0 C0,1 (2/10) 9.1
+CVE-2014-1858 numpy-2.3.4 C0 (1/10) 5.5
+CVE-2014-1859 numpy-2.3.4 C0 (1/10) 5.5
+CVE-2016-1494 rsa-4.9.1 G0 (1/10) 5.3
+CVE-2017-5992 openpyxl-3.1.5 C1 (1/10) 8.2
+CVE-2021-23437 pillow-12.0.0 C1 (1/10) 7.5
+CVE-2021-27291 pygments-2.19.2 G0 (1/10) 7.5
+CVE-2022-29217 pyjwt-2.10.1 G0 (1/10) 7.5
+CVE-2022-36087 oauthlib-3.3.1 DC1 (1/10) 6.5
+CVE-2023-38325 cryptography-46.0.3 C0 (1/10) 7.5
+CVE-2024-5569 zipp-3.23.0 C0 (1/10) 6.2
+Newly Discovered CVEs
+CVE-2026-22701 filelock-3.20.1 C0,1, G0,1, DC1, DR1, GPT0 (7/10) 5.3
+CVE-2025-68146 filelock-3.20.0 C0,1, G0, DC1, DR1, GPT0 (6/10) 6.3
+CVE-2026-23949 setuptools-80.9.0 C0, G0,1 (3/10) 8.6
+CVE-2026-23490 pyasn1-0.6.1 C0,1 (2/10) 7.5
+CVE-2026-22702 virtualenv-20.36.0 C1 (1/10) 4.5
+Acknowledgements (ACK)
+Deserialization aiohttp-3.13.2 C1, G0,1, GPT0,1, DR0 (6/10)
+DoS jsonschema-4.25.1 G0, DR1 (2/10)
+TOCTOU s3transfer-0.14.0 G0 (1/10)
+Path Traversal numpy-2.3.4 C0 (1/10)
+Code Injection numpy-2.3.4 C1 (1/10)
+Itshouldbehighlightedthat, despitebeingactivelymaintained, packageshostedonGitHubare
+regularly scanned by CodeQL with GitHub’s Advanced Security [30], Dependabot [27], and even
+AI Copilot [32]; these vulnerabilities were entirely missed. Note that only pyasn1 [67] had not been
+using such features, as inferred from other repository "Actions" tabs [24, 69, 70]. Even more, QRS
+used CodeQL queries, natively supported by GitHub, to automatically scan the repositories where
+most of these packages are hosted. Still, none of these vulnerabilities had been previously detected.
+QRS demonstrates that LLM-driven query synthesis paves the way for generating detection logic
+that anticipates patterns that have not been codified.
+4.3 Comparison against LLM-based Research
+Although metrics are not directly comparable due to the vast differences in datasets; a common
+problem in this line of research [40], and open-world ground truth unknowns, we report accuracy,
+precision, recall, and F1-score against our two best configurations from the Hist20 and Top100
+datasets in Table 13 as a reference point for comparable metrics.
+Notably, while overall classification accuracy and recall exceed prior work, precision is lower,
+indicating a higher FP rate in real-world scenarios; the best precision configuration (DC0) achieves
+48.5%. For Hist20, prediction rates increase substantially due to natural language strategies be-
+cause QRS focuses on specific CWEs, and true/false-positive indicators are highlighted. However,
+high accuracy is more important, as missing a vulnerability is worse than investigating a false
+15
+Table 12: Detection Performance: QRS vs SAST on Top100
+Metric QRS Bandit Opengrep CodeQL
+Detection Rate by Category
+Known CVEs 29/29 8/29 8/29 0/29
+New CVEs 5/5 1/5 0/5 0/5
+Acknowledgements (Non-CVE) 5/5 2/5 2/5 0/5
+Total 39/39 11/39 10/39 0/39
+% 100% 28.21% 25.64% 0.00%
+Findings Volume
+Total Findings 140† 653 1251 136
+Findings per CVE 3.59 59.36 125.10 —
+†QRS worst-performing configuration. Findings per CVE calculated as Total Findings / CVEs Detected.
+alarm in the supply chain.
+QRS is not free when compared with VulBERTa or GNN, given the API costs per configuration
+run. Human effort remains a resource, particularly when senior security reviewers incur high costs.
+The extra cost of model training or fine-tuning is not required by QRS. Configurations can be
+tailored to the auditor’s purpose or budget. Furthermore, it can be used with cached successful
+CodeQL queries to reduce iterations and improve result accuracy.
+Table 13: Vulnerability Detection Performance Comparison
+Framework Accuracy Precision Recall F1
+Pattern-Based Classifiers (SVEN)
+VulSim [75] 33.00% 31.00% 31.00% 0.310
+VulBERTa-CNN [42] 50.00% 51.00% 38.00% 0.440
+ReGVD [51] 51.00% 53.00% 46.00% 0.550
+LLM-Guided Static Analysis (SVEN)
+LLMxCPG [46] 60.20% 55.90% 95.34% 0.705
+LARA [83] — 81.8% 98.8% 89.5%
+Multi-Agent Frameworks
+LLM4Vuln [77] (C/C++) — 27.38% 50.00% 0.354
+VulAgent [82] (SVEN) 60.20% — — 0.656
+VulAgent [82] (PrimeVul) 58.40% — — 0.562
+QRS Agentic Framework (PyPI Datasets) C: Claude, G: Gemini
+QRS Hist20 C0 86.44% 75.76% 75.76% 0.758
+QRS Hist20 DR0 90.62% 86.96% 100.00% 0.930
+QRS Top100 C0 93.50% 44.23% 92.00% 0.597
+QRS Top100 G1 83.83% 41.67% 96.77% 0.583
+4.4 Model-specific observations
+DeepSeek-Reasonerexhibited the highest prediction rates in the Hist20 dataset setup, despite be-
+ing the slowest model at≈22minutes, and operated for a fraction of a cent. However, it displayed
+very conservative approaches to tool-calling and the lowest prediction rates on the Top100 dataset,
+indicating that guided strategies may be catalytic for the model. Its cost effectiveness was remark-
+able at $0.08 per scan, making it approximately 18 times cheaper than Claude.DeepSeek-Chat
+proved inefficient in utilizing toolsets, often falling into no-operation iterations, resulting in only
+≈1finding submissions per scan or findings of lesser quality.
+Geminiseems to be positioned as the middle-ground option between speed, cost, and thor-
+oughness. The models displayed a balanced approach, executing≈14queries and extracting≈5
+code snippets per scan, with a processing time of≈11mins, while maintaining highly competitive
+precision metrics and catching the most CVEs in the Hist20 dataset. Notably,Geminipreferred
+to avoid fixing query compilation failures, calling the query-fix subroutine at most once per scan.
+16
+GPTcompletions were the fastest (≈8min. per scan) but achieved among the lowest pre-
+diction rates, on par withDeepSeekmodels; the chat model often underperformed due to no-ops.
+GPTmodels showed a tendency toward premature completion and had the highest query gen-
+eration failure rates and query-fix subroutine visits, indicating challenges with CodeQL syntax.
+Consequently, the models submitted fewer findings.
+Claudewas the most efficient and complete model for query generation and code review, with
+runtimes of≈11mins, achieving the highest accuracy and precision rates in a real-world setting
+while uncovering all complex vulnerabilities, still being the priciest at $1.4 per scan.Claudedid
+not perform that well in the Hist20 dataset, only catching 12/20, but was able to discover all
+CVE-assigned vulnerabilities in the Top100 dataset. Moreover, temperature variations between 0
+and 1 in the Top100 dataset revealed subtle differences. Zero-temperature configurations generally
+produced more consistent results, whereas temperature 1.0 occasionally identified vulnerabilities
+missed by deterministic runs, as evidenced by CVE-2026-22702 being detected only by C1. Thus,
+running multiple temperature configurations provides complementary coverage rather than redun-
+dant scanning.
+The consensus analysis revealed that reliable vulnerability detection required multiple, diverse
+model configurations. In both datasets, a minimum of 3 configurations is recommended, indicating
+that broader model coverage compensates for the absence of targeted instructions. Finally, from a
+cost-effectiveness perspective, at an overall cost of $5.3 per 10-configuration package scans, QRS
+provides a substantial cost reduction compared to traditional security audits while maintaining
+the capability to discover CVE-worthy vulnerabilities in production libraries.
+5 Discussion & Limitations
+Based on the nature of packages, the CWE focus shifted for each package profile, and QRS success-
+fully generated hypotheses and findings across 115 unique CWEs, focusing mainly on: Injection
+& Code Execution, Path Traversal, File System Access, Denial-of-Service, Cryptographic Weak-
+nesses, and Race Conditions. Different packages may exhibit different vulnerability distributions.
+The reader may refer to the Appendix Figure 6 for more details about CWEs
+Determinism in LLMs is a complex topic, as multiple runs within the same model family may
+yield different results; however, they tend to converge to similar outcomes and achieve better
+predictive performance metrics when given high-level instructions or a specific CWE focus.
+Modelfamiliesexhibitdistinctcharacteristicsandbehaviors; forexample, GPTmayappearless
+capable of crafting queries without examples or documentation and may prematurely terminate
+even when instructed otherwise, whereas DeepSeek-reasoner requires natural language navigation
+to perform optimally. A diverse model set increases coverage and quality output.
+Traditional manual security audits cost thousands of dollars, whereas the QRS, even with
+multiple models, configurations, and scans, can remain in the single digits and deliver significant
+Return on Investment (ROI) with reasonable scan durations. No fine-tuning or pre-training ap-
+proaches were also performed, as we used the models as-they-are and compiled a compact file to
+augment their knowledge, and created a custom toolset to dictate their capabilities.
+QRS handled large libraries without substantially increasing token consumption, which in
+other cases could lead to context derailing and LLM hallucinations. The depth of results on
+highly maintained libraries that affect millions of repositories, and the output complexity, are also
+intriguing outcomes, demonstrating that LLMs can identify and combine patterns that humans
+or other static tools may miss. QRS can also perform parallel and multi-provider scanning tasks,
+enabling high scalability in containerized environments, as it is a pure Python framework with
+standard pip dependencies.
+Our framework was limited to only scanning Python packages during this setup. Allowing
+QRS to operate on multi-language code is relatively easy to tackle, since it only requires (i) the
+language-of-interest to be supported by CodeQL, (ii) an extra automated database creation for
+the specific language, and (iii) multi-language prompt instructions.
+17
+6 Background and Related Work
+To contextualize the QRS framework, we review prior work in static analysis, CodeQL-based
+program analysis, and recent advances in agentic AI for cybersecurity.
+Static Analysis & Taint Tracking.SAST examines source code to detect potential vulnerabil-
+ities without execution. Taint analysis, a core SAST technique, tracks data flows from untrusted
+sources to sensitive sinks and has been widely used to identify issues such as injection vulnerabili-
+ties and insecure data handling [73]. Despite its effectiveness, static taint analysis often struggles
+with scalability and precision when applied to large or dynamically-typed codebases, frequently
+leading to false positives or negatives [72].
+CodeQL & Code Analysis.CodeQL [31], developed by GitHub to automate code security
+scanning, represents a state-of-the-art tool in semantic code analysis. It supports most major pro-
+gramming languages and can be configured to automatically scan all public GitHub repositories.
+Hence, it can significantly enhance the security of open-source software. Unlike rule-based pat-
+tern matchers, CodeQL converts code into abstract, high-level objects and control flows, stripping
+out non-semantics, and storing the results in a relational database. Researchers can query the
+database using QL [25] in an SQL-like manner to detect sources, sinks, and flow configurations.
+While powerful, CodeQL has a steep learning curve, making it difficult to write effective queries
+without deep expertise in QL’s syntax and the target library’s API.
+Agentic AI.LLMs have demonstrated remarkable capabilities in contextualizing code, yet suffer
+from ‘hallucinations’, generating potentially plausible but incorrect facts. AI agents extend LLMs
+when equipped withtoolsandreasoning iterations. With tools, LLMs can execute functions that
+allow the model to interact with the environment or retrieve knowledge not directly available [8],
+e.g., retrieve online content, perform system commands, and ingest their output. On the other
+hand, reasoning iterations can be considered chain-of-thought operations that enable running
+agents to plan, execute, and observe outputs to refine their next actions [6, 5].
+Nevertheless, one of the big advantages of LLMs is their unpredictability. Temperature con-
+figurations affect how deterministic or creative agents can be. For code generation or code review
+tasks, values between 0 and 1 are usually recommended [19, 38, 7, 60].
+6.1 LLMs in Vulnerability Analysis
+The intersection of LLMs and static analysis for vulnerability detection has emerged as a rapidly
+evolving research area. The landscape of LLM-assisted vulnerability detection, at the moment of
+writing, can be divided into three main categories, each with distinct trade-offs between automa-
+tion, contextual reasoning, and practical applicability.
+Pattern-Based Classifiers.Discriminative approaches such as VulBERTa [42], VulSim [75],
+and ReGVD [51] employ transformer architectures or contrastive learning to classify code. While
+achieving reasonable accuracy on curated benchmarks, these methods require extensive labeled
+training data and struggle with novel vulnerability patterns not seen during training, limiting
+their effectiveness on real-world codebases.
+LLM-GuidedStaticAnalysis.OtherhybridapproachessuchasLLMxCPG[46]andGPTScan[78]
+combine Code Property Graphs (CPG) with LLM reasoning to identify vulnerability-relevant code
+slices. However, these frameworks operate in a single-pass manner, without iterative refinement
+or recovery from initial misclassifications, slicing, or querying failures.
+Multi-Agent Agentic Frameworks.Recent work explores multi-agent architectures for vul-
+nerability detection. LLM4Vuln [77] demonstrates that external knowledge enhancement benefits
+logic-heavy vulnerabilities but may harm detection in traditional languages. VulAgent [82] in-
+troduces hypothesis validation with specialized agents for multi-view detection, achieving 26.6%
+pair-wise correct prediction on PrimeVul. Notably, they report reducing FP rates by 36% through
+structured hypothesis pruning.
+IRIS [48] is a taint specification engine that leverages LLMs for the specifications and augments
+CodeQL. However, IRIS requires explicit CWE specification as input and relies on CodeQL’s call
+graph to connect sources and sinks. MoCQ [47] is a neuro-symbolic framework that generates
+vulnerability patterns via LLMs to extract patterns and translate them into detection queries for
+18
+tools. While MoCQ focuses on pattern generalization, QRS emphasizes per-package deep analysis
+with iterative hypothesis refinements, enabling the detection of package-specific vulnerabilities.
+LARA [83] is a static taint analysis framework for embedded systems that leverages semantic
+relations between frontend inputs (URIs and keys) and backend handling code, and combines
+pattern-based static analysis with LLM-aided semantic reasoning. In particular, LLMs are used
+to analyze decompiled backend code and infer the semantic roles of functions, such as identifying
+URIregistrationfunctionsandkey-handlingroutines, bycapturingintentthatisdifficulttoexpress
+through syntactic patterns alone. By intersecting LLM-derived results with rule-based analysis,
+LARAreducesfalsepositiveswhileretaininghighcoverage, enablingaccurateidentificationofboth
+hidden and non-hidden taint sources. Evaluated on real-world IoT firmware, LARA discovered
+245 previously unknown vulnerabilities that were confirmed by vendors, with 162 assigned CVE
+identifiers.
+For automated Query synthesis, QLCoder [81] is an agentic framework that generates CodeQL
+queries directly from CVE metadata, built upon Claude, and provides a custom MCP (Model
+Context Protocol) interface for syntactic guidance. The key distinction is that QLCoder requires
+CVE metadata inputs and focuses on reproducing known vulnerabilities. QLPro [43] presents
+a framework for automated CodeQL rule generation for individual projects, employing LLMs
+with a triple-voting mechanism for classification. While QLPro excels at systematic API extrac-
+tion and classification for Java projects, QRS takes a broader approach by generating complete
+logic, including inter-procedural data flows, without requiring API-level enumeration, and extends
+beyond Java. For post-scan filtering, LLM-SAST Genius [2] examines the synergy between tradi-
+tional SAST and LLMs to triage alerts and reduce noise. QRS inverts this paradigm by positioning
+LLM-driven agents at every stage of the pipeline. This end-to-end integration enables our frame-
+work to go beyond FP filtering and actively discover real-world, exploitable vulnerabilities that
+any rule-based scanner would miss entirely.
+Finally, we report CVE-Genie [80] addresses the complementary problem of automatically re-
+producing known vulnerabilities through their CVE format to generate a high-quality vulnerability
+datasets using a multi-agent framework.
+7 Conclusion & Future Work
+This work introduces QRS, a neuro-symbolic framework that inverts the dominant paradigm for
+LLM-assisted vulnerability detection. Most prior work applies language models as post hoc filters
+to rule-based scanner outputs. QRS employs LLMs as the generative core to synthesize CodeQL
+queries from a minimal schema, perform semantic validation through iterative code inspection,
+and produce PoC exploits, without predefined rules, package knowledge, fine-tuning, or training
+data beyond a few-shot examples.
+Our evaluation yields three main findings. First, QRS achieves high accuracy and recall on
+vulnerabilities: a combined configuration set detected 19/20 historical CVEs in our Hist20 dataset,
+and reached 90.62% accuracy, 86.96% precision, and 100.00% recall. Second, QRS discovers
+novel and complex vulnerabilities in production code that existing tooling misses. Scanning the
+100 most-downloaded PyPI packages, which are already being monitored by GitHub’s Advanced
+Security with CodeQL, Dependabot, and AI Copilot, QRS identified 39 vulnerabilities, 5 of which
+were previously unknown that received CVEs, and 5 maintainer-acknowledged issues. Third,
+QRS substantially reduces alert fatigue. Our noisiest configuration achieved a 65% reduction and
+93.84% classification accuracy. Opengrep and Bandit on the same corpus produced more than
+an order of magnitude alerts, whereas CodeQL yielded no relevant findings. Still, the framework
+operates at a rather low cost across all model families, making comparisons favorable to manual
+security audits while preserving the interpretability that automated approaches typically sacrifice.
+Moreover, every finding includes query provenance, data-flow evidence, and PoC exploit code. Our
+experiments also showed that model-specific behaviors affect coverage, e.g., GPT configurations
+exhibited premature termination, whereas DeepSeek underutilized available tooling. Finally, our
+ground truth for the Top100 dataset relies on expert review rather than an exhaustive manual
+audit, potentially underestimating both TP and FP rates.
+The architectural separation of QRS agents seamlessly extends to cross-language analysis.
+19
+CodeQL’s unified representations for C/C++, Java, and Go require only schema adaptation,
+not a fundamental redesign; thus, they will be implemented in the future. More sophisticated
+clustering that spans CWE boundaries may reveal multi-stage vulnerabilities that are invisible
+to taxonomy-driven grouping. We believe that replacing the sequential pipeline with continuous
+inter-agentfeedbackcouldreduceverdictinconsistencies; therefore, wewillexplorethisapproachin
+future work. Finally, we plan to integrate lightweight dynamic validation by executing generated
+exploits in sandboxed environments to provide stronger evidence of exploitability than static
+reasoning alone.
+Acknowledgment
+This work was supported by the European Commission under the Horizon Europe Programme,
+as part of the project SafeHorizon (Grant Agreement No. 101168562).
+The content of this article does not reflect the official opinion of the European Union. Respon-
+sibility for the information and views expressed therein lies entirely with the authors.
+References
+[1] Unit42. "Shai-Hulud"WormCompromisesnpmEcosysteminSupplyChainAttack(Updated
+November 26).https://unit42.paloaltonetworks.com/npm-supply-chain-attack/.
+Accessed Feb. 1, 2026.
+[2] Vaibhav Agrawal and Kiarash Ahi. Llm-driven sast-genius: A hybrid static analysis frame-
+work for comprehensive and actionable security, 2025. URL:https://arxiv.org/abs/2509
+.15433,arXiv:2509.15433.
+[3] aio libs. aiohttp, 2026. Accessed Feb. 1, 2026. URL:https://github.com/aio-libs/aioh
+ttp.
+[4] Akamai Security Intelligence Group. XZ utils backdoor – everything you need to know, and
+what you can do.https://www.akamai.com/blog/security-research/critical-linux
+-backdoor-xz-utils-discovered-what-to-know, 2024. Accessed Feb. 1, 2026.
+[5] Anthropic. Building agents with the claude agent sdk, 2026. Accessed Feb. 1, 2026. URL:
+https://www.anthropic.com/engineering/building-agents-with-the-claude-agent
+-sdk.
+[6] Anthropic. Claude chain-of-thought, 2026. Accessed Feb. 1, 2026. URL:https://platform
+.claude.com/docs/en/build-with-claude/prompt-engineering/chain-of-thought.
+[7] Anthropic. Claude temperature, 2026. Accessed Feb. 1, 2026. URL:https://platform.cla
+ude.com/docs/en/about-claude/glossary#temperature.
+[8] Anthropic. Claude tools, 2026. Accessed Feb. 1, 2026. URL:https://platform.claude.co
+m/docs/en/agents-and-tools/tool-use/overview.
+[9] Anthropic. Prompt caching | claude api, 2026. Accessed Feb. 1, 2026. URL:https://plat
+form.claude.com/docs/en/build-with-claude/prompt-caching.
+[10] Anthropic. Tool use with claude - claude api, 2026. Accessed Feb. 1, 2026. URL:https:
+//platform.claude.com/docs/en/agents-and-tools/tool-use/overview#parallel-t
+ool-calling.
+[11] AWS. Aws shared responsibility model, 2026. Accessed Feb. 1, 2026. URL:https://aws.am
+azon.com/compliance/shared-responsibility-model/.
+[12] AWS. s3transfer, 2026. Accessed Feb. 1, 2026. URL:https://github.com/boto/s3transf
+er.
+20
+[13] Gareth Bennett, Tracy Hall, Emily Winter, and Steve Counsell. Semgrep*: Improving the
+limited performance of static application security testing (SAST) tools. InProceedings of
+the 28th International Conference on Evaluation and Assessment in Software Engineering,
+EASE 2024, Salerno, Italy, June 18-21, 2024, pages 614–623. ACM, 2024.
+[14] Julian Berman. Add an additional banner warning users about accepting untrusted schemas.
+GitHub commit2bb4ee7, 2026. Accessed Feb. 1, 2026. URL:https://github.com/pytho
+n-jsonschema/jsonschema/commit/2bb4ee7.
+[15] Julian Berman. Python-jsonschema, 2026. Accessed Feb. 1, 2026. URL:https://github.c
+om/python-jsonschema/jsonschema.
+[16] Jason R. Coombs. Stop vendoring packages, 2021. Accessed Feb. 1, 2026. URL:https:
+//github.com/pypa/setuptools/issues/2825.
+[17] Jason R. Coombs. jaraco.context, 2024. Accessed Feb. 1, 2026. URL:https://github.com
+/jaraco/jaraco.context.
+[18] DeepSeek. Context caching | deepseek api, 2026. Accessed Feb. 1, 2026. URL:https:
+//api-docs.deepseek.com/guides/kv_cache.
+[19] DeepSeek. Deepseek temperature, 2026. Accessed Feb. 1, 2026. URL:https://api-docs.
+deepseek.com/quick_start/parameter_settings.
+[20] DeepSeek. Function calling | deepseek api, 2026. Accessed Feb. 1, 2026. URL:https:
+//api-docs.deepseek.com/guides/function_calling.
+[21] DeepSeek. Reasoning model | deepseek api, 2026. Accessed Feb. 1, 2026. URL:https:
+//api-docs.deepseek.com/guides/reasoning_model.
+[22] Chongzhou Fang, Ning Miao, Shaurya Srivastav, Jialin Liu, Ruoyu Zhang, Ruijie Fang,
+Asmita, Ryan Tsang, Najmeh Nazari, Han Wang, and Houman Homayoun. Large language
+models for code analysis: Do llms really do their job? In Davide Balzarotti and Wenyuan
+Xu, editors,33rd USENIX Security Symposium, USENIX Security 2024, Philadelphia, PA,
+USA, August 14-16, 2024. USENIX Association, 2024. URL:https://www.usenix.org/c
+onference/usenixsecurity24/presentation/fang.
+[23] Python Software Foundation. Python package index project, 2026. Accessed Feb. 1, 2026.
+URL:https://pypi.org/.
+[24] Bernát Gábor. Filelock, 2026. Accessed Feb. 1, 2026. URL:https://github.com/tox-dev
+/filelock/actions.
+[25] GitHub. Ql language specification. Accessed Feb. 1, 2026. URL:https://codeql.github.
+com/docs/ql-language-reference/ql-language-specification/.
+[26] GitHub. Codeql, 2025. Commit: 402d58b. URL:https://github.com/github/codeql/c
+ommit/402d58bc3afd899eed45c7041707adab09db0a1f.
+[27] GitHub. About dependabot security updates, 2026. Accessed Feb. 1, 2026. URL:https:
+//docs.github.com/en/code-security/concepts/supply-chain-security/about-dep
+endabot-security-updates.
+[28] GitHub. Codeql for python, 2026. Accessed Feb. 1, 2026. URL:https://codeql.github.
+com/docs/codeql-language-guides/codeql-for-python/.
+[29] GitHub. Codeql rules, 2026. Commit: a05ffdb. Accessed Feb. 1, 2026.
+[30] GitHub. Github advanced security, 2026. Accessed Feb. 1, 2026. URL:https://docs.git
+hub.com/en/get-started/learning-about-github/about-github-advanced-security.
+[31] Github. Github CodeQL.https://codeql.github.com/, 2026. Accessed Feb. 1, 2026.
+21
+[32] GitHub. Responsible use of copilot autofix, 2026. Accessed Feb. 1, 2026. URL:https:
+//docs.github.com/en/code-security/responsible-use/responsible-use-autofix-c
+ode-scanning.
+[33] GitHub. Supported languages and frameworks in codeql, 2026. Accessed Feb. 1, 2026. URL:
+https://codeql.github.com/docs/codeql-overview/supported-languages-and-frame
+works/.
+[34] Hugovk @ GitHub. Top pypi packages, 2026. Accessed Feb. 1, 2026. URL:https://hugovk
+.github.io/top-pypi-packages/.
+[35] Google.https://projectzero.google/, 2026. Accessed Feb. 1, 2026.
+[36] Google. Context caching | gemini api, 2026. Accessed Feb. 1, 2026. URL:https://ai.goo
+gle.dev/gemini-api/docs/caching?lang=python.
+[37] Google. Function calling with thinking models, 2026. Accessed Feb. 1, 2026. URL:https:
+//ai.google.dev/gemini-api/docs/function-calling?example=meeting#thinking.
+[38] Google. Gemini temperature, 2026. Accessed Feb. 1, 2026. URL:https://docs.cloud.goo
+gle.com/vertex-ai/generative-ai/docs/learn/prompts/adjust-parameter-values.
+[39] Google. Parallel function calling, 2026. Accessed Feb. 1, 2026. URL:https://ai.google.de
+v/gemini-api/docs/function-calling?example=meeting#parallel_function_calling.
+[40] Yuejun Guo, Seifeddine Bettaieb, and Fran Casino. A comprehensive analysis on software
+vulnerability detection datasets: trends, challenges, and road ahead.International Journal
+of Information Security, 23(5):3311–3327, 2024.
+[41] Yuejun Guo, Constantinos Patsakis, Qiang Hu, Qiang Tang, and Fran Casino. Outside the
+comfort zone: Analysing llm capabilities in software vulnerability detection. InEuropean
+symposium on research in computer security, pages 271–289. Springer, 2024.
+[42] Hazim Hanif and Sergio Maffeis. Vulberta: Simplified source code pre-training for vulnera-
+bility detection. In2022 International Joint Conference on Neural Networks (IJCNN), pages
+1–8, 2022.doi:10.1109/IJCNN55064.2022.9892280.
+[43] Junze Hu, Xiangyu Jin, Yizhe Zeng, Yuling Liu, Yunpeng Li, Dan Du, Kaiyu Xie, and Hong-
+song Zhu. Qlpro: Automated code vulnerability discovery via llm and static code analysis
+integration, 2025. URL:https://arxiv.org/abs/2506.23644,arXiv:2506.23644.
+[44] HuggingFace. Transformers, 2026. Accessed Feb. 1, 2026. URL:https://github.com/hug
+gingface/transformers.
+[45] Nasif Imtiaz, Brendan Murphy, and Laurie Williams. How do developers act on static analysis
+alerts? an empirical study of coverity usage. In2019 IEEE 30th International Symposium
+on Software Reliability Engineering (ISSRE), pages 323–333, 2019.doi:10.1109/ISSRE.20
+19.00040.
+[46] Ahmed Lekssays, Hamza Mouhcine, Khang Tran, Ting Yu, and Issa Khalil.
+LLMxCPG:context-aware vulnerability detection through code property graph-guided large
+language models. In34th USENIX Security Symposium (USENIX Security 25), pages 489–
+507, 2025.
+[47] Penghui Li, Songchen Yao, Josef Sarfati Korich, Changhua Luo, Jianjia Yu, Yinzhi Cao,
+and Junfeng Yang. Automated static vulnerability detection via a holistic neuro-symbolic
+approach, 2025. URL:https://arxiv.org/abs/2504.16057,arXiv:2504.16057.
+[48] Ziyang Li, Saikat Dutta, and Mayur Naik. IRIS: llm-assisted static analysis for detect-
+ing security vulnerabilities. InThe Thirteenth International Conference on Learning Rep-
+resentations, ICLR 2025, Singapore, April 24-28, 2025. OpenReview.net, 2025. URL:
+https://openreview.net/forum?id=9LdJDU7E91.
+22
+[49] LightLLM. LightLLM.https://www.litellm.ai/, 2026. Accessed Feb. 1, 2026.
+[50] MITRE. Common weakness enumeration database. Accessed Feb. 1, 2026. URL:https:
+//cwe.mitre.org/data/downloads.html.
+[51] Van-Anh Nguyen, Dai Quoc Nguyen, Van Nguyen, Trung Le, Quan Hung Tran, and Dinh
+Phung. Regvd: Revisiting graph neural networks for vulnerability detection. In44th
+IEEE/ACM International Conference on Software Engineering: Companion Proceedings,
+ICSE Companion 2022, Pittsburgh, PA, USA, May 22-24, 2022, pages 178–182. ACM/IEEE,
+2022.doi:10.1145/3510454.3516865.
+[52] NIST. Cve-2025-68146. https://github.com/tox-dev/filelock/pull/461, 2025. Accessed Feb.
+1, 2026. URL:https://nvd.nist.gov/vuln/detail/CVE-2025-68146.
+[53] NIST. Cve-2026-22701. https://github.com/tox-dev/filelock/pull/465, 2026. Accessed Feb.
+1, 2026. URL:https://nvd.nist.gov/vuln/detail/CVE-2026-22701.
+[54] NIST. Cve-2026-22702. https://github.com/pypa/virtualenv/pull/3013, 2026. Accessed Feb.
+1, 2026. URL:https://nvd.nist.gov/vuln/detail/CVE-2026-22702.
+[55] NIST. Cve-2026-23490. https://github.com/pyasn1/pyasn1/commit/3908f14, 2026. Accessed
+Feb. 1, 2026. URL:https://nvd.nist.gov/vuln/detail/CVE-2026-23490.
+[56] NIST. Cve-2026-23949. https://github.com/jaraco/jaraco.context/pull/18, 2026. Accessed
+Feb. 1, 2026. URL:https://nvd.nist.gov/vuln/detail/CVE-2026-23949.
+[57] NIST. Cve database, 2026. Accessed Feb. 1, 2026. URL:https://services.nvd.nist.go
+v/rest/json/cves/2.0.
+[58] NumPy. Advice for numpy on untrusted data, 2026. Accessed Feb. 1, 2026. URL:https:
+//numpy.org/devdocs/reference/security.html#advice-for-using-numpy-on-untru
+sted-data.
+[59] NumPy. Numpy, 2026. Accessed Feb. 1, 2026. URL:https://github.com/numpy/numpy.
+[60] OpenAI. Gpt temperature, 2026. Accessed Feb. 1, 2026. URL:https://gptcache.readthe
+docs.io/en/latest/bootcamp/temperature/chat.html.
+[61] OpenAI. Parallel function calling, 2026. Accessed Feb. 1, 2026. URL:https://platform.o
+penai.com/docs/guides/function-calling#parallel-function-calling.
+[62] OpenAI. Prompt caching | openai api, 2026. Accessed Feb. 1, 2026. URL:https://platfo
+rm.openai.com/docs/guides/prompt-caching.
+[63] OpenAI. Reasoning models | openai api, 2026. Accessed Feb. 1, 2026. URL:https://plat
+form.openai.com/docs/guides/reasoning.
+[64] OpenGrep. Opengrep, 2026. Accessed Feb. 1, 2026. URL:https://github.com/opengrep/
+opengrep/releases/tag/v1.15.1.
+[65] Constantinos Patsakis, David Arroyo, and Fran Casino. The malware as a service ecosystem.
+CoRR, abs/2405.04109, 2024. URL:https://doi.org/10.48550/arXiv.2405.04109,
+arXiv:2405.04109,doi:10.48550/ARXIV.2405.04109.
+[66] Python Poetry. Poetry, 2026. Accessed Feb. 1, 2026. URL:https://github.com/python-p
+oetry/poetry.
+[67] pyasn1. Pyasn.1, 2026. Accessed Feb. 1, 2026. URL:https://github.com/pyasn1/pyasn1
+/actions.
+[68] PyCQA. Bandit, 2026. Accessed Feb. 1, 2026. URL:https://github.com/PyCQA/bandit/
+releases/tag/1.9.3.
+23
+[69] pypa. Setuptools, 2026. Accessed Feb. 1, 2026. URL:https://github.com/pypa/setuptoo
+ls/actions.
+[70] pypa. Virtualenv, 2026. Accessed Feb. 1, 2026. URL:https://github.com/pypa/virtuale
+nv/actions.
+[71] PyTorch. Pytorch, 2026. Accessed Feb. 1, 2026. URL:https://github.com/pytorch/pyt
+orch.
+[72] Vitalis Salis, Thodoris Sotiropoulos, Panos Louridas, Diomidis Spinellis, and Dimitris
+Mitropoulos. Pycg: Practical call graph generation in python. In43rd IEEE/ACM In-
+ternational Conference on Software Engineering (ICSE), pages 1646–1657, 2021.doi:
+10.1109/ICSE43902.2021.00146.
+[73] Edward J. Schwartz, Thanassis Avgerinos, and David Brumley. All you ever wanted to
+know about dynamic taint analysis and forward symbolic execution (but might have been
+afraid to ask). In31st IEEE Symposium on Security and Privacy, SP 2010, 16-19 May
+2010, Berleley/Oakland, California, USA, pages 317–331. IEEE Computer Society, 2010.
+doi:10.1109/SP.2010.26.
+[74] SemGrep. Semgrep rules, 2026. Commit: 46a0ecf. Accessed Feb. 1, 2026. URL:https:
+//github.com/semgrep/semgrep-rules.
+[75] Samiha Shimmi, Ashiqur Rahman, Mohan Gadde, Hamed Okhravi, and Mona Rahimi. Vul-
+sim: leveraging similarity of multi-dimensional neighbor embeddings for vulnerability detec-
+tion. InProceedings of the 33rd USENIX Conference on Security Symposium, SEC ’24, USA,
+2024. USENIX Association.
+[76] SonarCloud. SonarQube Cloud Code Review.https://www.sonarsource.com/, 2026.
+Accessed Feb. 1, 2026.
+[77] Yuqiang Sun, Daoyuan Wu, Yue Xue, Han Liu, Wei Ma, Lyuye Zhang, Yang Liu, and Yingjiu
+Li. Llm4vuln: A unified evaluation framework for decoupling and enhancing llms’ vulnera-
+bility reasoning, 2025. URL:https://arxiv.org/abs/2401.16185,arXiv:2401.16185.
+[78] Yuqiang Sun, Daoyuan Wu, Yue Xue, Han Liu, Haijun Wang, Zhengzi Xu, Xiaofei Xie,
+and Yang Liu. GPTScan: Detecting logic vulnerabilities in smart contracts by combining
+gpt with program analysis. InProceedings of the IEEE/ACM 46th International Conference
+on Software Engineering, ICSE ’24, New York, NY, USA, 2024. Association for Computing
+Machinery.doi:10.1145/3597503.3639117.
+[79] TIOBE. TIOBE index for January 2026.https://www.tiobe.com/tiobe-index/, 2026.
+Accessed Feb. 1, 2026.
+[80] Saad Ullah, Praneeth Balasubramanian, Wenbo Guo, Amanda Burnett, Hammond Pearce,
+Christopher Kruegel, Giovanni Vigna, and Gianluca Stringhini. From cve entries to verifiable
+exploits: An automated multi-agent framework for reproducing cves, 2025. URL:https:
+//arxiv.org/abs/2509.01835,arXiv:2509.01835.
+[81] Claire Wang, Ziyang Li, Saikat Dutta, and Mayur Naik. Qlcoder: A query synthesizer for
+static analysis of security vulnerabilities, 2025. URL:https://arxiv.org/abs/2511.08462,
+arXiv:2511.08462.
+[82] Ziliang Wang, Ge Li, Jia Li, Hao Zhu, and Zhi Jin. Vulagent: Hypothesis-validation based
+multi-agent vulnerability detection, 2025. URL:https://arxiv.org/abs/2509.11523,
+arXiv:2509.11523.
+[83] Jiaxu Zhao, Yuekang Li, Yanyan Zou, Zhaohui Liang, Yang Xiao, Yeting Li, Bingwei Peng,
+Nanyu Zhong, Xinyi Wang, Wei Wang, and Wei Huo. Leveraging semantic relations in code
+and data to enhance taint analysis of embedded systems. In33rd USENIX Security Sym-
+posium (USENIX Security 24), pages 7067–7084, Philadelphia, PA, August 2024. USENIX
+24
+Association. URL:https://www.usenix.org/conference/usenixsecurity24/presentat
+ion/zhao.
+25
+A Prompts & Logs
+We release anonymized versions of system prompts, preprompts, and knowledge schemas used in
+the evaluation.
+1[DeepSeek]: Excellent! I found 4 instances of ‘__import__‘ being used in the constructor.py files. This is a
+critical finding as it indicates the library can dynamically import modules during YAML parsing. Let me now
+search for the specific YAML tag handlers that enable arbitrary Python object construction. Let me look for
+YAML tag registration patterns that allow object instantiation.
+2
+3INFO - [*] Processing tool call: execute_codeql_query
+4INFO - [*] Executing CodeQL query with
+5[*] Severity: critical
+6[*] CWE: [’cwe-502’, ’cwe-094’]
+7[*] Hypothesis: Find YAML tag handlers that construct Python objects, particularly those handling ’python/object’
+or ’python/object/apply’ tags which can instantiate arbitrary classes
+8INFO - [*] Running command: codeql database analyze
+9databases/pyyaml-5.3-db 20260118133453.ql \
+10--format sarif-latest \
+11--output reports/pyyaml-5.3/20260118133453_results.sarif
+12ERROR - [-] CodeQL query execution failed: CodeQL query compilation failed - no output generated
+13
+14[DeepSeek]: Let me fix that query.
+15
+16INFO - [*] Processing tool call: fixup_codeql_query
+17INFO - [*] Attempting to fix CodeQL query.
+18INFO - [*] Loaded system prompt knowledge from knowledge.md
+19INFO - [*] Running command: codeql query compile 709dfdb5-d62d-4cfa-8ac7-bcd3d85835f9.ql
+20INFO - [+] Query is valid (attempt 1/3).
+21INFO - [+] CodeQL query fixed successfully.
+22
+23[DeepSeek]: Good, the query is valid. Let me execute it.
+Listing 1:Q agent: Recovery subroutine
+1{
+2"codeql_query_uuids": [
+3"20260118133427"
+4],
+5"finding_id": "21864d8a-a727-41b2-98ef-a42caad42b3b",
+6"verdict": "tp",
+7"confidence": 95,
+8"severity": "critical",
+9"cwe_ids": [
+10"cwe-502",
+11"cwe-094"
+12],
+13"description": "Unsafe __import__ in find_python_module allows arbitrary module import during YAML parsing with
+UnsafeConstructor [...]",
+14"file_path": "lib/yaml/constructor.py",
+15"start_line": 520,
+16"code_snippet": "def find_python_module(self, name, mark, unsafe=False)[...]",
+17"reasoning": "The find_python_module method uses __import__(name) when unsafe=True [...]",
+18"evidence": {
+19"code_context": "The find_python_module method at line 520 uses __import__(name) when unsafe=True [...]",
+20"dataflow_analysis": "YAML input -> tag:yaml.org,2002:python/module: -> construct_python_module ->
+find_python_module(unsafe=True) -> __import__(name)",
+21"notes": "The vulnerability is in the default Loader class which uses UnsafeConstructor [...]"
+22},
+23"exploit_payload": {
+24"code_snippet": "[...]",
+25"scenario": "Attacker provides malicious YAML file [...]",
+26"likelihood": "high",
+27"impact": "high",
+28"exploitability": "easy",
+29"prerequisites": "Application must use yaml.load() or yaml.Loader with untrusted YAML input",
+30"category": "Remote code execution via unsafe deserialization"
+31},
+32"group": "critical_often_medium"
+33}
+Listing 2:R agent: Artifact with evidence
+1import yaml
+2
+3malicious_yaml = "!!python/module:os"
+4result = yaml.load(malicious_yaml, Loader=yaml.Loader)
+Listing 3:R agent: YAML deserialization PoC exploit
+26
+1import python
+2
+3predicate isDangerousFunction(string name) {
+4name in ["eval", "exec", "compile", "__import__"]
+5}
+6
+7from Call c, string funcName
+8where (c.getFunc().(Name).getId() = funcName
+9and isDangerousFunction(funcName))
+10or
+11(c.getFunc().(Attribute).getName() = funcName
+12and isDangerousFunction(funcName))
+13select c, "Dangerous code execution function found: " + funcName
+Listing 4:Q agent: Generated query to detect dangerous code execution
+1### Review Priority
+2
+3#### Code Execution & Deserialization Vulnerabilities
+4- **CWE-94**: Code Injection vulnerabilities
+5- **CWE-502**: Unsafe deserialization patterns
+6
+7### Key Validation Criteria
+8
+9#### 1. Exploitability Assessment
+10For each finding, thoroughly investigate:
+11**Can attacker control the input?** Is the YAML input from untrusted sources?
+12**What can be achieved?** Can arbitrary code execution be triggered through the finding?
+13**What are the prerequisites?** Which loading functions enable the vulnerability?
+14**Is it in the critical path?** Does it affect common/default usage patterns?
+15
+16#### 2. Context Analysis
+17Carefully examine:
+18**Code flows**: Trace from YAML input -> parsing -> object construction -> execution
+19**Function semantics**: Understand what each loading function does and its safety model
+20**Default behavior**: Is the vulnerability present in default/recommended usage?
+21**Attack vectors**: How would a real attacker craft malicious YAML to exploit this?
+22
+23#### 3. True Positive Indicators
+24- Direct path from user-controlled YAML to code execution primitives
+25- Functions that deserialize and instantiate Python objects from YAML
+26- Dynamic code execution triggered by parsed data
+27- Minimal prerequisites for exploitation
+28- Affects documented/common API usage patterns
+Listing 5:R agent: Natural Language Strategy
+1{
+2"metadata": {
+3"name": "PyYAML",
+4"version": "5.3",
+5"description": "YAML parser and emitter for Python",
+6"long_description": "YAML is a data serialization format designed for human readability [...]",
+7"license": "MIT",
+8"platforms": "Any",
+9"classifiers": [
+10[...]
+11"Programming Language :: Python :: 3.8",
+12"Programming Language :: Python :: Implementation :: CPython",
+13],
+14"python_requires": ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+15},
+16"files": [
+17{
+18"path": "lib3/yaml/constructor.py",
+19"lines": 610
+20}
+21[...]
+22],
+23"total_files": 35,
+24"total_lines": 9269,
+25"imports": [
+26[...]
+27"os",
+28"reader",
+29"serializer",
+30]
+31}
+Listing 6:Q agent: Package profile for PyYAML
+27
+1## Core Requirements
+2- Running CodeQL CLI v2.23.2 or later
+3[...]
+4- Do NOT use @severity metadata property - it’s deprecated and causes warnings
+5- Path-problem select format: ‘select sink.getNode(), source, sink, "Message $@.", source, "label"‘
+6
+7## Data Flow Nodes
+8- Use ‘DataFlow::CallCfgNode‘ for function/method calls (NOT deprecated DataFlow::CallNode)
+9- Use ‘DataFlow::ExprNode‘ for expressions: ‘DataFlow::exprNode(expr)‘
+10- Use ‘DataFlow::ParameterNode‘ for function parameters
+11[...]
+12
+13## Sources and Sinks
+14- Remote sources: ‘source instanceof RemoteFlowSource‘ (from RemoteFlowSources module)
+15- File access sinks: ‘sink = any(FileSystemAccess fa).getAPathArgument()‘
+16- Command execution: ‘sink = any(SystemCommandExecution cmd).getACommandArgument()‘
+17[...]
+18
+19## Local Data Flow
+20- Local flow (within function): ‘DataFlow::localFlow(source, sink)‘
+21- Local taint (with non-value-preserving steps): ‘TaintTracking::localTaint(source, sink)‘
+22- Get local sources of node: ‘node.getALocalSource()‘
+23[...]
+Listing 7: CodeQL knowledge base
+1"sanitization_check": {
+2"verdict": "tp",
+3"confidence": 92,
+4"recommendation": "accept",
+5"concerns": false,
+6"flags": [
+7{
+8"type": "ZERO_DAY",
+9"severity": "critical",
+10"message": "High-confidence exploitable vulnerability in production serialization library",
+11"evidence": "UnsafeConstructor.add_multi_constructor registers python/object/apply tag which enables
+arbitrary code execution through object instantiation [...]"
+12}
+13],
+14"reasoning": "This is a legitimate and critical vulnerability in PyYAML’s default Loader [...]"
+15}
+Listing 8:S agent: Finalized verdict
+1### Priority Areas
+2Focus your security analysis on the following high-priority vulnerability classes:
+3
+4#### 1. Code Execution Vulnerabilities
+5- **CWE-94**: Improper Control of Generation of Code (’Code Injection’)
+6- **CWE-502**: Deserialization of Untrusted Data
+7
+8#### 2. Unsafe Deserialization Patterns
+9- **CWE-20**: Improper Input Validation
+10- Examine how the library handles YAML tags and type annotations
+11- Investigate object construction, module imports, and dynamic code execution during parsing
+12
+13#### 3. Dynamic Code Execution
+14- Functions that evaluate, execute, or import code dynamically
+15- Object instantiation from strings or parsed structures
+16- Python-specific YAML tags that enable object creation
+Listing 9:Q agent: Natural Language Strategy
+1## Role
+2You are an autonomous security analysis research agent, specialized in analyzing PyPI packages for
+vulnerabilities. Discover security vulnerabilities in the target package via CodeQL and relevant tools.
+3
+4## Tools
+5- get_package_profile_info: Retrieve a profile of the target package. Prefer to start your analysis with this
+tool as it will include important metadata about the package structure, dependencies and files and run only
+once in the beginning.
+6- execute_codeql_query: Execute CodeQL queries against the package database to find vulnerabilities. [...]
+7
+8## Strategy
+91. Start by retrieving the package profile to understand its structure and dependencies.
+28
+102. Prioritize critical, high, medium, low severity vulnerabilities in that order.
+113. Formulate hypotheses about vulnerabilities. You can be broader initially, and then narrow down based on
+iteration budget.
+124. Assign CWE IDs (one or more relevant) to your hypotheses when possible.
+135. Write precise CodeQL queries to test your hypotheses.
+14[...]
+15
+16### CodeQL Query Examples
+17#### Path-problem Query:
+18[...]
+19
+20#### Problem Query:
+21‘‘‘ql
+22import python
+23import semmle.python.ApiGraphs
+24
+25from DataFlow::CallCfgNode call
+26where
+27(
+28call = API::moduleImport("pickle").getMember(["load", "loads", "Unpickler"]).getACall() or
+29call = API::moduleImport("yaml").getMember(["load", "unsafe_load"]).getACall() or
+30call = API::moduleImport("marshal").getMember(["load", "loads"]).getACall()
+31)
+32select call, "Potentially unsafe deserialization operation that could execute arbitrary code."
+33‘‘‘
+34
+35## Budget
+36Iteration budget: {max_iterations} iterations total. When you reach this limit, you MUST finalize your report.
+37**IMPORTANT**: Try using as much of your iteration budget as possible to ensure a thorough analysis. [...]
+Listing 10:Q agentSystem Prompt excerpt
+1## Role
+2You are an expert autonomous security findings reviewer. Review security findings and submit INDIVIDUAL confirmed
+vulnerabilities with precise location details.
+3
+4## Tools
+5- extract_code_snippet: Get code context for specific locations
+6- grep_search: Grep search for specific patterns in files
+7[...]
+8
+9## Instructions
+10- You are given a GROUP of related CodeQL query results.
+11- Each query may have MULTIPLE individual results at different file locations.
+12- Your job is to submit EACH CONFIRMED VULNERABILITY SEPARATELY with specific file/line information.
+13[...]
+14
+15## Review Process
+161. Examine each query’s results array - each result is a potential vulnerability at a specific location
+172. Investigate suspicious locations using extract_code_snippet and trace_dataflow_path
+183. For EACH confirmed vulnerability, call submit_finding with:
+19- codeql_query_uuids: Array of query UUIDs this finding relates to (from the query results you examined).
+20- Exact <file path>:<line numbers>
+21[...]
+22
+23## Important Notes
+24- Submit findings for true positives (tp), false positives (fp), or items needing manual review (mr)
+25[...]
+26- For TRUE POSITIVE findings (tp verdict), you MUST include exploit_payload with ALL required fields:
+27* code_snippet: Working exploit code based on the ACTUAL vulnerable code you investigated
+28* scenario: Short sentence describing the attack scenario
+29* likelihood: low/medium/high based on actual code context and accessibility
+30* impact: low/medium/high based on what the exploit achieves
+31* exploitability: easy/medium/hard based on complexity of exploitation
+32* prerequisites: What an attacker needs (e.g., "Authentication required" or null if none)
+33* category: What this exploit achieves (e.g., "Remote code execution")
+34[...]
+Listing 11:R agentSystem Prompt excerpt
+1# Role
+2You are a Static Analysis Security expert validator. You receive a single finding and you must analyze it for
+accuracy and relevance.
+3
+4# Important Guidelines
+5Your response MUST be a valid JSON object with the exact structure specified in the user prompt. Do not include
+any text before or after the JSON object as this will fail parsing.
+6
+7## Strategy
+81. **Code Trace Accuracy**: Does the code snippet actually contain the claimed vulnerability? Look for
+hallucinations.
+29
+92. **Code Context Classification**: Analyze the file path and code to determine:
+10- Is this BUILD_SCRIPT, TEST_CODE, or production code
+113. **True Exploitability**: Is this truly exploitable in the package’s context? Consider:
+12- For libraries: Is this a caller responsibility or actual library vulnerability?
+13- For infrastructure: Is this reachable by external input?
+14- Build/test code is not exploitable in production
+15[...]
+16**Confidence Guidelines** (0-100):
+17- 90-100: Very high confidence in verdict
+18- 70-89: High confidence, recommend manual review
+19- 50-69: Moderate confidence, recommend manual review otherwise reject as fp
+20- 0-49: Low confidence, reject as fp
+21
+22**Flag Guidelines**:
+23- Use HALLUCINATION flag if claimed code doesn’t exist in snippet
+24- Use BUILD_SCRIPT flag for any build/installation/packaging code
+25- Use TEST_CODE flag for any test/example/smoke test code
+26- Use EXPLOITABILITY flag if vulnerability is not truly exploitable in context
+27- Use CODE_SMELL flag for best practice issues, not real vulnerabilities
+28- Use CONTEXT_MISMATCH flag if finding doesn’t align with package type/layer
+29- Use KNOWN_CVE flag if matching CVEs exist
+30- Use NOVEL_FINDING flag if no CVE match found but legitimacy uncertain
+31- Use ZERO_DAY flag if this is a HIGH-CONFIDENCE novel, exploitable vulnerability not matching any CVEs
+Listing 12:S agentSystem Prompt excerpt
+30
+Log excerpt: Q Agent
+[*] Agentic Security Analysis Session: 1
+[*] Target Package: pyyaml-5.3
+[*] LLM Model: deepseek/deepseek-chat
+[*] Temperature: 0.0
+[*] Max Tokens: 8000
+[*] Max Iterations: 20
+[*] Loaded system prompt knowledge from knowledge.md
+[*] Iteration 1/20
+[DeepSeek]:I’ll begin by retrieving the package profile to understand the structure of pyyaml-5.3
+[*] Processing tool call: get_package_profile_info
+[*] Retrieving package profile info...
+[*] Profiling the package pyyaml-5.3.
+[*] Running command: python3 profiler_minimal.py
+–path packages/pyyaml-5.3
+–output reports/pyyaml-5.3/package_profile.json
+[*] Iteration 2/20
+[DeepSeek]:Now I have a good understanding of the package. PyYAML is a YAML parser and emitter for
+Python. I should focus on:
+•YAML parsers can execute arbitrary code through Python-specific tags
+•Through dynamic object creation or evaluation
+•Improper handling of malicious YAML content
+[*] Processing tool call: execute_codeql_query
+[*] Executing CodeQL query with Severity: critical,
+CWE: [’cwe-094’, ’cwe-502’], Hypothesis: PyYAML may
+contain dangerous function calls like eval, exec,
+compile, __import__, or getattr...
+[+] CodeQL query executed successfully.
+[+] CodeQL query found 13 findings.
+[*] Iteration 11/20
+[DeepSeek]:Excellent! I found 13 dangerous function calls in the YAML module...
+{
+"success": true,
+"results": [...],
+"codeFlows": [{
+"message": {"text": "User input flows to
+dangerous getattr in YAML constructor."},
+"threadFlows": [{"locations": [{
+"physicalLocation": {
+"artifactLocation": {
+"uri": "lib3/yaml/constructor.py"}}}]}]}]
+Current Status:Iteration 14/20 (Remaining: 6). Queries executed: 9. Found 6 critical data flow paths to
+dangerous__import__andgetattrcalls.
+Table 14: Q Agent execution log excerpt for pyyaml-5.3 vulnerability discovery
+31
+Log excerpt: R Agent
+[*] Security Review Session: 1
+[*] Target Package: pyyaml-5.3
+[*] Model: deepseek/deepseek-chat
+[*] Temperature: 0.0
+[*] Max Tokens: 8000
+[*] Phase 1a: Grouping by MITRE Data
+[*] Grouping 2 query findings by MITRE data
+[*] Group ’critical_often_medium’: 2 queries,
+6 results, 2 related CWEs
+[+] Created 1 groups
+[*] Phase 1b: Minifying SARIF Data
+[*] Minified group ’critical_often_medium’: 6 results
+[*] Phase 2: Review
+[*] Reviewing group ’critical_often_medium’ (2 queries)
+[+] Starting review for group critical_often_medium.
+[*] Iteration 1/10
+[DeepSeek]:I’ll start by examining the first critical finding in theconstructor.pyfile at line 520. Let me extract
+the code snippet to understand the context.
+[*] Tool call: extract_code_snippet
+[*] Extracting lib/yaml/constructor.py:515-525
+[DeepSeek]:I can see the critical issue now. Thefind_python_namefunction at line 540 contains
+__import__(module_name)which is called whenunsafe=True. This allows arbitrary module imports from YAML
+input. Let me check theUnsafeConstructorclass to see how this is used.
+[Calling tool: grep_search]
+[*] Iteration 10/10
+[DeepSeek]: [Tool Result]:
+{
+"matches": [
+{"file": "lib3/yaml/constructor.py", "line": 704,
+"content": "class UnsafeConstructor(...):"},
+{"file": "lib/yaml/constructor.py", "line": 716,
+"content": "class UnsafeConstructor(...):"}],
+"total": 2}
+Current Status:Iteration 10/10. (Remaining: 0)
+CRITICAL:This is your FINAL iteration. You MUST submit all pending assessments.
+Table 15: R Agent execution log excerpt for pyyaml-5.3 vulnerability validation
+Log excerpt: S Agent
+[*] Sanity Check Session: 1
+[*] Package: pyyaml-5.3
+[*] Model: deepseek/deepseek-chat
+[*] Temperature: 0.0
+[*] Max Tokens: 8000
+[*] Total Findings to Validate: 3
+[*] Validating 3 findings
+[*] Validating finding 1/3: lib/yaml/constructor.py:520
+[*] Extracting lib/yaml/constructor.py:510-530
+[+] LLM sanity check:
+verdict=tp, confidence=95, recommendation=accept,
+concerns=False, flags=ZERO_DAY (critical): This appears
+to be a legitimate, exploitable vulnerability in PyYAML’s
+default unsafe constructor
+[!] Finding 1 raised 1 flag(s): ZERO_DAY
+Table 16: S Agent execution log excerpt for pyyaml-5.3 finding validation
+32
+B Statistics & Metrics
+claude@0.0 claude@1.0 deepseek@0.0 deepseek@1.0 deepseek@0.0 deepseek@1.0 gemini@0.0 gemini@1.0
+gpt
+@0.0
+gpt
+@1.0
+Configuration (Model Family @ Temperature)
+sqlalchemy-2.0.44 (37)
+pycparser-2.23 (28)
+numpy-2.3.4 (26)
+jinja2-3.1.6 (25)
+jsonschema-4.25.1 (24)
+pip-25.3 (21)
+lxml-6.0.2 (20)
+anyio-4.11.0 (20)
+pydantic-2.12.3 (20)
+pillow-12.0.0 (19)
+pandas-2.3.3 (18)
+filelock-3.20.0 (18)
+pygments-2.19.2 (17)
+click-8.3.0 (16)
+wrapt-2.0.0 (16)
+pyasn1-0.6.1 (15)
+pyasn1_modules-0.4.2 (15)
+rsa-4.9.1 (15)
+virtualenv-20.35.4 (15)
+distlib-0.4.0 (15)
+setuptools-80.9.0 (14)
+pyarrow-22.0.0 (13)
+tomlkit-0.13.3 (13)
+openpyxl-3.1.5 (12)
+botocore-1.40.64 (11)
+Package (Total Findings)
+6 6 0 4 6 0 1 4 4 6
+2 2 1 0 2 2 1 4 7 7
+4 4 7 0 0 1 2 0 4 4
+1 2 2 2 4 1 1 3 6 3
+3 2 1 0 0 4 5 3 4 2
+4 0 0 0 4 1 1 3 0 8
+5 5 0 0 4 1 1 0 0 4
+1 0 1 0 4 4 3 1 3 3
+4 2 0 2 2 1 2 0 3 4
+4 8 0 0 0 2 0 2 3 0
+5 1 0 3 1 1 2 1 1 3
+3 2 0 3 0 3 2 1 3 1
+0 3 0 0 2 2 3 3 1 3
+0 3 0 0 2 1 0 1 2 7
+2 2 0 0 1 1 1 1 3 5
+1 4 5 0 2 0 3 0 0 0
+1 3 0 0 0 1 3 0 5 2
+5 2 1 0 0 0 5 0 2 0
+0 3 0 0 2 3 0 0 2 5
+2 3 2 0 0 0 2 1 2 3
+1 2 0 0 2 3 2 3 1 0
+0 1 0 0 0 0 2 2 1 7
+5 0 0 0 0 0 3 3 2 0
+0 8 0 0 0 0 0 0 2 2
+0 0 0 4 0 6 1 0 0 0
+TP/MR Findings per Package by Model Family and Temperature
+(Top 25 Packages)
+0
+1
+2
+3
+4
+5
+6
+7
+8
+Finding Count
+Figure 3: Top 25 Package TP/MR findings per configuration.
+33
+Table 17: Top 100 PyPI Packages: Metadata and Popularity Metrics
+Package-V ersion Downloads Commits Used By Contributors Stars Files Size
+aiobotocore-2.25.1 882.7M 1.1k 14.9k 76 1.4k 68 481.9KB
+aiohappyeyeballs-2.6.1 218.0M 208 116.1k 13 37 19 117.4KB
+aiohttp-3.13.2 280.8M 12.9k 752.3k 804 16.2k 370 15.5MB
+aiosignal-1.4.0 245.7M 762 N/A 12 161 36 78.8KB
+annotated_types-0.7.0 371.1M 83 400.7k 20 588 18 62.6KB
+anyio-4.11.0 395.1M 1.2k 610.7k 69 2.4k 114 1,012.6KB
+attrs-25.4.0 442.6M 1.7k 1.4M 182 5.7k 129 1.9MB
+awscli-1.42.64 346.5M 13.6k 5 481 16.7k 6k 9.5MB
+beautifulsoup4-4.14.2 207.8M N/A N/A N/A N/A 87 2.3MB
+boto3-1.40.64 1,438.5M 7.4k 577.0k 168 9.7k 71 979.3KB
+botocore-1.40.64 1,010.4M 12.8k 423.9k 218 1.6k 3k 115.4MB
+cachetools-6.2.1 357.6M 399 680.0k 19 2.7k 35 220.8KB
+certifi-2025.10.5 955.3M 327 1 40 952 17 297.8KB
+cffi-2.0.0 541.8M 3.6k N/A 96 234 200 2.1MB
+charset_normalizer-3.4.4 890.6M 726 1.5M 24 732 80 386.9KB
+click-8.3.0 483.1M 3.0k 2.3M 421 17.1k 103 1.4MB
+colorama-0.4.6 289.5M 391 1.4M 52 3.8k 31 113.0KB
+cryptography-46.0.3 581.2M 14.6k 920.0k 360 7.4k 441 4.0MB
+distlib-0.4.0 208.0M 1.3k N/A 41 60 194 1.9MB
+et_xmlfile-2.0.0 211.3M 119 N/A N/A N/A 15 63.1KB
+fastapi-0.120.4 205.7M 6.6k 840.4k 872 94.4k 1k 3.3MB
+filelock-3.20.0 351.6M 417 695.5k 55 927 29 139.7KB
+frozenlist-1.8.0 254.2M 932 362.9k 20 118 45 155.5KB
+fsspec-2025.10.0 560.0M 2.5k 282.9k 305 1.3k 92 949.1KB
+google_api_core-2.28.1 293.6M 565 N/A 84 145 130 1.0MB
+google_auth-2.42.1 335.8M 1.0k N/A 152 868 180 1.7MB
+googleapis_common_protos-1.71.0 263.1M 40.9k N/A 544 5.2k 205 740.1KB
+greenlet-3.2.4 250.4M 1.2k 586.6k 84 1.8k 133 654.1KB
+grpcio_status-1.76.0 748.3M N/A N/A N/A N/A 18 44.7KB
+grpcio-1.76.0 257.2M 57.9k 6.6k 1.1k 44.3k 5k 74.0MB
+h11-0.16.0 396.7M 482 646.4k 34 546 69 422.5KB
+httpcore-1.0.9 295.2M 567 395.0k 59 529 61 490.6KB
+httpx-0.28.1 300.4M 1.5k 551.0k 246 14.9k 70 829.3KB
+idna-3.11 909.3M 390 2.4M 28 274 26 1.9MB
+importlib_metadata-8.7.0 365.2M 1.8k N/A 67 139 76 260.0KB
+iniconfig-2.3.0 372.2M 190 595.2k 16 58 23 62.3KB
+jinja2-3.1.6 370.6M 2.9k 19 335 11.4k 114 1.5MB
+jmespath-1.0.1 405.9M 578 N/A 32 2.4k 22 105.4KB
+jsonschema_specifications-2025.9.1 231.7M 295 332.1k 6 12 45 117.1KB
+jsonschema-4.25.1 270.8M 3.0k 808.5k 120 4.9k 643 3.2MB
+lxml-6.0.2 210.3M 6.8k 583.8k 173 3.0k 466 30.5MB
+markdown_it_py-4.0.0 249.6M 342 349.4k 31 1.2k 123 383.3KB
+markupsafe-3.0.3 408.2M 844 2.2M 49 685 37 256.1KB
+mdurl-0.1.2 241.8M 37 342.7k 4 14 17 43.8KB
+multidict-6.7.0 270.8M 1.6k N/A 61 480 113 598.7KB
+numpy-2.3.4 658.8M 40.6k 3.5M 2.0k 31.3k 8k 63.4MB
+oauthlib-3.3.1 229.4M 1.8k 641.5k 202 3.0k 222 1.3MB
+openpyxl-3.1.5 210.3M 9.1k N/A N/A 11 377 2.0MB
+opentelemetry_sdk-1.39.1 246.0M 2.0k N/A 330 2.3k 131 1.1MB
+packaging-25.0 860.0M 893 1.8M 131 709 79 2.4MB
+pandas-2.3.3 497.0M 37.1k 2.7M 4.1k 47.7k 2k 21.7MB
+pathspec-0.12.1 241.4M 362 N/A 26 209 33 212.1KB
+pillow-12.0.0 239.6M 20.3k 2.4M 493 13.3k 2k 69.2MB
+pip-25.3 429.5M 15.7k 242.7k 869 10.1k 833 9.2MB
+platformdirs-4.5.0 405.7M 548 777.1k 80 885 21 124.9KB
+pluggy-1.6.0 467.1M 924 765.6k 54 1.6k 70 233.4KB
+propcache-0.4.1 244.3M 173 N/A 12 33 58 158.6KB
+protobuf-6.33.0 480.2M 22.3k 957.0k 1.4k 70.4k 273 2.7MB
+psutil-7.1.2 239.2M 6.5k 753.6k 228 11.0k 200 2.1MB
+pyarrow-22.0.0 263.2M 18.5k 4 1.5k 16.4k 304 5.6MB
+pyasn1_modules-0.4.2 306.1M 351 N/A 16 8 286 1.4MB
+pyasn1-0.6.1 367.1M 1.0k 18.1k 13 47 178 1.2MB
+pycparser-2.23 477.1M 651 1.1M 91 3.5k 206 1.2MB
+pydantic_core-2.41.4 441.8M 1.5k N/A 111 1.7k 254 2.8MB
+pydantic-2.12.3 549.0M 5.4k 903.2k 724 26.6k 288 4.0MB
+pygments-2.19.2 463.6M 7.1k 1.1M 892 2.1k 3k 43.1MB
+pyjwt-2.10.1 311.0M 933 789.6k 163 5.6k 86 337.6KB
+pyparsing-3.2.5 228.0M 1.7k 1.3M 75 2.4k 205 4.1MB
+pytest-8.4.2 396.0M 17.1k 1.6M 1.1k 13.5k 617 5.9MB
+python_dotenv-1.2.1 273.1M 415 1.6M 109 8.6k 48 188.1KB
+python-dateutil-2.9.0.post0 717.6M 1.6k N/A 133 2.6k 98 1.0MB
+pytz-2025.2 377.3M 679 2.5M 21 384 624 1.0MB
+pyyaml-6.0.3 575.5M 326 1.7M 40 2.8k 640 600.3KB
+referencing-0.37.0 236.1M 799 332.3k 6 52 353 368.7KB
+requests-2.32.5 959.1M 6.4k 4.0M 776 53.7k 84 469.1KB
+requests-oauthlib-2.0.0 264.5M 666 595.6k 119 1.8k 63 225.8KB
+rich-14.2.0 264.9M 4.4k 473.8k 285 55.2k 83 950.2KB
+rpds_py-0.28.0 242.0M 543 N/A 20 59 31 117.2KB
+rsa-4.9.1 401.3M 604 N/A 43 492 20 105.0KB
+s3fs-2025.10.0 572.3M 1.1k 25.5k 151 1.0k 33 319.1KB
+s3transfer-0.14.0 654.3M 720 372.9k 44 232 62 793.3KB
+scipy-1.16.3 262.2M 36.8k 1.4M 1.9k 14.4k 5k 107.2MB
+setuptools-80.9.0 880.4M 16.5k 805.2k 635 2.8k 582 4.9MB
+six-1.17.0 674.3M 548 2.7M 67 1.0k 16 131.2KB
+sniffio-1.3.1 184.3M 83 676.6k 16 147 38 54.2KB
+snowflake_connector_python-4.0.0 144.7M 1.8k N/A 145 705 336 9.9MB
+soupsieve-2.8 203.0M 371 736.3k 13 263 134 515.2KB
+sqlalchemy-2.0.44 250.3M 17.9k 1.2M 809 11.4k 1k 60.6MB
+tomli-2.3.0 256.7M 325 614.3k 13 550 9 54.6KB
+tomlkit-0.13.3 202.3M 454 156.0k 45 807 809 2.1MB
+tqdm-4.67.1 261.3M 2.0k 1.1M 118 30.9k 98 682.9KB
+typing_extensions-4.15.0 990.3M 504 N/A 78 547 10 710.2KB
+typing_inspection-0.4.2 311.2M 48 73.2k 3 57 32 257.9KB
+urllib3-2.5.0 1,106.1M 4.3k 2.4M 385 4.0k 154 1.9MB
+uvicorn-0.38.0 217.8M 1.4k 828.6k 209 10.3k 79 439.1KB
+virtualenv-20.35.4 273.5M 1.0k 492.5k 149 5.0k 188 6.4MB
+wheel-0.45.1 322.2M 994 370.7k 86 547 102 476.4KB
+wrapt-2.0.0 256.8M 1.1k 610.1k 36 2.3k 134 678.2KB
+yarl-1.22.0 271.5M 1.9k N/A 100 1.5k 72 660.1KB
+zipp-3.23.0 326.9M 895 880.8k 32 67 45 74.9KB
+34
+claude
+@T=0.0
+claude
+@T=1.0
+deepseek-chat
+@T=0.0
+deepseek-chat
+@T=1.0
+deepseek-reasoner
+@T=0.0
+deepseek-reasoner
+@T=1.0
+gemini
+@T=0.0
+gemini
+@T=1.0
+gpt
+@T=0.0
+gpt
+@T=1.0
+Model Family and Temperature
+0
+200
+400
+600
+800
+1000Number of Findings
+45 33 29 15 29 29 5 7 1 4
+183
+148
+25
+14
+24 26 56 58 66 83
+177
+212
+32
+34
+44 53 23 19
+101 82
+548 549
+19
+27
+34 35
+234
+182
+115 83
+Severity Distribution by Model Family and Temperature
+Critical
+High
+Medium
+Low
+Figure 4: Severity distribution across findings per configuration.
+claudeT=0.0 claudeT=1.0
+deepseek-chatT=0.0 deepseek-chatT=1.0
+deepseek-reasoner
+T=0.0
+deepseek-reasoner
+T=1.0
+geminiT=0.0 geminiT=1.0
+gpt
+T=0.0
+gpt
+T=1.0
+0
+500
+1000
+1500
+2000
+2500
+3000Token Consumption (thousands)
+119k
+499k
+3020k
+123k
+469k
+2516k
+63k
+180k
+699k
+31k
+181k
+968k
+86k
+231k
+750k
+89k
+240k
+683k
+142k
+341k
+1203k
+145k
+295k
+1578k
+37k122k
+547k
+34k120k
+510k
+Resource Consumption Distribution by Model Family and Temperature
+Median (red line)
+Mean (blue line)
+Min (green text)
+Median (red text)
+Max (blue text)
+claudeT=0.0 claudeT=1.0
+deepseek-chatT=0.0 deepseek-chatT=1.0
+deepseek-reasoner
+T=0.0
+deepseek-reasoner
+T=1.0
+geminiT=0.0 geminiT=1.0
+gpt
+T=0.0
+gpt
+T=1.0
+0
+1
+2
+3
+4
+5
+6
+7Cost (USD)
+$0.44
+$1.08
+$7.03
+$0.44
+$0.96
+$6.21
+$0.02$0.05$0.20 $0.01$0.05$0.29
+$0.03$0.07$0.22 $0.03$0.07$0.20 $0.42
+$0.90
+$2.46
+$0.43
+$0.81
+$3.42
+$0.08$0.20
+$0.76
+$0.04$0.19
+$0.63
+claudeT=0.0 claudeT=1.0
+deepseek-chatT=0.0 deepseek-chatT=1.0
+deepseek-reasoner
+T=0.0
+deepseek-reasoner
+T=1.0
+geminiT=0.0 geminiT=1.0
+gpt
+T=0.0
+gpt
+T=1.0
+Model Family @ Temperature
+0
+10
+20
+30
+40
+50
+60Runtime (minutes)
+5.5m
+12.1m
+22.9m
+5.2m
+9.3m
+25.2m
+1.6m
+10.2m
+28.9m
+1.7m
+10.3m
+56.6m
+9.4m
+20.2m
+61.5m
+8.6m
+18.7m
+33.1m
+3.7m
+10.0m
+42.6m
+3.0m
+10.1m
+34.1m
+2.4m
+7.6m
+20.1m
+1.4m
+7.8m
+21.0m
+Figure 5: Top100 Resource Metrics.
+35
+claude@0.0 claude@1.0 deepseek@0.0 deepseek@1.0 deepseek@0.0 deepseek@1.0 gemini@0.0 gemini@1.0
+gpt
+@0.0
+gpt
+@1.0
+Configuration (Model Family @ Temperature)
+CWE-502: Deserialization of Untrusted Data
+CWE-094: Improper Control of Generation of Code
+CWE-022: Path Traversal
+CWE-078: Improper Neutralization of Special El...
+CWE-1333: Inefficient Regular Expression Comple...
+CWE-400: Uncontrolled Resource Consumption
+CWE-798: Use of Hard-coded Credentials
+CWE-020: Improper Input Validation
+CWE-915: Improperly Controlled Modification of...
+CWE-327: Use of a Broken or Risky Cryptographi...
+Empty: Not Classified
+CWE-338: Use of Cryptographically Weak Pseudo-...
+CWE-611: Improper Restriction of XML External ...
+CWE-209: Information Exposure Through an Error...
+CWE-073: External Control of File Name or Path
+CWE-918: Server-Side Request Forgery (SSRF)
+CWE-059: Improper Link Resolution Before File ...
+CWE-377: Insecure T emporary File
+CWE-362: Concurrent Execution using Shared Res...
+CWE-079: Improper Neutralization of Input Duri...
+CWE-208: Observable Timing Discrepancy
+CWE-532: Insertion of Sensitive Information in...
+CWE-732: Incorrect Permission Assignment for C...
+CWE-913: Improper Control of Dynamically-Manag...
+CWE-190: Integer Overflow or Wraparound
+CWE ID and Description
+72 52 36 20 45 47 32 29 53 57
+98 89 12 6 39 36 25 35 62 41
+187 116 4 9 11 8 28 44 15 16
+39 46 5 2 26 14 43 29 71 60
+106 78 0 4 5 11 57 42 6 0
+83 77 4 0 6 2 15 7 4 4
+93 52 0 0 0 0 17 4 8 0
+22 52 1 4 2 0 38 4 2 14
+46 69 0 0 4 2 7 10 0 1
+36 11 14 2 1 3 21 8 5 4
+0 37 0 1 1 10 1 1 16 7
+32 18 2 7 0 4 5 2 0 3
+12 35 0 7 3 0 9 3 0 3
+21 35 9 4 0 0 0 0 0 0
+12 7 0 0 1 0 11 8 22 8
+27 16 1 2 0 0 4 7 4 1
+33 20 0 0 0 3 2 2 0 0
+5 7 1 4 6 3 1 0 11 20
+9 26 0 3 2 6 5 0 0 1
+6 32 0 0 0 4 1 4 3 2
+10 22 0 0 0 1 8 7 0 1
+19 14 0 9 0 1 0 2 0 2
+20 6 0 3 0 0 1 1 6 8
+11 22 0 1 4 2 0 0 2 1
+7 27 4 0 5 0 0 0 0 0
+CWE Distribution per Model Family and Temperature 
+(Top 25 CWEs)
+0
+25
+50
+75
+100
+125
+150
+175
+Finding Count
+Figure 6: Top 25 CWE Heatmap per Model family.
+36
+claude
+@T=0.0
+claude
+@T=1.0
+deepseek-chat@T=0.0 deepseek-chat@T=1.0
+deepseek-reasoner
+@T=0.0
+deepseek-reasoner
+@T=1.0
+gemini
+@T=0.0
+gemini
+@T=1.0
+gpt
+@T=0.0
+gpt
+@T=1.0
+Model Configuration
+BUILD_SCRIPT
+CODE_SMELL
+CONTEXT_MISMATCH
+EXPLOITABILITY
+HALLUCINATION
+KNOWN_CVE
+NOVEL_FINDING
+PRODUCTION_CODE
+TEST_CODE
+ZERO_DAY
+Empty
+Flag Type
+8 2 1 0 5 7 2 6 2 7
+26 27 0 1 7 7 1 0 31 31
+20 20 2 0 0 0 2 0 1 2
+61 52 5 9 34 39 16 19 81 115
+0 2 0 0 0 1 1 0 0 0
+29 35 11 9 5 6 41 42 14 12
+75 54 24 35 44 51 23 16 61 92
+0 0 0 0 0 0 0 0 0 1
+0 0 0 0 0 3 1 0 2 0
+10 14 1 1 31 22 12 13 0 0
+0 0 0 0 0 0 1 1 0 0
+Sanity Agent Flag Distribution by Model Family and Temperature
+0
+20
+40
+60
+80
+100
+Count
+Figure 7: Flag Distribution Heatmap per configuration.
+T=0.0 T=1.0
+Temperature
+0
+250
+500Count
+102 81
+210 171
+2 5
+638 662
+11 18 4
+Claude Model Family
+T=0.0 T=1.0
+Temperature
+0
+20Count 25 3137
+24
+2 1
+32 30
+9
+1 3
+Deepseek-chat Model Family
+T=0.0 T=1.0
+Temperature
+0
+20
+40Count
+54 53
+9 1314 17
+44 47
+1 1 49 8
+Deepseek-reasoner Model Family
+T=0.0 T=1.0
+Temperature
+0
+100
+200Count
+75 70
+15 81 2
+224
+185
+3 1
+Gemini Model Family
+T=0.0 T=1.0
+Temperature
+0
+50
+100Count
+55
+88
+55 62
+13 151
+130
+66
+10 619 15
+Gpt Model Family
+Verdict Transitions: Reviewer  Sanity Agent
+(Impact of Temperature on Verdict Changes)
+tp tp
+ fp fp
+ mr mr
+ fp tp
+ mr tp
+ tp fp
+ mr fp
+ tp mr
+ fp mr
+Figure 8: Impact of Temperature on Verdict Transitions from R to S configuration.
+37
+claude@0.0claude@1.0
+deepseek@0.0deepseek@1.0deepseek@0.0deepseek@1.0
+gemini@0.0gemini@1.0
+gpt@0.0gpt@1.0
+sqlalchemy-2.0.44
+lxml-6.0.2
+pycparser-2.23
+jinja2-3.1.6
+numpy-2.3.4
+jsonschema-4.25.1
+pydantic-2.12.3
+pillow-12.0.0
+wrapt-2.0.0
+pip-25.3
+pandas-2.3.3
+pyasn1_modules-0.4.2
+setuptools-80.9.0
+virtualenv-20.35.4
+click-8.3.0
+distlib-0.4.0
+anyio-4.11.0
+filelock-3.20.0
+pyarrow-22.0.0
+rsa-4.9.1
+wheel-0.45.1
+openpyxl-3.1.5
+pyasn1-0.6.1
+requests-2.32.5
+pygments-2.19.2
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 1 0 0 0 1
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 1 1
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 1 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+1 2 0 0 1 1 0 3 1 0
+0 0 0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 2
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 1 0 0
+0 0 0 0 0 0 0 0 0 0
+6 0 0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 1 0 1 0 0 0
+0 0 0 0 0 0 0 0 0 0
+Build Script
+claude@0.0claude@1.0
+deepseek@0.0deepseek@1.0deepseek@0.0deepseek@1.0
+gemini@0.0gemini@1.0
+gpt@0.0gpt@1.0
+1 0 0 0 0 0 0 0 0 1
+1 3 0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0 1 1
+0 1 0 0 0 0 0 0 2 0
+0 0 0 0 0 0 0 0 0 1
+2 1 0 0 0 1 0 0 0 0
+0 0 0 0 1 0 0 0 1 1
+2 2 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 2 3
+0 0 0 0 0 0 0 0 0 2
+0 0 0 0 0 0 0 0 0 0
+1 1 0 0 0 0 1 0 3 2
+0 0 0 0 0 1 0 0 0 0
+0 3 0 0 0 0 0 0 1 1
+0 1 0 0 0 0 0 0 0 3
+0 1 0 0 0 0 0 0 2 1
+0 0 0 0 0 0 0 0 1 0
+3 0 0 0 0 0 0 0 1 1
+0 1 0 0 0 0 0 0 1 1
+3 0 0 0 0 0 0 0 2 0
+2 0 0 0 0 0 0 0 0 0
+0 3 0 0 0 0 0 0 1 2
+0 3 0 0 0 0 0 0 0 0
+2 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+Code Smell
+claude@0.0claude@1.0
+deepseek@0.0deepseek@1.0deepseek@0.0deepseek@1.0
+gemini@0.0gemini@1.0
+gpt@0.0gpt@1.0
+0 0 0 0 0 0 0 0 0 0
+1 3 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 0 0 0
+0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0
+1 2 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 1
+1 0 0 0 0 0 0 0 0 1
+1 1 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 0 0
+0 2 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 2 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 0 0
+3 0 0 0 0 0 0 0 0 0
+3 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 1 0 0 0
+0 0 0 0 0 0 0 0 0 0
+Context Mismatch
+claude@0.0claude@1.0
+deepseek@0.0deepseek@1.0deepseek@0.0deepseek@1.0
+gemini@0.0gemini@1.0
+gpt@0.0gpt@1.0
+sqlalchemy-2.0.44
+lxml-6.0.2
+pycparser-2.23
+jinja2-3.1.6
+numpy-2.3.4
+jsonschema-4.25.1
+pydantic-2.12.3
+pillow-12.0.0
+wrapt-2.0.0
+pip-25.3
+pandas-2.3.3
+pyasn1_modules-0.4.2
+setuptools-80.9.0
+virtualenv-20.35.4
+click-8.3.0
+distlib-0.4.0
+anyio-4.11.0
+filelock-3.20.0
+pyarrow-22.0.0
+rsa-4.9.1
+wheel-0.45.1
+openpyxl-3.1.5
+pyasn1-0.6.1
+requests-2.32.5
+pygments-2.19.2
+2 1 0 0 3 0 1 2 3 6
+4 4 0 0 0 1 0 0 0 4
+2 1 0 0 0 0 1 2 7 7
+0 1 1 0 2 0 0 1 6 3
+1 1 1 0 0 0 0 0 2 4
+3 2 0 0 0 1 1 0 4 2
+1 0 0 0 2 1 2 0 3 4
+2 3 0 0 0 0 0 0 2 0
+2 2 0 0 0 0 1 0 3 5
+2 0 0 0 1 0 0 0 0 7
+3 1 0 2 0 0 0 1 0 2
+1 1 0 0 0 0 2 0 5 2
+1 2 0 0 0 2 0 0 1 0
+0 3 0 0 2 0 0 0 2 5
+0 1 0 0 1 1 0 0 2 7
+2 1 2 0 0 0 0 0 2 3
+0 0 0 0 0 3 1 0 3 3
+3 0 0 0 0 0 0 0 3 1
+0 2 0 0 0 0 1 2 1 7
+3 0 1 0 0 0 0 0 1 0
+5 1 0 0 0 0 0 0 0 1
+0 7 0 0 0 0 0 0 2 2
+1 3 0 0 0 0 2 0 0 0
+3 1 0 0 1 0 2 0 0 0
+0 2 0 0 0 0 0 1 0 2
+Exploitability
+claude@0.0claude@1.0
+deepseek@0.0deepseek@1.0deepseek@0.0deepseek@1.0
+gemini@0.0gemini@1.0
+gpt@0.0gpt@1.0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 1 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 1 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+Hallucination
+claude@0.0claude@1.0
+deepseek@0.0deepseek@1.0deepseek@0.0deepseek@1.0
+gemini@0.0gemini@1.0
+gpt@0.0gpt@1.0
+0 0 0 1 0 0 0 2 0 0
+5 5 0 0 0 0 0 0 0 3
+0 0 0 0 0 0 1 3 0 0
+0 2 2 2 1 0 1 2 2 1
+3 2 7 0 0 1 2 0 4 0
+0 0 0 0 0 0 2 1 0 0
+0 0 0 1 0 0 0 0 0 0
+4 9 0 0 0 2 0 2 3 0
+0 0 0 0 0 0 1 0 0 0
+2 0 0 0 0 0 1 2 0 0
+2 1 0 3 1 1 2 1 1 2
+0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 1 2 0 0
+0 3 0 0 2 2 0 0 2 3
+0 0 0 0 0 0 0 1 0 0
+0 0 0 0 0 0 0 1 0 0
+0 0 0 0 0 0 2 1 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 0 0
+0 0 0 0 0 0 1 0 0 0
+0 1 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 0 0 0
+0 0 0 0 0 0 1 0 0 0
+0 0 0 0 0 0 2 2 1 1
+Known Cve
+claude@0.0claude@1.0
+deepseek@0.0deepseek@1.0deepseek@0.0deepseek@1.0
+gemini@0.0gemini@1.0
+gpt@0.0gpt@1.0
+sqlalchemy-2.0.44
+lxml-6.0.2
+pycparser-2.23
+jinja2-3.1.6
+numpy-2.3.4
+jsonschema-4.25.1
+pydantic-2.12.3
+pillow-12.0.0
+wrapt-2.0.0
+pip-25.3
+pandas-2.3.3
+pyasn1_modules-0.4.2
+setuptools-80.9.0
+virtualenv-20.35.4
+click-8.3.0
+distlib-0.4.0
+anyio-4.11.0
+filelock-3.20.0
+pyarrow-22.0.0
+rsa-4.9.1
+wheel-0.45.1
+openpyxl-3.1.5
+pyasn1-0.6.1
+requests-2.32.5
+pygments-2.19.2
+2 4 0 4 2 0 1 1 4 5
+4 2 0 0 2 1 0 0 0 1
+2 1 1 0 0 1 0 1 7 7
+0 1 1 2 1 0 0 1 2 1
+2 1 5 0 0 0 0 0 0 2
+3 2 1 0 0 1 2 2 4 2
+4 2 0 2 2 0 2 0 3 4
+0 4 0 0 0 0 0 0 0 0
+2 1 0 0 0 0 0 0 3 4
+3 0 0 0 4 1 0 0 0 7
+3 0 0 3 0 0 0 0 0 1
+0 3 0 0 0 1 2 0 4 2
+1 2 0 0 2 3 0 1 1 0
+0 0 0 0 0 1 0 0 0 0
+0 2 0 0 1 1 0 0 2 7
+1 3 2 0 0 0 2 0 0 3
+1 0 1 0 0 3 1 0 3 3
+3 1 0 3 0 3 2 1 3 0
+0 0 0 0 0 0 2 1 0 7
+4 2 1 0 0 0 2 0 2 0
+6 1 0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0 1 1
+1 4 5 0 1 0 1 0 0 0
+4 2 0 0 1 0 2 0 0 0
+0 2 0 0 0 0 1 0 0 2
+Novel Finding
+claude@0.0claude@1.0
+deepseek@0.0deepseek@1.0deepseek@0.0deepseek@1.0
+gemini@0.0gemini@1.0
+gpt@0.0gpt@1.0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+Test Code
+claude@0.0claude@1.0
+deepseek@0.0deepseek@1.0deepseek@0.0deepseek@1.0
+gemini@0.0gemini@1.0
+gpt@0.0gpt@1.0
+4 4 0 0 4 0 0 1 0 0
+0 0 0 0 2 0 1 0 0 0
+0 1 0 0 2 1 0 0 0 0
+1 0 0 0 2 1 0 0 0 0
+0 2 0 0 0 0 0 0 0 0
+0 0 0 0 0 3 1 0 0 0
+0 0 0 0 0 1 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 1 1 0 1 0 0
+0 0 0 0 0 0 0 1 0 0
+2 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 1 1 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 1 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0
+0 0 0 0 4 1 0 0 0 0
+0 2 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 2 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 1 0 1 0 1 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 2 0 0 2 2 0 1 0 0
+Zero Day
+0
+1
+2
+3
+4
+5
+6
+Count
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Count
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Count
+0
+1
+2
+3
+4
+5
+6
+7
+Count
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Count
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+Count
+0
+1
+2
+3
+4
+5
+6
+7
+Count
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Count
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+4.0
+Count
+Flag Type Breakdown per Package (Top 25 Packages)
+Figure 9: Top 25 Package Flags per Configuration.
+38

@@ -1,0 +1,472 @@
+{
+  "campaign_id": "20261009-supplemental-v1",
+  "archive_next": "20261009-workspace-v2",
+  "production_changes": false,
+  "discovery": {
+    "records": [
+      {
+        "sample": "validation-01",
+        "cases": 48,
+        "positive": 24,
+        "negative": 24,
+        "categories": {
+          "xpathi": 6,
+          "trustbound": 4,
+          "securecookie": 6,
+          "hash": 4,
+          "redirect": 4,
+          "pathtraver": 4,
+          "codeinj": 4,
+          "deserialization": 4,
+          "weakrand": 4,
+          "xss": 4,
+          "ldapi": 4
+        },
+        "scores": {
+          "CodeQL": {
+            "counts": {
+              "TP": 11,
+              "FP": 4,
+              "TN": 20,
+              "FN": 13
+            },
+            "precision": 0.7333333333333333,
+            "recall": 0.4583333333333333,
+            "f1": 0.5641025641025641,
+            "false_positive_rate": 0.16666666666666666
+          },
+          "Scout_raw": {
+            "counts": {
+              "TP": 19,
+              "FP": 14,
+              "TN": 10,
+              "FN": 5
+            },
+            "precision": 0.5757575757575758,
+            "recall": 0.7916666666666666,
+            "f1": 0.6666666666666666,
+            "false_positive_rate": 0.5833333333333334
+          },
+          "Union_raw": {
+            "counts": {
+              "TP": 20,
+              "FP": 14,
+              "TN": 10,
+              "FN": 4
+            },
+            "precision": 0.5882352941176471,
+            "recall": 0.8333333333333334,
+            "f1": 0.6896551724137931,
+            "false_positive_rate": 0.5833333333333334
+          },
+          "Platform_supported": {
+            "counts": {
+              "TP": 17,
+              "FP": 5,
+              "TN": 19,
+              "FN": 7
+            },
+            "precision": 0.7727272727272727,
+            "recall": 0.7083333333333334,
+            "f1": 0.7391304347826086,
+            "false_positive_rate": 0.20833333333333334
+          },
+          "Bandit": {
+            "counts": {
+              "TP": 4,
+              "FP": 0,
+              "TN": 24,
+              "FN": 20
+            },
+            "precision": 1.0,
+            "recall": 0.16666666666666666,
+            "f1": 0.2857142857142857,
+            "false_positive_rate": 0.0
+          }
+        },
+        "unreviewed_candidates": 1,
+        "alternate_CWE_not_adjudicated": 49,
+        "outside_target_supported_alerts": 36,
+        "incomplete_case_windows": 0,
+        "safety_task_conclusions": {
+          "no_condition_identified": 213,
+          "suspicious": 58,
+          "not_applicable": 34,
+          "unknown": 127
+        },
+        "parallel_wall_seconds": 597.4735146250459,
+        "usage": {
+          "calls": 126,
+          "input_tokens": 1088740,
+          "output_tokens": 197160
+        },
+        "structural_prior_overlap_cases": 0
+      },
+      {
+        "sample": "validation-02",
+        "cases": 48,
+        "positive": 24,
+        "negative": 24,
+        "categories": {
+          "redirect": 6,
+          "xpathi": 4,
+          "trustbound": 4,
+          "ldapi": 4,
+          "codeinj": 4,
+          "deserialization": 4,
+          "xss": 6,
+          "securecookie": 4,
+          "hash": 4,
+          "weakrand": 4,
+          "pathtraver": 4
+        },
+        "scores": {
+          "CodeQL": {
+            "counts": {
+              "TP": 9,
+              "FP": 5,
+              "TN": 19,
+              "FN": 15
+            },
+            "precision": 0.6428571428571429,
+            "recall": 0.375,
+            "f1": 0.47368421052631576,
+            "false_positive_rate": 0.20833333333333334
+          },
+          "Scout_raw": {
+            "counts": {
+              "TP": 18,
+              "FP": 14,
+              "TN": 10,
+              "FN": 6
+            },
+            "precision": 0.5625,
+            "recall": 0.75,
+            "f1": 0.6428571428571429,
+            "false_positive_rate": 0.5833333333333334
+          },
+          "Union_raw": {
+            "counts": {
+              "TP": 18,
+              "FP": 14,
+              "TN": 10,
+              "FN": 6
+            },
+            "precision": 0.5625,
+            "recall": 0.75,
+            "f1": 0.6428571428571429,
+            "false_positive_rate": 0.5833333333333334
+          },
+          "Platform_supported": {
+            "counts": {
+              "TP": 16,
+              "FP": 7,
+              "TN": 17,
+              "FN": 8
+            },
+            "precision": 0.6956521739130435,
+            "recall": 0.6666666666666666,
+            "f1": 0.6808510638297872,
+            "false_positive_rate": 0.2916666666666667
+          },
+          "Bandit": {
+            "counts": {
+              "TP": 2,
+              "FP": 1,
+              "TN": 23,
+              "FN": 22
+            },
+            "precision": 0.6666666666666666,
+            "recall": 0.08333333333333333,
+            "f1": 0.14814814814814814,
+            "false_positive_rate": 0.041666666666666664
+          }
+        },
+        "unreviewed_candidates": 2,
+        "alternate_CWE_not_adjudicated": 39,
+        "outside_target_supported_alerts": 32,
+        "incomplete_case_windows": 0,
+        "safety_task_conclusions": {
+          "no_condition_identified": 219,
+          "unknown": 131,
+          "suspicious": 54,
+          "not_applicable": 28
+        },
+        "parallel_wall_seconds": 521.714639999962,
+        "usage": {
+          "calls": 115,
+          "input_tokens": 994546,
+          "output_tokens": 175972
+        },
+        "structural_prior_overlap_cases": 0
+      }
+    ],
+    "combined": {
+      "CodeQL": {
+        "counts": {
+          "TP": 20,
+          "FP": 9,
+          "TN": 39,
+          "FN": 28
+        },
+        "precision": 0.6896551724137931,
+        "recall": 0.4166666666666667,
+        "f1": 0.5194805194805194,
+        "false_positive_rate": 0.1875
+      },
+      "Scout_raw": {
+        "counts": {
+          "TP": 37,
+          "FP": 28,
+          "TN": 20,
+          "FN": 11
+        },
+        "precision": 0.5692307692307692,
+        "recall": 0.7708333333333334,
+        "f1": 0.6548672566371682,
+        "false_positive_rate": 0.5833333333333334
+      },
+      "Union_raw": {
+        "counts": {
+          "TP": 38,
+          "FP": 28,
+          "TN": 20,
+          "FN": 10
+        },
+        "precision": 0.5757575757575758,
+        "recall": 0.7916666666666666,
+        "f1": 0.6666666666666666,
+        "false_positive_rate": 0.5833333333333334
+      },
+      "Platform_supported": {
+        "counts": {
+          "TP": 33,
+          "FP": 12,
+          "TN": 36,
+          "FN": 15
+        },
+        "precision": 0.7333333333333333,
+        "recall": 0.6875,
+        "f1": 0.7096774193548387,
+        "false_positive_rate": 0.25
+      },
+      "Bandit": {
+        "counts": {
+          "TP": 6,
+          "FP": 1,
+          "TN": 47,
+          "FN": 42
+        },
+        "precision": 0.8571428571428571,
+        "recall": 0.125,
+        "f1": 0.21818181818181817,
+        "false_positive_rate": 0.020833333333333332
+      }
+    },
+    "cases": 96,
+    "all_alert_human_precision": null,
+    "official_scorecard": false,
+    "training_unseen_claim": false
+  },
+  "repair": {
+    "tasks": 10,
+    "requests": 20,
+    "calibrated": 10,
+    "groups": {
+      "1": {
+        "requests": 10,
+        "completed": 10,
+        "failed": 0,
+        "hidden_joint_pass": 10,
+        "end_to_end_pass": 10,
+        "not_evaluated": 0,
+        "languages": {
+          "python": {
+            "requests": 5,
+            "end_to_end_pass": 5
+          },
+          "javascript": {
+            "requests": 5,
+            "end_to_end_pass": 5
+          }
+        }
+      },
+      "2": {
+        "requests": 10,
+        "completed": 9,
+        "failed": 1,
+        "hidden_joint_pass": 9,
+        "end_to_end_pass": 9,
+        "not_evaluated": 1,
+        "languages": {
+          "python": {
+            "requests": 5,
+            "end_to_end_pass": 5
+          },
+          "javascript": {
+            "requests": 5,
+            "end_to_end_pass": 4
+          }
+        }
+      }
+    },
+    "failures": [
+      {
+        "task": "js-owner",
+        "version": "2",
+        "status": "failed",
+        "oracle": "not_evaluated"
+      }
+    ],
+    "derived_unreviewed": true,
+    "natural_CVE_or_service_PoC": false
+  },
+  "rules": {
+    "historical_candidates": 18,
+    "new_generation_requests": 0,
+    "families": 6,
+    "new_source_files": 12,
+    "positive_sinks": 12,
+    "safe_handlers": 12,
+    "passed": 15,
+    "failed": 3,
+    "errors": 0,
+    "groups": {
+      "javascript-eval": {
+        "historical_candidates": 3,
+        "passed": 3,
+        "errors": 0,
+        "tp": 6,
+        "fp": 0,
+        "fn": 0
+      },
+      "javascript-sql": {
+        "historical_candidates": 3,
+        "passed": 3,
+        "errors": 0,
+        "tp": 6,
+        "fp": 0,
+        "fn": 0
+      },
+      "javascript-xss": {
+        "historical_candidates": 3,
+        "passed": 3,
+        "errors": 0,
+        "tp": 6,
+        "fp": 0,
+        "fn": 0
+      },
+      "python-eval": {
+        "historical_candidates": 3,
+        "passed": 3,
+        "errors": 0,
+        "tp": 6,
+        "fp": 0,
+        "fn": 0
+      },
+      "python-sql": {
+        "historical_candidates": 3,
+        "passed": 3,
+        "errors": 0,
+        "tp": 6,
+        "fp": 0,
+        "fn": 0
+      },
+      "python-xss": {
+        "historical_candidates": 3,
+        "passed": 0,
+        "errors": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 6
+      }
+    },
+    "derived_unreviewed": true,
+    "purpose": "vulnerability_detector historical arm; current review_anchor not assessed",
+    "RAG_causal_gain": null,
+    "new_model_calls": 0
+  },
+  "gui": {
+    "passed": 10,
+    "failed": 1,
+    "checks": [
+      {
+        "name": "protected route redirects to login",
+        "status": "passed"
+      },
+      {
+        "name": "login through real API renders workbench",
+        "status": "passed"
+      },
+      {
+        "name": "failed scan displays failure instead of zero findings success",
+        "status": "passed"
+      },
+      {
+        "name": "completed empty scan preserves uncertainty message",
+        "status": "passed"
+      },
+      {
+        "name": "stage navigation and human confirmation gate",
+        "status": "passed"
+      },
+      {
+        "name": "wrong file extension rejected without upload",
+        "status": "passed"
+      },
+      {
+        "name": "language selection updates visible control state",
+        "status": "passed"
+      },
+      {
+        "name": "mobile workbench screenshot and viewport overflow",
+        "status": "passed"
+      },
+      {
+        "name": "mobile logout control remains visible",
+        "status": "failed",
+        "error": "Expected values to be strictly equal:\n\nfalse !== true\n"
+      },
+      {
+        "name": "desktop logout revokes local session and protects workbench",
+        "status": "passed"
+      },
+      {
+        "name": "console health and API responses",
+        "status": "passed"
+      }
+    ],
+    "browser_version": "154.0.8037.98",
+    "browser_channel": "chrome",
+    "scope": "Real browser/API/DB with synthetic terminal states; no Worker, model generation, rule publication, or completed upload-to-four-stage claim"
+  },
+  "reliability": {
+    "pytest_passed": 33,
+    "new_data_runner_tests_passed": 5,
+    "archive_tests_rechecked": 9,
+    "distinct_tests": 38,
+    "junit_sha256": "4334ab017ed025821e82e9faba98fe755a679efa0ec2267636484f9e4721c0a1"
+  },
+  "usage": {
+    "stages": 68,
+    "calls": 272,
+    "input_tokens": 2129581,
+    "output_tokens": 385875,
+    "response_models": [
+      "deepseek-v4-1-flash-260910"
+    ],
+    "model_call_receipts": 272,
+    "missing_token_receipts": 0,
+    "billed_currency_cost": null,
+    "performance_comparison": "Concurrent discovery cohorts, repair and CodeQL probes overlap; these are workload receipts, not fair latency rankings"
+  },
+  "remaining_gaps": [
+    "Cross-framework/cross-language independent discovery repositories",
+    "Double-blind human adjudication of all alerts and roots",
+    "Human-admitted natural repair tasks and service PoC replay",
+    "New rule generation on independent CWE/framework tasks and current review-anchor purpose",
+    "Matched RAG retrieval/reranker ablation with budgets",
+    "GUI real upload/Worker/model/confirmation/repair/publication/report completion",
+    "Provider invoice cost and matched performance experiments"
+  ]
+}
