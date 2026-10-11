@@ -1,0 +1,20 @@
+[
+  {
+    "title": "SemTaint: Multi-Agent Taint Specification Extraction for Vulnerability Detection",
+    "source": "https://arxiv.org/html/2601.10865v1",
+    "html": "SemTaint-2026-v1.html",
+    "text": "SemTaint-2026-v1.txt",
+    "text_characters": 110812,
+    "html_sha256": "1f1e3c6478a0f6f09a248b3c1aef175f02f4e8df9c22dec030168ce87712aa0a",
+    "text_sha256": "2d1025e938d6c34893d6cb8b401745c9e85d1f6be4580a78e8a12801c0a73031"
+  },
+  {
+    "title": "IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities",
+    "source": "https://arxiv.org/html/2405.17238v3",
+    "html": "IRIS-ICLR2025-arxiv-v3.html",
+    "text": "IRIS-ICLR2025-arxiv-v3.txt",
+    "text_characters": 84599,
+    "html_sha256": "c66731b2780ef07263c6f0583bfb4bcb87228409f90a7a840c697cfaa74a9734",
+    "text_sha256": "037ed26069bf2d9384edcc6c06c3a59bfc4b9992ffb2221c59c86c7df7cd0300"
+  }
+]

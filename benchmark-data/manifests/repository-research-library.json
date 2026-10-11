@@ -1,0 +1,1393 @@
+{
+  "date": "2026-10-11",
+  "scope": "Consolidation of prior records; references without full text remain links, not claimed downloaded",
+  "summary": {
+    "registered_papers": 46,
+    "papers_with_repository_fulltext": 26,
+    "pdf_files": 26,
+    "material_files": 55
+  },
+  "papers": [
+    {
+      "title": "SastBench: A Benchmark for Testing Agentic SAST Triage",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery",
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2601.02941"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/2601.02941v1.pdf",
+        "artifacts/papers/2601.02941v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-01-06",
+      "last_arxiv_revision_date": "2026-01-06",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/2601.02941v1.pdf",
+        "artifacts/papers/2601.02941v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/discovery/2601.02941v1.pdf"
+      ]
+    },
+    {
+      "title": "RealVuln: Benchmarking Rule-Based, General-Purpose LLM, and Security-Specialized Scanners on Real-World Code",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2604.13764"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/2604.13764v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-04-15",
+      "last_arxiv_revision_date": "2026-04-15",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/2604.13764v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/discovery/2604.13764v1.pdf"
+      ]
+    },
+    {
+      "title": "VulnGym: Benchmarking Coding Agents for Repository-Level Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2608.02001"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-08-03",
+      "last_arxiv_revision_date": "2026-08-03",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf"
+      ]
+    },
+    {
+      "title": "CrossCommitVuln-Bench: A Dataset of Multi-Commit Python Vulnerabilities Invisible to Per-Commit Static Analysis",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2604.21917"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/2604.21917v1.pdf"
+      ],
+      "notes": [
+        "AIware 2026 acceptance stated on arXiv/official artifact"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-04-23",
+      "last_arxiv_revision_date": "2026-04-23",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/2604.21917v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/discovery/2604.21917v1.pdf"
+      ]
+    },
+    {
+      "title": "Large Language Models Cannot Reliably Detect Vulnerabilities in JavaScript: The First Systematic Benchmark and Evaluation",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2512.01255"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/2512.01255v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-12-01",
+      "last_arxiv_revision_date": "2025-12-01",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/2512.01255v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/discovery/2512.01255v1.pdf"
+      ]
+    },
+    {
+      "title": "SecBench.js: An Executable Security Benchmark Suite for Server-Side JavaScript",
+      "citation_year": 2023,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://github.com/cristianstaicu/SecBench.js"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/icse2023-SecBenchJS.pdf"
+      ],
+      "notes": [
+        "ICSE 2023 mature benchmark"
+      ],
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/icse2023-SecBenchJS.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/discovery/icse2023-SecBenchJS.pdf"
+      ]
+    },
+    {
+      "title": "VICBench: A Multi-Language Benchmark for Code Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2608.12246"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/discovery/vicbench-2608.12246v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-08-12",
+      "last_arxiv_revision_date": "2026-08-12",
+      "local_pdf_files": [
+        "benchmark-data/papers/discovery/vicbench-2608.12246v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/discovery/vicbench-2608.12246v1.pdf"
+      ]
+    },
+    {
+      "title": "eyeballvul: a future-proof benchmark for vulnerability detection in the wild",
+      "citation_year": 2024,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2407.08708"
+      ],
+      "local_paths": [],
+      "notes": [
+        "arXiv preprint; current artifact updated in 2026"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2024-07-11",
+      "last_arxiv_revision_date": "2024-07-13",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "Vulnerability Localization Benchmark: Measuring Agentic Security Analysis at Repository Scale",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://cisco-foundation-ai.github.io/vulnerability-localization-benchmark/technical-report.pdf"
+      ],
+      "local_paths": [],
+      "notes": [
+        "official technical report; no peer-reviewed venue verified"
+      ],
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "VEX-Bench: Benchmarking LLM Agents for Assessing Exploitability of Software Supply Chain Vulnerabilities",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/discovery"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2609.08040"
+      ],
+      "local_paths": [],
+      "notes": [
+        "EMNLP 2026 acceptance stated by official project and Red Hat; proceedings forthcoming at collection date"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-09-07",
+      "last_arxiv_revision_date": "2026-09-07",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "QLCoder: A Query Synthesizer for Static Analysis of Security Vulnerabilities",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/rules",
+        "docs/research/references.bib",
+        "docs/research/references.bib",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://openreview.net/forum?id=J91IKwJrqv",
+        "https://arxiv.org/abs/2511.08462",
+        "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2adf01ab15adde8820622f7f24bd516b-Abstract-Conference.html",
+        "https://arxiv.org/abs/2511.08462v3",
+        "https://arxiv.org/html/2511.08462v3"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+        "benchmark-data/papers/rules/qlcoder-arxiv-v5.pdf",
+        "artifacts/papers/2511.08462v5.pdf"
+      ],
+      "notes": [
+        "ICLR 2026",
+        "Recorded reading scope: methods, evaluation, ablations, discussion, LSP appendix"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-11-11",
+      "last_arxiv_revision_date": "2026-08-26",
+      "formal_publication_year": 2026,
+      "venue": "ICLR 2026",
+      "local_pdf_files": [
+        "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+        "benchmark-data/papers/rules/qlcoder-arxiv-v5.pdf",
+        "artifacts/papers/2511.08462v5.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+        "benchmark-data/papers/rules/qlcoder-arxiv-v5.pdf"
+      ]
+    },
+    {
+      "title": "IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/rules",
+        "docs/research/references.bib",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://proceedings.iclr.cc/paper_files/paper/2025/hash/582d4e27fa24168f3af1f4582655034b-Abstract-Conference.html",
+        "https://arxiv.org/abs/2405.17238",
+        "https://openreview.net/forum?id=9LdJDU7E91",
+        "https://arxiv.org/abs/2405.17238v3",
+        "https://arxiv.org/html/2405.17238v3"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/rules/iris-arxiv-v3.pdf"
+      ],
+      "notes": [
+        "ICLR 2025; arxiv first posted 2024",
+        "Recorded reading scope: methods, evaluation, templates and error analysis"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2024-05-27",
+      "last_arxiv_revision_date": "2025-04-06",
+      "formal_publication_year": 2025,
+      "venue": "ICLR 2025",
+      "local_pdf_files": [
+        "benchmark-data/papers/rules/iris-arxiv-v3.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/rules/iris-arxiv-v3.pdf"
+      ]
+    },
+    {
+      "title": "CQLLM: A Framework for Generating CodeQL Security Vulnerability Detection Code Based on Large Language Model",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/rules",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://www.mdpi.com/2076-3417/16/1/517/notes",
+        "https://doi.org/10.3390/app16010517",
+        "https://www.mdpi.com/2076-3417/16/1/517"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/rules/cqllm-applsci2026.pdf"
+      ],
+      "notes": [
+        "Applied Sciences 16(1):517, published 2026-01-04",
+        "Recorded reading scope: publisher indexed text; author 2025 preprint methods, implementation, ablation and limitations"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2026,
+      "formal_publication_date": "2026-01-04",
+      "venue": "Applied Sciences 16(1),517",
+      "local_pdf_files": [
+        "benchmark-data/papers/rules/cqllm-applsci2026.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/rules/cqllm-applsci2026.pdf"
+      ]
+    },
+    {
+      "title": "QRS: A Rule-Synthesizing Neuro-Symbolic Triad for Autonomous Vulnerability Discovery",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/rules",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2602.09774",
+        "https://arxiv.org/abs/2602.09774v1",
+        "https://arxiv.org/html/2602.09774v1"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/rules/qrs-arxiv-v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint",
+        "Recorded reading scope: methods, metrics, model observations and limitations"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-02-10",
+      "last_arxiv_revision_date": "2026-08-20",
+      "local_pdf_files": [
+        "benchmark-data/papers/rules/qrs-arxiv-v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/rules/qrs-arxiv-v1.pdf"
+      ]
+    },
+    {
+      "title": "Towards Scalable and Cost-Efficient Vulnerability Detection: A Study on Automatic Query Generation",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/rules",
+        "docs/research/references.bib",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2609.10412",
+        "https://arxiv.org/abs/2609.10412v1",
+        "https://arxiv.org/html/2609.10412v1"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/rules/querygen-arxiv-v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint",
+        "Recorded reading scope: method, data splits, syntax refiner, evaluation and false-positive discussion"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-09-09",
+      "last_arxiv_revision_date": "2026-09-09",
+      "local_pdf_files": [
+        "benchmark-data/papers/rules/querygen-arxiv-v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/rules/querygen-arxiv-v1.pdf"
+      ]
+    },
+    {
+      "title": "CodeRAG-Bench: Can Retrieval Augment Code Generation?",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/rules",
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://aclanthology.org/2025.findings-naacl.176/",
+        "https://aclanthology.org/2025.findings-naacl.176.pdf"
+      ],
+      "local_paths": [],
+      "notes": [
+        "Findings of NAACL 2025",
+        "Recorded reading scope: datasets, retrieval/generation evaluation, context experiments and limitations"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2025,
+      "venue": "Findings of NAACL 2025",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "PatchEval: A New Benchmark for Evaluating LLMs on Patching Real-World Vulnerabilities",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2511.11019"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-11-14",
+      "last_arxiv_revision_date": "2025-11-14",
+      "local_pdf_files": [
+        "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf"
+      ]
+    },
+    {
+      "title": "Vul4Py: Benchmarking Automated Vulnerability Repair in Python with Paired Exploit and Functional Oracles",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/repair",
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2608.00692"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+        "artifacts/papers/2608.00692.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-08-01",
+      "last_arxiv_revision_date": "2026-08-01",
+      "local_pdf_files": [
+        "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+        "artifacts/papers/2608.00692.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/repair/vul4py-2608.00692.pdf"
+      ]
+    },
+    {
+      "title": "VulnRepairEval: An Exploit-Based Evaluation Framework for Assessing Large Language Model Vulnerability Repair Capabilities",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2509.03331"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/vulnrepaireval-2509.03331v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint; no formal venue verified"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-09-03",
+      "last_arxiv_revision_date": "2025-09-03",
+      "local_pdf_files": [
+        "benchmark-data/papers/repair/vulnrepaireval-2509.03331v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/repair/vulnrepaireval-2509.03331v1.pdf"
+      ]
+    },
+    {
+      "title": "Detect--Repair--Verify for LLM-Generated Code: A Multi-Language, Multi-Granularity Empirical Study",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2603.23633"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/detect-repair-verify-2603.23633v1.pdf"
+      ],
+      "notes": [
+        "arXiv preprint"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-03-24",
+      "last_arxiv_revision_date": "2026-03-24",
+      "local_pdf_files": [
+        "benchmark-data/papers/repair/detect-repair-verify-2603.23633v1.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/repair/detect-repair-verify-2603.23633v1.pdf"
+      ]
+    },
+    {
+      "title": "RealSec-bench: A Benchmark for Evaluating Secure Code Generation in Real-World Repositories",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/repair",
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://aclanthology.org/2026.findings-acl.1786/"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/realsec-2026.findings-acl.1786.pdf"
+      ],
+      "notes": [
+        "Findings of ACL 2026"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2026,
+      "formal_publication_month": "2026-07",
+      "venue": "Findings of ACL 2026",
+      "local_pdf_files": [
+        "benchmark-data/papers/repair/realsec-2026.findings-acl.1786.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/repair/realsec-2026.findings-acl.1786.pdf"
+      ]
+    },
+    {
+      "title": "SecRepoBench: Benchmarking Code Agents for Secure Code Completion in Real-World Repositories",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2504.21205"
+      ],
+      "local_paths": [
+        "benchmark-data/papers/repair/secrepobench-2504.21205v3.html"
+      ],
+      "notes": [
+        "arXiv preprint version 3"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-04-29",
+      "last_arxiv_revision_date": "2026-02-14",
+      "local_pdf_files": [],
+      "local_html_files": [
+        "benchmark-data/papers/repair/secrepobench-2504.21205v3.html"
+      ],
+      "availability": "local_html",
+      "repository_files": [
+        "benchmark-data/papers/repair/secrepobench-2504.21205v3.html"
+      ]
+    },
+    {
+      "title": "PredicateFix: Repairing Static Analysis Alerts with Bridging Predicates",
+      "citation_year": 2026,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://conf.researchr.org/details/icse-2026/icse-2026-research-track/117/PredicateFix-Repairing-Static-Analysis-Alerts-with-Bridging-Predicates",
+        "https://doi.org/10.1145/3744916.3773159"
+      ],
+      "local_paths": [],
+      "notes": [
+        "ICSE 2026"
+      ],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2026,
+      "venue": "ICSE 2026 Research Track",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "SEC-bench: Automated Benchmarking of LLM Agents on Real-World Software Security Tasks",
+      "citation_year": 2025,
+      "sources": [
+        "catalog/repair"
+      ],
+      "urls": [
+        "https://papers.nips.cc/paper_files/paper/2025/file/a9168f1c54e5147027f1e8cf83e1a775-Paper-Conference.pdf"
+      ],
+      "local_paths": [],
+      "notes": [
+        "NeurIPS 2025"
+      ],
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "QLPro: Automated Code Vulnerability Discovery via LLM and Static Code Analysis Integration",
+      "citation_year": 2025,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2506.23644"
+      ],
+      "local_paths": [
+        "artifacts/papers/2506.23644.pdf"
+      ],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-06-30",
+      "last_arxiv_revision_date": "2025-07-19",
+      "local_pdf_files": [
+        "artifacts/papers/2506.23644.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/methods/2506.23644.pdf"
+      ]
+    },
+    {
+      "title": "Minimizing False Positives in Static Bug Detection via LLM-Enhanced Path Feasibility Analysis",
+      "citation_year": 2025,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2506.10322"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-06-12",
+      "last_arxiv_revision_date": "2025-06-12",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "An Empirical Analysis of CodeQL False Positives and Query Refinements for Java Vulnerabilities",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2609.04535v2"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-09-03",
+      "last_arxiv_revision_date": "2026-09-15",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "ARQ: Agentic CodeQL Query Refinement for C/C++ Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2608.20637"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-08-21",
+      "last_arxiv_revision_date": "2026-08-21",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "Persistent Human Feedback, LLMs, and Static Analyzers for Secure Code Generation and Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2602.05868"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-02-05",
+      "last_arxiv_revision_date": "2026-02-05",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "Reducing False Positives in Static Bug Detection with LLMs: An Empirical Study in Industry",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2601.18844"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-01-26",
+      "last_arxiv_revision_date": "2026-01-26",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "Revisiting Vul-RAG: Reproducibility and Replicability of RAG-based Vulnerability Detection with Open-Weight Models",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2606.04739"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-06-03",
+      "last_arxiv_revision_date": "2026-06-03",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "Securing AI-Generated Code: A Just-in-Time Vulnerability Detection and Remediation Pipeline",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2608.16187"
+      ],
+      "local_paths": [
+        "artifacts/papers/2608.16187.pdf"
+      ],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-08-17",
+      "last_arxiv_revision_date": "2026-08-17",
+      "local_pdf_files": [
+        "artifacts/papers/2608.16187.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/methods/2608.16187.pdf"
+      ]
+    },
+    {
+      "title": "Fixing, Breaking, or Faking It? An Execution-Calibrated Evaluation of LLM Vulnerability Patching in JavaScript, Python, Go, and Java, and the Limits of LLM-as-Judge",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://www.mdpi.com/2624-800X/6/5/153/notes",
+        "https://www.mdpi.com/2624-800X/6/5/153"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2026,
+      "formal_publication_date": "2026-09-02",
+      "venue": "Journal of Cybersecurity and Privacy6(5),153",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "Multi-Agent Taint Specification Extraction for Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2601.10865"
+      ],
+      "local_paths": [
+        "artifacts/papers/2601.10865.pdf"
+      ],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-01-15",
+      "last_arxiv_revision_date": "2026-01-15",
+      "local_pdf_files": [
+        "artifacts/papers/2601.10865.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/methods/2601.10865.pdf"
+      ]
+    },
+    {
+      "title": "Friends or Foes? Combining Static Analysis Tools and LLMs for Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/references.bib"
+      ],
+      "urls": [
+        "https://ieeexplore.ieee.org/abstract/document/11600417",
+        "https://ieeexplore.ieee.org/document/11600417"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2026,
+      "venue": "ICSTW 2026",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "QLM: CodeQL Query Synthesis with Compositional PoC Validation",
+      "citation_year": 2026,
+      "sources": [
+        "docs/research/rule-generation-references.bib",
+        "rule-generation-paper-manifest"
+      ],
+      "urls": [
+        "https://conf.researchr.org/details/icse-2026/jaws-2026-papers/56/QLM-CodeQL-Query-Synthesis-with-Compositional-PoC-Validation"
+      ],
+      "local_paths": [],
+      "notes": [
+        "Recorded reading scope: official conference abstract only"
+      ],
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "RepoAudit: An Autonomous LLM-Agent for Repository-Level Code Auditing",
+      "citation_year": 2025,
+      "sources": [
+        "owasp48-competitor-research"
+      ],
+      "urls": [
+        "https://proceedings.mlr.press/v267/guo25n.html",
+        "https://arxiv.org/abs/2501.18160"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-01-30",
+      "last_arxiv_revision_date": "2025-05-29",
+      "formal_publication_year": 2025,
+      "venue": "ICML 2025/PMLR267",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": [
+        "benchmark-data/papers/competitors/RepoAudit_2501.18160v1.pdf"
+      ]
+    },
+    {
+      "title": "How Code Representation Shapes False-Positive Dynamics in Cross-Language LLM Vulnerability Detection",
+      "citation_year": 2026,
+      "sources": [
+        "owasp48-competitor-research"
+      ],
+      "urls": [
+        "https://arxiv.org/html/2604.27714v1"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-04-30",
+      "last_arxiv_revision_date": "2026-04-30",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "ABSENTIA: Detecting Broken Access Control Vulnerabilities in Web Applications",
+      "citation_year": 2026,
+      "sources": [
+        "owasp48-competitor-research; official repository rechecked 2026-10-08"
+      ],
+      "urls": [
+        "https://arxiv.org/html/2610.00977v1"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-10-01",
+      "last_arxiv_revision_date": "2026-10-01",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "An Empirical Study of Vulnerabilities in Python Packages and Their Detection",
+      "citation_year": 2025,
+      "sources": [
+        "phase-two-literature"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2509.04260"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2025-09-04",
+      "last_arxiv_revision_date": "2025-09-04",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "AACR-Bench: Evaluating Automatic Code Review with Holistic Repository-Level Context",
+      "citation_year": 2026,
+      "sources": [
+        "competitors-and-materials; papers-manifest"
+      ],
+      "urls": [
+        "https://arxiv.org/abs/2601.19494"
+      ],
+      "local_paths": [
+        "artifacts/papers/2601.19494.pdf"
+      ],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2026-01-27",
+      "last_arxiv_revision_date": "2026-01-30",
+      "local_pdf_files": [
+        "artifacts/papers/2601.19494.pdf"
+      ],
+      "local_html_files": [],
+      "availability": "local_pdf",
+      "repository_files": [
+        "benchmark-data/papers/methods/2601.19494.pdf"
+      ]
+    },
+    {
+      "title": "SoK: Automated Vulnerability Repair: Methods, Tools, and Assessments",
+      "citation_year": 2025,
+      "sources": [
+        "papers-and-innovations"
+      ],
+      "urls": [
+        "https://www.usenix.org/conference/usenixsecurity25/presentation/hu-yiwei"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "formal_publication_year": 2025,
+      "venue": "USENIX Security 2025",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "Vul-RAG: Enhancing LLM-based Vulnerability Detection via Knowledge-level RAG",
+      "citation_year": 2026,
+      "sources": [
+        "papers-and-innovations; first preprint 2024, recorded formal publication 2026"
+      ],
+      "urls": [
+        "https://doi.org/10.1145/3797277",
+        "https://arxiv.org/abs/2406.11147"
+      ],
+      "local_paths": [],
+      "notes": [],
+      "date_verification": "primary_metadata_rechecked_2026-10-08",
+      "first_public_date": "2024-06-17",
+      "last_arxiv_revision_date": "2025-06-17",
+      "formal_publication_year": 2026,
+      "formal_publication_date": "2026-09-16",
+      "venue": "ACM TOSEM35(10),article312",
+      "local_pdf_files": [],
+      "local_html_files": [],
+      "availability": "registered_reference_only",
+      "repository_files": []
+    },
+    {
+      "title": "Antiproof: Synthesizing Vulnerability Detectors and Proofs of Exploitability",
+      "citation_year": 2026,
+      "urls": [
+        "https://arxiv.org/abs/2607.12316"
+      ],
+      "repository_files": [
+        "benchmark-data/papers/competitors/Antiproof_2607.12316v1.pdf"
+      ],
+      "sources": [
+        "docs/testing/test-plan-reference-index.md"
+      ],
+      "notes": [
+        "Previously collected test-plan reference; no new publication-date verification"
+      ]
+    },
+    {
+      "title": "OpenAnt: LLM-Powered Vulnerability Discovery Through Code Decomposition, Adversarial Verification, and Dynamic Testing",
+      "citation_year": 2026,
+      "urls": [
+        "https://arxiv.org/abs/2606.19149"
+      ],
+      "repository_files": [
+        "benchmark-data/papers/competitors/OpenAnt_2606.19149v2.pdf"
+      ],
+      "sources": [
+        "docs/testing/test-plan-reference-index.md"
+      ],
+      "notes": [
+        "Previously collected test-plan reference; no new publication-date verification"
+      ]
+    },
+    {
+      "title": "LLM-based Vulnerability Detection at Project Scale: An Empirical Study",
+      "citation_year": 2026,
+      "urls": [
+        "https://arxiv.org/abs/2601.19239"
+      ],
+      "repository_files": [
+        "benchmark-data/papers/competitors/证据1.pdf"
+      ],
+      "sources": [
+        "docs/testing/test-plan-reference-index.md"
+      ],
+      "notes": [
+        "Previously collected test-plan reference; no new publication-date verification"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "benchmark-data/papers/competitors/Antiproof_2607.12316v1.pdf",
+      "bytes": 429438,
+      "sha256": "c256592b3284f4fb90b382c864ef381c39858363a52c26a37d4fb4ef86826bd5"
+    },
+    {
+      "path": "benchmark-data/papers/competitors/OpenAnt_2606.19149v2.pdf",
+      "bytes": 282341,
+      "sha256": "44db75a63fc191bbb0a761c30b4213ddc8d6c5cec99f5365993c4bfd5994366a"
+    },
+    {
+      "path": "benchmark-data/papers/competitors/RepoAudit_2501.18160v1.pdf",
+      "bytes": 1021392,
+      "sha256": "d79aac5d856b6fe573d2e8c17fa82e7f416af4393bb6cd44469f8cf2f7d8753d"
+    },
+    {
+      "path": "benchmark-data/papers/competitors/证据1.pdf",
+      "bytes": 1407117,
+      "sha256": "17bf1566641f4cea097ad26e0b3ffd7c621841b79965a79820c37125a7e2608c"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2512.01255v1.pdf",
+      "bytes": 1279588,
+      "sha256": "cfb40cb34661107780a8d6f7c74fb8c5dd49651a3bbafd72b14f2b7943591483"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2601.02941v1.pdf",
+      "bytes": 994585,
+      "sha256": "94b4152613e5d81e1b27b4aa9952388fb6be7bc7ca8cb04c2c16dba8d1c71d7d"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+      "bytes": 594873,
+      "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2604.21917v1.pdf",
+      "bytes": 459333,
+      "sha256": "2b47089ff32b390bf061018263c68448fe674d58c41b67aced705d8ed3f2ff0f"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/icse2023-SecBenchJS.pdf",
+      "bytes": 399416,
+      "sha256": "787edbd1edf93d6d83c8ee274077076f8a9603cac2acd223a533dd7ec3b805f7"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/vicbench-2608.12246v1.pdf",
+      "bytes": 186761,
+      "sha256": "606b135edcda61c1adc46b7745b87036240e8591b3554369a94bba80773499fd"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/vulngym-2608.02001v1.pdf",
+      "bytes": 602590,
+      "sha256": "17b2cdbb8666afc4214a3f40fc31bca8475d3812fd268677490a2c317f160cec"
+    },
+    {
+      "path": "benchmark-data/papers/methods/2506.23644.pdf",
+      "bytes": 1931947,
+      "sha256": "b8410dd88194df835f2010f245d8d10c3e57f803b78fed32d5a1281c2745f431"
+    },
+    {
+      "path": "benchmark-data/papers/methods/2601.10865.pdf",
+      "bytes": 3793889,
+      "sha256": "becaeb4bd7911e292f2a5ebfc4ad9b40dadbf0d1cd813b4a22d977032ae1bb9c"
+    },
+    {
+      "path": "benchmark-data/papers/methods/2601.19494.pdf",
+      "bytes": 3536934,
+      "sha256": "adc40e7877b2d478a69c12c1729f80a4c5e4eb9ff846a014e70e9eb2b86a6528"
+    },
+    {
+      "path": "benchmark-data/papers/methods/2608.16187.pdf",
+      "bytes": 725350,
+      "sha256": "7d05dd23c7a6f76ad0e6fec2bc0a5adff559295b7ccd93d7c823c2d202fc6373"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/IRIS-ICLR2025-arxiv-v3.txt",
+      "bytes": 91149,
+      "sha256": "33979082451a041a9b2ac46fa610911b398e33f586c640398c06a2cde9b96ddd"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/SemTaint-2026-v1.txt",
+      "bytes": 118162,
+      "sha256": "f80cdd118f4684da70c46d210ab832585c7eaf2a681b559a5bfa1dea36fa9443"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/html-export/IRIS-ICLR2025-arxiv-v3.html",
+      "bytes": 500790,
+      "sha256": "c66731b2780ef07263c6f0583bfb4bcb87228409f90a7a840c697cfaa74a9734"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/html-export/IRIS-ICLR2025-arxiv-v3.txt",
+      "bytes": 85112,
+      "sha256": "037ed26069bf2d9384edcc6c06c3a59bfc4b9992ffb2221c59c86c7df7cd0300"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/html-export/SemTaint-2026-v1.html",
+      "bytes": 479213,
+      "sha256": "1f1e3c6478a0f6f09a248b3c1aef175f02f4e8df9c22dec030168ce87712aa0a"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/html-export/SemTaint-2026-v1.txt",
+      "bytes": 111667,
+      "sha256": "2d1025e938d6c34893d6cb8b401745c9e85d1f6be4580a78e8a12801c0a73031"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/html-export/来源和版本.json",
+      "bytes": 879,
+      "sha256": "5098bd498bbc43c57fe0f82f38378a61479156997ea1970ef91c1f85ba6b19c9"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/html-export/阅读说明.md",
+      "bytes": 1155,
+      "sha256": "6221c74498e2790eb967aa812d2880d7c99381ffa85d787b382dfaa9a69abe45"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/iris-framework.png",
+      "bytes": 447379,
+      "sha256": "df7b6ac783413683569cd76175705aab25a5c093c9685aa090ab1bf000f2abc8"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/reading-manifest.json",
+      "bytes": 830,
+      "sha256": "2c786f02214789c0f1d32673f27650d70b463e0fd7f99c3222afd057211ba6ca"
+    },
+    {
+      "path": "benchmark-data/papers/reading/20261009-two-levels/semtaint-method.png",
+      "bytes": 405149,
+      "sha256": "0dcdefb8b089c6089f6ce56aee031dbf2de29d7ffa98af01c0553a2406edad04"
+    },
+    {
+      "path": "benchmark-data/papers/repair/detect-repair-verify-2603.23633v1.pdf",
+      "bytes": 2682130,
+      "sha256": "a130d0ecafac462814ab55c463578c6ecc8fd64327f935c13a998454c979f0ce"
+    },
+    {
+      "path": "benchmark-data/papers/repair/patcheval-2511.11019v1.html",
+      "bytes": 572843,
+      "sha256": "b63d8456db2c9acfa97f6cab1f2f55c7454330f45baf321a7e0f0d3b0bff4cb1"
+    },
+    {
+      "path": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+      "bytes": 1905170,
+      "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f"
+    },
+    {
+      "path": "benchmark-data/papers/repair/realsec-2026.findings-acl.1786.pdf",
+      "bytes": 1358584,
+      "sha256": "7a6c4bd22c9d16fb88f7b8990a0d55e0d456d5c7fe1fcd95161d8b3b2f996f26"
+    },
+    {
+      "path": "benchmark-data/papers/repair/realsec-2601.22706v1.html",
+      "bytes": 347096,
+      "sha256": "af44b9fe834b52adf1370f13b752e365b40e1845ffd1a6c6553610bc45e21512"
+    },
+    {
+      "path": "benchmark-data/papers/repair/realsec-official-page.html",
+      "bytes": 49014,
+      "sha256": "07cd7d291ee450e5c056f14939ccd7cfc30347d2d737509000bda262e3a564a5"
+    },
+    {
+      "path": "benchmark-data/papers/repair/secrepobench-2504.21205v3.html",
+      "bytes": 214446,
+      "sha256": "7dcc8f5e51286c448d034c689179638dc345acff6f6bb44d012576cd67247432"
+    },
+    {
+      "path": "benchmark-data/papers/repair/vul4py-2608.00692.pdf",
+      "bytes": 497766,
+      "sha256": "0d569f763a961ed83911f5c53ac12f54535b3aa812f2ce3845d1bbb56af57bc0"
+    },
+    {
+      "path": "benchmark-data/papers/repair/vul4py-2608.00692v1.html",
+      "bytes": 230119,
+      "sha256": "0b5fa4044d2664e686d4616133bb0102cf6b4ac43123c36a7a622b4add57689c"
+    },
+    {
+      "path": "benchmark-data/papers/repair/vulnrepaireval-2509.03331v1.html",
+      "bytes": 516553,
+      "sha256": "1226c2c56bfac6168371bb48817068601ed0e2e2327bdd498a9e2ddf29162b1a"
+    },
+    {
+      "path": "benchmark-data/papers/repair/vulnrepaireval-2509.03331v1.pdf",
+      "bytes": 1370069,
+      "sha256": "4c5f6abda38162ff318271bae2f2c070ffb497fb353e1547732d56245b54c617"
+    },
+    {
+      "path": "benchmark-data/papers/rules/cqllm-applsci2026.pdf",
+      "bytes": 1148212,
+      "sha256": "228c29ad68110baa9ed15e6f5895e2572f343bf506d30730169ff70ba6bdd64d"
+    },
+    {
+      "path": "benchmark-data/papers/rules/cqllm-applsci2026.txt",
+      "bytes": 60994,
+      "sha256": "c045cb4b5da8a13f3a4162cf66c0f58a3349258040e35be7e4eaa3604563bb78"
+    },
+    {
+      "path": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+      "bytes": 1888032,
+      "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb"
+    },
+    {
+      "path": "benchmark-data/papers/rules/iris-arxiv-v3.txt",
+      "bytes": 90655,
+      "sha256": "2a586b82ed52190ee4b7e5058768e3729eafb12af5e639a3eb28dafd338098f0"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-arxiv-v5.pdf",
+      "bytes": 1656927,
+      "sha256": "c9e6b28b94264236c7d990014e1cf3f140bf68d5d7d2e06e31535086dfbe84fe"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-arxiv-v5.txt",
+      "bytes": 106987,
+      "sha256": "c9cb51624a7cad303d6776316e953a33d0162f8cdae8aeabc9b794d18063e662"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+      "bytes": 2079381,
+      "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-iclr2026.txt",
+      "bytes": 106554,
+      "sha256": "443e4118e11a5b3e439254b1f501743c5e9c26ae1d57bd781240e880cd4b14fe"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qrs-arxiv-v1.pdf",
+      "bytes": 1488276,
+      "sha256": "5a37521be0a66654ea098a9dbaf6b20c7f0819df98b953649313dbc91519c6c3"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qrs-arxiv-v1.txt",
+      "bytes": 124929,
+      "sha256": "9e01803d05c15fb113e95aa0b3c01793778e0dfe4e22c9f6f6c25c022dd905fd"
+    },
+    {
+      "path": "benchmark-data/papers/rules/querygen-arxiv-v1.pdf",
+      "bytes": 1079427,
+      "sha256": "b3ead496ba1a43e3666bb5bb320cc7d5084d82144f79df4aab7e611566d7b8b6"
+    },
+    {
+      "path": "benchmark-data/papers/rules/querygen-arxiv-v1.txt",
+      "bytes": 69551,
+      "sha256": "6df47565189b2380dd8c9a4f4f1efe75f8522dae834a40f167605aaa7f557957"
+    },
+    {
+      "path": "benchmark-data/dataset-notes/OWASP_BenchmarkPython_0.1_README.md",
+      "bytes": 2079,
+      "sha256": "1c8fa4662051425f6aa360ebb13c61383ad41826541f81658806fa35d892ed46"
+    },
+    {
+      "path": "benchmark-data/dataset-notes/PatchEval_官方README.md",
+      "bytes": 10525,
+      "sha256": "9d5db21873cc5521c906300181a8529291e82eb46a8187b600e6c99b03bf9ec9"
+    },
+    {
+      "path": "benchmark-data/dataset-notes/QLCoder_官方README.md",
+      "bytes": 14071,
+      "sha256": "a74e7bae674c1639f03cde14fcdb558fa6df2ba3c07585b33bcf5bfc5884920e"
+    },
+    {
+      "path": "benchmark-data/dataset-notes/测试集范围说明.md",
+      "bytes": 1470,
+      "sha256": "d47a23ca1c904d93cbc09944b76751758112905bb2f0965fb1a0c6b9d9f9649f"
+    },
+    {
+      "path": "benchmark-data/references/代码审计低/代码审计效率低.doc",
+      "bytes": 11264,
+      "sha256": "0ae2c830891e6c0fb23198d30cc963d7cab4c5781a7ea2a582a7bea345ce1f6f"
+    },
+    {
+      "path": "benchmark-data/references/缺乏修复功能/只有建议没有修复.doc",
+      "bytes": 11264,
+      "sha256": "55a4695aafcf8ad5f4eec76cf816ce2f899ff2d21a9d77610da78c9947ab27b9"
+    }
+  ]
+}

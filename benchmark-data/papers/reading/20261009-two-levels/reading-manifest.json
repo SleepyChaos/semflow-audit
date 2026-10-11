@@ -1,0 +1,24 @@
+[
+  {
+    "name": "SemTaint-2026-v1",
+    "source": "artifacts/papers/2601.10865.pdf",
+    "local_pdf": "benchmark-data/papers/methods/2601.10865.pdf",
+    "pages": 24,
+    "sha256": "becaeb4bd7911e292f2a5ebfc4ad9b40dadbf0d1cd813b4a22d977032ae1bb9c",
+    "overview_figure_pages": [
+      5
+    ],
+    "original_local_pdf": ".local-workspace/paper-reading/20261009-two-levels/SemTaint-2026-v1.pdf"
+  },
+  {
+    "name": "IRIS-ICLR2025-arxiv-v3",
+    "source": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+    "local_pdf": "benchmark-data/papers/rules/iris-arxiv-v3.pdf",
+    "pages": 24,
+    "sha256": "4e7caf54cb25b2ae239cecb102170cba48d0cc21a20018bfca37764d4fb7efeb",
+    "overview_figure_pages": [
+      4
+    ],
+    "original_local_pdf": ".local-workspace/paper-reading/20261009-two-levels/IRIS-ICLR2025-arxiv-v3.pdf"
+  }
+]

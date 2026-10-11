@@ -4,6 +4,9 @@
 
 ## 快速入口
 
+- [仓库论文库](papers/README.md)：此前已收集全文、竞品论文与 SemTaint/IRIS 阅读材料，保留来源及版本。
+- [仓库测试数据包](datasets/README.md)：固定输入压缩包、逐成员哈希、过滤清单与原路径恢复命令。
+- [测试集作者说明](dataset-notes/README.md)与[竞品原始说明](references/README.md)。
 - [两类测试总入口](test-programs/README.md)：A类通用基准、B类专项同任务比较。
 - [当前材料与竞品统计](test-programs/inventory.md)：32项材料候选、10个主要对照及实际运行状态。
 - [当前文献登记](catalog/current-papers.md)：43项去重登记，25个PDF文件对应21项文献。
@@ -37,13 +40,18 @@ benchmark-data/
   catalog/          # 可版本管理的文献/数据用途、来源、许可及限制
   test-programs/    # 通用/专项计划、当前统计；不移动既有原始材料
   manifests/        # 公共汇总 + 本地逐文件完整性记录
+  datasets/         # 2026-10-11 起纳入 Git 的固定输入压缩包
+  dataset-notes/    # 作者 README、测试集范围说明
+  references/       # 已提供的竞品说明文档
   raw/              # 第三方原始材料，含答案，仅本地保存
-  papers/           # PDF/HTML 原文，仅本地阅读，不随仓库发布
+  papers/           # 已收集 PDF/HTML/文本与阅读包，纳入 Git
   evaluator-only/   # 评测器答案、固定选样清单、修复提交
   model-inputs/     # 未来经审核后的模型输入，目前未准备
 ```
 
 `raw` 不是可直接上传目录：它包含标签、修复版本、作者规则和 PoC。只有建立字段白名单与源码去标签后，才能从中导出 `model-inputs`。没有向 RAG 导入本轮测试材料。
+
+2026-10-11 归档更新：按用户要求将此前已收集的论文、测试数据和参考说明纳入仓库。`datasets/` 保存可恢复到原路径的压缩包；答案与模型输入在包内维持不同目录。原始解包目录继续忽略，发布副本中的测试私钥/凭据被移除，失败下载和执行产物不作为有效输入发布。修改及排除逐项见 [repository-datasets.json](manifests/repository-datasets.json)；本地原件与旧盘点保持。
 
 旧 18 次规则实验、旧 20 项真实项目 pilot、8 个已测小 oracle，以及当前 141 个 RAG 官方范例仍属于开发材料。新 6 项候选已排除旧 pilot 的仓库，但完整历史暴露审计尚未完成，暂不称为完全未见的正式测试集。
 

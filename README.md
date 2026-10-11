@@ -2,10 +2,15 @@
 
 `SemFlow` 表示 Semantic Flow，围绕语义理解与数据流分析构建代码审计平台。当前工作已于 2026-10-09 迁入该项目；代码、研究设计、实验脚本和材料索引共同维护。
 
+- [仓库目录与资料归档](docs/repository-layout.md)、[文档导航](docs/README.md)、[脚本导航](scripts/README.md)
+- [已收集论文与阅读材料](benchmark-data/papers/README.md)、[测试数据压缩包与恢复方法](benchmark-data/datasets/README.md)
 - [LLM 与 CodeQL 协同方案索引](docs/research/codeql-llm-proposals-index.md)
 - [CodeQL 分析中段介入 LLM 的详细设计](docs/research/codeql-intermediate-llm-design.md)
 - [工作区迁移说明](docs/workspace-migration.md)
 - [协作者本地环境与启动清单](docs/collaborator-setup.md)
+- [测试结果、环境与版本归档](docs/testing/README.md)
+- [2026-10-09 新样本补测与失败记录](docs/research/supplemental-20261009-results.md)
+- [各链路最新测试情况与用途（仍有未完成环节）](docs/research/chain-completion-20261009-results.md)
 
 结合 CodeQL 静态分析、AI 取证复审、隔离修复验证与 RAG 规则生成的四阶段审计原型。当前支持 Python 与 JavaScript/TypeScript 的 CodeQL 扫描。
 

@@ -1,0 +1,359 @@
+{
+  "campaign": "20261009-chain-completion",
+  "status": "partial_execution_blocked_by_approval_service_quota",
+  "all_product_chains_completed": false,
+  "regression": {
+    "testcases": 230,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "real_tools_enabled": true,
+    "models": "controlled_test_doubles_not_accuracy_evaluation"
+  },
+  "attempts": [
+    {
+      "id": "20261009-v1",
+      "counts": {
+        "passed": 11,
+        "failed": 2,
+        "not_evaluated": 2
+      },
+      "steps": [
+        {
+          "language": "shared",
+          "name": "real-login-and-workbench",
+          "status": "passed"
+        },
+        {
+          "language": "python",
+          "name": "browser-real-upload-codeql-scout-worker-join",
+          "status": "passed"
+        },
+        {
+          "language": "python",
+          "name": "snapshot-source-and-sarif-download",
+          "status": "passed"
+        },
+        {
+          "language": "python",
+          "name": "real-model-review-through-worker",
+          "status": "passed"
+        },
+        {
+          "language": "python",
+          "name": "unconfirmed-repair-rejected",
+          "status": "passed"
+        },
+        {
+          "language": "python",
+          "name": "source-evidence-and-confirmation-in-browser",
+          "status": "failed",
+          "error": "Expected values to be strictly equal:\n\n'code' !== 'source'\n"
+        },
+        {
+          "language": "python",
+          "name": "remaining-dependent-steps",
+          "status": "not_evaluated",
+          "reason": "Expected values to be strictly equal:\n\n'code' !== 'source'\n"
+        },
+        {
+          "language": "javascript",
+          "name": "browser-real-upload-codeql-scout-worker-join",
+          "status": "passed"
+        },
+        {
+          "language": "javascript",
+          "name": "snapshot-source-and-sarif-download",
+          "status": "passed"
+        },
+        {
+          "language": "javascript",
+          "name": "real-model-review-through-worker",
+          "status": "passed"
+        },
+        {
+          "language": "javascript",
+          "name": "unconfirmed-repair-rejected",
+          "status": "passed"
+        },
+        {
+          "language": "javascript",
+          "name": "source-evidence-and-confirmation-in-browser",
+          "status": "failed",
+          "error": "Expected values to be strictly equal:\n\n'code' !== 'source'\n"
+        },
+        {
+          "language": "javascript",
+          "name": "remaining-dependent-steps",
+          "status": "not_evaluated",
+          "reason": "Expected values to be strictly equal:\n\n'code' !== 'source'\n"
+        },
+        {
+          "language": "shared",
+          "name": "console-health-and-no-framework-overlay",
+          "status": "passed"
+        },
+        {
+          "language": "shared",
+          "name": "real-logout-protects-workbench",
+          "status": "passed"
+        }
+      ],
+      "scope": "Real browser/upload/queue/Worker/models/tools/database/approval/publication/reuse/download for two derived projects; failure/safety regression separate; no natural-CVE population claim"
+    },
+    {
+      "id": "20261009-v2",
+      "counts": {
+        "passed": 3,
+        "failed": 2,
+        "not_evaluated": 2
+      },
+      "steps": [
+        {
+          "language": "shared",
+          "name": "real-login-and-workbench",
+          "status": "passed"
+        },
+        {
+          "language": "python",
+          "name": "browser-real-upload-codeql-scout-worker-join",
+          "status": "failed",
+          "error": "locator.click: Error: strict mode violation: getByRole('button', { name: 'chain-python-primary', exact: true }) resolved to 2 elements:\n    1) <button data-slot=\"button\" class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive text-primary underline-offse…>chain-python-primary</button> aka getByRole('button', { name: 'chain-python-primary' }).first()\n    2) <button data-slot=\"button\" class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 "
+        },
+        {
+          "language": "python",
+          "name": "remaining-dependent-steps",
+          "status": "not_evaluated",
+          "reason": "locator.click: Error: strict mode violation: getByRole('button', { name: 'chain-python-primary', exact: true }) resolved to 2 elements:\n    1) <button data-slot=\"button\" class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive text-primary underline-offse…>chain-python-primary</button> aka getByRole('button', { name: 'chain-python-primary' }).first()\n    2) <button data-slot=\"button\" class=\"inline-flex "
+        },
+        {
+          "language": "javascript",
+          "name": "browser-real-upload-codeql-scout-worker-join",
+          "status": "failed",
+          "error": "locator.click: Error: strict mode violation: getByRole('button', { name: 'chain-javascript-primary', exact: true }) resolved to 2 elements:\n    1) <button data-slot=\"button\" class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive text-primary underline-offse…>chain-javascript-primary</button> aka getByRole('button', { name: 'chain-javascript-primary' }).first()\n    2) <button data-slot=\"button\" class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-des"
+        },
+        {
+          "language": "javascript",
+          "name": "remaining-dependent-steps",
+          "status": "not_evaluated",
+          "reason": "locator.click: Error: strict mode violation: getByRole('button', { name: 'chain-javascript-primary', exact: true }) resolved to 2 elements:\n    1) <button data-slot=\"button\" class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive text-primary underline-offse…>chain-javascript-primary</button> aka getByRole('button', { name: 'chain-javascript-primary' }).first()\n    2) <button data-slot=\"button\" class=\""
+        },
+        {
+          "language": "shared",
+          "name": "console-health-and-no-framework-overlay",
+          "status": "passed"
+        },
+        {
+          "language": "shared",
+          "name": "real-logout-protects-workbench",
+          "status": "passed"
+        }
+      ],
+      "scope": "Real browser/upload/queue/Worker/models/tools/database/approval/publication/reuse/download for two derived projects; failure/safety regression separate; no natural-CVE population claim"
+    }
+  ],
+  "audits": [
+    {
+      "id": "f9a6ae3c-aafd-4996-a280-cca9c9dbbaf2",
+      "language": "python",
+      "status": "completed",
+      "snapshot_hash": "99d88dd85c4e4d859a6b4b8e39e2ebebd172c2cfbaa58f2faf2f5df1bf09981a",
+      "findings": 1
+    },
+    {
+      "id": "17560558-3a86-4a04-9348-5516be8855bd",
+      "language": "javascript",
+      "status": "completed",
+      "snapshot_hash": "93d190f07caf8a0dd8c65bcba3f191d338c2b62897b891f4f91ab00a73cca484",
+      "findings": 1
+    },
+    {
+      "id": "460720ab-cf84-4558-866d-34ff4d104fb3",
+      "language": "javascript",
+      "status": "completed",
+      "snapshot_hash": "93d190f07caf8a0dd8c65bcba3f191d338c2b62897b891f4f91ab00a73cca484",
+      "findings": 1
+    },
+    {
+      "id": "8e03dd16-a3cb-43b1-bdb0-6b3f1fe9de06",
+      "language": "python",
+      "status": "completed",
+      "snapshot_hash": "99d88dd85c4e4d859a6b4b8e39e2ebebd172c2cfbaa58f2faf2f5df1bf09981a",
+      "findings": 1
+    }
+  ],
+  "stage_counts": {
+    "scout:completed": 4,
+    "review:completed": 2
+  },
+  "stages": [
+    {
+      "id": "36aed666-657c-4d1d-a3c8-ade2e7a0c2fe",
+      "audit_id": "f9a6ae3c-aafd-4996-a280-cca9c9dbbaf2",
+      "kind": "scout",
+      "status": "completed",
+      "prompt_version": "7",
+      "usage": {
+        "calls": 3,
+        "input_tokens": 18209,
+        "output_tokens": 3692
+      }
+    },
+    {
+      "id": "ba9dc2fe-51d7-4d33-ad02-64ef67c9d40d",
+      "audit_id": "17560558-3a86-4a04-9348-5516be8855bd",
+      "kind": "scout",
+      "status": "completed",
+      "prompt_version": "7",
+      "usage": {
+        "calls": 4,
+        "input_tokens": 22648,
+        "output_tokens": 4240
+      }
+    },
+    {
+      "id": "80a4dc44-1e4e-4ac2-baf7-67da6952b307",
+      "audit_id": "17560558-3a86-4a04-9348-5516be8855bd",
+      "kind": "review",
+      "status": "completed",
+      "prompt_version": "9",
+      "usage": {
+        "calls": 4,
+        "input_tokens": 23315,
+        "output_tokens": 4436
+      }
+    },
+    {
+      "id": "aa95c5f7-3636-4dd4-8edd-c68a51d46b72",
+      "audit_id": "f9a6ae3c-aafd-4996-a280-cca9c9dbbaf2",
+      "kind": "review",
+      "status": "completed",
+      "prompt_version": "9",
+      "usage": {
+        "calls": 4,
+        "input_tokens": 24054,
+        "output_tokens": 4098
+      }
+    },
+    {
+      "id": "a82f3f60-c615-4755-be1c-ecbee03d0764",
+      "audit_id": "8e03dd16-a3cb-43b1-bdb0-6b3f1fe9de06",
+      "kind": "scout",
+      "status": "completed",
+      "prompt_version": "7",
+      "usage": {
+        "calls": 3,
+        "input_tokens": 18183,
+        "output_tokens": 3453
+      }
+    },
+    {
+      "id": "a319af4f-c711-4c54-91f3-2e2ccbf46675",
+      "audit_id": "460720ab-cf84-4558-866d-34ff4d104fb3",
+      "kind": "scout",
+      "status": "completed",
+      "prompt_version": "7",
+      "usage": {
+        "calls": 4,
+        "input_tokens": 22656,
+        "output_tokens": 4097
+      }
+    }
+  ],
+  "calibration": {
+    "cases": [
+      {
+        "language": "python",
+        "original": {
+          "image": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77",
+          "oracle_origin": "derived-agent-authored-not-human-reviewed",
+          "normal": {
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.36383808398386464
+          },
+          "security": {
+            "status": "failed",
+            "exit_code": 1,
+            "seconds": 0.25338274997193366
+          },
+          "joint_pass": false
+        },
+        "reference": {
+          "image": "sha256:4356f490c4204f25ccba3f5f1bc17569de657b5763a959183f02853dcf117d77",
+          "oracle_origin": "derived-agent-authored-not-human-reviewed",
+          "normal": {
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.22785450000083074
+          },
+          "security": {
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.23614491702755913
+          },
+          "joint_pass": true
+        },
+        "admitted": true,
+        "evaluated_before_v2_models": true
+      },
+      {
+        "language": "javascript",
+        "original": {
+          "image": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c",
+          "oracle_origin": "derived-agent-authored-not-human-reviewed",
+          "normal": {
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.29907441698014736
+          },
+          "security": {
+            "status": "failed",
+            "exit_code": 1,
+            "seconds": 0.25269508396741003
+          },
+          "joint_pass": false
+        },
+        "reference": {
+          "image": "sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c",
+          "oracle_origin": "derived-agent-authored-not-human-reviewed",
+          "normal": {
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.2474094170029275
+          },
+          "security": {
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.2606044579879381
+          },
+          "joint_pass": true
+        },
+        "admitted": true,
+        "evaluated_before_v2_models": true
+      }
+    ],
+    "admitted": 2,
+    "before_v1": false,
+    "before_v2": true
+  },
+  "usage": {
+    "calls": 22,
+    "input_tokens": 129065,
+    "output_tokens": 24016,
+    "missing_token_receipts": 0,
+    "response_models": {
+      "deepseek-v4-1-flash-260910": 22
+    },
+    "money": "invoice_not_obtained"
+  },
+  "not_evaluated": [
+    "browser-confirmation",
+    "real-worker-repair-and-acceptance",
+    "new-rule-generation-approval-holdout-publication-reuse",
+    "new-knowledge-import-index-retrieval",
+    "final-browser-report-isolation-retirement"
+  ],
+  "independent_human_review": false,
+  "target_http_exploit_replay": false
+}

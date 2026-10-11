@@ -69,9 +69,11 @@ def main():
     parser.add_argument("--sample", required=True)
     parser.add_argument("--version", required=True)
     parser.add_argument("--static-only", action="store_true")
+    parser.add_argument("--output", type=Path, default=OUT)
     args = parser.parse_args()
-    protocol = read(OUT / "protocol.json")
-    material = OUT / "samples" / args.sample
+    output = args.output.resolve()
+    protocol = read(output / "protocol.json")
+    material = output / "samples" / args.sample
     paths = read(material / "model-batches.json")
     source = Path(paths["source"])
     row = {
@@ -82,7 +84,7 @@ def main():
         "input_regime": "48 anonymous cases with unchanged common helpers/bootstrap/templates",
     }
     save(
-        OUT / "inputs.json",
+        output / "inputs.json",
         {
             "records": [
                 {
@@ -96,12 +98,12 @@ def main():
             ]
         },
     )
-    static = run_one(row, protocol, 1, output=OUT)
+    static = run_one(row, protocol, 1, output=output)
     assert static["status"] == "succeeded", static.get("error")
     if args.static_only:
         return
-    save(OUT / "config.json", {"codeql_cli": protocol["codeql_cli"]})
-    directory = OUT / "runs" / args.version / args.sample
+    save(output / "config.json", {"codeql_cli": protocol["codeql_cli"]})
+    directory = output / "runs" / args.version / args.sample
     config = {
         "production_hashes": hashes(),
         "snapshot": snapshot_digest(source),
@@ -122,7 +124,7 @@ def main():
         )
     else:
         save(directory / "config.json", config)
-    audit = register_audit(args.sample, output=OUT)
+    audit = register_audit(args.sample, output=output)
     findings = static["rounds"][0]["findings"]
     caps = protocol["stage_caps"]
     versions = (

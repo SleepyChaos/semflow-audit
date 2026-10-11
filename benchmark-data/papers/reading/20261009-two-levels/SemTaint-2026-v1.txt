@@ -1,0 +1,2608 @@
+=== PDF PAGE 1 ===
+Multi-Agent Taint Specification Extraction for Vulnerability Detection
+Jonah Ghebremichael ∗, Saastha Vasan †, Saad Ullah ‡, Greg Tystahl ∗,
+David Adei ∗, Christopher Kruegel †, Giovanni Vigna †, William Enck ∗, Alexandros Kapravelos ∗
+∗North Carolina State University, †University of California, Santa Barbara, ‡Boston University
+Email: jghebre@ncsu.edu, saastha@ucsb.edu, saadu@bu.edu, dahmed@ncsu.edu,
+gttystah@ncsu.edu, chris@cs.ucsb.edu, vigna@ucsb.edu, whenck@ncsu.edu, akaprav@ncsu.edu
+Abstract—Static Application Security Testing (SAST) tools us-
+ing taint analysis are widely viewed as providing higher-quality
+vulnerability detection results compared to traditional pattern-
+based approaches. However, performing static taint analysis
+for JavaScript poses two major challenges. First, JavaScript’s
+dynamic features complicate data flow extraction required for
+taint tracking. Second, npm’s large library ecosystem makes
+it difficult to identify relevant sources/sinks and establish taint
+propagation across dependencies. In this paper, we present
+SemTaint, a multi-agent system that strategically combines the
+semantic understanding of Large Language Models (LLMs)
+with traditional static program analysis to extract taint speci-
+fications, including sources, sinks, call edges, and library flow
+summaries tailored to each package. Conceptually, SemTaint
+uses static program analysis to calculate a call graph and
+defers to an LLM to resolve call edges that cannot be resolved
+statically. Further, it uses the LLM to classify sources and
+sinks for a given CWE. The resulting taint specification is
+then provided to a SAST tool, which performs vulnerability
+analysis. We integrate SemTaint with CodeQL, a state-of-the-
+art SAST tool, and demonstrate its effectiveness by detecting
+106 of 162 vulnerabilities previously undetectable by CodeQL.
+Furthermore, we find 4 novel vulnerabilities in 4 popular
+npm packages. In doing so, we demonstrate that LLMs can
+practically enhance existing static program analysis algorithms,
+combining the strengths of both symbolic reasoning and seman-
+tic understanding for improved vulnerability detection.
+1. Introduction
+JavaScript remains the most widely used programming
+language among developers, with 66% reporting active use
+in 2025 [1]. The Node Package Manager (npm) registry
+contains over 3 million JavaScript packages that collec-
+tively receive tens of billions of downloads each week [2].
+Between 2017 and January 2025, npm accumulated 8,237
+documented vulnerability reports [3], the largest of any
+language ecosystem. Static Application Security Testing
+(SAST) tools are central to automated vulnerability discov-
+ery [4], yet existing tools fail to close this gap for JavaScript.
+SAST tools that employtaint analysistrack the flow
+of untrusted data through a program to detect when it
+may reach security-critical operations, making taint analysis
+essential for discovering non-trivial vulnerabilities [5], [6].
+However, taint analysis depends on data flows derived from
+call graphs, and JavaScript’s dynamic nature fundamentally
+challenges call graph construction. A large-scale empirical
+comparison of static and dynamic techniques found that no
+existing approach reliably captures JavaScript’s call relation-
+ships [7]. Static tools disagree substantially and most cannot
+be applied end-to-end on modern Node.js projects; runtime
+features such as prototype-based inheritance andeval()
+force static algorithms to conservatively approximate or ig-
+nore dynamic behaviors [8], [9]. Dynamic approaches trace
+function calls during test execution, but remain bounded by
+test coverage and require safely executing code that may be
+malicious or difficult to build reliably [7].
+Beyond call graph construction, taint analysis requires
+identifying sources (entry points of untrusted data) and sinks
+(security-sensitive operations), as well as modeling how taint
+propagates through third-party library calls. A typical npm
+package transitively depends on roughly 80 libraries [10],
+any of which may introduce, transform, or consume tainted
+data. Consequently, popular JavaScript SAST tools such as
+CodeQL [11], SonarQube [12], and Semgrep [13] exclude
+dependencies from being analyzed by default, relying on
+manually maintained specifications that cannot keep pace
+with npm’s scale [14], [15], [16]. While some SAST tools,
+such as ODGen [17], have the ability to analyze the full
+dependency tree, they suffer greatly from state explosion,
+making analysis infeasible for large packages.
+Brito et al. [18] curated a dataset of 957 known vul-
+nerabilities in npm packages and compared nine JavaScript
+SAST tools, including CodeQL and ODGen. CodeQL out-
+performed all other SAST tools, yet it only detected 31.3%
+of the vulnerabilities. This low recall exposes fundamental
+gaps in how current SAST tools model JavaScript’s dynamic
+behavior.
+We envision combining the strengths of traditional static
+program analysis with the semantic understanding of LLMs
+to improve JavaScript vulnerability detection. Recent work
+has begun to couple SAST with LLMs, typically to triage
+findings or reduce false positives [19], [20]. The most rel-
+evant prior works, IRIS [21] and QLPro [22], use LLMs
+to infer CWE-specific sources and sinks for Java programs
+and construct CodeQL queries that use these sources and
+sinks for security analysis. However, both share fundamental
+1
+arXiv:2601.10865v1  [cs.CR]  15 Jan 2026
+
+=== PDF PAGE 2 ===
+limitations. First, both rely on CodeQL’s existing call graph
+to connect identified sources and sinks. However, static
+call graph construction for Java exhibits measurable recall
+gaps in practice [23], [24]. This limitation becomes more
+pronounced in highly dynamic languages such as JavaScript
+and Python, where callee resolution is frequently impeded
+by runtime-dependent features [25], [26], [8], [27]. Any
+unresolved call between source and sink severs the vulner-
+ability path, regardless of how accurately the endpoints are
+specified. Second, both IRIS and QLPro invoke the LLM as
+a stateless classifier for statically extracted APIs. Due to the
+inherent limits of LLM context windows, these approaches
+are restricted to providing signatures, metadata, and at most
+partial function bodies, preventing the LLM from under-
+standing how each candidate is actually used within the
+package and whether that usage is potentially vulnerable.
+Moreover, neither system can scale to npm’s massive API
+surface: if every API exposed by a package and its transi-
+tive dependencies were batched for classification, inference
+cost and latency would quickly become prohibitive. These
+limitations motivate a fundamentally different approach.
+In this paper, we present SemTaint, a static-led, LLM-
+augmented vulnerability analysis tool for JavaScript. At its
+core, SemTaint treats static analysis as the source of truth,
+establishing structural facts and flow relations, while sur-
+gically invoking LLMs only where static reasoning under-
+approximates. SemTaint addresses limitations of prior ap-
+proaches by: (1) repairing broken inter-procedural edges
+that prevent vulnerability path construction, (2) exploring
+code on-demand via targeted LLM invocations rather than
+processing APIs in isolation, and (3) extending analysis
+across dependency boundaries through direct inspection
+of library implementations. Together, these enable holistic
+analysis along vulnerability paths that prior approaches leave
+unexplored.
+Recent work on LLM-based agents offers an alternative
+to stateless classification [28]. Rather than producing a
+single response from a fixed prompt, agents interleave rea-
+soning with actions by invoking tools (predefined functions),
+observing results, and iteratively refining their analysis.
+SemTaint employs three specialized LLM agents, which en-
+hance vulnerability analysis in complementary ways. First,
+theSource/Sink Agentidentifies potential sources and sinks
+for vulnerability categories guided by the corresponding
+MITRE CWE description [29]. Second, theCallGraph
+Agentiteratively resolves call edges that CodeQL cannot
+determine statically, producing both first-party edges that
+connect calls to callees within the package and candidate
+flow summaries for third-party dependencies that conserva-
+tively assume taint propagation. Third, theFlow Summary
+Agentrefines any candidate flow summaries present in
+vulnerability paths, determining whether the corresponding
+APIs sanitize or propagate taint, filtering false positives
+while preserving true vulnerabilities. The resulting taint
+specification (sources, sinks, and call edges) is provided to
+the SAST tool to complete the vulnerability analysis.
+We implement a prototype of SemTaint for CodeQL,
+addressing the following three challenges.
+C1: Scaling call graph repair. Static analysis of JavaScript
+often leaves many call sites unresolved; real-world npm
+packages can contain thousands. Exhaustively querying an
+LLM for every unresolved call is prohibitively expensive
+in time, compute, and cost. We propose a novel algorithm,
+Taint-Informed Callee Resolution (TICR), which restricts
+queries to unresolved calls on potential vulnerability paths
+for the CWE of interest.
+C2: Modeling APIs at npm-scale. CodeQL severs taint
+flows at library boundaries unless explicitly modeled, be-
+cause it excludes the code of third-party dependencies from
+its analysis. Exhaustively analyzing all transitive third-party
+dependencies for each package would require prohibitive
+inference at scale. SemTaint addresses this throughdemand-
+driven dependency modeling. SemTaint introducescandi-
+date flow summaries, conservative placeholders that assume
+taint propagates through external calls. The Flow Summary
+Agent then validates only those summaries participating in
+reported paths, analyzing library implementations to deter-
+mine whether taint is actually propagated or sanitized. This
+deferred validation focuses LLM inference precisely where
+security results demand it.
+C3: Extracting reusable specifications. Prior LLM-SAST
+integrations with CodeQL embed extracted specifications
+directly into query code, producing single-use artifacts that
+require recompilation and cannot transfer easily across anal-
+yses. SemTaint addresses this through modular specification
+design using external predicates, enabling iterative refine-
+ment without recompilation (essential for TICR). Moreover,
+while sources and sinks remain CWE-specific, call graph
+repairs enhance the foundational inter-procedural dataflow
+graph shared by all queries, compounding in value across
+subsequent vulnerability analyses.
+Evaluation & Results. We evaluated SemTaint on 172
+vulnerabilities from Brito et al. [18] with available artifacts,
+tractable for analysis, yet undetected by CodeQL’s taint-
+tracking queries (Section 5.1.1). We further reserved 10 vul-
+nerabilities for validation. On the remaining 162 instances,
+SemTaint identified the vulnerability in 106 instances, which
+represents a recall of65.43%of vulnerabilities previously
+undetectable by CodeQL. Additionally, we used SemTaint
+to study 10 open-source npm packages and identified 4
+previously unknown vulnerabilities. We have reported these
+vulnerabilities to the respective package maintainers.
+Contributions. Static analysis of JavaScript is a long-
+standing, hard challenge [30], [31], [32]. This paper pro-
+poses a novel approach of using LLMs to practically en-
+hance existing static program analysis algorithms, com-
+bining the strengths of both symbolic reasoning and se-
+mantic understanding for improved vulnerability detection.
+We demonstrate the effectiveness of this approach with a
+concrete implementation based on CodeQL and JavaScript,
+though the concepts can be applied to other SAST tools and
+programming languages.
+2
+
+=== PDF PAGE 3 ===
+  1: (function() {  2:   'use strict'  4:   function factory({ patterns, ..., extendHtmlify } = {}) {  5:     function mrk(input) {          ...168:     }         ... 310:     return mrk311:   }313:   if (typeof module === 'object' && module.exports) {314:     module.exports = factory315:   } else if (typeof global === 'object') {316:     global.mrk = factory317:   } else if (window) {318:     window.mrk = factory319:   }320: })()
+CodeQL source
+True Entry Point
+1
+2
+3
+4
+Listing 1: Source of untrusted input inmrk.js
+2. Motivation
+CodeQL, GitHub’s code analysis engine, powers code
+scanning for over 100,000 repositories and is also available
+as a VS Code extension or a standalone CLI tool [11],
+[33]. CodeQL extracts source code into a relational database
+and performs taint analysis to detect vulnerabilities through
+security queries mapped to specific CWEs [34]. Brito et al.
+curated a dataset of 957 manually verified vulnerabilities
+from npm advisory reports and evaluated nine JavaScript
+SAST tools against it [18]. CodeQL outperformed all other
+tools, yet detected only 31.3% of the vulnerabilities. To
+understand the low performance, we examine an illustra-
+tive vulnerability from their dataset that CodeQL misses:
+GHSA-hpr5-wp7c-hh5q[35]. This cross-site scripting
+vulnerability affects a lightweight markdown parser span-
+ning only 320 lines in a single file,mrk.js[36]. Cod-
+eQL fails to find this vulnerability due to multiple layers
+of indirection that obscure both the sources of untrusted
+data and the paths to sensitive operations. The following
+subsections detail how dynamic behaviors withinmrk.js
+break CodeQL’s analysis and prevent vulnerability detection.
+Identifying Entry Points. To establish a vulnerability path
+using taint-tracking, we must first identify the entry point
+of untrusted data. As shown in Listing 1, the data flow into
+mrk.jsoriginates at themrk(input)function parameter
+on line 5. However, reaching this parameter requires navigat-
+ing three layers of indirection introduced in its architectural
+design. The code uses an Immediately Invoked Function Ex-
+pression 1 (IIFE) that executes on module load, exporting a
+factory function 2 to the module system (Node.js), global
+object, or browser window. The factory itself returns the
+mrkfunction 4 as a first-class value.
+Such multi-layered indirection is common in config-
+urable JavaScript libraries, requiring semantic analysis to
+track dynamic behavior to identify true taint sources. Cod-
+eQL captures the factory boundary 3 as a source but does
+not recognize the returned function’s parameter as an entry
+point, preventing construction of a complete vulnerability
+path.
+Resolving Inter-Procedural Data Flow. Even if CodeQL
+correctly identified the entry point withinmrk.js, tracking
+how user input flows to the vulnerable operation (sink)
+requires resolving three calls whose targets are determined
+  6:       function tokenize(input) {           ...  9:         // Match patterns 10:         for (let index = 0; ... ; index++) {             ... 14:           for (const [ matchName, fn ] of                 ↳  Object.entries(mrk.patterns)) { 15:             metadata = undefined 17:             const isMatch = fn({ 19:               read(n = 1) {                   ... 25:               }, 27:               readUntil(c, orEnd = false) {                   ... 47:               },                 ... 71:             }, obj => { 72:               // Set metadata 73:               metadata = obj 74:             })           ...182:     mrk.patterns = patterns || Object.assign({         ...188:       // *italic...189:       italicStart({ read, look, has }) {           ...193:       },           ...240:       // [name](href)241:       link({ read, readUntil }, meta) {           ...        256:       },         ...270:     }, extendPatterns || {})
+Call
+A
+B
+C
+Listing 2: Dynamic dispatch through object composition and
+reflection inmrk.js
+by distinct dynamic behaviors. CodeQL leaves all three
+unresolved, breaking the vulnerability path. The following
+paragraphs step through each of these breaks.
+Break 1: Enumeration-Based Dispatch. The input
+parameter is passed into atokenizefunction that iterates
+character by character over the markdown string. To identify
+markdown patterns,mrk.jsuses a strategy pattern where
+each markdown element (links, bold, italic) has its own
+pattern-matching function. As shown in Listing 2, these
+functions are assembled dynamically:Object.assign
+A merges user-providedextendPatternswith default
+patterns at runtime.
+The tokenizer enumerates these patterns using
+Object.entries(mrk.patterns) B , which iterates
+over the object’s properties at runtime. For each pattern, the
+tokenizer invokesfn C , passing a set of parsing utilities.
+This layering of dynamic behaviors prevents CodeQL from
+statically resolving which pattern functions execute.
+Break 2: Closure-Based Callback. When the tokenizer
+invokes thelinkpattern function, it passes a callback to
+themetaparameter 1 that closes over the tokenizer’s local
+metadatavariable, as shown in Listing 3. Thelinkfunc-
+tion extracts the URL from markdown and propagates the
+result by invokingmeta({name, href}) 2 rather than
+returning it directly. This callback-based data propagation,
+common in JavaScript APIs, obscures the data flow path for
+static analysis.
+Break 3: Computed Property Dispatch. After tok-
+enization, thehtml()method renders tokens by looking
+up rendering functions using computed property access:
+mrk.htmlify[token.name](token). As shown in
+Listing 4, thehtmlifyobject A is assembled at
+runtime throughObject.assignwith user-provided
+extendHtmlify C . The property keytoken.name B
+is a string determined by which pattern matched during
+3
+
+=== PDF PAGE 4 ===
+ 17:             const isMatch = fn({                 ... 71:             }, obj => { 72:               // Set metadata 73:               metadata = obj 74:             })            ...241:       link({ read, readUntil }, meta) {242:         if (read() !== '[') return             ...250:         const href = readUntil(')')             ...253:         meta({ name, href })            ...256:       },
+function passed as meta
+meta calls function with { name, href } as the arg
+1
+2
+Listing 3: Closure-Based Callback inmrk.js
+157:         html() {
+             ...
+162:             html += mrk.htmlify[token.name](token)
+163:           }
+            ...
+281:     mrk.htmlify = htmlify || Object.assign({
+283:       text: ({ text }) => mrk.escapeHTML(text),
+           ...
+304:       link: ({ metadata }) => ...,
+           ...
+308:     }, extendHtmlify || {})
+A
+B
+C
+Listing 4: Computed Property Access with Dynamic Dis-
+patch inmrk.js
+tokenization. This combination of runtime object composi-
+tion and computed property dispatch prevents CodeQL from
+resolving which rendering function receives the tainted data.
+Identifying Dangerous Execution. Even if taint tracking
+succeeded through the prior breaks, CodeQL faces a final
+challenge: identifying the sink. As shown in Listing 5, the
+linkrendering function constructs HTML using a template
+literal, interpolatingmetadata.href 1 into anhref
+attribute andmetadata.name 2 into the link text.
+CodeQL cannot recognize this as a sink because
+the danger is package-specific: no well-known API like
+innerHTMLordocument.writeis invoked. Identify-
+ing the vulnerability requires understanding that this string
+will eventually reach an HTML context and that the case-
+sensitivereplace(’javascript:’, ’’)sanitization
+is insufficient.
+Broader Context. These patterns are not unique to
+mrk.js; they represent common JavaScript development
+practices found throughout npm packages [37]. The cases
+we detail point to a broader class of dynamic features that
+confound static analysis, including prototype manipulation,
+dynamic imports, and dynamic code generation. The fun-
+damental mismatch between JavaScript’s runtime flexibility
+and static analysis assumptions helps explain why even
+state-of-the-art tools like CodeQL achieve only 31% re-
+call on known npm package vulnerabilities. Existing LLM-
+augmented approaches like IRIS and QLPro [21], [22] infer
+sources and sinks but operate on CodeQL’s existing call
+graph; they cannot repair the broken inter-procedural edges
+that prevent source-to-sink path construction in cases like
+mrk.js.
+Listing 5: Dangerous Execution inmrk.js
+Addressing these detection gaps requires a system that
+can: (1) identify package-specific entry points and dan-
+gerous APIs, and (2) semantically reason about dynamic,
+runtime behavior to resolve call edges. This motivates Sem-
+Taint’s approach: strategically augmenting static analysis
+with LLM-based reasoning at specific points where dynamic
+behavior breaks traditional techniques.
+3. Overview
+SemTaint addresses the analysis challenges demon-
+strated in Section 2 by combining static analysis precision
+with LLM semantic understanding. To achieve this, Sem-
+Taint operates over the following program representation
+extracted from CodeQL:
+(i) Function Index:a registry of all function definitions
+CodeQL successfully extracted.
+(ii) Unresolved Calls:a set of invocation sites where Cod-
+eQL cannot precisely resolve the callee.
+(iii) QL Nodes:a set of program elements in CodeQL’s
+data flow graph that carry values (expressions, param-
+eters, call sites), connected by edges that model value
+propagation [38].
+Agents exchange and refine analysis through a set of
+artifacts: sources, sinks, call edges, and flow summaries. The
+end product is a semantically enriched set oftaint specifi-
+cationsprovided to CodeQL to enhance security analysis.
+Pipeline Flow. Figure 1 illustrates SemTaint’s three-stage
+modular pipeline. Given a package and CWE 1 , SemTaint
+proceeds as follows:
+1) TheSource/Sink Agent 2 proposes sources and sinks
+specific to both the package and the CWE, binds them
+to QL Nodes, and exports them as taint-specification
+facts 3 .
+2) TheCallGraph Agent 5 consumes the unresolved call
+set 4 and emits two kinds of edges, bound to QL
+Nodes 6 :(a)First-party call edges that connect call
+sites to callees that reside in the package’s source
+code.(b)Candidate flow summaries for third-party
+calls: conservative placeholders that initially assume
+taint propagation (and are refined later).
+3) TheFlow Summary Agent 8 runs after security queries
+have executed with the learned taint-specs on CodeQL
+7 . It validates only those candidate summaries appear-
+ing in reported paths, determining whether each third-
+party call propagates or sanitizes taint. This refinement
+produces precise flow summaries, enabling accurate
+alerts despite CodeQL’s exclusion of dependency code.
+4
+
+=== PDF PAGE 5 ===
+CWE
+Descriptions
+Source
+Code
+Agent Tools Data Sources
+Exploration
+Resolution
+Sources Sinks
+Data Sources
+Source
+Code
+Function
+Index
+CallEdges
+calledges.csv
+1,5,19,5,41,Buffer.isBuffer,/index.js,0,0,0,0,,true,false,5
+2,8,48,8,67,buffer.charCodeAt,/index.js,8,48,8,67,,true,false,5
+3,13,19,13,26,b,/index.js,33,1,35,1,/index.js,false,false,4
+Taint
+Specs
+CodeQL
+Queries
+CodeQL
+Database
+ThreadFlows
+Agent Tools Data Sources
+Source
+CodeExploration
+Resolution
+node.js
+built-ins
+npm_modules
+Flow
+Summaries
+Taint
+Specs
+Flow
+Summaries
+Vulnerability
+Results
+Taint
+Specs
+CodeQL
+Database
+Function
+Index
+Calls Without
+Callees
+Source
+Code
+Source
+Code
+1 INPUTS 2 Source/Sink Agent 4 Extract Missing
+Calls & Functions
+5 CallGraph Agent 7 Security Results
+6 Taint-Spec: Call-Edges
+8 Flow Summary Agent
+FINAL
+ OUTPUT END
+mode
+"TICR"
+mode: "TICR" -> Taint Informed Callee Resolution
+Agent Tools
+Exploration
+view_src
+find_string
+view_dir
+Resolution
+propose_fp
+propose_tp
+view_functions
+view_src
+find_string
+view_dir
+propose_source
+propose_sink
+view_src
+find_string
+view_dir
+classify_edge
+sources.csv
+sinks.csv
+0,index.js,123,req.pathname,5
+1,index.js,136,filenames,3
+2,index.js,125,pathname,4
+0,index.js,75,filename,5
+1,index.js,79,base,3
+2,index.js,167,results.data,2
+3 Taint-Spec:
+Sources/Sinks
+Browser
+APIs
+Browser
+APIs
+npm_modules
+node.js
+built-ins
+Source
+Code
+Figure 1: SemTaint System Design
+4) TheFinal Output END of SemTaint is a taint specifica-
+tion comprising validated sources, sinks, and call edges,
+which CodeQL uses to produce vulnerability detection
+results.
+SemTaint optionally accepts existing taint-specifications
+as input, enabling analysis of additional CWEs on the same
+package to leverage previous repairs. Call graph improve-
+ments thus compound across subsequent analyses (C3).
+Shared tooling. All agents inherit a minimal, read-
+onlytraversal toolkit(view_src,find_string,
+view_dir) to investigate the codebase consistently; each
+agent adds task-specific tools aligned with its responsibility
+(see Appendix A.1).
+Multi-run aggregation. Due to the stochastic nature of
+LLM reasoning, identical prompts can yield different an-
+swers across runs [39]. We incorporate agent-specific ag-
+gregation strategies, executing each analysis multiple times
+and pooling results to produce stable outcomes [40], [41],
+[42] (see Appendix A.1).
+Validation. SemTaint verifies that every proposed fact binds
+to CodeQL Data Flow nodes. Items that fail to bind are re-
+jected; this gating ensures agents only produce specifications
+that can be represented and used within CodeQL.
+Confidence calibration. LLMs exhibit systematic overcon-
+fidence, clustering self-reported certainty in narrow high
+bands regardless of actual accuracy [43]. We address this
+through calibrated rubrics that anchor each score level to
+explicit, observable criteria (Appendix A.1.1).
+CWE Context. SemTaint includes pre-parsed MITRE CWE
+entries [29] for each of CodeQL’s 37 CWEs supporting taint-
+analysis queries. Each entry contains a structured represen-
+tation (ID, name, description, and common consequences)
+that informs agents what constitutes untrusted data and
+vulnerable operations for each vulnerability class.
+This section has treated agents as black boxes that con-
+sume and produce taint-specification artifacts. Section 4 for-
+malizes how we craft and validate these taint-specifications
+and details how each agent combines LLM-based semantic
+reasoning to extract precise analysis facts from JavaScript
+codebases.
+5
+
+=== PDF PAGE 6 ===
+4. SemTaint
+In this section, we formalize SemTaint’s design. We
+begin by defining the structure of taint specifications and
+their bindings to QL Nodes. Then we illustrate how each
+agent extracts and validates these specifications.
+4.1. Taint Specifications
+Taint specifications are used by taint-tracking static anal-
+ysis tools to enumerate entry points that introduce untrusted
+data assources, APIs that perform security-sensitive oper-
+ations assinks,propagation rulesthat describe how taint
+flows through data dependencies, andsanitizersthat neutral-
+ize tainted data [44], [45]. By overlaying security semantics
+onto the analyzer’s generic data flow graph, these specifi-
+cations map reachability into exploitability. Taint specifica-
+tions are often organized around the Common Weakness
+Enumeration (CWE) [29], [46], which defines over 900
+weakness types; each CWE represents a distinct security
+weakness with characteristic sources, sinks, and propaga-
+tion semantics. SemTaint enables CodeQL to discover pre-
+viously undetectable vulnerabilities by generating CWE-
+specific sources and sinks, as well as selectively repairing
+call graph edges along potential vulnerability paths.
+Locations. SemTaint grounds agent outputs withlocation
+tuplesthat identify specific syntactic locations in a codebase.
+We use two location-tuple formats that we will formalize
+here.
+LetFbe the set of file paths within a package,Nthe
+natural numbers, andΣ ∗ the set of finite strings.
+Anendpoint locationrecords a snippet occurrence using
+its start coordinate and a snippet string:
+LE :=F ×N×N×Σ ∗,
+τ=⟨f, ℓ,col, v⟩ ∈ L E. (1)
+wheref∈ Fis a file path,(ℓ,col)is the start line/column,
+andv∈Σ ∗ is a short code snippet string.
+Aspan locationidentifies a contiguous region of code
+by its start and end coordinates:
+LS :=F ×N 4,
+λ=⟨f, ℓ s,col s, ℓe,col e⟩ ∈ L S. (2)
+wheref∈ F,(ℓ s,col s)is the start line/column, and
+(ℓe,col e)is the end line/column.
+The Source/Sink Agent uses endpoint locations for
+sources/sinks, while the CallGraph Agent uses span loca-
+tions for invocations and callee functions. We use span
+locations for call edges because function definitions span
+multiple lines and may nest; the agent selects targets from
+a pre-built function index, and coordinates provide reliable
+binding. Sources and sinks are typically concise expressions
+that the LLM identifies directly as snippet strings.
+4.1.1. Sources.Asourceis an entry point of untrusted data
+into an application. In practice, sources can be obscured by
+package-specific architectural patterns. The true entry point
+of untrusted data may be hidden behind layers of indirection
+(Section 2) or exposed through third-party APIs.
+The Source/Sink Agent (Figure 1 2 ) proposes sources
+as endpoint locationsτ∈ L E (Eq. 1), excluding locations
+within test directories as these are not relevant to vulnera-
+bility detection.
+LetN QL denote the set of QL nodes. We resolve end-
+point locations to QL nodes via the partial function
+qlnode:L E ⇀N QL.
+qlnode(τ)is defined iff there existsn∈ N QL such that
+file(n) =f,startLine(n) =ℓ,
+startCol(n) = col,toString(n) =v . (3)
+In that case, we setqlnode(τ) =n, otherwise it is undefined.
+We writeqlnode(τ)↓to denote thatqlnodeis defined atτ.
+Source facts. LetC={1,2,3,4,5}. The Source/Sink
+Agent extracts source facts of the form⟨id, τ, c⟩, collected
+in
+S⊆Z× L E ×C,
+whereidis a unique identifier andc∈Cis a confidence
+score. The set of QL nodes corresponding to successfully
+bound sources is
+S↑ :={qlnode(τ)| ⟨id, τ, c⟩ ∈S∧qlnode(τ)↓ }.(4)
+4.1.2. Sinks.Asinkis a security-sensitive operation that
+may be exploited when reached by tainted data. Classifying
+sinks requires understanding both package-specific patterns
+that route data to dangerous operations (Section 2) and third-
+party APIs that perform security-relevant execution.
+The Source/Sink Agent (Figure 1 2 ) proposes sinks as
+endpoint locationsτ∈ L E (Eq. 1), subject to the same
+test-directory exclusion as sources. We resolve endpoint
+locations to QL nodes using the partial functionqlnode
+(Eq. 3).
+Sink facts. LetC={1,2,3,4,5}. The agent emits sink
+facts of the form⟨id, τ, c⟩, collected in
+K⊆Z× L E ×C,
+whereidis a unique identifier andc∈Cis a confidence
+score. The set of QL nodes corresponding to successfully
+bound sinks is
+K ↑ :={qlnode(τ)| ⟨id, τ, c⟩ ∈K∧qlnode(τ)↓ }.
+(5)
+4.1.3. Propagation Rules.Apropagation rulespecifies
+how taint on an operation’s inputs transfers to its out-
+puts [47]. Taint analysis tools commonly distinguishintra-
+proceduralrules, which transfer taint through expressions
+and statements within a function, frominter-procedural
+rules, which transfer taint across function calls and re-
+turns [48], [47], [49]. SemTaint leaves intra-procedural prop-
+agation rules intact, focusing instead on recovering missing
+inter-procedural call edges.
+Inter-procedural data flow. SemTaint enhances inter-
+procedural data flow by extractingcall edges: mappings
+6
+
+=== PDF PAGE 7 ===
+from invocations (call sites) to their target callee functions.
+We distinguish two classes: (1)first-party edges, which
+connect call sites to callees defined within the analyzed
+package; and (2)third-party edges, which connect call sites
+to callees outside the package.
+SemTaint distinguishes between structural and imple-
+mentation gaps. For first-party calls, CodeQL can derive
+propagation semantics from function bodies but cannot de-
+termine which function a dynamic call site invokes. Re-
+covering these missing edges enables CodeQL’s existing
+analysis to traverse complete paths automatically. These
+repairs enhance the foundational data flow graph shared by
+all queries, benefiting every vulnerability type rather than
+targeting a single CWE.
+Third-party calls lack implementations entirely due
+to CodeQL excludingnode_modulesanalysis by de-
+fault [16]. Without callee code in the database, propagation
+behavior must be specified abstractly viaflow summaries:
+specifications that describe whether taint propagates from
+function arguments to return values without modeling inter-
+nal data flow paths [44], [49]. Unlike universal call graph
+repairs, these summaries are CWE-specific: HTML encod-
+ing sanitizes XSS (Cross-Site Scripting) but not command
+injection.
+The CallGraph Agent (Figure 1 5 ) links unresolved call
+sites to target functions from a function index, producing
+call edges as pairs ofspan locationsλ∈ L S (Equation 2).
+First-party edges require both spans to bind to QL nodes;
+third-party edges require only the call site to bind.
+LetI QL denote the set ofInvocationQL nodes and
+FQL the set ofFunctionQL nodes. We resolve span
+locations to these QL nodes via the partial function
+qlinvoke:L S ⇀I QL.
+qlinvoke(λ)is defined iff there existsn∈ I QL such that
+file(n) =f,startLine(n) =ℓ s,startCol(n) =col s,
+endLine(n) =ℓ e,endCol(n) =col e . (6)
+In that case, we setqlinvoke(λ) =n. We define an analogous
+partial function for callee functions:
+qlcallee:L S ⇀F QL.(7)
+Call edge facts. LetB={first,third}andC=
+{1,2,3,4,5}. The CallGraph Agent extracts call edge facts
+of the form⟨id, λ call, λtarget, β, c⟩, collected in
+E⊆Z× L S × LS ×B×C,
+whereidis a unique identifier,λ call andλ target are span
+locations for the call site and target function,β∈Brecords
+whether the callee is first- or third-party, andc∈Cis a
+confidence score.
+First-party edges. For first-party edges,β=firstand both
+endpoints must bind to QL nodes. The set of successfully
+bound first-party edges is
+E↑
+first :=
+n 
+qlinvoke(λc),qlcallee(λ t)
+
+⟨id, λc, λt,first, c⟩ ∈E∧
+qlinvoke(λc)↓ ∧qlcallee(λ t)↓
+o
+(8)
+whereλ c andλ t abbreviate the call-site and target spans.
+Each pair(i, t)∈E ↑
+first is asserted as an additional inter-
+procedural edge in CodeQL’s data flow graph.
+Third-party edges. For third-party edges,β=thirdand the
+callee implementation lies outside the database. We retain
+only the call site:
+E↑
+third :=
+n
+qlinvoke(λc)
+
+⟨id, λc, λt,third, c⟩ ∈E∧qlinvoke(λ c)↓
+o
+(9)
+Candidate flow summaries. Third-party unresolved calls
+pose a distinct challenge: CodeQL excludes dependency
+code by default, thus no target callee representation ex-
+ists in the database. Rather than importing entire transitive
+dependency trees during call graph repair, SemTaint treats
+eachi∈E ↑
+third as acandidate flow summary: a conserva-
+tive placeholder that assumes taint propagates through the
+external call pending validation.
+This separation deliberately decouples structural call
+graph repair (CWE-agnostic and reusable) from modeling
+the taint effects of dependencies (CWE-specific) through
+demand-driven dependency modeling(C2), which yields
+two efficiencies.(1)Efficient third-party identification:Cod-
+eQL’s API graph [50] can often determine that an unresolved
+call crosses the package boundary by tracing access paths
+from module imports. SemTaint uses custom queries lever-
+aging this API graph to auto-classify nearly half of unre-
+solved calls as third-party without LLM inference. When the
+API graph is incomplete, the CallGraph Agent can still iden-
+tify third-party calls, emitting candidate summaries without
+analyzing library internals.(2)Demand-driven validation:
+Analyzing taint propagation through third-party calls within
+the CallGraph Agent would require loading external repos-
+itories, bloating the agent’s context even though most third-
+party calls never appear on a source–sink path. Instead, can-
+didate summaries are validated only when they participate
+in reported vulnerability paths through the specialized Flow
+Summary Agent (Figure 1 8 ). This task isolation keeps both
+agents focused on their specialized roles, consistent with
+findings that modular agent designs outperform monolithic
+alternatives [51], [52]: the CallGraph Agent resolves call
+targets without navigating library codebases, while the Flow
+Summary Agent models propagation semantics without re-
+solving call sites. Section 5.4 quantifies the payoff of this
+demand-driven design, showing that on-demand validation
+avoids the vast majority of third-party library analyses while
+preserving detection capability.
+7
+
+=== PDF PAGE 8 ===
+4.1.4. Sanitizers.Asanitizeris a function or conditional
+check whose output is considered safe regardless of whether
+its input was tainted [53]. SAST tools, like CodeQL, ter-
+minate taint flows that pass through recognized sanitizers,
+avoiding false positives when untrusted input is handled
+safely [48]. SemTaint relies on CodeQL’s existing sanitizer
+infrastructure for standard taint analysis. Our contribution
+to handling sanitization occurs through the Flow Summary
+Agent (Figure 1 8 ), which validates candidate flow sum-
+maries appearing in vulnerability paths, determining whether
+each library call sanitizes or propagates taint for the target
+CWE.
+4.2. Source/Sink Agent
+CodeQL’s taint-tracking queries require accurate source
+and sink specifications to construct vulnerability paths. Al-
+though CodeQL provides default specifications for standard
+APIs, these cannot capture package-specific architectures
+such as those in Section 2, requiring semantic extraction
+tailored to each package under analysis.
+For this extraction, we employ the Source/Sink Agent,
+which uses CWE-specific context (Section 3) to identify
+package-specific sources and sinks. In addition to package
+source code, the Source/Sink Agent has access to three code
+repositories for analysis:
+1)node modules: The installed npm dependencies for each
+package under analysis, which enable the agent to read
+actual library source code rather than relying on docu-
+mentation or heuristics.
+2)Node.js built-in modules: Core modules (e.g.,
+child_process,fs,http) that ship with
+Node.js [54] and define APIs available to npm
+packages without explicit installation.
+3)Browser API index: An indexed JSON database of
+1,175 browser API objects, which enables reasoning
+about browser-specific functions that may not have ac-
+cessible source code. Extracted from the Chromium
+codebase and provided in VisibleV8 releases [55], [56].
+Given a package’s source code and CWE number, the
+Source/Sink Agent receives the corresponding structured
+CWE context and selectively explores the codebase and
+third-party dependencies. The agent searches for program
+elements matching the CWE’s characteristic patterns: poten-
+tial entry points of untrusted data for sources and security-
+sensitive operations for sinks. The LLM applies seman-
+tic understanding to recognize both standard API patterns
+and package-specific variants. For instance, given CWE-79
+(Cross-site scripting), the agent not only identifies standard
+sources likereq.query.input, but also the package-
+specificmrk(input)parameter hidden behind the factory
+closure inmrk.js. Appendix A.2 traces this process in
+detail.
+For each candidate source or sink, the agent proposes
+SourceSand SinkKfacts (Sections 4.1.1 & 4.1.2) with
+thepropose_sourceandpropose_sinktools. These
+sources and sinks are then provided to the CallGraph Agent
+to assist in its discovery of security-relevant unresolved
+calls.
+4.3. CallGraph Agent
+Once CWE-specific sources and sinks are identified,
+CodeQL’s vulnerability analysis hinges on its ability to
+connect them through its data flow graph. In JavaScript,
+many dynamic calls remain unresolved in CodeQL’s call
+graph, severing taint propagation at function boundaries and
+third-party API calls. The CallGraph Agent repairs these
+broken edges, establishing the inter-procedural connections
+needed to construct vulnerability paths.
+4.3.1. Unresolved calls.The CallGraph Agent targets calls
+left unresolved within CodeQL’s existing call graph. In
+CodeQL’s JavaScript data flow library, each call site is
+an Invocation QL Node, and thegetACalleepredicate
+enumerates its potential callee functions at different impre-
+cision levels [57]. At precision 0, callees are derived without
+relying on global flow heuristics, and thus are considered
+precise. Therefore, we define an unresolved call as an in-
+vocation with no resolved callee at precision 0, excluding
+calls within test directories as these are not relevant to
+vulnerability detection. Formally, lettingI QL be the set of
+Invocation QL Nodes andF QL the set of Function QL
+Nodes, the set of unresolved calls is
+Mraw =
+
+i∈ I QL
+ ∄t∈ F QL
+s.t.i.getACallee(0) =t
+	
+. (10)
+We filterM raw to remove calls for which CodeQL provides
+internal flow summary rules that model taint propagation
+without requiring callee resolution. The resulting set of
+unresolved calls is
+M=M raw \ Fs (11)
+whereF s denotes calls covered by internal flow summaries.
+All subsequent analysis operates onM.
+Finding Unresolved Calls. For each unresolved call, we
+extract identifying information (Figure 1 4 ): (1) the invoca-
+tion’s file path; (2) line and column positions; (3) the callee
+name (when available from the AST); and (4) whether the
+call appears to target first-party or third-party code based on
+CodeQL’s API Graph.
+Scale of the problem. To quantify the prevalence of un-
+resolved calls in JavaScript, we analyzed 938 of the 957
+packages in the Brito et al. dataset [18]; the remainder
+lacked available artifacts (Section 5.1.1). Of 2,849,543 total
+call sites, CodeQL resolves only 1,147,393 (40.3%), leaving
+1,702,150 (59.7%) unresolved (M raw). Filtering out calls
+covered by internal flow summaries (F s) reduces this to
+1,423,995 (49.9%) unresolved calls (M). In other words,
+CodeQL cannot confidently approximate callee resolution
+for nearly half of function calls in JavaScript applications,
+even after accounting for internal flow summaries. Due to
+the dynamic nature of JavaScript, CodeQL deliberately uses
+a simple call graph algorithm when constructing its data flow
+8
+
+=== PDF PAGE 9 ===
+graph [16]. More aggressive algorithms can increase recall,
+but on realistic Node.js projects they often fail to complete,
+miss multi-file calls, or introduce spurious call targets [7].
+Cost and time constraints incurred in resolving all callees
+motivate SemTaint’s optimized call edge discovery strategy.
+Rather than attempting to resolve every missing callee in the
+codebase, SemTaint identifies the specific set of unresolved
+calls that enable taint flow from sources to sinks for a given
+CWE, and directs the LLM’s reasoning exclusively to those
+high-value targets.
+4.3.2. Taint-Informed Callee Resolution (TICR).Anex-
+haustiveapproach would attempt to resolve all unresolved
+calls. However, for vulnerability detection, only a fraction
+of these calls matter: those lying on potential taint paths
+between sources and sinks. For instance, an unresolved call
+along the data flow from user input to a database query may
+block detection of an injection vulnerability, while a call
+outside any source-to-sink path has no effect on the analy-
+sis. Rather than resolving all unresolved calls, we leverage
+CodeQL’s taint-tracking infrastructure to identify only those
+on potential vulnerability paths, significantly reducing the
+agent’s workload.
+To addressC1, SemTaint employsTaint-Informed Callee
+Resolution (TICR): a bidirectional algorithm that traces taint
+flow from sources toward unresolved calls and from un-
+resolved calls toward sinks. An unresolved call becomes
+a resolution candidate if and only if it is taint-reachable
+in at least one direction (i.e., it could plausibly lie on a
+source-to-sink path). As Figure 5 illustrates, TICR targets
+only unresolved calls on potential vulnerability paths (red),
+ignoring the majority that cannot affect taint analysis. The
+CallGraph Agent thus avoids expensive inference on calls
+irrelevant to security analysis.
+Formally, letG= (N QL,E flow)denote CodeQL’s taint
+flow graph, whereN QL represents the set of QL nodes
+andE flow represents taint-preserving edges. We define the
+reachability relation⇝wheren 1 ⇝n 2 if there exists a
+path inGfromn 1 ton 2 along edges inE flow. Using the
+bound source setS ↑ and sink setK ↑ from Equations (4)
+and (5), TICR identifies two subsets of the unresolved call
+setM(Equation (11)):
+Msrc→brk =
+
+i∈ M
+ ∃s∈S ↑ s.t.s⇝i
+	
+(12)
+Mbrk→snk =
+
+i∈ M
+ ∃k∈K ↑ s.t.i⇝k
+	
+(13)
+Intuitively,M src→brk captures calls where taint flowsinto
+the unresolved invocation, whileM brk→snk captures calls
+where taint can flowout ofthe invocation toward a sink.
+The set ofsecurity-relevantunresolved calls is their union:
+MTICR =M src→brk ∪ Mbrk→snk (14)
+Appendix B illustrates the necessity of this bidirectional
+approach.
+Extended Taint Semantics for JavaScript.
+JavaScript’s dynamic features create not only inter-
+procedural data flow gaps but also intra-procedural
+gaps [58], [59]. Moreover, CodeQL’s taint semantics are not
+PARAM: n∈args(i)i∈ M
+n→i
+OBJECT: n∈props(o)
+n→o
+n=rhs(w)o=base(w)
+n→o
+FUNC-OBJ: f∈props(o)n∈params(f)∪rets(f)∪ {f}
+n→o
+METHOD: i∈desc ∗(o)i∈ M
+o→i
+Figure 2: Extended taint propagation rules.
+designed for call graph resolution: taint does not propagate
+into or out of a call whose callee is unresolved, severing
+potential vulnerability paths. To address these gaps, we
+extend CodeQL’s taint-flow graphGwith four conservative
+flow rules tailored to JavaScript’s dynamic patterns, enabling
+TICR to trace taint to and from unresolved calls that would
+otherwise be unreachable.
+Figure 2 presents these rules, wheren→mdenotes a
+flow edge added toE flow by SemTaint.
+•PARAMpropagates taint from arguments into unre-
+solved calls.
+•OBJECTpropagates taint from property writes to con-
+taining objects.
+•FUNC-OBJhandles first-class functions by connecting
+function parameters, returns, and the function itself to
+their containing object.
+•METHODpropagates taint from an object to unresolved
+method calls on its descendants.
+Notation:args(i)denotes invocation arguments;props(o)
+object properties;rhs(w)andbase(w)the right-hand side
+and base of a write;params(f)andrets(f)function param-
+eters and returns;desc ∗(o)transitive property access from
+o.
+4.3.3. Agent-Based Call Resolution.The CallGraph Agent
+(Figure 1 5 ) performs focused, per-call analysis on the
+security-relevant unresolved call set. For each call, the agent
+receives identifying context: file path, line and column loca-
+tion, and callee name (when available from the AST). The
+agent systematically traces from the call site to candidate
+function definitions, documenting each step of the resolution
+path.
+For first-party resolutions where the target lies within
+the analyzed package, the agent produces a granular trace
+of its reasoning steps. This trace serves two purposes: (1) it
+enforces documentation of intermediate reasoning (chain-
+of-thought), improving LLM performance on multi-step
+tasks [60], and (2) it provides an auditable record for manual
+examination. Appendix A.3 demonstrates this process for
+the dynamic dispatch patterns inmrk.jsfrom Section 2.
+For third-party resolutions, the agent instead returns struc-
+tured metadata identifying the target library (package name,
+version, entry point).
+9
+
+=== PDF PAGE 10 ===
+By default, the agent processesM TICR (Equation 14)
+via iterative refinement. In iterationt, the agent resolves
+a subset of calls, producing new call graph edges. These
+edges enable CodeQL to propagate taint further, potentially
+exposing additional unresolved calls along source-to-sink
+paths that seed the next iteration. The process terminates
+when no new security-relevant calls are discovered or a
+configurable iteration limit is reached.
+TICR’s failure-handling mechanism is critical to preci-
+sion: when the agent cannot confidently resolve a call due to
+insufficient evidence, ambiguity, or missing function index
+entries, it marks the call asignoredrather than proposing
+a speculative edge. Ignored calls are excluded from subse-
+quent iterations, preventing over-approximation. Exhaustive
+mode is available for processing all unresolved callsM
+(Equation 11) in a single pass when iterative refinement is
+not required.
+4.4. Security Results
+After extracting sources, sinks, and call edges, SemTaint
+runs CodeQL’s CWE-specific security queries with the en-
+hanced taint specifications. We configure CodeQL to emit
+results in SARIF format [61], where path-based results in-
+cludethreadFlows: ordered sequences of code locations
+showing how taint propagates from source to sink [62].
+We parse these flows and organize alerts by unique sink
+locations, treating each distinct sink as a separate security
+finding. When alerts contain candidate flow summaries,
+SemTaint invokes the Flow Summary Agent to validate taint
+semantics before finalizing results.
+4.5. Flow Summary Agent
+The Flow Summary Agent (Figure 1 8 ) validates can-
+didate flow summariesE ↑
+third (Section 4.1.3) that appear
+in reported vulnerability paths, determining whether each
+third-party call propagates or sanitizes taint for the target
+CWE.
+Before validation, SemTaint creates a set of all candidate
+flow summaries across all threadflows for a given CWE. The
+agent receives this set along with CWE context, package
+source code, and access to the same code repositories as
+the Source/Sink Agent:node_modules, Node.js built-in
+modules, and the Browser API index. For each candidate,
+the agent traces taint flow from call sites, through external
+libraries to determine taint semantics. Appendix A.4 demon-
+strates this analysis for a vulnerability from our validation
+dataset that requires inspection ofnode_modules.
+If the agent determines that taint propagates, the call
+edge remains unchanged and all associated threadflows re-
+main valid alerts. If taint is sanitized, SemTaint marks the
+edge as ignored, filtering all dependent threadflows from
+final results. Flow summaries are saved as JSON documents
+with metadata supporting manual auditing.
+4.6. Optimizations
+A key part of CodeQL’s utility comes from encoding
+abstract vulnerability patterns as queries that apply uni-
+versally across packages. These patterns are pre-compiled
+and distributed as query packs for fast execution without
+per-package modification [63]. Previous approaches inte-
+grating LLMs with CodeQL modify query files directly,
+embedding extracted sources and sinks into each CWE-
+specific query [22], [21]. These approaches suffer from three
+limitations:
+(i) Query recompilation:Each analysis run requires re-
+compiling modified queries, imposing overhead.
+(ii) Tight coupling:Specifications become embedded
+within query text, preventing distribution as reusable
+query packs or transfer across packages.
+(iii) Single-query scope:Specifications are injected only
+into queries that guided their extraction, preventing
+reuse across different vulnerability types within the
+same package.
+To address these limitations (C3), SemTaint leverages
+CodeQL’s external predicate mechanism, which allows pred-
+icates to consume data from external files at query evaluation
+time without recompilation. We structure taint specifica-
+tions, sources (S ↑), sinks (K ↑), and call edges (E ↑) as
+CSV relations that CodeQL imports during analysis. This
+decoupled design eliminates recompilation overhead and
+enables iterative refinement. Moreover, while source and
+sink specifications remain most relevant to their guiding
+CWE, repaired call edges enhance the foundational inter-
+procedural data flow graph shared byallqueries, compound-
+ing across subsequent analyses.
+5. Evaluation
+This section evaluates SemTaint by answering the fol-
+lowing research questions.
+RQ1To what extent does SemTaint improve CodeQL’s ability
+to discover vulnerabilities?
+RQ2How effectively does SemTaint focus agent inference
+for vulnerability detection?
+RQ3Which SemTaint components drive vulnerability detec-
+tion?
+RQ4Can SemTaint find unknown vulnerabilities?
+5.1. Experimental Setup
+To answer these research questions, we evaluate Sem-
+Taint on a curated dataset of known npm vulnerabilities to
+measure recall against ground truth, and on popular open-
+source packages to assess discovery of previously unknown
+vulnerabilities.
+5.1.1. Known Vulnerability Dataset.We use the annotated
+vulnerability dataset from Brito et al. [18], which contains
+957 manually verified vulnerabilities in Node.js packages
+constructed from npm security advisories published through
+10
+
+=== PDF PAGE 11 ===
+June 2021. We apply six filters to identify vulnerabilities
+within SemTaint’s scope that CodeQL currently misses:
+1) Remove entries with incomplete metadata or unavail-
+able artifacts (19 entries).
+2) Remove entries whose CWEs are not among CodeQL’s
+55 supported CWEs (336 entries).
+3) Remove vulnerabilities that CodeQL v2.21.2 detects
+using standard and experimental security queries with
+and without sanitization (290 entries).
+4) Remove entries whose CWEs lack taint-tracking query
+support among CodeQL’s 37 taint-flow CWEs (49 en-
+tries).
+5) Remove entries lacking source/sink location annota-
+tions required for ground-truth matching (70 entries).
+6) Remove packages exceeding 1 million tokens (21 en-
+tries), a threshold consistent with LLM-based code
+analysis benchmarks [64].
+This yields our final dataset of172vulnerabilities.
+Validation Dataset. We set aside10vulnerabilities from our
+dataset of 172 as a validation set. We deliberately selected
+these vulnerabilities to target key failure modes: in three
+cases, an unresolved call along the source–sink path caused
+CodeQL to miss the vulnerability (testing the CallGraph
+Agent); in two cases, CodeQL’s default source/sink config-
+uration was insufficient (testing the Source/Sink Agent); the
+remaining five were sampled randomly for CWE diversity.
+All validation entries were constrained to packages under
+100k tokens (measured via tiktoken [65]). This set enabled
+iterative refinement of agent prompts, hyperparameters, and
+tool-calling behavior without contaminating evaluation re-
+sults.
+Testing Dataset. The remaining162vulnerabilities consti-
+tute our test set, spanning 17 CWEs across diverse package
+architectures.
+5.1.2. OSS Dataset.To evaluate SemTaint’s ability to dis-
+cover unknown vulnerabilities, we construct a dataset of
+popular npm packages from the Libraries.io API [66]. We
+retrieve the top 5,000 packages ranked by the SourceRank
+algorithm [67] and apply four filters:
+1) Remove packages with fewer than 1000 dependents
+or 100 GitHub stars, missing repository URLs, non-
+JavaScript/TypeScript code, or incomplete metadata
+(851 entries).
+2) Remove packages exceeding 100k tokens for tractable
+analysis and manual validation (2,625 entries).
+3) Remove packages without GitHub Security Advisory
+(GHSA) records [68], targeting packages with prior
+vulnerability history as likely candidates (1,368 en-
+tries).
+4) Remove packages whose historical vulnerabilities do
+not match the 37 CWEs that CodeQL’s taint-tracking
+queries support (54 entries).
+This yields our final OSS dataset of102packages.
+5.1.3. Experimental Design.All experiments use Cod-
+eQL v2.21.2 [69], a recent stable release. CodeQL’s
+data flow engine employs conservative budget limits to
+maintain tractable analysis times. Two parameters are
+relevant:accessPathLimit[70] bounds the depth
+of chained property accesses the engine tracks, while
+fieldFlowBranchLimitbounds branching during field
+flow analysis. JavaScript queries default these to two, which
+can prune flows through deeply nested structures. To verify
+that these limits do not confound our results, we re-ran the
+baseline CodeQL configuration on the Known Vulnerabil-
+ity Dataset with both parameters set to 5000 (CodeQL’s
+recommended debugging configuration) [71]. This revealed
+zero additional vulnerabilities for baseline CodeQL, con-
+firming that SemTaint’s detection improvements stem from
+source/sink identification and call graph repair rather than
+circumventing CodeQL’s budget constraints.
+Model Choice. We assign models based on task com-
+plexity: the CallGraph Agent performs structurally con-
+strained call resolution, while the Source/Sink and Flow
+Summary Agents require open-ended reasoning across mul-
+tiple code repositories. We compared GPT-based (GPT-5,
+GPT-5-mini) and Gemini-based (Gemini-2.5-Pro, Gemini-
+2.5-Flash) configurations, pairing higher-capacity models
+with the Source/Sink and Flow Summary Agents and lighter-
+weight models with the CallGraph Agent. Table 5 shows that
+GPT-based configurations achieved higher recall; all subse-
+quent experiments useGPT-5for the Source/Sink and Flow
+Summary Agents andGPT-5-minifor the CallGraph Agent.
+We run each agent component 3 times, applying union-
+aggregation for the Source/Sink and CallGraph Agents and
+majority-vote for the Flow Summary Agent, as prior work
+finds three runs sufficient to smooth LLM variability [42],
+[41].
+5.1.4. Evaluation Rulesets.To isolate the contribution of
+each SemTaint component, we employ an ablation design
+using seven rulesets that vary across three dimensions:
+source/sink specifications, call graph edges, and sanitiza-
+tion barriers. Table 3 defines these rulesets.R 1 represents
+CodeQL’s unmodified baseline configuration, establishing
+which vulnerabilities require SemTaint enhancements. The
+hierarchy enables us to determine which enhancements were
+necessary for detection: if a vulnerability is first detected by
+R2, enhanced call edges alone were sufficient (with Cod-
+eQL’s default sources/sinks); if first detected byR 3, custom
+sources/sinks alone were sufficient; if first detected byR 4,
+both were required.R 5 andR 6 combine CodeQL’s default
+sources/sinks with SemTaint’s additions, testing whether the
+two complement each other.R 7 disables CodeQL’s san-
+itization rules, revealing whether over-aggressive barriers
+block valid taint flows even after our enhancements. This
+design reveals precisely which components drive detection
+improvements.
+5.2. RQ1: Vulnerability Recall
+RQ1 measures the extent to which SemTaint recovers
+vulnerabilities that CodeQL currently misses, quantifying
+recall on a curated dataset of known npm vulnerabilities.
+11
+
+=== PDF PAGE 12 ===
+TABLE 1: Validation Dataset Results
+ID CWE Found Alerts FP Method Ruleset
+GHSA-3crj-w4f5-gwh4 CWE-74✓2 0 TICR 3
+GHSA-5ff8-jcf9-fw62 CWE-79✓1 0 TICR 2
+GHSA-8j8c-7jfh-h6hx CWE-94✓1 0 EXH 2
+GHSA-cqjg-whmm-8gv6 CWE-400 x 11 4 TICR 4
+GHSA-f4hq-453j-p95f CWE-601✓1 0 TICR 2
+GHSA-hpr5-wp7c-hh5q∗ CWE-79✓5 0 TICR 4
+GHSA-jv35-xqg7-f92r CWE-915✓5 2 TICR 2
+GHSA-r4m5-47cq-6qg8 CWE-918✓1 0 TICR 2
+GHSA-x67x-98x7-wv26 CWE-78✓1 0 TICR 3
+GHSA-xqh8-5j36-4556 CWE-89✓2 0 TICR 3
+Summary Found Alerts FP Precision
+9/10 30 6 0.80
+∗ RequiredaccessPathLimit=3 (JavaScript default: 2)
+TABLE 2: True Positives (TP) and False Negatives (FN) by
+CWE
+CWE TP FN Total Recall (%)
+CWE-400 26 16 42 61.90
+CWE-22 23 5 28 82.14
+CWE-79 17 11 28 60.71
+CWE-78 11 3 14 78.57
+CWE-94 7 4 11 63.64
+CWE-89 4 4 8 50.00
+CWE-915 6 2 8 75.00
+CWE-730 4 1 5 80.00
+CWE-502 2 1 3 66.67
+CWE-200 1 2 3 33.33
+CWE-201 2 1 3 66.67
+CWE-346 1 2 3 33.33
+CWE-601 1 1 2 50.00
+CWE-74 1 0 1 100.00
+CWE-829 0 1 1 0.00
+CWE-918 0 1 1 0.00
+CWE-327 0 1 1 0.00
+Total 106 56 162 65.43
+Validation Dataset. SemTaint detected 9 of 10 vulnerabil-
+ities in the validation dataset, generating 30 alerts with 6
+false positives (80% precision), as shown in Table 1. Two
+independent reviewers examined each alert, marking it as
+a false positive only when it clearly did not represent any
+possible vulnerability.
+ForGHSA-hpr5-wp7c-hh5q(Section 2), SemTaint
+correctly identified sources, sinks, and call edges, resolving
+all inter-procedural gaps. Detection additionally required
+raising CodeQL’saccessPathLimit(Section 5.1.3)
+from 2 to 3 due to deep property chaining in the token
+rendering pipeline. This was the only case where we had to
+raise the default budget once the path was reconnected.
+ForGHSA-cqjg-whmm-8gv6, SemTaint established
+the correct vulnerability path but the Flow Summary Agent
+incorrectly classified a third-party call as sanitizing, causing
+the missed detection.
+Testing Dataset. Table 2 shows that SemTaint produced
+valid alerts for 106 of 162 vulnerabilities (65.43%). We
+verified results through three categories:
+1)Exact match(39): Alert source and sink both matched
+annotated ground truth. All 39 were graded as TPs
+(100%).
+2)Extended path(29): Both annotated endpoints ap-
+peared on the path, but SemTaint extended the flow
+with a new source upstream or new sink downstream.
+We manually verified that (a) the new endpoint was
+valid for the vulnerability, and (b) a valid flow path
+connected the new and annotated endpoints. This con-
+firmed 28 TPs (96.5%).
+3)Equivalent flow(67): One or both annotated end-
+points were absent from the path. We manually verified
+whether the alert represented the same vulnerability
+through a different source, sink, or both. This confirmed
+39 TPs (58.2%).
+Two reviewers independently classified each alert in
+categories 2 and 3. Uncertainty required joint review until
+both reached consensus. Entries producing no alerts (27)
+were classified as false negatives. Alerts representing unre-
+lated vulnerabilities were not counted as TPs. We did not
+investigate false positives in the testing dataset, as our focus
+is recall improvement over CodeQL’s baseline.
+Key Findings:SemTaint detected 106 of 162 previously
+undetectable vulnerabilities(65.43% recall), compared
+to CodeQL’s 0% baseline.
+5.3. RQ2: Focused Agent Inference
+RQ2 evaluates how effectively SemTaint focuses agent
+inference for vulnerability detection. We examine TICR for
+call graph repair (C1) and demand-driven validation for
+third-party analysis (C2), measuring inference savings on
+the testing dataset.
+TICR (C1). Across the 162 packages in our testing dataset,
+|M|totals 94,909 unresolved calls (Section 4.3.1); exhaus-
+tively resolving all of them would be prohibitively expen-
+sive. TICR uses taint-reachability to identify the subset lying
+on potential vulnerability paths, reducing the candidate set to
+10,184 calls (an 89.2% reduction). Of these, SemTaint auto-
+assigns 4,989 as third-party via custom CodeQL queries,
+leaving 5,195 calls for agent resolution. This two-stage
+filtering reduces agent inference by 94.5% overall. On a per-
+package basis, average agent calls drop from 585.9 to 32.1.
+Despite analyzing only 5.5% of unresolved calls, SemTaint
+achieves 65.43% recall; exhaustive resolution was necessary
+for only 1 of 10 validation vulnerabilities.
+Candidate Flow Summaries (C2). Third-party calls pose
+a similar scalability challenge: analyzing every external
+dependency for taint semantics is infeasible. SemTaint de-
+fers this analysis until candidate flow summaries appear in
+reported vulnerability paths. This demand-driven strategy
+reduces third-party edge analysis by 93.2%, from 6,639
+candidates to just 449. The vast majority of third-party
+calls never participate in vulnerability paths and are never
+analyzed.
+12
+
+=== PDF PAGE 13 ===
+TABLE 3: Evaluation Rulesets for Ablation Study
+Ruleset Sources/Sinks Call Graph Barriers
+R1 Base (CodeQL) Base Enabled
+R2 Base (CodeQL) Enhanced Enabled
+R3 Custom (SemTaint) Base Enabled
+R4 Custom (SemTaint) Enhanced Enabled
+R5 Combined Base Enabled
+R6 Combined Enhanced Enabled
+R7 Combined Enhanced Disabled
+TABLE 4: True Positives by Ruleset Group
+GroupR 1 R2 R3 R4 R5 R6 R7 Total Percentage (%)
+Just source/sink - - 81 - 0 - - 81 76.42
+Needed call graph - 3 - 15 - 3 4 25 23.58
+Total 0 3 81 15 0 3 4 106 100.00
+Key Findings:By focusing inference on security-relevant
+calls, SemTaint reduces LLM invocations by94.5%for
+call graph repair and93.2%for third-party validation,
+while achieving 65.43% recall.
+5.4. RQ3: Ablation Study
+RQ3 uses an ablation study to quantify the contribution
+of each SemTaint component and identify which gaps in
+CodeQL’s current capabilities prevented detection. We re-
+port results across all 115 detected vulnerabilities from both
+datasets: 9 from validation, 106 from testing.
+Component Attribution. To understand which SemTaint
+components drive vulnerability detection, we evaluated each
+package using the seven rulesets defined in Table 3. This
+ablation design isolates the contribution of enhanced call
+graphs (R 2), source/sink specifications (R 3,R 5), and their
+combination with call graph repair (R 4,R 6,R 7). We at-
+tribute each vulnerability to the first ruleset that successfully
+detects it.
+Table 4 presents the testing dataset results; Table 1
+presents validation results. CodeQL’s baseline configura-
+tion (R 1) detected none (0%) of these 115 vulnerabili-
+ties, confirming that each detection requires at least one
+enhancement provided by SemTaint. Across both datasets,
+84 vulnerabilities (73.0%) were first detected atR 3, where
+CodeQL’s existing call graph was sufficient once custom
+sources and sinks were specified. The remaining 31 vul-
+nerabilities (27.0%) required call graph repair, representing
+a hard detection ceiling: those vulnerabilities fundamen-
+tally undetectable without resolving missing inter-procedural
+edges, regardless of source and sink accuracy.
+Synergy Between Components. The ablation reveals an
+important synergy between SemTaint’s contributions. Of the
+31 vulnerabilities requiring call graph repair, only 8 were
+detectable with CodeQL’s default sources and sinks (R2).
+The remaining 23 required both custom sources/sinks and
+call graph repair (R4,R6,R7). Custom sources and sinks
+identify package-specific entry points and dangerous opera-
+tions that CodeQL’s defaults miss, revealing new taint paths,
+but these paths can traverse the same dynamic JavaScript
+patterns that produce unresolved calls in CodeQL’s call
+graph. Without call graph repair, the paths remain severed
+even when both endpoints are correctly specified.
+Key Findings:SemTaint closes both semantic and struc-
+tural gaps in CodeQL. Package-specific sources/sinks
+enable 73% of our detections, but the remaining 27%
+become visible only after repairing unresolved dynamic
+calls.
+5.5. RQ4: Unknown Vulnerabilities
+RQ4 evaluates whether SemTaint can uncover previously
+unknown vulnerabilities in popular npm packages.
+Criteria. We consider a vulnerability detected by SemTaint
+novel if: (1) there does not exist a GHSA or CVE that
+documents the vulnerability for the affected package ver-
+sion, (2) CodeQL’s baseline (R1) cannot discover it, and (3)
+we can create a proof-of-concept (PoC) to demonstrate its
+exploitability.
+Results. At the time of archiving, we completed end-to-
+end validation on 10 packages within our OSS Dataset, as
+PoC-level confirmation and coordinated disclosure introduce
+substantial manual overhead. Across this validated subset,
+SemTaint produced 34 alerts. 13 were confirmed as true
+positives, corresponding to 4 distinct novel vulnerabilities,
+each affecting a different package. The remaining 21 alerts
+were divided into two categories. (1)Improper Sanitiza-
+tion Modeling: Ten contained correctly identified source-
+to-sink paths but were properly sanitized. Since SemTaint
+delegates sanitizer modeling to CodeQL by design (Sec-
+tion 4.1.4), these reflect limitations in CodeQL’s existing
+sanitizer specifications. (2)Intended Functionality: Eleven
+identified valid source-to-sink paths; however, these corre-
+sponded to intended package functionality. For example, a
+CLI wrapper package forwards user input to shell execution,
+which SemTaint correctly identifies as a taint flow, but it
+represents intended functionality rather than a security flaw.
+Filtering such cases requires end-to-end reasoning over vul-
+nerability paths with knowledge of each package’s intended
+functionality. This analysis lies outside the scope of taint
+specification extraction.
+The 4 confirmed vulnerabilities are distributed across
+four distinct packages and span three CWE classes: com-
+mand injection (CWE-78), path traversal (CWE-22), and
+prototype pollution (CWE-915). To avoid premature disclo-
+sure, we omit package identifiers and exploit details. Over-
+all, these results indicate that SemTaint can uncover pre-
+viously undocumented, exploitable vulnerabilities in widely
+used packages that are missed by a CodeQL baseline con-
+figuration.
+13
+
+=== PDF PAGE 14 ===
+Key Findings:SemTaint discovered 4 previously un-
+known vulnerabilities in 4 popular npm packages. These
+findings demonstrate that SemTaint’s LLM-augmented
+taint specification extraction enables discovery of real-
+world vulnerabilities that CodeQL cannot detect.
+5.6. Threats to Validity
+Internal Validity. LLMs are inherently non-deterministic,
+which affects reliability of results. We mitigate this through
+multi-run aggregation, taking the union of results across
+three executions per agent.
+Alert classification relied on heuristic matching against
+Brito et al.’s [18] annotated source/sink pairs. Exact matches
+were automatic true positives, while extended or equivalent
+paths required verification from two independent reviewers.
+This process may miss valid alerts that differ structurally
+from annotations and inherit any labeling errors present in
+the original dataset.
+Candidate flow summaries model taint as returning
+through invocation sites, missing cases where third-party
+libraries pass taint to other code locations through callbacks.
+Modeling callback-mediated propagation would require full
+review of each third-party unresolved call, substantially
+increasing inference cost.
+TICR’s taint-reachability analysis can miss security-
+relevant calls when intra-procedural gaps sever paths before
+reaching unresolved calls. Extended flow semantics (Fig-
+ure 2) partially address this limitation, and exhaustive mode
+provides a fallback for comprehensive coverage.
+External Validity. We evaluate only JavaScript/npm pack-
+ages. Extension to other languages requires reimplemen-
+tation of the CodeQL integration layer, though the agent
+architecture and TICR algorithm are language-agnostic in
+principle. Our 1-million-token limit excludes 21 large pack-
+ages from the dataset, and we cover only the 37 CWEs
+supported by CodeQL’s taint-tracking queries.
+The Brito et al. dataset contains vulnerabilities disclosed
+through June 2021. JavaScript development practices and
+npm package structures evolve, which may limit general-
+izability to contemporary codebases. Similarly, our OSS
+dataset filters for packages with prior GHSA records, which
+may bias toward packages with known vulnerability history.
+Several limitations are explicitly out of scope: intra-
+procedural data flow gaps arising from JavaScript’s dynamic
+features and CodeQL’s sanitizer over-approximation. These
+represent fundamental challenges in JavaScript static analy-
+sis that SemTaint does not address.
+6. Related Work
+Learning-Based Call Graph Repair. CALLME [72] uses
+an LLM to resolve only dynamic property accesses in
+JavaScript from a dataset of unresolved calls. CALLME re-
+quires a separate LLM query for each call-site to candidate-
+function pair, limiting scalability for entire call graph con-
+struction. GRAPHIA [73] uses graph neural networks to pre-
+dict unresolved call edges within JavaScript projects. This
+approach requires training a separate model for each pack-
+age, using that package’s statically-resolved edges, whereas
+SemTaint leverages pre-trained LLMs that generalize across
+packages without package-specific training. Additionally,
+both CALLME and GRAPHIA operate without integrating
+call graph repair within SAST tools for vulnerability detec-
+tion. Moreover, neither approach addresses third-party de-
+pendencies, resolving calls only to functions defined within
+the analyzed project.
+LLM SAST Integration. IRIS [21] and QLPro [22] use
+LLMs to infer sources and sinks and generate CodeQL
+queries for Java programs. However, both rely entirely on
+the static analyzer’s existing call graph to connect identified
+endpoints. Both process APIs in batches constrained by
+LLM context windows, limiting analysis of large codebases
+and third-party dependencies. SemTaint overcomes both lim-
+itations: it repairs broken inter-procedural edges preventing
+taint propagation, and its agents explore code on-demand,
+encompassing dependency implementations.
+JavaScript Taint Specification Extraction. TASER ex-
+tracts taint specifications for JavaScript libraries via dynamic
+taint tracking driven by existing test suites of the library
+and its npm clients [44]. As a dynamic technique, it only
+observes executed behavior, so the completeness of extracted
+specifications depends on the availability and coverage of
+those tests. InspectJS infers sink specifications from static
+data-flow information in CodeQL and refines the resulting
+predictions using code similarity and user feedback, ulti-
+mately to improve manually maintained models [49]. In
+contrast, SemTaint produces taint specifications (sources,
+sinks, call edges, and flow summaries), without relying on
+existing test coverage or user feedback.
+Taint-Guided Call Graph Construction. TAJ (Taint Anal-
+ysis for Java) [74] uses a priority-driven strategy that ranks
+methods by graph distance from taint sources rather than
+using taint-flows to determine reachability. Seneca [75] uses
+taint state to guide call resolution at Java deserialization
+points, conservatively expanding targets to any serializable
+type that could appear at runtime. TICR differs from prior
+works in three key respects: (1) it uses taint reachability
+to identifywhichunresolved calls require repair, rather
+than determininghowto resolve known call targets; (2) it
+performs bidirectional analysis, identifying both unresolved
+calls reachable from sources and those whose return values
+can reach sinks (Figures 7 and 8), rather than unidirectional
+tracking from sources; and (3) it targets JavaScript, where
+dynamic features create unique taint-tracking challenges
+requiring custom propagation semantics (Figure 2).
+7. Conclusion
+JavaScript is particularly difficult to statically analyze
+for vulnerabilities. This paper proposed SemTaint, a novel
+approach for combining traditional SAST tools with LLMs,
+using the SAST tool to drive the analysis, and only deferring
+to an LLM where necessary. Our design breaks the analysis
+problem into three key parts. A Source/Sink Agent identifies
+taint sources and sinks unique to a target JavaScript package.
+14
+
+=== PDF PAGE 15 ===
+A CallGraph Agent resolves call edges that could not be
+resolved by the SAST tool, intelligently doing so only for
+edges that potentially lead to a vulnerability. A Flow Sum-
+mary Agent refines candidate vulnerable flows, performing
+in-depth analysis of third-party packages to filter out non-
+vulnerable cases. We implemented a prototype of SemTaint
+for CodeQL and evaluated it on 162 known vulnerabilities
+that CodeQL alone could not detect. By enhancing CodeQL
+with SemTaint, the analysis found 106 (65.43%) of the
+previously undetectable vulnerabilities. We further deployed
+SemTaint on open-source packages and identified four previ-
+ously unknown vulnerabilities. In doing so, we demonstrate
+how LLMs can practically enhance existing SAST tools by
+combining the strengths of symbolic reasoning and semantic
+understanding.
+References
+[1] Stack Overflow, “2025 Stack Overflow developer survey,”
+https://survey.stackoverflow.co/2025/technology, 2025.
+[2] D. Pinckney, F. Cassano, A. Guha, and J. Bell, “npm-follower: A
+complete dataset tracking the npm ecosystem,” ser. ESEC/FSE 2023.
+New York, NY , USA: Association for Computing Machinery, 2023,
+p. 2132–2136. [Online]. Available: https://doi.org/10.1145/3611643.
+3613094
+[3] S. A. Akhavani, B. Ousat, and A. Kharraz, “Open source, open
+threats? investigating security challenges in open-source software,”
+2025, https://arxiv.org/abs/2506.12995.
+[4] L. Cui, J. Cui, Z. Hao, L. Li, Z. Ding, and Y . Liu, “An empirical
+study of vulnerability discovery methods over the past ten years,”
+Comput. Secur., vol. 120, no. C, Sep. 2022. [Online]. Available:
+https://doi.org/10.1016/j.cose.2022.102817
+[5] O. Tripp, M. Pistoia, P. Cousot, R. Cousot, and S. Guarnieri,
+“Andromeda: accurate and scalable security analysis of web
+applications,” inProceedings of the 16th International Conference
+on Fundamental Approaches to Software Engineering, ser. FASE’13.
+Berlin, Heidelberg: Springer-Verlag, 2013, p. 210–225. [Online].
+Available: https://doi.org/10.1007/978-3-642-37057-1 15
+[6] S. Guarnieri, M. Pistoia, O. Tripp, J. Dolby, S. Teilhet, and
+R. Berg, “Saving the world wide web from vulnerable javascript,”
+inProceedings of the 2011 International Symposium on Software
+Testing and Analysis, ser. ISSTA ’11. New York, NY , USA:
+Association for Computing Machinery, 2011, p. 177–187. [Online].
+Available: https://doi.org/10.1145/2001420.2001442
+[7] G. Antal, P. Heged ˝us, Z. Herczeg, G. L ´oki, and R. Ferenc, “Is
+javascript call graph extraction solved yet? a comparative study of
+static and dynamic tools,”IEEE Access, vol. 11, pp. 25 266–25 284,
+2023. [Online]. Available: https://api.semanticscholar.org/CorpusID:
+257480090
+[8] B. B. Nielsen, M. T. Torp, and A. Møller, “Modular call graph
+construction for security scanning of node.js applications,” in
+Proceedings of the 30th ACM SIGSOFT International Symposium
+on Software Testing and Analysis, ser. ISSTA 2021. New York,
+NY , USA: Association for Computing Machinery, 2021, p. 29–41.
+[Online]. Available: https://doi.org/10.1145/3460319.3464836
+[9] J. Park, J. Park, D. Youn, and S. Ryu, “Accelerating javascript
+static analysis via dynamic shortcuts,” inProceedings of the 29th
+ACM Joint Meeting on European Software Engineering Conference
+and Symposium on the Foundations of Software Engineering,
+ser. ESEC/FSE ’21. ACM, Aug. 2021. [Online]. Available:
+http://dx.doi.org/10.1145/3468264.3468556
+[10] M. Zimmermann, C. Staicu, C. Tenny, and M. Pradel, “Small
+world with high risks: A study of security threats in the npm
+ecosystem,”CoRR, vol. abs/1902.09217, 2019. [Online]. Available:
+http://arxiv.org/abs/1902.09217
+[11] GitHub, “Codeql,” 2025, https://codeql.github.com/.
+[12] SonarSource, “Sonarqube — code quality & security — static anal-
+ysis tool — sonar,” 2025, https://www.sonarsource.com/products/
+sonarqube/.
+[13] Semgrep, “Semgrep app security platform — ai-assisted sast, sca and
+secrets detection,” 2025, https://semgrep.dev/.
+[14] Ignore files, folders, and code — Semgrep. [Online]. Available:
+https://semgrep.dev/docs/ignoring-files-folders-code
+[15] JavaScript/TypeScript/CSS — SonarQube Server 9.9
+— Sonar Documentation. [Online]. Available: https:
+//docs.sonarsource.com/sonarqube-server/9.9/analyzing-source-code/
+languages/javascript-typescript-css
+[16] GitHub, “Codeql call-graph construction for javascript,”
+2025, https://codeql.github.com/docs/codeql-language-guides/
+codeql-library-for-javascript/.
+[17] S. Li, M. Kang, J. Hou, and Y . Cao, “Mining node.js vulnerabilities
+via object dependence graph and query,” in31st USENIX
+Security Symposium (USENIX Security 22). Boston, MA: USENIX
+Association, Aug. 2022, pp. 143–160. [Online]. Available: https:
+//www.usenix.org/conference/usenixsecurity22/presentation/li-song
+[18] T. Brito, M. Ferreira, M. Monteiro, P. Lopes, M. Barros, J. F.
+Santos, and N. Santos, “Study of javascript static analysis tools
+for vulnerability detection in node.js packages,”IEEE Transactions
+on Reliability, vol. 72, no. 4, p. 1324–1339, Dec. 2023. [Online].
+Available: http://dx.doi.org/10.1109/TR.2023.3286301
+[19] V . Agrawal and K. Ahi, “Llm-driven sast-genius: A hybrid static
+analysis framework for comprehensive and actionable security,” 2025,
+https://arxiv.org/abs/2509.15433.
+[20] J. Chen, H. Xiang, Z. Zhao, L. Li, Y . Zhang, B. Ding, Q. Li, and
+S. Xiong, “Utilizing precise and complete code context to guide llm in
+automatic false positive mitigation,” 2025, https://arxiv.org/abs/2411.
+03079.
+[21] Z. Li, S. Dutta, and M. Naik, “Iris: Llm-assisted static analysis for
+detecting security vulnerabilities,” 2025, https://arxiv.org/abs/2405.
+17238.
+[22] J. Hu, X. Jin, Y . Zeng, Y . Liu, Y . Li, D. Du, K. Xie, and H. Zhu,
+“Qlpro: Automated code vulnerability discovery via llm and static
+code analysis integration,” 2025, https://arxiv.org/abs/2506.23644.
+[23] B. R. Bruce, T. Zhang, J. Arora, G. H. Xu, and M. Kim, “Jshrink:
+in-depth investigation into debloating modern java applications,”
+ser. ESEC/FSE 2020. New York, NY , USA: Association for
+Computing Machinery, 2020, p. 135–146. [Online]. Available:
+https://doi.org/10.1145/3368089.3409738
+[24] L. Sui, J. Dietrich, A. Tahir, and G. Fourtounis, “On the recall
+of static call graph construction in practice,” inProceedings
+of the ACM/IEEE 42nd International Conference on Software
+Engineering, ser. ICSE ’20. New York, NY , USA: Association
+for Computing Machinery, 2020, p. 1049–1060. [Online]. Available:
+https://doi.org/10.1145/3377811.3380441
+[25] E. Andreasen, L. Gong, A. Møller, M. Pradel, M. Selakovic, K. Sen,
+and C.-A. Staicu, “A survey of dynamic analysis and test generation
+for javascript,”ACM Comput. Surv., vol. 50, no. 5, Sep. 2017.
+[Online]. Available: https://doi.org/10.1145/3106739
+[26] R. Amadini, A. Jordan, G. Gange, F. Gauthier, P. Schachte,
+H. SØndergaard, P. J. Stuckey, and C. Zhang, “Combining
+string abstract domains for javascript analysis: An evaluation,” in
+Proceedings, Part I, of the 23rd International Conference on Tools
+and Algorithms for the Construction and Analysis of Systems -
+Volume 10205. Berlin, Heidelberg: Springer-Verlag, 2017, p. 41–57.
+[Online]. Available: https://doi.org/10.1007/978-3-662-54577-5 3
+15
+
+=== PDF PAGE 16 ===
+[27] V . Salis, T. Sotiropoulos, P. Louridas, D. Spinellis, and
+D. Mitropoulos, “Pycg: Practical call graph generation in python,”
+inProceedings of the 43rd International Conference on Software
+Engineering, ser. ICSE ’21. IEEE Press, 2021, p. 1646–1657.
+[Online]. Available: https://doi.org/10.1109/ICSE43902.2021.00146
+[28] S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and
+Y . Cao. ReAct: Synergizing Reasoning and Acting in Language
+Models. [Online]. Available: http://arxiv.org/abs/2210.03629
+[29] MITRE, “Common weakness enumeration,” https://cwe.mitre.org/
+documents/cwe usage/guidance.html.
+[30] V . Kashyap, K. Dewey, E. A. Kuefner, J. Wagner, K. Gibbons,
+J. Sarracino, B. Wiedermann, and B. Hardekopf, “Jsai: a static
+analysis platform for javascript,” inProceedings of the 22nd ACM
+SIGSOFT International Symposium on Foundations of Software
+Engineering, ser. FSE 2014. New York, NY , USA: Association
+for Computing Machinery, 2014, p. 121–132. [Online]. Available:
+https://doi.org/10.1145/2635868.2635904
+[31] M. Madsen, B. Livshits, and M. Fanning, “Practical static analysis of
+javascript applications in the presence of frameworks and libraries,”
+inProceedings of the 2013 9th Joint Meeting on Foundations of
+Software Engineering, ser. ESEC/FSE 2013. New York, NY , USA:
+Association for Computing Machinery, 2013, p. 499–509. [Online].
+Available: https://doi.org/10.1145/2491411.2491417
+[32] M. Madsen, F. Tip, and O. Lhot ´ak, “Static analysis of event-
+driven node.js javascript applications,”SIGPLAN Not., vol. 50,
+no. 10, p. 505–519, Oct. 2015. [Online]. Available: https:
+//doi.org/10.1145/2858965.2814272
+[33] GitHub, “Codeql updates from the first half of 2023
+- github changelog,” 2023, https://github.blog/changelog/
+2023-07-26-codeql-updates-from-the-first-half-of-2023/.
+[34] ——, “CWE coverage for JavaScript and TypeScript,” https://codeql.
+github.com/codeql-query-help/javascript-cwe/, 2025, codeQL Query
+Help Documentation.
+[35] GHSA-hpr5-wp7c-hh5q - GitHub Advisory Database.
+GitHub. [Online]. Available: https://github.com/advisories/
+GHSA-hpr5-wp7c-hh5q
+[36] A. Bates, “mrk: Tiny extensible markdown parser/renderer (single-file
+javascript library),” 2025, https://github.com/bates64/mrk.
+[37] G. Richards, S. Lebresne, B. Burg, and J. Vitek, “An analysis of
+the dynamic behavior of javascript programs,” inProceedings of
+the 31st ACM SIGPLAN Conference on Programming Language
+Design and Implementation, ser. PLDI ’10. New York, NY , USA:
+Association for Computing Machinery, 2010, p. 1–12. [Online].
+Available: https://doi.org/10.1145/1806596.1806598
+[38] GitHub, “About data flow analysis,” 2025, https://codeql.github.com/
+docs/writing-codeql-queries/about-data-flow-analysis/.
+[39] B. Atil, S. Aykent, A. Chittams, L. Fu, R. J. Passonneau, E. Radcliffe,
+G. R. Rajagopal, A. Sloan, T. Tudrej, F. Ture, Z. Wu, L. Xu, and
+B. Baldwin, “Non-determinism of ”deterministic” llm settings,” 2025,
+https://arxiv.org/abs/2408.04667.
+[40] X. Wang, J. Wei, D. Schuurmans, Q. Le, E. Chi, S. Narang,
+A. Chowdhery, and D. Zhou, “Self-consistency improves chain of
+thought reasoning in language models,” 2023, https://arxiv.org/abs/
+2203.11171.
+[41] J. Niimi, “A simple ensemble strategy for llm inference: To-
+wards more stable text classification,” 2025, https://arxiv.org/abs/
+2504.18884.
+[42] G. Antal, B. Bogenf ¨urst, R. Ferenc, and P. Heged ˝us, “Identifying
+helpful context for llm-based vulnerability repair: A preliminary
+study,” 2025, https://arxiv.org/abs/2506.11561.
+[43] M. Xiong, Z. Hu, X. Lu, Y . Li, J. Fu, J. He, and B. Hooi, “Can
+llms express their uncertainty? an empirical evaluation of confidence
+elicitation in llms,” 2024, https://arxiv.org/abs/2306.13063.
+[44] C.-A. Staicu, M. T. Torp, M. Sch ¨afer, A. Møller, and M. Pradel,
+“Extracting taint specifications for javascript libraries,” inProceedings
+of the ACM/IEEE 42nd International Conference on Software
+Engineering, ser. ICSE ’20. New York, NY , USA: Association
+for Computing Machinery, 2020, p. 198–209. [Online]. Available:
+https://doi.org/10.1145/3377811.3380390
+[45] N. Almashfi and L. Lu,Static Taint Analysis for JavaScript Programs,
+03 2021, pp. 155–167.
+[46] P. Goran, “Adapting Taint Analyses for Detecting Security
+Vulnerabilities,” 2023. [Online]. Available: https://www.bodden.de/
+pubs/thesis-piskachev.pdf
+[47] Z. L. Chua, Y . Wang, T. Baluta, P. Saxena, Z. Liang, and
+P. Su, “One engine to serve ’em all: Inferring taint rules
+without architectural semantics,”Proceedings 2019 Network and
+Distributed System Security Symposium, 2019. [Online]. Available:
+https://api.semanticscholar.org/CorpusID:96446274
+[48] GitHub, “Analyzing data flow in javascript and type-
+script,” https://codeql.github.com/docs/codeql-language-guides/
+analyzing-data-flow-in-javascript-and-typescript, 2025, codeQL
+Docs.
+[49] S. Dutta, D. Garbervetsky, S. K. Lahiri, and M. Sch ¨afer, “Inspectjs:
+leveraging code similarity and user-feedback for effective taint
+specification inference for javascript,” inProceedings of the
+44th International Conference on Software Engineering: Software
+Engineering in Practice, ser. ICSE-SEIP ’22. New York, NY , USA:
+Association for Computing Machinery, 2022, p. 165–174. [Online].
+Available: https://doi.org/10.1145/3510457.3513048
+[50] GitHub, “API graph documentation for JavaScript,”
+https://codeql.github.com/codeql-standard-libraries/javascript/
+semmle/javascript/ApiGraphs.qll/module.ApiGraphs.html, 2025,
+codeQL Standard Libraries.
+[51] S. Ullah, P. Balasubramanian, W. Guo, A. Burnett, H. Pearce,
+C. Kruegel, G. Vigna, and G. Stringhini, “From cve entries to verifi-
+able exploits: An automated multi-agent framework for reproducing
+cves,” 2025, https://arxiv.org/abs/2509.01835.
+[52] C. Qian, W. Liu, H. Liu, N. Chen, Y . Dang, J. Li, C. Yang,
+W. Chen, Y . Su, X. Cong, J. Xu, D. Li, Z. Liu, and
+M. Sun, “Chatdev: Communicative agents for software development,”
+https://arxiv.org/abs/2307.07924, 2024.
+[53] Y . Yuan, Y . Lu, K. Zhu, H. Huang, L. Yu, and J. Zhao,
+“A static detection method for sql injection vulnerability based
+on program transformation,”Applied Sciences, 2023. [Online].
+Available: https://api.semanticscholar.org/CorpusID:264580534
+[54]Modules: CommonJS modules, Node.js Foundation, 2025, node.js
+v25.2.1 Documentation. [Online]. Available: https://nodejs.org/api/
+modules.html#built-in-modules
+[55] J. Jueckstock and A. Kapravelos, “Visiblev8: In-browser monitoring
+of javascript in the wild,” inProceedings of the Internet Measurement
+Conference, ser. IMC ’19. New York, NY , USA: Association
+for Computing Machinery, 2019, p. 393–405. [Online]. Available:
+https://doi.org/10.1145/3355369.3355599
+[56] “Wspr-ncsu/visiblev8,” wspr-ncsu. [Online]. Available: https://github.
+com/wspr-ncsu/visiblev8/releases/
+[57] GitHub, “Member predicate dataflow::invokenode,”
+2025, https://codeql.github.com/codeql-standard-libraries/
+javascript/semmle/javascript/dataflow/Nodes.qll/predicate.
+Nodes$InvokeNode$getACallee.0.html.
+[58] B. B. Nielsen and A. Møller, “Value Partitioning: A Lightweight
+Approach to Relational Static Analysis for JavaScript,” in34th
+European Conference on Object-Oriented Programming (ECOOP
+2020), ser. Leibniz International Proceedings in Informatics (LIPIcs),
+R. Hirschfeld and T. Pape, Eds., vol. 166. Dagstuhl, Germany:
+Schloss Dagstuhl – Leibniz-Zentrum f ¨ur Informatik, 2020, pp.
+16:1–16:28. [Online]. Available: https://drops.dagstuhl.de/entities/
+document/10.4230/LIPIcs.ECOOP.2020.16
+16
+
+=== PDF PAGE 17 ===
+[59] M. Sridharan, J. Dolby, S. Chandra, M. Sch ¨afer, and F. Tip,
+“Correlation tracking for points-to analysis of javascript,” in
+Proceedings of the 26th European Conference on Object-Oriented
+Programming, ser. ECOOP’12. Berlin, Heidelberg: Springer-Verlag,
+2012, p. 435–458. [Online]. Available: https://doi.org/10.1007/
+978-3-642-31057-7 20
+[60] J. Wei, X. Wang, D. Schuurmans, M. Bosma, B. Ichter, F. Xia, E. Chi,
+Q. Le, and D. Zhou, “Chain-of-thought prompting elicits reasoning
+in large language models,” https://arxiv.org/abs/2201.11903, 2023.
+[61] GitHub, “Sarif support for code scanning,” 2026, https://docs.github.
+com/en/code-security/code-scanning/integrating-with-code-scanning/
+sarif-support-for-code-scanning.
+[62] M. C. Fanning and L. J. Golding, “Static analysis results interchange
+format (sarif) version 2.1.0: Committee specification 01,” 2019, https:
+//docs.oasis-open.org/sarif/sarif/v2.1.0/cs01/sarif-v2.1.0-cs01.pdf.
+[63] GitHub, “Creating and working with codeql packs,”
+2025, https://docs.github.com/en/code-security/codeql-cli/
+using-the-advanced-functionality-of-the-codeql-cli/
+creating-and-working-with-codeql-packs.
+[64] Epoch AI, “SWE-bench Verified,” https://epoch.ai/benchmarks/
+swe-bench-verified, 2024, evaluation methodology enforces a 1 mil-
+lion token limit per issue.
+[65] OpenAI, “tiktoken,” 2025, https://github.com/openai/tiktoken.
+[66] Libraries.io, “Libraries.io,” 2025, https://libraries.io/.
+[67] N. Registry, “Sourceranks,” 2025, https://github.com/nice-registry/
+sourceranks.
+[68] GitHub, “Github security advisories,” 2025, https://github.com/
+advisories.
+[69]CodeQL 2.21.2 Changelog, GitHub, 2025, codeQL CLI 2.21.2
+release notes. [Online]. Available: https://codeql.github.com/docs/
+codeql-overview/codeql-changelog/codeql-cli-2.21.2/
+[70] “CodeQL JavaScript data flow cheat sheet: Access
+paths,” https://codeql.github.com/docs/codeql-language-guides/
+data-flow-cheat-sheet-for-javascript/#access-paths.
+[71] GitHub, “Debugging data flow queries using partial
+flow,” https://codeql.github.com/docs/writing-codeql-queries/
+debugging-data-flow-queries-using-partial-flow/, 2025, codeQL
+Docs.
+[72] M. Wang, K. Pei, and A. Solar-Lezama, “CALLME:
+Call graph augmentation with large language models for
+javascript,” inSecond Conference on Language Modeling, 2025,
+https://openreview.net/forum?id=xZi2rMUcAO.
+[73] M. H. M. Bhuiyan, G. D. Stefano, G. Pellegrino, and C.-A. Staicu,
+“Call me maybe: Enhancing javascript call graph construction using
+graph neural networks,” 2025, https://arxiv.org/abs/2506.18191.
+[74] O. Tripp, M. Pistoia, S. J. Fink, M. Sridharan, and O. Weisman,
+“Taj: effective taint analysis of web applications,”SIGPLAN
+Not., vol. 44, no. 6, p. 87–97, Jun. 2009. [Online]. Available:
+https://doi.org/10.1145/1543135.1542486
+[75] J. C. S. Santos, M. Mirakhorli, and A. Shokri, “Seneca: Taint-
+based call graph construction for java object deserialization,”
+Proceedings of the ACM on Programming Languages, vol. 8,
+no. OOPSLA1, p. 1125–1153, Apr. 2024. [Online]. Available:
+http://dx.doi.org/10.1145/3649851
+[76] I. LangChain, “Langchain: Build context-aware reasoning applica-
+tions,” 2024, https://www.langchain.com/.
+[77] GHSA-5ff8-jcf9-fw62 - GitHub Advisory Database. GitHub. [On-
+line]. Available: https://github.com/advisories/GHSA-5ff8-jcf9-fw62
+[78] W. Flinn, “Waylonflinn/markdown-it-katex.” [Online]. Available:
+https://github.com/waylonflinn/markdown-it-katex
+Appendix A.
+Agent Walkthrough
+A.1. Agent Implementation
+SemTaint’s agents are implemented using
+LangChain [76], a framework that provides a unified
+interface across LLM providers. Each agent follows
+a common architecture: prompts are constructed as
+system/user message pairs from Jinja2 templates, domain-
+specific tools are defined with Pydantic schemas for input
+validation, and the LLM is invoked in an iterative loop
+where tool calls are executed and results returned until
+the agent signals completion or reaches its iteration limit.
+All agents share a read-only codebase traversal toolkit for
+exploration, while each adds task-specific resolution tools.
+Tool Calls.
+Thetraversal toolkitis available to all agents as a
+read-only set of tools for codebase exploration. These
+Source/Sink and Flow Summary tools operate on multi-
+ple codebases under namespace prefixes (e.g.,source/,
+npm/,builtin/), enabling unified navigation across
+package source code, npm dependencies, and Node.js built-
+in modules. In contrast, the CallGraph Agent tools only
+require thesource/namespace:
+•view_src(file_path, start_line,
+end_line): Retrieves source code lines with line
+numbers from indexed files.
+•view_dir(path): Returns a tree representation of the
+project structure, optionally scoped to a subdirectory.
+•find_string(search, max_results,
+start_index): Searches for string occurrences
+across all indexed files with pagination support.
+TheSource/Sink Agentcontains custom tools for propos-
+ing taint entry points and dangerous operations:
+•propose_source(location, description,
+confidence): Proposes a code location where
+untrusted input enters the application.
+•propose_sink(location, description,
+confidence): Proposes a code location where a
+dangerous operation occurs.
+•view_proposed_sources_sinks(verbose,
+item_type): Reviews already-proposed sources and
+sinks to avoid duplicates and assess coverage.
+•complete_discovery(justification,
+summary, confidence): Signals discovery
+completion with an explanation of search strategies
+used.
+TheCallGraph Agentcontains custom tools for resolv-
+ing unresolved call sites to their target functions:
+•search_functions(function_name,
+file_path): Searches the CodeQL-extracted function
+index by name or file path with fuzzy matching, returning
+function indices required for proposals.
+•propose_fp(candidates): Proposes one or more
+first-party callees with a traced path from call site to
+target, including intermediate steps through imports, as-
+signments, and lookups.
+17
+
+=== PDF PAGE 18 ===
+•propose_tp(library_name, metadata,
+confidence, reasoning): Marks the call as
+targeting a third-party library with structured metadata
+including library type, module path, and import statement.
+•mark_target_not_indexed(target_file,
+target_line, target_name, explanation):
+Records targets found in source code but missing from
+the function index due to CodeQL extraction limitations.
+•view_proposed_callees(verbose): Reviews
+already-proposed callees to avoid duplicates.
+•complete_resolution(status, summary):
+Signals resolution completion as eitherresolvedor
+unresolvable.
+TheFlow Summary Agentcontains custom tools for
+validating third-party edges in vulnerability paths:
+•classify_edge(flow_trace): Classifies
+a third-party edge aspropagates-taint,
+sanitizes-taint, orunknownwith a complete
+data flow trace through the library code, including
+sanitization points and confidence score.
+Multi-Run Aggregation. Due to LLM non-determinism,
+each agent executes multiple runs per task, with results
+combined through agent-specific aggregation strategies.
+•The Source/Sink Agent uses union aggregation:
+sources and sinks are grouped by location identity
+(file:line:string_value), and any fact ob-
+served in at least one run is retained, maximizing recall.
+•The CallGraph Agent uses stratified aggregation: a ma-
+jority vote first determines whether each call site targets
+first-party or third-party code, then first-party edges
+undergo union aggregation since the LLM may resolve
+a call to different targets across runs, while third-party
+edges require no further aggregation as candidate flow
+summaries are deterministic per call site.
+•The Flow Summary Agent uses majority voting
+across an odd number of runs to classify edges as
+propagates,sanitizes, orunknown, with ties
+broken by average confidence scores; unknown classi-
+fications are conservatively treated as propagating taint.
+A.1.1. Confidence.To mitigate LLM overconfidence, each
+agent employs calibrated rubrics. All rubrics reserve score 5
+for zero-ambiguity cases, require justification against docu-
+mented evidence, and instruct agents to prefer lower scores
+when uncertain.
+CallGraph Agent:Scores (1–5) reflect trace complete-
+ness: 5 requires direct invocation with unambiguous resolu-
+tion; 4 permits dynamic behavior if multiple evidence points
+converge; 3–1 indicate increasing gaps or assumptions in the
+trace.
+Source/Sink Agent:For sources, scores reflect user-
+controllability and absence of entry-point sanitization. For
+sinks, scores reflect known exploitability and whether ex-
+ploit preconditions are evidenced. Both reserve 5 for certain,
+unmitigated vulnerability paths.
+Flow Summary Agent:Scores reflect evidence strength
+for propagation classification: 5 requires direct implementa-
+tion inspection or authoritative documentation; lower scores
+indicate increasing reliance on semantic inference.
+A.2. Source/Sink Agent Walkthrough
+Figure 3 illustrates a single run of the Source/Sink
+Agent’s analysis ofmrk.jsfor CWE-79 (Cross-site Script-
+ing). The agent receives a structured CWE pattern report
+containing the vulnerability description, common conse-
+quences, and characteristic patterns for XSS.
+The agent begins by exploring the project structure using
+view_dir, revealing a minimal package: two implementa-
+tion files (mrk.js,async.js), test files, and configura-
+tion. It then examinespackage.jsonto understand that
+this is a markdown parser that renders user input to HTML,
+a context where XSS vulnerabilities commonly arise.
+With this understanding, the agent systematically re-
+views the implementation. Usingfind_stringto search
+formrk.htmlify, it locates the HTML rendering func-
+tions where user-controlled markdown tokens are converted
+to HTML output. The agent traces data flow from the entry
+point backward: themrk(input)function parameter at
+line 5 represents where untrusted markdown strings enter
+the parser.
+For sinks, the agent identifies thehtmlify.link
+function at line 304, which interpolates user-
+controlledmetadata.hrefinto an HTMLhref
+attribute. The agent recognizes that the sanitization,
+.replace(’javascript:’, ’’), is case-sensitive
+and bypassable, constituting an XSS sink with confidence 4.
+After reviewing its proposals with
+view_proposed_sources_sinksto avoid duplicates,
+the agent callscomplete_discovery, reporting
+2 sources (theinputparameters in both sync and async
+variants) and 4 sinks (link and autolink rendering in both
+files) with 4 confidence. These location tuples are then
+validated against CodeQL’s QL Nodes to produce the final
+source and sink specifications shown in Figure 6.
+A.3. CallGraph Agent Walkthrough
+Figure 4 illustrates the CallGraph Agent resolving the
+three unresolved calls identified in Section 2. The agent
+receives each unresolved call as a separate task: the file path,
+line and column location, callee name (when available), and
+access to the function index extracted from CodeQL.
+We trace one resolution in detail: the dynamic dispatch
+at line 17 (Listing 2), wherefnis invoked in a for loop.
+CodeQL cannot resolve this call becausefnis bound dy-
+namically from object property enumeration.
+The agent begins by callingview_srcto ex-
+amine the surrounding code, revealing thatfniter-
+ates overmrk.patterns. Usingview_src, it traces
+wheremrk.patternsis assigned viaObject.assign
+with default pattern functions. The agent then calls
+search_functionswithfile_path="mrk.js"to
+retrieve all function indices in the file.
+18
+
+=== PDF PAGE 19 ===
+For each pattern function (newline,
+italicStart,link, etc.), the agent constructs a
+TracedCandidateInfostructure documenting: (1) the
+call site location, (2) trace steps showing assignment
+throughObject.entriesiteration, property lookup
+inmrk.patterns, and the target function definition,
+(3) the function index required for CodeQL binding, and
+(4) a confidence score. The agent proposes these 10 pattern
+functions viapropose_fpin batches of at most 5;
+larger batches degraded trace quality as the agent produced
+shallower reasoning and structural output errors. Each
+candidate receives confidence 5 due to the unambiguous
+trace from call site to definition.
+CallGraph with TICR. Figure 5 illustrates how TICR
+leverages resolved edges to expose additional security-
+relevant calls. In the initial iteration, TICR identifies calls
+reachable from sources (theinputparameter) but can-
+not reach sinks because dynamic dispatch severs the path.
+After the CallGraph Agent resolvesfn→link, CodeQL
+can propagate taint through the pattern functions. This ex-
+poses the callback invocationmeta({name, href})at
+line 253 (“Break 2”), which TICR adds to the next iteration’s
+worklist. Resolving this edge in turn enables taint to reach
+thehtmlifydispatch (“Break 3”), ultimately connecting
+the source to the XSS sink. This iterative refinement con-
+tinues until no new security-relevant calls emerge or the
+iteration limit is reached.
+The finalcalledges.csv, shown in Figure 6, con-
+tains the recovered edges that repair CodeQL’s inter-
+procedural data flow graph.
+A.4. Flow Summary Agent Walkthrough
+The mrk.js example from Section 2 did not contain
+third-party library calls along its vulnerability path, allowing
+the CallGraph agent to resolve all inter-procedural edges
+within the package’s source code. However, many real-
+world vulnerabilities traverse npm dependencies, where taint
+flows through third-party APIs before reaching dangerous
+sinks. To illustrate how SemTaint handles these cases, we
+examine GHSA-5ff8-jcf9-fw62 [77], a cross-site scripting
+vulnerability inmarkdown-it-katex[78], a plugin
+that adds mathematical formula rendering to the popular
+markdown-itparser.
+Vulnerability Context. Figure 9 illustrates the vulnera-
+bility across four code segments: the application entry
+point (browser.js), the vulnerable plugin (index.js),
+and two files from themarkdown-itdependency in
+node_modules. The application reads user input from a
+text field and passes it tomd.render(input.value)
+1 , where both the taint source and the unresolved third-
+party call reside. The rendered result flows toinnerHTML
+4 , an XSS sink.
+CodeQL identifies both the source (input.value)
+and sink (innerHTML) but cannot complete the vul-
+nerability path. The call tomd.render()crosses into
+node_modules/markdown-it, which CodeQL ex-
+cludes from analysis by default. Without a manually spec-
+ified flow summary for this API, CodeQL conservatively
+assumes the call blocks taint propagation, yielding no vul-
+nerability alert.
+Candidate Flow Summary. When the CallGraph agent
+encountersmd.render(), it recognizes the call targets
+a third-party library (via CodeQL’s API graph) and marks
+it as acandidate flow summary. This enables CodeQL to
+report a candidate vulnerability path, which SemTaint then
+validates through the Flow Summary Agent.
+Agent Analysis. The Flow Summary Agent receives the
+candidate edge along with CWE-79 context and begins sys-
+tematic exploration. Figure 10 shows a high-level overview
+of the agent’s tool calls and reasoning.
+The agent first examines the call site inbrowser.js,
+identifying thatmdis instantiated frommarkdown-it
+and extended viamd.use(mk)with a local plugin. Us-
+ing thenpm/namespace prefix, the agent navigates into
+node_modulesto examine the library’s implementation.
+Atnpm/markdown-it/lib/index.js 2 ,
+the agent locates therenderfunction (line 536–
+540), which parses input into tokens and delegates to
+this.renderer.render(). The agent then searches
+for sanitization mechanisms, findingescapeHtmlusage
+throughout the renderer. At A inrenderer.js, the agent
+observes that markdown-it’s default text rule applies HTML
+entity encoding. This would neutralize XSS payloads if it
+were applied. However, the agent also examines the local
+plugin (source/index.js), discovering that it overrides
+markdown-it’s renderer rules at B .
+These custom rules bypass the default sanitization en-
+tirely. The agent traces intokatexInline 3 and identi-
+fies the critical vulnerability: when KaTeX fails to render a
+LaTeX expression, the error handler returns the raw input
+without escaping.
+Classification. The agent classifies the edge as
+propagates-taintwith confidence 5, documenting
+seven trace steps from call site through library entry, plugin
+registration, renderer override, the unsanitized error path,
+and library exit. Because the candidate flow summary
+propagates taint, the vulnerability alert remains valid in
+SemTaint’s final results.
+Appendix B.
+TICR Implementation
+Section 4.3.2 introduced TICR’s bidirectional analysis
+and defined the reachability setsM src→brk andM brk→snk.
+This appendix explains why both directions are necessary
+and illustrates the implementation.
+B.1. Bidirectional Analysis
+A unidirectional approach, tracking only from sources
+toward broken calls, or only from broken calls toward sinks,
+misses security-relevant calls depending on where taint en-
+ters or exits the unresolved invocation.
+Pattern 1: Taint Flows INTO the Broken Call. Fig-
+ure 7 illustrates a pattern where taint flows directly into
+19
+
+=== PDF PAGE 20 ===
+an unresolved call. The functionprocessInput, which
+contains theevalsink, is passed as a callback argument to
+run() 1 . Insiderun(), this callback is stored in an ar-
+ray and later invoked viacallbacks[0](userInput)
+2 , an indirect call that CodeQL cannot statically resolve.
+Tainted data from the sourcelocation.hashflows
+throughuserInputdirectly into this invocation’s argu-
+ment.
+Source-to-break analysisM src→brk (Equation 12) detects
+this pattern because taint propagates from the sourcetothe
+unresolved call site. Break-to-sink analysis misses it: the
+sink residesinsidethe unresolved calleeprocessInput.
+Pattern 2: Taint Flows OUT OF the Broken Call. Fig-
+ure 8 illustrates the complementary pattern where taint flows
+out of a broken call. The functionfoo, which reads from the
+sourcelocation.hashand returns tainted data, is passed
+as a callback torun() 1 . Insiderun(), this callback is
+stored in an array and invoked viacallbacks[0](), an
+indirect call that CodeQL cannot resolve. The return value of
+this unresolved call flows directly intoprocessInput(),
+reaching theevalsink 2 .
+Break-to-sink analysisM brk→snk (Equation 13) detects
+this pattern because taint propagatesfromthe unresolved
+call site to the sink. Source-to-break analysis misses it: no
+tainted data flows into the call’s arguments.
+The union strategyM TICR =M src→brk ∪
+Mbrk→snk (Equation 14) ensures both patterns are captured,
+identifying all unresolved calls that could plausibly bridge
+a source-to-sink gap.
+Appendix C.
+Additional Figures and Tables
+TABLE 5: Validation Reference and Model Comparison
+Results
+ID GHSA CWE Gemini GPT
+1 GHSA-3crj-w4f5-gwh4 CWE-74 x✓
+2 GHSA-5ff8-jcf9-fw62 CWE-79✓ ✓
+3 GHSA-8j8c-7jfh-h6hx CWE-94 x✓
+4 GHSA-cqjg-whmm-8gv6 CWE-400 x x
+5 GHSA-f4hq-453j-p95f CWE-601✓ ✓
+6 GHSA-hpr5-wp7c-hh5q CWE-79 x✓
+7 GHSA-jv35-xqg7-f92r CWE-915✓ ✓
+8 GHSA-r4m5-47cq-6qg8 CWE-918✓ ✓
+9 GHSA-x67x-98x7-wv26 CWE-78✓ ✓
+10 GHSA-xqh8-5j36-4556 CWE-89✓ ✓
+Recall60%90%
+Cost $77$92.75
+20
+
+=== PDF PAGE 21 ===
+view_dir
+Directory Structure:
+|-- README.md
+|-- async.js
+|-- mrk.js
+|-- node-async-test.js
+|-- node-test.js
+`-- package.json
+[HARDCODED] Directory PATH: "./*"
+output
+view_src
+1: {
+2:   "name": "mrk.js",
+3:   "version": "2.0.0",
+4:   "description": "The happy little..",
+5:   "main": "mrk.js",
+6:   "repository": "https://github.co..",
+7:   "author": "alex <16batesa@gmail...",
+8:   "license": "MIT"
+9: }
+find_string
+async.js:164: const htmlify = mrk.htmlify
+async.js:167: html += await
+p(mrk.htmlify[token.name](token))
+async.js:286: mrk.htmlify = htmlify ||
+Object.assign({
+mrk.js:159: const htmlify = mrk.htmlify
+mrk.js:162: html +=
+mrk.htmlify[token.name](token)
+mrk.js:281: mrk.htmlify = htmlify ||
+Object.assign({
+output
+propose_source
+propose_sink
+{empty}
+{
+  "file_path": "package.json",
+  "start_line": 1, "end_line": 200
+}
+{
+  "search": "mrk.htmlify",
+  "max_results": 50
+}
+"package.json"
+{
+  "location": { "file_path", "line",
+   "column",
+   "string_value"},
+  "description": "User-controlled
+  markdown string
+  passed ...",
+  "confidence": 5
+}
+{
+  "location": { "file_path", "line",
+"column",
+"string_value"},
+  "description": "User-controlled
+    link href ..., 
+  enabling XSS.",
+  "confidence": 4
+}
+complete_discovery
+{
+   "justification": "I analyzed the
+     project ...",
+   "summary": "Sources: 2 ...
+       Sinks: 4 ...,
+   "confidence": 4,
+   "incomplete_analysis": null
+}
+0,mrk.js,5,input,5
+0,mrk.js,304,"mrk.esc ... :', '')",4
+Sinks
+Sources
+Iteration
+Iteration #1
+Iteration #2
+Iteration #6
+Iteration #10
+Iteration #14
+ITERATION #END
+ sources.csv
+ sinks.csv
+cwe-94.json
+cwe-79.json
+cwe-200.json
+...
+You are a security analysis assistant specializing in
+identifying sources and sinks based on CWE
+classifications....
+System Prompt CWE
+DescriptionsCWE Information:CWE ID:CWE-79Name: Improper Neutralization of Input DuringWeb Page Generation ('XSS')        Description ...
+User Prompt
+view_srcview_dirview_src
+view_srcfind_stringview_src
+view_srcpropose_sourcefind_string
+propose_sinkview_srcpropose_sink
+output
+Data Sources
+Browser
+APIs
+npm_modules
+node.js
+built-ins
+Source
+Code
+Figure 3: Source/Sink Agent discovering XSS sources and sinks in mrk.js through iterative code exploration.
+21
+
+=== PDF PAGE 22 ===
+Resolve the following unresolved function call: File: /mrk.js 
+Call: fn at line 253, column 9 (ends at line 253, column 28)...
+User Prompt
+ CodeQL Database
+Calls Without Callees2
+[HARDCODED] Directory PATH: "./*"
+search_functions
+[FILE] Index: 46
+  Function: newline
+  Type: method newline
+  Signature: ({ read ...       }
+  Location: /mrk.js:189:14
+[FILE] Index: 47
+  Function: italicStart
+  ...
+....
+output
+propose_fp
+{
+      "file_path": "mrk.js",
+      "max_results": 100
+    }
+complete_resolution
+0,17,29,74,14,fn,/mrk.js,189,14,191,7,/mrk.js,false,false,5
+1,17,29,74,14,fn,/mrk.js,194,18,198,7,/mrk.js,false,false,5
+2,17,29,74,14,fn,/mrk.js,201,16,205,7,/mrk.js,false,false,5
+3,17,29,74,14,fn,/mrk.js,208,29,211,7,/mrk.js,false,false,5
+4,17,29,74,14,fn,/mrk.js,214,27,217,7,/mrk.js,false,false,5 
+calledges
+Iteration
+Iteration #1
+ITERATION #END
+ calledges.csv
+Function
+Index
+You are a code analysis agent that resolves unresolved function
+calls in JavaScript/TypeScript codebases.
+...
+System Prompt
+Resolve the following unresolved function call:File: /mrk.js
+Call: fn at line 17, column 29
+    (ends at line 74, column 14)...
+User Prompt1
+HARDCODED LIMIT: 5
+Arguments: {
+  "status": "resolved",
+  "summary": 
+    "Identified all concrete
+     first-party targets for the
+     dynamic call `fn(...)`at 
+     mrk.js:17: ….",
+  "confidence_overview": 
+    "High confidence for the 10
+     default pattern functions …."
+}
+{
+  "candidates": [
+    {
+      "call_site": …,
+      "trace_steps": [
+        { "type", "line",
+          "snippet":,
+       …
+      ],
+      "target": { "name": "link", 
+                  "line": 246 },
+      "confidence": 5
+    },
+    { "target": "newline" }, ...
+  ]
+}
+view_srcview_dirfind_stringview_source
+view_srcview_srcsearch_functionspropose_fp
+view_srcview_srcsearch_functionsview_src
+Iteration #10
+Iteration #6
+Function IndexCalls Without
+Callees
+CodeQL
+Database
+sources.csv
+sinks.csv
+CallGraph Agent Run 1
+Resolve the following unresolved function call: File: /async.js 
+Call: mrk.htm...name] at line 162, column 21 (ends at line
+162, column 50)...
+User Prompt
+ CodeQL Database
+Calls Without Callees3
+CallGraph Agent Run 2CallGraph Agent Run 3
+Run 2
+Run 1
+Figure 4: CallGraph Agent resolution of unresolved calls in mrk.js, illustrating iterative code exploration of a dynamic
+dispatch call in Listing 2
+22
+
+=== PDF PAGE 23 ===
+X
+A
+C
+E
+I
+H
+F
+KB
+G
+J
+L
+Src1
+Src2
+Sink
+M
+D
+CallGraph
+Vulnerability Path
+CodeQL's CallGraph
+X
+X X
+Unresolved Call, along Vulnerability Path
+Source 1, Source 2
+Sink
+Figure 5: Taint-flow graph illustrating TICR’s demand-
+driven approach
+45,  17,  29, 74,  14, fn,      /mrk.js, 241, 11, 256, 7,   /mrk.js, false, false, 5
+105, 253, 9,  253, 28, meta,    /mrk.js, 71,  16, 74,  13,  /mrk.js, false, false, 5
+110, 162, 21, 162, 50, mrk...], /mrk.js, 304, 13, 304, 138, /mrk.js, false, false, 5
+Index
+Call Site
+s_l
+s_c
+e_l
+e_c
+name
+filepath
+s_l
+s_c
+e_l
+e_c
+filepath
+third_party
+ignored
+conf.
+Target
+0,              mrk.js,           304,         mrk.esc ...),            5
+...
+8,              async.js,         309,         mrk.esc ...),            4
+(b) Sinks 
+Index filepath confidences_l string value
+(c) Resolved Call Edges
+0,              mrk.js,           5,           input,                   5
+1,              async.js,         10,          input,                   5
+(a) Sources 
+Index filepath confidences_l string value
+Figure 6: Extracted Taint Specifications formrk.js
+ 4:function run(callback) {
+ 5:    let userInput = location.hash.substring(1);
+ 6:
+ 7:    let callbacks = []
+ 8:    callbacks.push(callback) 
+ 9:
+10:     callbacks[0](userInput)
+11: }
+12: 
+13: function processInput(input) {
+14:     eval(input);
+15: }
+16: run(processInput);
+Unresolved Call
+Source
+Sink
+1
+2
+Figure 7: Source-to-Break: Taint flowsintothe broken call.
+ 3:function foo() {
+ 4:    let userInput = location.hash.substring(1);
+ 5:    return userInput;
+ 6:}
+ 7:
+ 8:function run(callback) {
+ 9:    let callbacks = []
+10:     callbacks.push(callback) 
+11:     processInput(callbacks[0]())
+12: }
+13: 
+14: function processInput(input) {
+15:     eval(input);
+16: }
+17: run(foo);
+Unresolved Call
+Source
+Sink
+2
+1
+Figure 8: Break-to-Sink: Taint flowsout ofthe broken call.
+23
+
+=== PDF PAGE 24 ===
+ 1:var md = require('markdown-it')(),
+ 2: mk = require('./index');
+ 3:
+ 4:md.use(mk);
+ 5:
+ 6:var input = document.getElementById('input'),
+ 7: output = document.getElementById('output'),
+ 8: button = document.getElementById('button');
+ 9:
+10: button.addEventListener('click', function(ev){
+11: render
+12:     var result = md.render(input.value);
+13: 
+14:     output.innerHTML = result;
+15: 
+16: });
+ 13:var escapeHtml = require('./common/utils').escapeHtml;
+...
+ 18:var default_rules = {};
+...
+114: default_rules.text = function (tokens, idx) {
+115:   return escapeHtml(tokens[idx].content);
+116: };
+155: module.exports = function math_plugin(md, options) {
+...
+161:     var katexInline = function(latex){
+162:         options.displayMode = false;
+163:         try{
+164:             return katex.renderToString(latex, options);
+165:         }
+166:         catch(error){
+167:             if(options.throwOnError){ console.log(error); }
+168:             return latex;
+169:         }
+170:     };
+...
+172:     var inlineRenderer = function(tokens, idx){
+173:         return katexInline(tokens[idx].content);
+174:     };
+...
+195:     md.renderer.rules.math_inline = inlineRenderer;
+196:     md.renderer.rules.math_block = blockRenderer;
+197: };
+536: MarkdownIt.prototype.render = function (src, env) {
+537:   env = env || {};
+538:
+539:   return this.renderer.render(this.parse(src, env), 
+              this.options, env);
+540: };
+(a) browser.js (b) node_modules/markdown-it/lib/index.js
+(c) node_modules/markdown-it/lib/renderer.js
+(d) index.js
+Unresolved Third-party Call
+Source
+Sink
+1
+2
+3
+4
+Bypassed
+by plugin
+Override
+default rules
+Unsanitized return
+Library Entry
+A B
+Proper Sanitization
+Figure 9: Cross-file vulnerability path in markdown-it-katex, requiring analysis of third-party APIs
+[HARDCODED] Directory PATH: "./*"
+classify_edge
+Iteration
+You are a security analyst validating third-party call
+edges in vulnerability flows. Your task is to determine
+if taint propagates through third-party function calls ...
+System Prompt
+ThreadFlows
+CWE Information:
+CWE ID:CWE-79 ...
+Edge to Validate- Edge ID: 1 - Caller File: /browser.js- Caller Line: 12- Callee Name: md.render- Third-Party: True
+User Prompt
+Iteration #1
+ITERATION #END
+view_dirview_srcfind_stringview_src
+Flow Summary
+{
+  "edge_id": 1,  "callee_name": "md.render",
+  "call_site": {"file_path","line",...},
+  "target": {"library_name",     "function_name",...
+  "trace_steps": [...],  "classification": "propagates-taint",
+  "confidence": 5,  "sanitization_points": [],
+  "overall_reasoning": "md.render(input.
+value) processes ..."}
+Figure 10: Flow Summary Agent analysis classifying the third-party call as taint-propagating
+24

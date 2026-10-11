@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_version": "2026-10-05-v1",
-  "updated_at": "2026-10-08",
+  "updated_at": "2026-10-09",
   "execution_status": "owasp48_frozen_acceptance_and_comparison_complete",
   "active_phase": "P1",
   "active_task": "E02",
@@ -36,8 +36,9 @@
     }
   ],
   "next_action": {
-    "task_id": "TEST_PROGRAMS_INPUT_PREP",
-    "instruction": "按两类测试计划准备下一轮输入。通用发现使用新的预留样本，已有OWASP48验收已暴露、只作回归，补统一告警盲审；专项优先冻结BAC-Bench索引及漏洞/修复源码、隔离根因/路由金标，完成匹配裁决与预算登记后再执行。ABSENTIA检测器未发布，先做公开任务+作者参照，不称实际竞品复现。RAG规则/修复仍待独立参考QL与联合oracle正式准入。本次只分类统计，没有新增模型测试。"
+    "task": "CHAIN-COMPLETION-20261009-RESUME",
+    "instruction": "自动审批服务恢复后，读取链路报告和v3冻结配置，从v2已完成上传ID恢复；先证据确认/Repair2/隐藏联合测试，再知识索引/Rule8批准holdout发布再用，报告/隔离/停用及自己的测试数据清理。不得绕过审核、消费默认队列或把未评估记通过。",
+    "source": "docs/research/chain-completion-20261009-results.md"
   },
   "current_batch": "20261005-calibration-v1",
   "experiment_id": "20261005-calibration-v1",
@@ -1857,5 +1858,52 @@
         "BAC-Bench task preparation before ABSENTIA code release"
       ]
     }
+  },
+  "supplemental_20261009": {
+    "status": "completed",
+    "plan": "../../docs/research/supplemental-20261009-plan.md",
+    "output": "artifacts/research/supplemental/20261009-v1",
+    "current_action": "fresh_discovery_static_and_model_runs",
+    "completed": [
+      "fresh_discovery_96",
+      "derived_repair_10_paired_20_requests",
+      "historical_rule18_new_flow_holdouts",
+      "reliability_33_plus_new_tests5",
+      "real_gui_10_of_11"
+    ],
+    "limits": {
+      "full_owasp_model_runs": 2,
+      "production_changes": false
+    },
+    "archive_previous": "20261009-workspace-v1",
+    "archive_next": "20261009-workspace-v2",
+    "report": "docs/research/supplemental-20261009-results.md",
+    "summary": "docs/research/supplemental-20261009-summary.json",
+    "production_changed": false,
+    "remaining_gaps": "see supplemental summary.remaining_gaps",
+    "findings": [
+      "Python XSS wrapper-return holdout misses",
+      "Repair2 js-owner insufficient semantic evidence",
+      "mobile logout entry hidden <=700px"
+    ],
+    "archive_status": "created_and_verified",
+    "archive_workspace": "WORKSPACE-c67e6a14830485b9"
+  },
+  "latest_validation_status": "chain_completion_partial_blocked_approval_service_quota",
+  "chain_completion_20261009": {
+    "status": "partial_blocked",
+    "report": "../../docs/research/chain-completion-20261009-results.md",
+    "summary": "../../docs/research/chain-completion-20261009-summary.json",
+    "all_product_chains_completed": false,
+    "regression_passed": 230,
+    "new_archive_guard_tests_passed": 3,
+    "real_stages": {
+      "scout": 4,
+      "review": 2
+    },
+    "model_calls": 22,
+    "prepared_resume": "../../artifacts/research/chain-completion/20261009-v3/config.json",
+    "cleanup": "own_services_stopped_test_accounts_retained_for_resume",
+    "blocker": "automatic_approval_service_usage_limit_not_safety_rejection"
   }
 }

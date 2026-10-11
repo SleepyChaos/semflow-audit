@@ -14,10 +14,12 @@ OUT = ROOT / "artifacts/research/owasp48/20261007-evolution"
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--sample", required=True)
+    parser.add_argument("--output", type=Path, default=OUT)
     args = parser.parse_args()
-    material = OUT / "samples" / args.sample
+    root = args.output.resolve()
+    material = root / "samples" / args.sample
     source = material / "source"
-    output = OUT / "comparators" / "bandit" / args.sample
+    output = root / "comparators" / "bandit" / args.sample
     output.mkdir(parents=True, exist_ok=True)
     if (output / "result.json").exists():
         print("Existing baseline retained")

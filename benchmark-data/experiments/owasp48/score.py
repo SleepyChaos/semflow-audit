@@ -19,11 +19,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--sample", required=True)
     parser.add_argument("--version", required=True)
+    parser.add_argument("--output", type=Path, default=OUT)
     args = parser.parse_args()
-    selection = read(OUT / "samples" / args.sample / "evaluator-selection.json")
+    output = args.output.resolve()
+    selection = read(output / "samples" / args.sample / "evaluator-selection.json")
     labels = selection["selected"]
-    run = OUT / "runs" / args.version / args.sample
-    baseline = read(OUT / "static" / args.sample / "result.json")
+    run = output / "runs" / args.version / args.sample
+    baseline = read(output / "static" / args.sample / "result.json")
     scout, review, coverage, batches = [], [], [], []
     usage = Counter()
     for group in selection["model_batches"]:

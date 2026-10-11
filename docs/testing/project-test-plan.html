@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="SemFlow项目完整测试方案：双引擎代码审计、代码修复与规则生成的全量基准、多智能体设计、评价指标及竞品功能范围。">
+<meta name="source-sha256" content="312ff16d928a20c5603a960f1a92538f81f0d582e2f2d3f0862fe17d24460d55">
+<title>项目完整测试方案 · SemFlow</title>
+<style>
+:root { color-scheme: light; --ink:#19263a; --muted:#526176; --accent:#2358bd; --line:#dfe5ee; --paper:#fff; --background:#f4f6fa; --soft:#edf3fe; }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; scroll-padding-top:32px; }
+body { margin:0; background:var(--background); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; font-size:15px; line-height:1.85; -webkit-font-smoothing:antialiased; }
+a { color:var(--accent); text-decoration-thickness:1px; text-underline-offset:4px; }
+a:hover { color:#143d8d; }
+button { font:inherit; cursor:pointer; }
+:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+.skip-link { position:fixed; left:20px; top:-80px; z-index:10; background:white; padding:10px 18px; border:1px solid var(--accent); }
+.skip-link:focus { top:12px; }
+.topbar { height:74px; background:var(--paper); border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 max(28px,calc((100vw - 1380px)/2)); gap:20px; }
+.brand { display:flex; align-items:center; gap:12px; font-size:19px; font-weight:750; letter-spacing:-.5px; }
+.brand-mark { display:grid; place-items:center; width:32px; height:32px; color:white; background:var(--ink); border-radius:7px; font-size:21px; }
+.brand small { font-size:13px; font-weight:450; color:var(--muted); letter-spacing:0; border-left:1px solid var(--line); padding-left:12px; margin-left:4px; }
+.top-meta { font-size:12px; color:var(--muted); letter-spacing:.7px; }
+.layout { max-width:1380px; margin:auto; display:grid; grid-template-columns:222px minmax(0,1fr); gap:46px; padding:44px 28px 64px; }
+.sidebar { position:sticky; top:28px; align-self:start; padding-top:8px; }
+.nav-label,.eyebrow { font-size:11px; font-weight:750; letter-spacing:1.8px; color:var(--muted); }
+.nav-label { padding:0 13px; margin:0 0 17px; }
+.sidebar nav { display:grid; gap:5px; }
+.nav-item { min-height:45px; display:flex; align-items:center; gap:13px; padding:9px 13px; border-radius:7px; color:var(--muted); text-decoration:none; font-size:14px; }
+.nav-item .index { color:#67768b; font:12px ui-monospace,SFMono-Regular,monospace; }
+.nav-item:hover { background:#e9eef6; }
+.nav-item.active { color:var(--accent); background:#e5edfc; font-weight:650; }
+.nav-item.active .index { color:var(--accent); }
+.sidebar-note { border-top:1px solid var(--line); padding:23px 13px; margin-top:25px; font-size:12px; color:var(--muted); }
+.sidebar-note strong { display:block; color:var(--ink); font-size:13px; margin-bottom:5px; }
+.sidebar-note a { display:block; margin-top:14px; }
+main { min-width:0; }
+.hero { padding:3px 0 31px; }
+.eyebrow { color:var(--accent); margin:0 0 12px; }
+.hero h1 { font-size:clamp(29px,3vw,42px); line-height:1.28; margin:0 0 15px; font-weight:760; letter-spacing:-1.3px; }
+.lead { margin:0; font-size:16px; color:var(--muted); max-width:690px; line-height:1.9; }
+.hero-bottom { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-top:25px; flex-wrap:wrap; }
+.tags { display:flex; gap:8px; flex-wrap:wrap; }
+.tag { padding:4px 10px; font-size:12px; border:1px solid var(--line); background:var(--paper); border-radius:5px; color:var(--muted); }
+.actions { display:flex; gap:10px; align-items:center; }
+.action { display:inline-flex; align-items:center; gap:7px; justify-content:center; min-height:41px; border:1px solid #c4cfdf; border-radius:6px; padding:7px 13px; color:var(--ink); background:white; text-decoration:none; font-size:13px; line-height:1.4; }
+.action:hover { background:#edf2fa; color:var(--ink); }
+.action.primary { background:var(--accent); border-color:var(--accent); color:white; }
+.action.primary:hover { background:#1c489b; }
+.action svg { width:15px; height:15px; }
+.scope-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.scope-card { background:var(--paper); border:1px solid var(--line); border-radius:9px; padding:22px 23px; position:relative; }
+.scope-card::before { content:""; display:block; height:3px; position:absolute; top:-1px; left:22px; width:30px; background:var(--accent); }
+.scope-card h2 { margin:0 0 16px; font-size:15px; font-weight:650; }
+.card-value { font-size:30px; line-height:1.2; letter-spacing:-.8px; font-weight:720; white-space:nowrap; }
+.card-value span { font-size:12px; letter-spacing:0; margin-left:5px; color:var(--muted); font-weight:450; }
+.card-caption { margin:6px 0 14px; font-size:12px; color:var(--muted); }
+.card-detail { border-top:1px solid var(--line); padding-top:11px; font-size:12px; color:var(--muted); line-height:1.75; }
+.card-detail b { color:var(--ink); font-weight:650; }
+.principle { display:flex; gap:17px; align-items:flex-start; border:1px solid #cedbf2; background:var(--soft); padding:18px 22px; margin:20px 0 36px; border-radius:7px; }
+.principle-label { color:var(--accent); font-size:12px; flex:none; margin-top:2px; font-weight:700; }
+.principle p { margin:0; font-size:13px; color:#354967; }
+.document-section { background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:30px 34px 32px; margin-bottom:25px; scroll-margin-top:25px; overflow-wrap:anywhere; }
+.section-heading { display:flex; gap:14px; align-items:center; padding-bottom:19px; margin-bottom:21px; border-bottom:1px solid var(--line); }
+.section-number { font:12px ui-monospace,SFMono-Regular,monospace; background:var(--soft); color:var(--accent); width:32px; height:32px; display:grid; place-items:center; border-radius:5px; flex:none; }
+.section-heading h2 { margin:0; font-size:21px; font-weight:700; letter-spacing:-.3px; }
+.document-section h3 { font-size:16px; margin:29px 0 12px; padding-left:11px; border-left:3px solid var(--accent); line-height:1.5; }
+.document-section h3:first-of-type { margin-top:0; }
+.document-section p { margin:13px 0; }
+.document-section > p:last-child { margin-bottom:0; }
+.document-section strong { font-weight:670; }
+.document-section ol { padding-left:23px; margin:14px 0; }
+.document-section li { padding-left:5px; margin:10px 0; }
+.document-section li::marker { color:var(--accent); font-weight:650; }
+.table-wrap { max-width:100%; overflow-x:auto; margin:20px 0; border:1px solid var(--line); border-radius:6px; }
+table { border-collapse:collapse; width:100%; font-size:13px; line-height:1.75; text-align:left; }
+th,td { padding:13px 15px; vertical-align:top; border-bottom:1px solid var(--line); }
+th { background:#f3f6fb; color:#34455e; font-weight:650; white-space:nowrap; }
+tr:last-child td { border-bottom:0; }
+tbody tr:nth-child(even) { background:#fbfcfe; }
+td { min-width:95px; }
+td:first-child { min-width:130px; }
+code { font:12px ui-monospace,SFMono-Regular,Consolas,monospace; background:#eef1f6; padding:2px 5px; border-radius:3px; color:#34455e; overflow-wrap:anywhere; }
+.footer { display:flex; justify-content:space-between; gap:16px; font-size:12px; color:var(--muted); padding:0 2px; flex-wrap:wrap; }
+.footer a { color:var(--muted); }
+@media (max-width:1100px) { .layout { gap:25px; grid-template-columns:180px minmax(0,1fr); } .scope-card { padding:20px 17px; } .card-value { font-size:26px; } .document-section { padding:26px; } }
+@media (max-width:850px) { .layout { display:block; padding:25px 20px 40px; } .sidebar { position:static; padding:0; margin-bottom:25px; } .sidebar nav { display:flex; overflow-x:auto; gap:4px; padding-bottom:7px; } .nav-item { flex:none; padding:9px 12px; } .sidebar-note,.nav-label { display:none; } .topbar { padding:0 22px; height:65px; } .top-meta { display:none; } .hero { padding-bottom:24px; } .hero h1 { letter-spacing:-.7px; } }
+@media (max-width:560px) { body { font-size:14px; } .layout { padding:22px 16px 36px; } .brand small { font-size:12px; } .scope-cards { grid-template-columns:1fr; gap:10px; } .scope-card { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:3px 14px; padding:18px 20px; } .scope-card h2 { grid-column:1/-1; margin-bottom:8px; } .card-value { font-size:27px; } .card-caption { grid-column:1; margin:3px 0 0; } .card-detail { grid-column:2; grid-row:2/4; border:0; padding:0; align-self:center; } .principle { padding:15px; gap:10px; flex-direction:column; } .document-section { padding:22px 18px; } .section-heading h2 { font-size:19px; } .hero-bottom { margin-top:18px; } .actions { width:100%; } .action { flex:1; } th,td { padding:11px 12px; } table { min-width:560px; } .footer { flex-direction:column; gap:5px; } }
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+@media print { @page { margin:16mm; } body { background:white; font-size:10pt; color:#000; } .topbar,.sidebar,.actions,.skip-link { display:none; } .layout { display:block; max-width:none; margin:0; padding:0; } .hero h1 { font-size:25pt; } .hero { padding-bottom:15px; } .scope-cards { grid-template-columns:repeat(3,1fr); } .scope-card { padding:12px; break-inside:avoid; } .principle { margin-bottom:20px; } .document-section { border:0; border-radius:0; padding:0; margin:25px 0; } .section-heading { break-after:avoid; } h3 { break-after:avoid; } .table-wrap { overflow:visible; border:0; } table { min-width:0; font-size:9pt; } th,td { min-width:0 !important; padding:7px; } tr { break-inside:avoid; } thead { display:table-header-group; } a { color:#000; text-decoration:none; } code { font-size:8pt; } .footer { border-top:1px solid #ccc; padding-top:10px; } }
+</style>
+</head>
+<body>
+<a href="#content" class="skip-link">跳至方案正文</a>
+<header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">S</span>SemFlow<small>项目测试文档</small></div><span class="top-meta">TEST PLAN / FULL BENCHMARK</span></header>
+<div class="layout">
+<aside class="sidebar" aria-label="方案目录">
+<p class="nav-label">文档目录</p>
+<nav>
+<a class="nav-item active" href="#scope"><span class="index">01</span>测试功能与验证目标</a>
+<a class="nav-item" href="#audit"><span class="index">02</span>双引擎代码审计</a>
+<a class="nav-item" href="#repair"><span class="index">03</span>代码修复</a>
+<a class="nav-item" href="#rules"><span class="index">04</span>规则生成</a>
+<a class="nav-item" href="#competitors"><span class="index">05</span>竞品功能与对照</a>
+</nav>
+<div class="sidebar-note"><strong>完整范围，独立评分</strong>每个模块使用明确的基准、分母和完成条件。<a href="simple-three-module-test-plan.md">查看方案源文档 ↗</a></div>
+</aside>
+<main id="content">
+<div class="hero">
+<p class="eyebrow">SEMFLOW · 项目测试方案</p>
+<h1>项目测试方案</h1>
+<p class="lead">双引擎代码审计、代码修复、规则生成。说明三个模块测什么、有什么作用、达到什么目标。</p>
+<div class="hero-bottom"><div class="tags"><span class="tag">方案 v7 · 详细说明</span><span class="tag">2026.10.11</span><span class="tag">每模块最多两篇论文</span></div><div class="actions"><a class="action" href="simple-three-module-test-plan.md">方案源文档 ↗</a><button class="action primary" type="button" id="print-button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M7 8V3h10v5M7 17H4V9h16v8h-3M7 14h10v7H7z"/></svg>打印 / 保存为PDF</button></div></div>
+</div>
+<div class="scope-cards" aria-label="三个模块的目标范围">
+<article class="scope-card"><h2>双引擎代码审计</h2><div class="card-value">1,230<span>OWASP例</span></div><p class="card-caption">452正例 / 778负例 · 14类别</p><div class="card-detail">另覆盖 <b>26</b> 个RealVuln项目<br><b>796</b> 项标签 · 18个CWE家族</div></article>
+<article class="scope-card"><h2>代码修复</h2><div class="card-value">230<span>动态任务</span></div><p class="card-caption">安全验证＋正常功能验证</p><div class="card-detail">完整 <b>1,000</b> 项CVE任务<br>Python / JavaScript / Go</div></article>
+<article class="scope-card"><h2>规则生成</h2><div class="card-value">176<span>Java CVE任务</span></div><p class="card-caption">QLCoder · 漏洞版 / 修复版</p><div class="card-detail">覆盖 <b>42</b> 类CWE<br>可执行 · 命中 · 修复版区分</div></article>
+</div>
+<div class="principle"><span class="principle-label">全量原则</span><p>分批执行不缩小范围。各模块以所选论文和公开项目的完整测试集为目标；各基准独立统计，不合成为一个总准确率。</p></div>
+<section id="scope" class="document-section" aria-labelledby="scope-title"><div class="section-heading"><span class="section-number" aria-hidden="true">01</span><h2 id="scope-title">测试功能与验证目标</h2></div><h3>1 需要验证的三个功能项</h3>
+<p>双引擎代码审计由 CodeQL 静态引擎和 ScoutAgent 分别发现问题，再由 ReviewAgent 统一复核并汇总。测试需要区分发现能力与复核能力：联合发现是否补足单引擎漏检，复核是否降低误报，最终结论是否仍能关联到真实文件、位置和证据。</p>
+<p>代码修复由 RepairAgent 根据已确认问题生成可应用的代码补丁，并依据验证反馈进行有限修订。测试需要证明目标漏洞被消除，同时正常功能保持；语法通过、文字解释合理或与参考补丁相似，都不足以单独证明修复成功。</p>
+<p>规则生成由 RuleGeneratorAgent 基于检索知识与给定漏洞信息生成可运行的 CodeQL 查询，并依据编译及开发执行反馈进行有限修订。测试需要证明规则能够执行、在漏洞版本命中目标路径，并能区分对应的修复版本。检索作为生成流程的一部分，本方案评价模块整体效果。</p>
+<p><strong>表1 功能项与验证内容</strong></p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="可横向滚动的数据表"><table>
+<thead>
+<tr>
+<th>功能项</th>
+<th>主要验证内容</th>
+<th>判定依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>双引擎代码审计</td>
+<td>准确性、漏检与误报、引擎互补、证据定位、耗时成本</td>
+<td>原始发现、复核决定、目标匹配、逐项目和逐类别得分</td>
+</tr>
+<tr>
+<td>代码修复</td>
+<td>补丁可应用、安全有效、功能保持、失败处理</td>
+<td>候选补丁、实际测试结果、联合通过结果和失败原因</td>
+</tr>
+<tr>
+<td>规则生成</td>
+<td>查询可执行、漏洞命中、修复版区分、规则可复用</td>
+<td>候选 QL、双版本执行结果、命中路径和规则版本</td>
+</tr>
+</tbody></table></div>
+<h3>2 项目多智能体设计</h3>
+<p>本项目围绕 CodeQL 审计、AI 复审、修复 Diff 与报告、RAG 生成规则四个阶段，设计按职责分工的多智能体架构。CodeQL 与 ScoutAgent 构成双引擎发现层，ReviewAgent 对两路候选统一取证复核；已确认问题进一步交给 RepairAgent 和 RuleGeneratorAgent，分别形成可验证的补丁与可复用的检测规则。</p>
+<p>ScoutAgent 面向源码主动发现问题，不依赖 CodeQL 已有告警作为唯一入口。ReviewAgent 面向候选及关联证据核实漏洞条件，输出支持、排除或证据不足的复核建议。两者分工用于兼顾发现覆盖与结论可靠性；人工确认决定问题是否进入后续修复和规则生成阶段。</p>
+<p><strong>表2 多智能体职责与协作关系</strong></p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="可横向滚动的数据表"><table>
+<thead>
+<tr>
+<th>项目角色</th>
+<th>输入与协作</th>
+<th>产出与职责边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ScoutAgent</td>
+<td>源码快照、业务上下文和检索工具；与 CodeQL 共同形成候选池</td>
+<td>带文件位置与源码证据的漏洞候选；承担主动发现</td>
+</tr>
+<tr>
+<td>ReviewAgent</td>
+<td>CodeQL 与 ScoutAgent 候选；按需补充源码及调用证据</td>
+<td>复核意见、证据关联与不确定项；承担候选核实，确认由人工完成</td>
+</tr>
+<tr>
+<td>RepairAgent</td>
+<td>已确认问题、相关源码和业务约束；接收补丁验证反馈</td>
+<td>可应用补丁及修订候选；安全性和功能保持由实际测试判定</td>
+</tr>
+<tr>
+<td>RuleGeneratorAgent</td>
+<td>已确认漏洞材料、知识检索和 CodeQL 文档；接收查询验证反馈</td>
+<td>可运行的 CodeQL 检测规则；发布前须通过漏洞版与修复版验证</td>
+</tr>
+</tbody></table></div>
+<p>LangGraph 负责阶段衔接、任务状态及有限次数的反馈修订，RAG 为规则生成提供文档和查询知识，CodeQL 与独立验证器提供实际执行结果。各角色通过问题、证据、补丁和规则的持久化记录协作；模型判断与工具验证分别承担语义分析和结果确认。</p>
+<h3>3 测试分类与全量范围</h3>
+<p>统一按“功能项 → 测试意图 → 测试集类型”分类。项目测试检验完整仓库中的发现能力；专项测试集检验明确漏洞类别、修复任务或规则任务。工程检查补充验证任务隔离、失败状态和结果关联。</p>
+<p><strong>表3 正式测试范围</strong></p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="可横向滚动的数据表"><table>
+<thead>
+<tr>
+<th>功能项与材料</th>
+<th>全量目标</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>审计 RealVuln 论文 v1.0</td>
+<td>26 个 Python 项目；676 个漏洞标签和 120 个误报陷阱，共 796 项标签；18 个 CWE 家族</td>
+<td>项目级漏洞发现与误报控制</td>
+</tr>
+<tr>
+<td>审计 OWASP BenchmarkPython 0.1</td>
+<td>1230 例；452 正例、778 负例；14 个类别</td>
+<td>专项准确性与类别覆盖</td>
+</tr>
+<tr>
+<td>修复 PatchEval v1</td>
+<td>1000 项 CVE 任务；其中 230 项执行动态安全及功能测试；Python、JavaScript、Go</td>
+<td>补丁生成、联合修复成功</td>
+</tr>
+<tr>
+<td>规则 QLCoder ICLR 2026</td>
+<td>176 项 Java CVE；42 类 CWE；漏洞版与修复版配对</td>
+<td>规则合成的三条件联合成功</td>
+</tr>
+</tbody></table></div>
+<p>全量目标以本表为准，OWASP 的正式目标为全部 1230 例。项目测试和专项测试集分别评价，各基准保留独立分母。</p>
+</section>
+<section id="audit" class="document-section" aria-labelledby="audit-title"><div class="section-heading"><span class="section-number" aria-hidden="true">02</span><h2 id="audit-title">双引擎代码审计测试</h2></div><h3>1 论文选择与测试集用途</h3>
+<p>选用 RealVuln 论文 RealVuln: Benchmarking Rule-Based, General-Purpose LLM, and Security-Specialized Scanners on Real-World Code 的 v1 对应基准。[1] 论文在项目级比较规则扫描器、通用模型 Agent 和安全专用扫描器，适合检验双引擎联合发现及复核的收益。其项目以教学和 CTF 漏洞仓库为主，不能等同于生产环境中的真实 CVE 集。</p>
+<p>正式范围为论文 v1.0 全部 26 个 Python 项目、676 个漏洞标签和 120 个误报陷阱。项目源码提交、标签与官方评分器必须属于同一论文版本。后续扩大的 RealVuln 发行版另行建组，不能替换本轮分母后继续引用 v1 成绩。</p>
+<p>另使用 OWASP BenchmarkPython 0.1 全部 1230 例进行专项验证。[2] 452 个正例用于观察漏检，778 个负例用于观察误报，14 个类别分别统计。保留完整源码及必要辅助文件，不把单例抽取后的运行条件与完整项目混用。</p>
+<h3>2 论文对照与评价指标</h3>
+<p><strong>表4 RealVuln 作者报告的 v1 全量主表成绩</strong></p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="可横向滚动的数据表"><table>
+<thead>
+<tr>
+<th>作者配置</th>
+<th>P</th>
+<th>R</th>
+<th>F1</th>
+<th>F3</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Kolega.Dev v0.0.1</td>
+<td>38.8%</td>
+<td>80.9%</td>
+<td>52.4</td>
+<td>73.0</td>
+</tr>
+<tr>
+<td>Claude Sonnet 4.6 Agent</td>
+<td>78.5%</td>
+<td>49.8%</td>
+<td>60.9</td>
+<td>51.7</td>
+</tr>
+<tr>
+<td>Semgrep 默认配置</td>
+<td>20.5%</td>
+<td>17.5%</td>
+<td>18.9</td>
+<td>17.7</td>
+</tr>
+</tbody></table></div>
+<p>来源为论文第10页 Table 4，F1 和 F3 为百分制。[1] Claude 和 Semgrep 的项目完成数分别为 23/26、25/26，须保留执行失败信息。论文未报告 CodeQL 成绩，CodeQL 对照由本轮实际运行取得。作者模型、规则集或预算与本项目不一致时，原报成绩仅作背景参考。</p>
+<p>P 表示报告中匹配目标问题的比例，R 表示已标注漏洞被发现的比例，F1 综合两者，F3 更重视召回。除主表外，报告两个引擎各自独有的有效发现、ReviewAgent 的保留与剔除结果、各 CWE 表现，以及项目执行完成率。</p>
+<h3>3 预期效果与完成条件</h3>
+<p>合理预期是双引擎较单引擎增加有效漏洞覆盖，ReviewAgent 减少误报且不过度删除正确发现。以同批次 P、R、F1、F3 和逐类结果判断收益，不承诺复用历史小集分数，也不预设超过作者最优配置。</p>
+<p>26 个项目及 796 项标签、OWASP 1230 例均须纳入测试目标，提供逐项目、逐例和逐类别的准确性结果。缺少源码、类别或只完成部分样本时，不能标记本模块全量测试完成。</p>
+</section>
+<section id="repair" class="document-section" aria-labelledby="repair-title"><div class="section-heading"><span class="section-number" aria-hidden="true">03</span><h2 id="repair-title">代码修复测试</h2></div><h3>1 论文选择与测试集用途</h3>
+<p>选用 2025 年论文 PatchEval: A New Benchmark for Evaluating LLMs on Patching Real-World Vulnerabilities 及其 v1 测试协议。[3] 该基准从真实 CVE 修复中整理任务，通过安全攻击测试和功能回归测试检查补丁，能够验证“漏洞修好且正常功能保持”，比补丁文字评价或相似度更接近本模块的目标。</p>
+<p>正式范围为全部 1000 项 CVE 任务，覆盖 Python、JavaScript、Go 和 65 类 CWE。其中 230 项具有动态沙箱、安全 PoC 与功能测试，作为联合修复成功率的主评测；其余任务仍须生成补丁并按作者等价性协议评价。两种结果分别报告。</p>
+<h3>2 论文对照与评价指标</h3>
+<p><strong>表5 PatchEval 作者给定漏洞位置的单次动态修复成绩</strong></p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="可横向滚动的数据表"><table>
+<thead>
+<tr>
+<th>作者配置</th>
+<th>安全与功能联合通过</th>
+<th>联合通过率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GPT-4.1</td>
+<td>43/230</td>
+<td>18.70%</td>
+</tr>
+<tr>
+<td>Gemini 2.5 Pro</td>
+<td>52/230</td>
+<td>22.61%</td>
+</tr>
+<tr>
+<td>DeepSeek R1</td>
+<td>44/230</td>
+<td>19.13%</td>
+</tr>
+<tr>
+<td>SWE-Agent 加 Gemini 2.5 Pro</td>
+<td>53/230</td>
+<td>23.04%</td>
+</tr>
+</tbody></table></div>
+<p>来源为论文第9页 Table 3。[3] 这些成绩对应特定模型、输入和执行设置。单次补丁成绩与多候选成绩属于不同口径，应分别解释。</p>
+<p>主指标为安全与功能联合通过数除以 230。辅助报告补丁生成率、可应用率、安全通过率、功能通过率、1000 项等价性结果、语言和 CWE 差异，以及耗时成本。无补丁、应用失败、安全失败、功能失败和环境未评估分别记录。</p>
+<h3>3 预期效果与完成条件</h3>
+<p>合理预期是 RepairAgent 较同模型直接修复提高联合通过率，降低破坏正常功能的补丁比例，并能够解释失败原因。结果必须通过实际测试支持，不以语法通过、自建小例通过或参考补丁相似度替代真实 CVE 验证。</p>
+<p>完成条件为全部 1000 项任务具有补丁生成与等价性评价记录，全部 230 项动态任务具有安全和功能联合评价记录，Python、JavaScript、Go 三种语言均在范围内。未生成补丁等真实失败保留为测试结果，未执行任务不计为完成。</p>
+</section>
+<section id="rules" class="document-section" aria-labelledby="rules-title"><div class="section-heading"><span class="section-number" aria-hidden="true">04</span><h2 id="rules-title">规则生成测试</h2></div><h3>1 论文选择与测试集用途</h3>
+<p>选用 ICLR 2026 正式论文 QLCoder: A Query Synthesizer for Static Analysis of Security Vulnerabilities，作为本模块唯一论文基准。[4] QLCoder 使用编码 Agent、文档检索、语法与程序结构信息、查询执行反馈来合成 CodeQL 查询；论文采用 Claude Code Agent。它能够直接对应本项目 RuleGeneratorAgent 的规则生成与验证流程。</p>
+<p>正式范围为全部 176 项 Java CVE 配对任务，覆盖 42 类 CWE，其中 111 项旧 CVE、65 项为 2025 年新增 CVE。任务包含 CVE 描述、漏洞版本、修复版本和安全修复差异；正式论文的 176 项完整任务是测试目标。</p>
+<p>本方案验证给定 CVE 的规则合成效果。检索属于当前模块的组成部分，整体成功率不能单独证明 RAG 的贡献；跨项目泛化另作工程检查。</p>
+<h3>2 成功标准与论文对照</h3>
+<p><strong>表6 规则生成成功标准</strong></p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="可横向滚动的数据表"><table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>成功判定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>可执行</td>
+<td>同一 QL 在两版本数据库上编译和运行完成，无执行错误</td>
+</tr>
+<tr>
+<td>漏洞命中</td>
+<td>漏洞版本至少一条目标路径经过安全修复区域，按作者映射匹配</td>
+</tr>
+<tr>
+<td>修复版区分</td>
+<td>修复版不再报告经过对应修复区域的同一漏洞路径</td>
+</tr>
+<tr>
+<td>联合成功</td>
+<td>同一候选同时满足以上三项，完整分母为 176</td>
+</tr>
+</tbody></table></div>
+<p>修复版区分不要求整个项目全部告警为空。作者路径精确率按修复区域相交计算，不能等同于所有告警均经独立人工裁决；其他路径和疑似误报另行记录。</p>
+<p><strong>表7 QLCoder 正式论文全量合成成绩</strong></p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="可横向滚动的数据表"><table>
+<thead>
+<tr>
+<th>作者配置</th>
+<th>联合成功</th>
+<th>成功率</th>
+<th>平均路径精确率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Claude Code Agent 加 Claude Sonnet 4</td>
+<td>94/176</td>
+<td>53.4%</td>
+<td>0.631</td>
+</tr>
+</tbody></table></div>
+<p>来源为正式论文第8页 Table 1，最多 10 轮。[4] 第9页 Table 4 的 20 项消融中，完整 QLCoder 为 55%，去文档和参考查询为 20%，仅 Claude Code 为 10%。这些成绩仅作方法参考；Table 2 的 130 项共享集也保留独立分母。</p>
+<h3>3 预期效果与完成条件</h3>
+<p>合理预期是 RuleGeneratorAgent 较同模型基础生成提高三条件联合成功率，减少无效 API 和修复版本误报。辅助报告可执行率、漏洞命中率、修复版区分率、各 CWE 表现、迭代次数、耗时与成本。只有任务、输入、评分和预算一致时才计算与作者的差值，不预设必须超过 53.4%。</p>
+<p>完成条件为全部 176 项任务具有真实生成及配对验证结果，覆盖全部 42 类 CWE，每项有候选 QL 或真实生成失败记录。规则的可执行性、漏洞命中和修复版区分分别明确，完整目标不以消融子集替代。</p>
+</section>
+<section id="competitors" class="document-section" aria-labelledby="competitors-title"><div class="section-heading"><span class="section-number" aria-hidden="true">05</span><h2 id="competitors-title">竞品功能范围与模块对照</h2></div><h3>1 竞品范围与材料依据</h3>
+<p>现有竞品文件夹提供了 RepoAudit、QLPro、Antiproof 和 OpenAnt 的研究线索，可用于选择审计及规则生成方向的对照对象。[5–10] 本章依据原始论文与官方项目说明拆解功能，并补充 CodeQL、Semgrep、Alibaba OpenCodeReview 和 Copilot Autofix 等可接入的工具与产品。规则生成仍以 QLCoder 为唯一正式论文基准，扩展候选不增加三个模块的正式基准论文数量。</p>
+<p>比较对象按公开入口区分。CodeQL CLI 和 Semgrep CE 是静态工具；GitHub CodeQL 加 Copilot Autofix、Semgrep 平台则包含 AI 功能。研究原型的覆盖范围以论文和公开实现为准，不能将研究能力直接当作可立即接入的产品能力。公开资料核对日期为 2026年10月11日。</p>
+<h3>2 项目与竞品的功能范围对比</h3>
+<p>表中每行为一个项目或明确的产品组合，每列为本项目对应的能力。“有”表示所列范围提供该能力；“部分”表示能力有限或采用不同形式；“未列”表示所核对的公开材料未列出对应功能，仍需实测确认。代码补丁指可应用的源码修改，检测规则生成指自动生成可执行检测器。</p>
+<p><strong>表8 项目与竞品功能范围对比</strong></p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="可横向滚动的数据表"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>静态检测</th>
+<th>AI发现</th>
+<th>证据复核</th>
+<th>代码补丁</th>
+<th>修复验证</th>
+<th>规则生成</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Semflow Audit</td>
+<td>有<br>CodeQL</td>
+<td>有<br>主动发现</td>
+<td>有<br>取证复核</td>
+<td>有<br>源码补丁</td>
+<td>部分<br>测试、复扫</td>
+<td>有<br>QL 查询</td>
+</tr>
+<tr>
+<td>CodeQL CLI [15]</td>
+<td>有<br>QL 查询</td>
+<td>未列</td>
+<td>部分<br>数据流路径</td>
+<td>未列</td>
+<td>未列</td>
+<td>未列<br>手写查询</td>
+</tr>
+<tr>
+<td>Semgrep CE [11,16]</td>
+<td>有<br>规则扫描</td>
+<td>未列</td>
+<td>部分<br>匹配路径</td>
+<td>部分<br>规则替换</td>
+<td>未列</td>
+<td>未列<br>手写规则</td>
+</tr>
+<tr>
+<td>OpenCodeReview [12]</td>
+<td>未列<br>审查规则</td>
+<td>有<br>审查 Agent</td>
+<td>有<br>定位反思</td>
+<td>未列</td>
+<td>未列</td>
+<td>未列</td>
+</tr>
+<tr>
+<td>CodeQL＋Copilot<br>Autofix [13]</td>
+<td>有<br>CodeQL</td>
+<td>未列</td>
+<td>部分<br>告警上下文</td>
+<td>有<br>AI 补丁</td>
+<td>部分<br>复扫、测试</td>
+<td>未列</td>
+</tr>
+<tr>
+<td>Semgrep 平台<br>AI 组合 [14,17]</td>
+<td>有<br>Pro 引擎</td>
+<td>有<br>Agent 工作流</td>
+<td>有<br>Assistant</td>
+<td>有<br>Autofix</td>
+<td>部分<br>升级分析</td>
+<td>未列</td>
+</tr>
+<tr>
+<td>RepoAudit [7]</td>
+<td>部分<br>语法分析</td>
+<td>有<br>数据流发现</td>
+<td>有<br>数据流验证</td>
+<td>未列</td>
+<td>未列</td>
+<td>未列</td>
+</tr>
+<tr>
+<td>QLPro [8]</td>
+<td>有<br>CodeQL</td>
+<td>部分<br>API 分析</td>
+<td>部分<br>投票、路径</td>
+<td>未列</td>
+<td>未列</td>
+<td>有<br>QL 查询</td>
+</tr>
+<tr>
+<td>Antiproof [9]</td>
+<td>有<br>合成检测器</td>
+<td>部分<br>检测器驱动</td>
+<td>有<br>可利用证明</td>
+<td>未列</td>
+<td>未列</td>
+<td>有<br>静态检测器</td>
+</tr>
+<tr>
+<td>OpenAnt [10]</td>
+<td>部分<br>静态拆解</td>
+<td>有<br>LLM 发现</td>
+<td>有<br>对抗验证</td>
+<td>未列</td>
+<td>未列</td>
+<td>未列</td>
+</tr>
+<tr>
+<td>QLCoder [4]</td>
+<td>有<br>查询执行</td>
+<td>未列<br>已知 CVE</td>
+<td>部分<br>双版本命中</td>
+<td>未列</td>
+<td>未列</td>
+<td>有<br>QL 查询</td>
+</tr>
+</tbody></table></div>
+<p>本项目一行描述现有设计和已实现入口，功能存在不代表全量基准已通过。修复验证中的项目测试及复扫，仍需由 PatchEval 的安全 PoC 和功能测试检验真实修复效果。Java 规则任务和 Go 修复任务均属于本方案必须覆盖的完整测试目标。</p>
+<p>Semgrep CE 的规则替换与平台 Autofix 的 AI 补丁是两种能力；平台组合包含 Pro 引擎、Assistant、Agentic Workflows 和 Autofix，具体功能取决于产品开通范围。Copilot Autofix 本行限定为 CodeQL 告警修复，不包含 Copilot 其他产品能力。Antiproof、OpenAnt 的动态漏洞验证用于确认漏洞，不能据此推定它们提供补丁回归验证。</p>
+<p>RepoAudit 当前官方实现包含 MetaScanAgent 和 DFBScanAgent，覆盖 C/C++、Java、Python、Go；其公开重点包括空指针、内存泄漏和释放后使用。[7] QLPro 采用生成、执行和修订三个角色协作，其 repairer 修订的是 QL 查询；论文 v3 明示实验数据仍有错误，需要改进。[8] 因此将 QLPro 列为研究参考，暂不作为正式成绩对照。</p>
+<h3>3 三个功能模块的竞品测试对照</h3>
+<p><strong>表9 按三个功能模块划分的竞品测试对照</strong></p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="可横向滚动的数据表"><table>
+<thead>
+<tr>
+<th>模块</th>
+<th>优先对照对象</th>
+<th>测试范围</th>
+<th>比较目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>双引擎代码审计</td>
+<td>CodeQL CLI；Semgrep CE；Alibaba OpenCodeReview</td>
+<td>RealVuln 26 项目、796 项标签；OWASP 1230 例</td>
+<td>检出和误报、引擎增益、复核效果、耗时成本</td>
+</tr>
+<tr>
+<td>代码修复</td>
+<td>Copilot Autofix；Semgrep Autofix<br>内部基线：同模型直接修复</td>
+<td>PatchEval 1000 任务、230 动态任务</td>
+<td>安全与功能联合成功、可应用补丁、触发覆盖率、耗时成本</td>
+</tr>
+<tr>
+<td>规则生成</td>
+<td>QLCoder<br>内部基线：同模型基础生成</td>
+<td>QLCoder 176 项 Java CVE、42 类 CWE</td>
+<td>查询可执行、漏洞命中、修复版区分、生成成本</td>
+</tr>
+</tbody></table></div>
+<p>代码审计重点比较发现与复核的收益；代码修复重点比较漏洞消除和功能保持；规则生成重点比较查询有效性。商业修复产品依赖前置告警，其触发覆盖率与触发后的修复成功率共同决定端到端表现。仅支持部分任务的竞品，成绩限于该共同范围；本项目的完整测试目标保持第一章所列数量。</p>
+<p>QLCoder 是规则模块的正式外部对照。Antiproof 的检测器合成可用于扩展研究，但规则形式未核实为可运行 CodeQL 前，不进入 176 项 CodeQL 成功率主表。上述表格确定需要比较的能力与对象，实际优劣由后续测试结果给出。</p>
+<h3>参考资料</h3>
+<p>论文原报数值按所列版本与表号引用；产品能力依据官方公开说明。</p>
+<p>[1] Pellew 与 Raza RealVuln 2026 论文 v1</p>
+<p>全量范围与评分依据；第10页 Table 4。</p>
+<p><a href="https://arxiv.org/abs/2604.13764v1">https://arxiv.org/abs/2604.13764v1</a></p>
+<p>[2] OWASP BenchmarkPython 官方项目</p>
+<p>0.1 版本；expectedresults-0.1.csv 共 1230 例。</p>
+<p><a href="https://github.com/OWASP-Benchmark/BenchmarkPython">https://github.com/OWASP-Benchmark/BenchmarkPython</a></p>
+<p>[3] PatchEval 2025 论文 v1</p>
+<p>1000 项任务、230 项动态任务；第9页 Table 3。</p>
+<p><a href="https://arxiv.org/abs/2511.11019v1">https://arxiv.org/abs/2511.11019v1</a></p>
+<p>[4] Wang 等 QLCoder ICLR 2026 正式论文</p>
+<p>第8页 Table 1、第9页 Table 4。官方实现 <a href="https://github.com/neuralprogram/qlcoder%E3%80%82">https://github.com/neuralprogram/qlcoder。</a></p>
+<p><a href="https://proceedings.iclr.cc/paper_files/paper/2026/hash/2adf01ab15adde8820622f7f24bd516b-Abstract-Conference.html">https://proceedings.iclr.cc/paper_files/paper/2026/hash/2adf01ab15adde8820622f7f24bd516b-Abstract-Conference.html</a></p>
+<p>[5] 用户提供的竞品材料</p>
+<p>缺乏修复功能/只有建议没有修复.doc；代码审计低/代码审计效率低.doc；代码审计低/证据1.pdf。用于定位研究对象，功能判断依据原始论文与官方实现。</p>
+<p>[6] Li 等 LLM based Vulnerability Detection at Project Scale An Empirical Study v2</p>
+<p>对应所附证据1.pdf；未将跨实验环境耗时纳入功能范围比较。</p>
+<p><a href="https://arxiv.org/abs/2601.19239v2">https://arxiv.org/abs/2601.19239v2</a></p>
+<p>[7] RepoAudit 官方实现</p>
+<p>MetaScanAgent、DFBScanAgent 及语言范围。原论文 <a href="https://arxiv.org/abs/2501.18160v1%E3%80%82">https://arxiv.org/abs/2501.18160v1。</a></p>
+<p><a href="https://github.com/PurCL/RepoAudit">https://github.com/PurCL/RepoAudit</a></p>
+<p>[8] Hu 等 QLPro 论文 v3</p>
+<p>第 III 节描述 API 分类和 QL 生成；页面 Comments 说明实验数据存在错误。</p>
+<p><a href="https://arxiv.org/abs/2506.23644v3">https://arxiv.org/abs/2506.23644v3</a></p>
+<p>[9] Shakevsky 等 Antiproof 论文 v1</p>
+<p><a href="https://arxiv.org/abs/2607.12316v1">https://arxiv.org/abs/2607.12316v1</a></p>
+<p>[10] Korda 与 Evron OpenAnt 论文 v2</p>
+<p><a href="https://arxiv.org/abs/2606.19149v2">https://arxiv.org/abs/2606.19149v2</a></p>
+<p>[11] Semgrep CE 官方实现</p>
+<p><a href="https://github.com/semgrep/semgrep">https://github.com/semgrep/semgrep</a></p>
+<p>[12] Alibaba OpenCodeReview 官方实现</p>
+<p>全文件 scan、审查 Agent、规则匹配及定位反思模块。</p>
+<p><a href="https://github.com/alibaba/open-code-review">https://github.com/alibaba/open-code-review</a></p>
+<p>[13] GitHub security and quality AI features 官方应用说明</p>
+<p>CodeQL 告警、Copilot Autofix 补丁及质量评估范围。</p>
+<p><a href="https://docs.github.com/en/enterprise-cloud@latest/code-security/responsible-use/security-and-quality-ai-features">https://docs.github.com/en/enterprise-cloud@latest/code-security/responsible-use/security-and-quality-ai-features</a></p>
+<p>[14] Semgrep Autofix 官方产品说明</p>
+<p>2026年3月16日；Assistant、升级影响分析与第一方代码补丁。</p>
+<p><a href="https://semgrep.dev/blog/2026/semgrep-autofix-public-beta/">https://semgrep.dev/blog/2026/semgrep-autofix-public-beta/</a></p>
+<p>[15] CodeQL 官方概述</p>
+<p>查询执行、静态分析与自定义查询范围。</p>
+<p><a href="https://codeql.github.com/docs/codeql-overview/about-codeql/">https://codeql.github.com/docs/codeql-overview/about-codeql/</a></p>
+<p>[16] Semgrep Rule defined fix 官方文档</p>
+<p>基于 fix 或 fix-regex 的规则替换功能。</p>
+<p><a href="https://docs.semgrep.dev/writing-rules/rule-defined-fix">https://docs.semgrep.dev/writing-rules/rule-defined-fix</a></p>
+<p>[17] Semgrep Agentic Workflows 官方产品说明</p>
+<p>2026年7月28日；主动漏洞发现、Pro 引擎与 AI 推理组合。</p>
+<p><a href="https://semgrep.dev/blog/2026/introducing-semgrep-agentic-workflows-automate-deep-vulnerability-hunting-at-scale/">https://semgrep.dev/blog/2026/introducing-semgrep-agentic-workflows-automate-deep-vulnerability-hunting-at-scale/</a></p>
+</section>
+
+<footer class="footer"><span>SemFlow · 完整测试方案 v7 · 2026-10-11</span><span><a href="test-plan-reference-index.md">资料索引</a> · <a href="#content">回到顶部 ↑</a></span></footer>
+</main>
+</div>
+<script>
+document.getElementById('print-button').addEventListener('click', () => window.print());
+const links = [...document.querySelectorAll('.nav-item')];
+function setActive(id) {
+  for (const link of links) {
+    const active = link.hash === '#' + id;
+    link.classList.toggle('active', active);
+    if (active) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
+  }
+}
+const sections = [...document.querySelectorAll('.document-section')];
+let pending = false;
+window.addEventListener('scroll', () => {
+  if (pending) return;
+  pending = true;
+  requestAnimationFrame(() => {
+    const current = sections.filter(section => section.getBoundingClientRect().top <= 150).at(-1) || sections[0];
+    setActive(current.id);
+    pending = false;
+  });
+}, { passive:true });
+setActive(location.hash.slice(1) || 'scope');
+</script>
+</body>
+</html>

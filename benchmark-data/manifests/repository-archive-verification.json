@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-11",
+  "scope": "Repository material packaging and restoration only; no new platform-quality benchmark",
+  "dataset_summary": {
+    "bundle_count": 39,
+    "file_count": 17271,
+    "input_bytes": 277618805,
+    "compressed_bytes": 126733509,
+    "excluded_file_count": 38,
+    "redacted_file_count": 20
+  },
+  "research_summary": {
+    "registered_papers": 46,
+    "papers_with_repository_fulltext": 26,
+    "pdf_files": 26,
+    "material_files": 55
+  },
+  "verification": {
+    "bundle_and_member_sha256": "passed for 39 bundles / 17271 files",
+    "clean_checkout_restore": "passed in temporary directory; originals unchanged",
+    "restored_patcheval_task_records": 1000,
+    "material_sha256": "55/55 passed",
+    "pdf_headers": "26/26 passed",
+    "curated_local_document_links": "189 checked, zero missing",
+    "focused_tests": "25 passed",
+    "ruff": "passed for new packager and tests",
+    "git_diff_check": "passed"
+  },
+  "commands": [
+    "python3 scripts/benchmarks/archive_research_materials.py",
+    ".venv/bin/pytest tests/test_research_archive.py tests/test_test_archive.py tests/test_supplemental_data.py tests/test_chain_receipts.py -q",
+    ".venv/bin/ruff check scripts/benchmarks/archive_research_materials.py tests/test_research_archive.py",
+    "git diff --check"
+  ],
+  "implementation_sha256": {
+    "scripts/benchmarks/archive_research_materials.py": "b0ee1da09ef18c246b05dfb5f9a89d999a3df6e72dc215582320506e66856c0e",
+    "tests/test_research_archive.py": "a84dafc7f183ad719a253e8d5fcd56288c54df33b799c1be91bf7bf86685df39"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "kind": "test_plan_document",
+  "document_id": "SEMFLOW-TEST-PLAN-EXPLANATION-1.0",
+  "document_version": "1.0",
+  "basis_plan_version": "v4",
+  "date": "2026-10-11",
+  "scope_note": "本收据标识方案文档及引用依据，不代表任何基准已执行或已通过。",
+  "output": {
+    "path": "docs/testing/项目测试方案说明_v1.0.docx",
+    "bytes": 51630,
+    "sha256": "d4a9764d471a9f03ca5cea4dbab78b2ebf875be36a8e8705b1b84cc30eab5f63"
+  },
+  "sources": [
+    {
+      "path": "docs/testing/simple-three-module-test-plan.md",
+      "bytes": 16514,
+      "sha256": "6fef7d980da80e77d47f8939d9dd5efffbc658968ca5312a8139ece575bdb251"
+    },
+    {
+      "path": "benchmark-data/papers/discovery/2604.13764v1.pdf",
+      "bytes": 594873,
+      "sha256": "0b1dd74781b36eeb5675800bf6c16ed189f3f9c7744c2a13448b879e7e0ebeb7"
+    },
+    {
+      "path": "benchmark-data/papers/repair/patcheval-2511.11019v1.pdf",
+      "bytes": 1905170,
+      "sha256": "cc69f39bc483ef19544851ebbc085cde17c8000c4e79a6136fb1b30c4b95045f"
+    },
+    {
+      "path": "benchmark-data/papers/rules/qlcoder-iclr2026.pdf",
+      "bytes": 2079381,
+      "sha256": "ccf330354a879d86bb12414ed50b99b754cd76b6394f8ecd3896a49ed0c705aa"
+    }
+  ],
+  "user_provided_competitor_sources": [
+    {
+      "path": "缺乏修复功能/只有建议没有修复.doc",
+      "bytes": 11264,
+      "sha256": "55a4695aafcf8ad5f4eec76cf816ce2f899ff2d21a9d77610da78c9947ab27b9"
+    },
+    {
+      "path": "代码审计低/代码审计效率低.doc",
+      "bytes": 11264,
+      "sha256": "0ae2c830891e6c0fb23198d30cc963d7cab4c5781a7ea2a582a7bea345ce1f6f"
+    },
+    {
+      "path": "代码审计低/证据1.pdf",
+      "bytes": 1407117,
+      "sha256": "17bf1566641f4cea097ad26e0b3ffd7c621841b79965a79820c37125a7e2608c"
+    }
+  ],
+  "full_targets": {
+    "audit_realvuln": {
+      "projects": 26,
+      "vulnerability_labels": 676,
+      "fp_traps": 120
+    },
+    "audit_owasp_python": {
+      "cases": 1230,
+      "positive": 452,
+      "negative": 778
+    },
+    "repair_patcheval": {
+      "tasks": 1000,
+      "dynamic_tasks": 230
+    },
+    "rules_qlcoder": {
+      "java_cves": 176,
+      "cwe_types": 42
+    }
+  },
+  "qa": {
+    "rendered_pages": 11,
+    "visually_reviewed_pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "chapters": 5,
+    "tables": 8,
+    "xml_parsing": "passed",
+    "source_hyperlinks": 13,
+    "runtime_python": "3.12.14",
+    "renderer_sha256": "876d5993324e2faaaa96a68a4f7504642e9a07e6df265b385b2baa03b231369e"
+  },
+  "public_reference_check_date": "2026-10-11"
+}
