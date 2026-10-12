@@ -32,7 +32,8 @@ def extract_snapshot(
             if len(members) > audit_settings.FILE_LIMIT:
                 raise AuditError("压缩包文件数量超出限制")
             for member in sorted(members, key=lambda item: item.filename):
-                name = member.filename
+                # ZipInfo normalizes separators on Windows; validate the stored name.
+                name = member.orig_filename
                 path = PurePosixPath(name)
                 if (
                     path.is_absolute()

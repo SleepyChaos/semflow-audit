@@ -1,0 +1,113 @@
+.knowledge-document {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 24px;
+  border: 1px solid #e0ddd5;
+  border-bottom: 0;
+  background: #fff;
+  min-width: 0;
+}
+.knowledge-document:last-child {
+  border-bottom: 1px solid #e0ddd5;
+}
+.knowledge-document h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 10px 0;
+}
+.document-source {
+  font-size: 12px;
+  color: #7f776a;
+  overflow-wrap: anywhere;
+  max-width: 800px;
+}
+.document-index {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.knowledge-import .section-heading {
+  margin: 0;
+}
+.knowledge-import .native-select {
+  max-width: 180px;
+}
+.knowledge-content {
+  min-height: 150px;
+}
+.filter-count {
+  margin: auto auto auto 10px;
+  color: #8a8173;
+  font-size: 12px;
+}
+.audit-shell,
+.workspace-body,
+.audit-content,
+.page-stack {
+  min-width: 0;
+}
+.page-heading h1 {
+  font-size: 30px;
+  letter-spacing: -0.025em;
+}
+.audit-content [role="alert"] {
+  overflow-wrap: anywhere;
+}
+.audit-content label {
+  min-width: 0;
+}
+.source-code {
+  max-height: 480px;
+  overflow: auto;
+}
+.stage-row {
+  flex-wrap: wrap;
+}
+.stage-form > button {
+  justify-self: start;
+  width: auto;
+}
+.upload-actions {
+  gap: 20px;
+}
+.workspace-sidebar {
+  overflow-y: auto;
+}
+@media (max-width: 700px) {
+  .workspace-toolbar {
+    padding: 12px 16px;
+  }
+  .audit-content {
+    padding: 24px 16px;
+  }
+  .page-heading {
+    flex-wrap: wrap;
+  }
+  .page-heading h1 {
+    font-size: 25px;
+  }
+  .knowledge-document {
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+  }
+  .document-index {
+    align-items: start;
+  }
+  .audit-sidebar {
+    position: relative;
+    height: auto;
+  }
+  .workspace-edition {
+    display: none;
+  }
+  .task-summary-strip {
+    padding: 12px;
+    gap: 10px;
+  }
+}

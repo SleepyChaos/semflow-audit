@@ -27,6 +27,17 @@ jobs:
       - run: ../.venv/bin/alembic upgrade head
         working-directory: system/backend
       - run: .venv/bin/ruff check backend/app
+      - name: Install pinned standalone CodeQL CLI
+        run: |
+          curl --fail --location --retry 3 https://github.com/github/codeql-cli-binaries/releases/download/v2.23.5/codeql-linux64.zip --output "$RUNNER_TEMP/codeql-linux64.zip"
+          unzip -q "$RUNNER_TEMP/codeql-linux64.zip" -d "$RUNNER_TEMP/semflow-codeql"
+          echo "$RUNNER_TEMP/semflow-codeql/codeql" >> "$GITHUB_PATH"
+      - name: Install pinned CodeQL query dependencies
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          codeql pack download --force --dir "$GITHUB_WORKSPACE/artifacts/packs" codeql/python-queries@1.6.0 codeql/javascript-queries@1.4.0
+          .venv/bin/python scripts/install_query_sources.py
       - run: .venv/bin/pytest -m "not integration" -q
   frontend:
     runs-on: ubuntu-latest

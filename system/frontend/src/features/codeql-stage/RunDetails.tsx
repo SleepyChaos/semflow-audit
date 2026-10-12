@@ -13,7 +13,7 @@ import {
 import { getCapabilities, getStages } from "@/api/stages"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { ReviewPanel } from "@/features/ai-review/ReviewPanel"
 import { RepairPanel } from "@/features/repair/RepairPanel"
 import { RulePanel } from "@/features/rules/RulePanel"
@@ -75,7 +75,11 @@ export function RunDetails({
   const control = useMutation({
     mutationFn: (action: "cancel" | "recover") =>
       action === "cancel" ? cancelRun(run.id) : recoverRun(run.id),
-    onSuccess: () => cache.invalidateQueries({ queryKey: ["audits"] }),
+    onSuccess: () =>
+      Promise.all([
+        cache.invalidateQueries({ queryKey: ["audits"] }),
+        cache.invalidateQueries({ queryKey: ["audit", run.id] }),
+      ]),
     onError: (error: Error) => toast.error(error.message),
   })
   const finding = run.findings.find((item) => item.id === findingId)
@@ -129,12 +133,6 @@ export function RunDetails({
         ) : null}
       </header>
       <Tabs value={activeStage} onValueChange={onStageChange}>
-        <TabsList>
-          <TabsTrigger value="codeql">CodeQL 审计</TabsTrigger>
-          <TabsTrigger value="ai">AI 复审</TabsTrigger>
-          <TabsTrigger value="repair">修复与报告</TabsTrigger>
-          <TabsTrigger value="rag">RAG 规则</TabsTrigger>
-        </TabsList>
         <TabsContent value="codeql">
           {run.error ? (
             <Alert variant="destructive">
@@ -203,8 +201,14 @@ export function RunDetails({
         <TabsContent value="repair">
           <RepairPanel
             run={run}
-            stages={(stages.data ?? []).filter(
-              (item) => item.kind === "repair",
+            stages={(stages.data ?? []).filter((item) =>
+              [
+                "repair",
+                "report",
+                "verification",
+                "verification_suite",
+                "verification_acceptance",
+              ].includes(item.kind),
             )}
             modelReady={Boolean(capabilities.data?.model_configured)}
           />

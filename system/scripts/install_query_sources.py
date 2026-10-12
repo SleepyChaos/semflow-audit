@@ -14,7 +14,7 @@ for lock in packs.glob("codeql/*-queries/*/codeql-pack.lock.yml"):
 if not versions:
     raise SystemExit("Download fixed baseline query packs first (see README)")
 subprocess.run(
-    ["codeql", "pack", "download", "--dir", str(packs), *sorted(versions)],
+    ["codeql", "pack", "download", "--force", "--dir", str(packs), *sorted(versions)],
     check=True,
     env={
         key: value

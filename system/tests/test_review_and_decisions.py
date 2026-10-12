@@ -47,7 +47,9 @@ def test_model_recommendation_needs_human_confirmation_and_report(pipeline_conte
     assert report["summary"]["candidate_states"]["confirmed"] == 1
     assert report["summary"]["confirmed_ai_discoveries"] == 0
     assert len(report["decisions"]) == 1
-    assert "快照" in api.get(f"/api/v1/audits/{ctx['run_id']}/report.md").text
+    # A raw record is exportable, but a Chinese AI report requires genuine generation.
+    assert api.get(f"/api/v1/audits/{ctx['run_id']}/report.md").status_code == 409
+    assert report["ai_report"]["status"] == "missing"
 
 
 def test_invented_evidence_is_rejected(pipeline_context):

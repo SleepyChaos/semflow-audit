@@ -13,8 +13,9 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { StageHistory } from "@/features/stages/StageHistory"
-import { CandidateCard } from "./CandidateCard"
+import { CandidateWorkspace } from "./CandidateWorkspace"
 import { DiscoveryCoverage } from "./DiscoveryCoverage"
+import { ReviewControls } from "./ReviewControls"
 export function ReviewPanel({
   run,
   stages,
@@ -79,154 +80,156 @@ export function ReviewPanel({
   const ready =
     run.status === "completed" ||
     (run.status === "failed" && Boolean(run.coverage.dual_engine?.review_ready))
-  const byIdentity = new Map<
-    string,
-    NonNullable<typeof candidates.data>[number]
-  >()
-  for (const candidate of candidates.data ?? []) {
-    const key = candidate.identity_key || candidate.id
-    const previous = byIdentity.get(key)
-    if (
-      !previous ||
-      (previous.status === "pending" && candidate.status !== "pending") ||
-      previous.status === candidate.status
-    )
-      byIdentity.set(key, candidate)
-  }
   return (
     <section className="stage-section">
-      <DiscoveryCoverage run={run} stages={stages} />
-      <h3>统一复核与主动取证</h3>
-      <p>
-        汇合静态告警与独立粗筛候选，分批核查必要前提和反证。AI
-        判断是建议，确认和排除需要人工证据判断。
-      </p>
-      <div className="stage-form">
-        <details>
-          <summary>选择静态告警（未选择时复审范围内所有告警）</summary>
-          {run.findings.map((item) => (
-            <label
-              className="stage-check"
-              key={item.id}
-              htmlFor={`review-${run.id}-${item.id}`}
-            >
-              <Checkbox
-                id={`review-${run.id}-${item.id}`}
-                checked={findings.includes(item.id)}
-                onCheckedChange={(checked) =>
-                  setFindings(
-                    checked
-                      ? [...findings, item.id]
-                      : findings.filter((id) => id !== item.id),
-                  )
-                }
-              />
-              {item.rule} · {item.locations[0].file}:{item.locations[0].line}
-            </label>
-          ))}
-        </details>
-        <label>
-          取证范围（每行一个快照内文件或目录，留空为整个快照）
-          <textarea
-            className="audit-textarea"
-            value={paths}
-            onChange={(event) => setPaths(event.target.value)}
-            placeholder="src/"
-          />
-        </label>
-        <label className="stage-check" htmlFor={`scout-input-${run.id}`}>
-          <Checkbox
-            id={`scout-input-${run.id}`}
-            checked={includeScout}
-            onCheckedChange={(checked) => setIncludeScout(Boolean(checked))}
-          />
-          纳入独立粗筛候选
-        </label>
-        <label className="stage-check" htmlFor={`discover-${run.id}`}>
-          <Checkbox
-            id={`discover-${run.id}`}
-            checked={discover}
-            onCheckedChange={(checked) => setDiscover(Boolean(checked))}
-          />
-          允许提出补充发现
-        </label>
-        <label htmlFor={`steps-${run.id}`}>
-          最大模型推理步数
-          <Input
-            id={`steps-${run.id}`}
-            type="number"
-            min={1}
-            max={16}
-            value={steps}
-            onChange={(event) => setSteps(Number(event.target.value))}
-          />
-        </label>
-        <Button
-          disabled={!modelReady || !ready || busy || start.isPending}
-          onClick={() => start.mutate()}
-        >
-          启动统一复核
-        </Button>
-        <Button
-          variant="outline"
-          disabled={!modelReady || !ready || busy || scout.isPending}
-          onClick={() => scout.mutate()}
-        >
-          单独重新粗筛
-        </Button>
-        {!modelReady ? (
-          <p role="status">
-            先在服务器 .env 配置模型服务，平台不会使用模拟结果。
-          </p>
-        ) : null}
-      </div>
-      <details>
-        <summary>人工补充源码证据</summary>
+      <ReviewControls
+        disabled={!modelReady || !ready || busy}
+        pending={start.isPending}
+        onStart={() => start.mutate()}
+        reason={
+          !modelReady
+            ? "模型服务尚未配置，请查看执行环境。"
+            : !ready
+              ? "等待扫描就绪后可启动复核。"
+              : busy
+                ? "当前阶段正在执行，请等待或取消。"
+                : null
+        }
+      >
+        {" "}
         <div className="stage-form">
-          <label htmlFor={`manual-file-${run.id}`}>
-            快照文件路径
-            <Input
-              id={`manual-file-${run.id}`}
-              value={file}
-              onChange={(event) => setFile(event.target.value)}
+          <details>
+            <summary>选择静态告警（未选择时复审范围内所有告警）</summary>
+            {run.findings.map((item) => (
+              <label
+                className="stage-check"
+                key={item.id}
+                htmlFor={`review-${run.id}-${item.id}`}
+              >
+                <Checkbox
+                  id={`review-${run.id}-${item.id}`}
+                  checked={findings.includes(item.id)}
+                  onCheckedChange={(checked) =>
+                    setFindings(
+                      checked
+                        ? [...findings, item.id]
+                        : findings.filter((id) => id !== item.id),
+                    )
+                  }
+                />
+                {item.rule} · {item.locations[0].file}:{item.locations[0].line}
+              </label>
+            ))}
+          </details>
+          <label>
+            取证范围（每行一个快照内文件或目录，留空为整个快照）
+            <textarea
+              className="audit-textarea"
+              value={paths}
+              onChange={(event) => setPaths(event.target.value)}
+              placeholder="src/"
             />
           </label>
-          <label htmlFor={`manual-line-${run.id}`}>
-            目标行
+          <label className="stage-check" htmlFor={`scout-input-${run.id}`}>
+            <Checkbox
+              id={`scout-input-${run.id}`}
+              checked={includeScout}
+              onCheckedChange={(checked) => setIncludeScout(Boolean(checked))}
+            />
+            纳入独立粗筛候选
+          </label>
+          <label className="stage-check" htmlFor={`discover-${run.id}`}>
+            <Checkbox
+              id={`discover-${run.id}`}
+              checked={discover}
+              onCheckedChange={(checked) => setDiscover(Boolean(checked))}
+            />
+            允许提出补充发现
+          </label>
+          <label htmlFor={`steps-${run.id}`}>
+            最大模型推理步数
             <Input
-              id={`manual-line-${run.id}`}
+              id={`steps-${run.id}`}
               type="number"
               min={1}
-              value={line}
-              onChange={(event) => setLine(Number(event.target.value))}
+              max={16}
+              value={steps}
+              onChange={(event) => setSteps(Number(event.target.value))}
             />
           </label>
           <Button
             variant="outline"
-            disabled={!file || manual.isPending}
-            onClick={() => manual.mutate()}
+            disabled={!modelReady || !ready || busy || scout.isPending}
+            onClick={() => scout.mutate()}
           >
-            读取并保存证据
+            单独重新粗筛
           </Button>
+          {!modelReady ? (
+            <p role="status">
+              先在服务器 .env 配置模型服务，平台不会使用模拟结果。
+            </p>
+          ) : null}
         </div>
-      </details>
+        <details>
+          <summary>人工补充源码证据</summary>
+          <div className="stage-form">
+            <label htmlFor={`manual-file-${run.id}`}>
+              快照文件路径
+              <Input
+                id={`manual-file-${run.id}`}
+                value={file}
+                onChange={(event) => setFile(event.target.value)}
+              />
+            </label>
+            <label htmlFor={`manual-line-${run.id}`}>
+              目标行
+              <Input
+                id={`manual-line-${run.id}`}
+                type="number"
+                min={1}
+                value={line}
+                onChange={(event) => setLine(Number(event.target.value))}
+              />
+            </label>
+            <Button
+              variant="outline"
+              disabled={!file || manual.isPending}
+              onClick={() => manual.mutate()}
+            >
+              读取并保存证据
+            </Button>
+          </div>
+        </details>
+      </ReviewControls>
       {candidates.error || evidence.error ? (
         <p role="alert">
           {candidates.error?.message ?? evidence.error?.message}
         </p>
       ) : null}
-      <p>
-        相同候选身份展示一张卡片，优先保留人工决定；不同假设仍分别展示。
-        原始粗筛和历次复核记录保存在下方历史中。
-      </p>
-      {[...byIdentity.values()].map((candidate) => (
-        <CandidateCard
-          key={`${candidate.id}:${candidate.status}`}
-          candidate={candidate}
+      {candidates.isPending || evidence.isPending ? (
+        <p role="status">正在读取候选与证据…</p>
+      ) : !candidates.error && !evidence.error ? (
+        <CandidateWorkspace
+          candidates={candidates.data ?? []}
           evidence={evidence.data ?? []}
+          stages={stages}
           busy={busy}
         />
-      ))}
+      ) : (
+        <Button
+          variant="outline"
+          onClick={() => {
+            candidates.refetch()
+            evidence.refetch()
+          }}
+        >
+          重新读取候选与证据
+        </Button>
+      )}{" "}
+      <details>
+        <summary>扫描与粗筛覆盖详情</summary>
+        <DiscoveryCoverage run={run} stages={stages} />
+      </details>
       <details>
         <summary>全部原始候选记录与复核历史（未删除或按根因合并）</summary>
         <pre className="source-code">

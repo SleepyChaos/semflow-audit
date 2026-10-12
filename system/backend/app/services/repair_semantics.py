@@ -383,4 +383,7 @@ class SemanticRepair:
                 )["inspection"]["view"],
             },
         )
+        if s.inputs.verification_suite_id and workspace.exists():
+            from app.services.repair_comparison import enqueue_after_repair
+            enqueue_after_repair(identifier, s.inputs.verification_suite_id)
         return {"saved": True, "repair_id": identifier}

@@ -55,12 +55,27 @@ def create_stage(
     run = session.exec(
         select(AuditRun).where(AuditRun.id == audit_id).with_for_update()
     ).one()
-    if kind not in {"review", "repair", "rule", "scout"}:
+    if kind not in {
+        "review",
+        "repair",
+        "rule",
+        "scout",
+        "report",
+        "verification_suite",
+        "verification",
+    }:
         raise HTTPException(409, "此记录不支持后台重跑")
-    ready = run.status == "completed" or (
-        run.status == "failed"
-        and kind in {"review", "repair", "scout"}
-        and run.coverage.get("dual_engine", {}).get("review_ready", False)
+    ready = (
+        (
+            kind in {"report", "verification_suite", "verification"}
+            and run.status == "failed"
+        )
+        or run.status == "completed"
+        or (
+            run.status == "failed"
+            and kind in {"review", "repair", "scout"}
+            and run.coverage.get("dual_engine", {}).get("review_ready", False)
+        )
     )
     if not ready:
         raise HTTPException(409, "需要先完成静态审计")
@@ -73,11 +88,38 @@ def create_stage(
     ).first()
     if active:
         raise HTTPException(409, "该阶段已有正在执行的任务")
+    if kind == "verification":
+        from app.persistence.stage_models import RepairRecord
+        from app.services.repair_comparison import comparison_materials
+
+        record = session.get(RepairRecord, UUID(inputs["repair_id"]))
+        if record is None or record.audit_id != audit_id:
+            raise HTTPException(404, "修复不存在")
+        try:
+            inputs = {
+                **inputs,
+                "identity": comparison_materials(record, inputs["suite_id"])[0],
+            }
+        except (AuditError, OSError, ValueError, KeyError) as exc:
+            raise HTTPException(409, str(exc)) from exc
+    if kind == "report":
+        from app.services.report_generation import source_fingerprint
+        from app.services.reports import build_report
+
+        inputs = {"source_fingerprint": source_fingerprint(build_report(session, run))}
     stage = StageRun(
         audit_id=audit_id,
         kind=kind,
         inputs=inputs,
-        prompt_version={"review": "9", "repair": "2", "rule": "8", "scout": "7"}[kind],
+        prompt_version={
+            "review": "9",
+            "repair": "2",
+            "rule": "8",
+            "scout": "7",
+            "report": "2",
+            "verification_suite": "1",
+            "verification": "1",
+        }[kind],
     )
     session.add(stage)
     session.commit()
@@ -132,6 +174,15 @@ def repair(
         row.status != "confirmed" for row in candidates
     ):
         raise HTTPException(409, "请选择本次审计中人工确认的缺陷")
+    if body.verification_suite_id:
+        from app.services.verification_suites import read_suite, target_ids
+
+        try:
+            suite = read_suite(body.verification_suite_id, audit_id)[1]
+            if not set(map(str, body.candidate_ids)).issubset(target_ids(suite)):
+                raise AuditError("测试集没有覆盖所选修复目标")
+        except (AuditError, OSError, ValueError, KeyError) as exc:
+            raise HTTPException(409, str(exc)) from exc
     return create_stage(
         audit_id, "repair", body.model_dump(mode="json"), session, workspace
     )
@@ -219,11 +270,24 @@ def recover(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
 @router.get("/audits/{audit_id}/candidates")
 def candidates(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     owned_run(audit_id, session, workspace)
-    return session.exec(
+    from app.services.result_explanations import explain_candidate
+
+    rows = session.exec(
         select(Candidate)
         .where(Candidate.audit_id == audit_id)
         .order_by(Candidate.created_at)
     ).all()
+    sources = session.exec(select(Evidence).where(Evidence.audit_id == audit_id)).all()
+    evidence_data = [row.model_dump(mode="json") for row in sources]
+    return [
+        {
+            **row.model_dump(mode="json"),
+            "explanation": explain_candidate(
+                row.model_dump(mode="json"), evidence_data
+            ),
+        }
+        for row in rows
+    ]
 
 
 @router.get("/candidates/{identifier}/decisions")

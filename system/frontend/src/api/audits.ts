@@ -1,4 +1,4 @@
-import { apiJson, downloadArtifact } from "./backend"
+import { ApiError, apiJson, downloadArtifact } from "./backend"
 export interface CodeLocation {
   file: string
   line: number
@@ -65,6 +65,14 @@ export interface SourceExcerpt {
 const request = <T>(path: string, options?: RequestInit) =>
   apiJson<T>(`/audits${path}`, options)
 export const getRuns = () => request<AuditRun[]>("/")
+export const getRun = async (id: string) => {
+  try {
+    return await request<AuditRun>(`/${id}`)
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null
+    throw error
+  }
+}
 export const getEnvironment = () => request<Environment>("/environment")
 export const getLogs = (id: string) => request<{ text: string }>(`/${id}/logs`)
 export const getSource = (id: string, location: CodeLocation) =>

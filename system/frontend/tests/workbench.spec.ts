@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test"
+import { mockAuditApi } from "./fixtures/audit-api"
 
 test("空浏览器直接进入工作台，刷新仍不需要登录", async ({ page }) => {
+  await mockAuditApi(page)
   const errors: string[] = []
   const requests: string[] = []
   const authHeaders: string[] = []
@@ -13,11 +15,13 @@ test("空浏览器直接进入工作台，刷新仍不需要登录", async ({ pa
   })
   await page.goto("/")
   await expect(
-    page.getByRole("heading", { name: "审计工作台", exact: true }),
+    page.getByRole("heading", { name: "审计总览", exact: true }),
   ).toBeVisible()
+  await page.getByRole("button", { name: /本地环境/ }).click()
   await expect(
     page.getByRole("heading", { name: "执行环境", exact: true }),
   ).toBeVisible()
+  await page.keyboard.press("Escape")
   await expect(page.getByText("无法读取审计任务", { exact: true })).toHaveCount(
     0,
   )
@@ -29,7 +33,7 @@ test("空浏览器直接进入工作台，刷新仍不需要登录", async ({ pa
   await response
   await page.reload()
   await expect(
-    page.getByRole("heading", { name: "审计工作台", exact: true }),
+    page.getByRole("heading", { name: "审计总览", exact: true }),
   ).toBeVisible()
   await expect(page).toHaveURL(/\/$/)
   await expect(page.getByText("退出登录", { exact: true })).toHaveCount(0)
@@ -56,7 +60,7 @@ test("欢迎页点击按钮进入工作台，无账号输入或认证请求", as
   await page.getByRole("button", { name: "进入工作台", exact: true }).click()
   await expect(page).toHaveURL(/\/$/)
   await expect(
-    page.getByRole("heading", { name: "审计工作台", exact: true }),
+    page.getByRole("heading", { name: "审计总览", exact: true }),
   ).toBeVisible()
   expect(authRequests).toEqual([])
 })
@@ -81,7 +85,7 @@ test("欢迎页支持主题切换、移动布局和键盘进入", async ({ page 
   await page.keyboard.press("Enter")
   await expect(page).toHaveURL(/\/$/)
   await expect(
-    page.getByRole("heading", { name: "审计工作台", exact: true }),
+    page.getByRole("heading", { name: "审计总览", exact: true }),
   ).toBeVisible()
 })
 
@@ -94,11 +98,11 @@ test("接口失败显示真实错误并保留当前工作台", async ({ page }) 
     }),
   )
   await page.goto("/")
-  await expect(page.getByText("本地接口测试错误", { exact: true })).toBeVisible(
-    { timeout: 15000 },
-  )
+  await expect(
+    page.getByRole("alert").filter({ hasText: "本地接口测试错误" }),
+  ).toBeVisible({ timeout: 15000 })
   await expect(page).toHaveURL(/\/$/)
   await expect(
-    page.getByRole("heading", { name: "审计工作台", exact: true }),
+    page.getByRole("heading", { name: "审计总览", exact: true }),
   ).toBeVisible()
 })

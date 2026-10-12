@@ -1,4 +1,6 @@
 import { apiJson, downloadArtifact } from "./backend"
+import { attachDecisionTimes } from "./candidate-history"
+import type { RepairComparison } from "./verification"
 export interface StageRun {
   id: string
   audit_id: string
@@ -14,7 +16,25 @@ export interface StageRun {
   usage: Record<string, number>
   created_at: string
 }
+export interface CandidateExplanation {
+  title: string
+  location: string
+  status: string
+  observation: string
+  source_quote: string
+  risk: string
+  remediation: string
+  next_step: string
+  boundary: string
+}
+export interface ValidationCheck {
+  label: string
+  status: string
+  description: string
+  next_step: string
+}
 export interface Candidate {
+  explanation?: CandidateExplanation
   id: string
   audit_id: string
   stage_id: string
@@ -29,6 +49,7 @@ export interface Candidate {
   model_assessment: string
   novelty: string
   identity_key: string
+  latest_decision_at?: string
   location: { file?: string; line?: number }
 }
 export interface Evidence {
@@ -41,6 +62,9 @@ export interface Evidence {
   digest: string
 }
 export interface RepairRecord {
+  comparison?: RepairComparison
+  acceptance_ready?: boolean
+  validation_summary?: ValidationCheck[]
   id: string
   stage_id: string
   candidate_ids: string[]
@@ -78,7 +102,38 @@ export interface RuleVersion {
     version: string
   }[]
 }
+export interface AIReportIssue {
+  candidate_id: string
+  title: string
+  explanation: string
+  impact: string
+  fix_suggestions: string[]
+  verification_suggestions: string[]
+  evidence_ids: string[]
+}
+export interface AuditReport {
+  candidates: Candidate[]
+  ai_report?: {
+    status: string
+    stage_id?: string | null
+    model?: string
+    error?: string | null
+    created_at?: string
+    narrative?: {
+      overview: string
+      issues: AIReportIssue[]
+      repair_review: string
+      limitations: string[]
+      next_steps: string[]
+    }
+  }
+}
+export const getReport = (id: string) =>
+  apiJson<AuditReport>(`/audits/${id}/report`)
+export const startReport = (id: string, force = false) =>
+  post<StageRun>(`/audits/${id}/report-analysis`, { force })
 export interface KnowledgeDocument {
+  provenance?: { api_version?: string; license?: string; trust?: string }
   document_id: string
   title: string
   source: string
@@ -104,8 +159,10 @@ const post = <T>(path: string, body?: unknown) =>
   })
 export const getStages = (auditId: string) =>
   apiJson<StageRun[]>(`/audits/${auditId}/stages`)
-export const getCandidates = (auditId: string) =>
-  apiJson<Candidate[]>(`/audits/${auditId}/candidates`)
+export const getCandidates = async (auditId: string) =>
+  attachDecisionTimes(
+    await apiJson<Candidate[]>(`/audits/${auditId}/candidates`),
+  )
 export const getEvidence = (auditId: string) =>
   apiJson<Evidence[]>(`/audits/${auditId}/evidence`)
 export const getCapabilities = () =>
@@ -127,8 +184,17 @@ export const addEvidence = (auditId: string, file: string, line: number) =>
   )
 export const getRepairs = (auditId: string) =>
   apiJson<RepairRecord[]>(`/audits/${auditId}/repairs`)
-export const acceptRepair = (id: string, reason: string) =>
-  post(`/repairs/${id}/accept`, { reason })
+export const acceptRepair = (
+  id: string,
+  reason: string,
+  comparisonId?: string,
+  testReviewed = false,
+) =>
+  post(`/repairs/${id}/accept`, {
+    reason,
+    comparison_stage_id: comparisonId,
+    test_reviewed: testReviewed,
+  })
 export const getRules = (language?: string, published = false) =>
   apiJson<RuleVersion[]>(
     `/rules/?${new URLSearchParams({ ...(language ? { language } : {}), published: String(published) })}`,

@@ -1,6 +1,7 @@
 import type { AuditRun } from "@/api/audits"
 import type { StageRun } from "@/api/stages"
 
+import { labelPhase, labelStatus } from "@/features/stages/stage-labels"
 export function DiscoveryCoverage({
   run,
   stages,
@@ -19,8 +20,9 @@ export function DiscoveryCoverage({
       </p>
       {dual ? (
         <p>
-          整体：{dual.status} · CodeQL：{dual.codeql?.status ?? "等待结果"} ·
-          Agent：{dual.scout?.status ?? "等待结果"}
+          整体：{labelStatus(dual.status)} · CodeQL：
+          {labelStatus(dual.codeql?.status ?? "等待结果")} · Agent：
+          {labelStatus(dual.scout?.status ?? "等待结果")}
         </p>
       ) : (
         <p>该历史任务仅包含静态扫描，可单独启动粗筛。</p>
@@ -28,7 +30,7 @@ export function DiscoveryCoverage({
       {scouts.map((stage) => (
         <details key={stage.id}>
           <summary>
-            粗筛 {stage.status} · {stage.phase}
+            粗筛 {labelStatus(stage.status)} · {labelPhase(stage.phase)}
           </summary>
           {stage.error ? <p role="alert">{stage.error}</p> : null}
           <pre className="source-code">

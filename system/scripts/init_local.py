@@ -12,7 +12,7 @@ else:
     path.write_text(
         "PROJECT_NAME=AI Code Audit\nFASTAPI_ENV=development\n"
         f"POSTGRES_PASSWORD={password}\n"
-        f"DATABASE_URL=postgresql+psycopg://audit:{password}@127.0.0.1:55439/audit\n"
+        f"DATABASE_URL=postgresql+psycopg://audit:{password}@127.0.0.1:15439/audit\n"
         "FRONTEND_HOST=http://localhost:5173\n"
         "REDIS_URL=redis://127.0.0.1:6389/0\n"
     )

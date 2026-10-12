@@ -7,7 +7,9 @@ from sqlmodel import select
 from app.adapters.artifacts import ArtifactStore
 from app.api.deps import LocalWorkspace, SessionDep
 from app.api.routes.audits import owned_run
-from app.contracts.stages import RepairAcceptance
+from app.api.routes.stages import create_stage
+from app.contracts.stages import RepairAcceptance, StrictModel
+from app.core.audit_config import audit_settings
 from app.domain.audit import AuditError
 from app.persistence.stage_models import Candidate, RepairRecord
 from app.services.reports import build_report, markdown_report
@@ -18,9 +20,25 @@ router = APIRouter(tags=["repairs", "reports"])
 @router.get("/audits/{audit_id}/repairs")
 def repairs(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     owned_run(audit_id, session, workspace)
-    return session.exec(
+    from app.services.result_explanations import explain_validation
+
+    rows = session.exec(
         select(RepairRecord).where(RepairRecord.audit_id == audit_id)
     ).all()
+    from app.services.repair_comparison import acceptance_ready, comparison_state
+
+    result = []
+    for row in rows:
+        comparison = comparison_state(session, row)
+        result.append(
+            {
+                **row.model_dump(mode="json"),
+                "comparison": comparison,
+                "acceptance_ready": acceptance_ready(row, comparison),
+                "validation_summary": explain_validation(row.validation, comparison),
+            }
+        )
+    return result
 
 
 def owned_repair(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
@@ -48,8 +66,20 @@ def accept(
     workspace: LocalWorkspace,
 ):
     record = owned_repair(identifier, session, workspace)
-    if record.status != "checks_passed":
-        raise HTTPException(409, "请先完成所选测试和目标复扫；证据不足的补丁保持草稿")
+    from app.services.repair_comparison import acceptance_ready, comparison_state
+
+    comparison = comparison_state(session, record)
+    if record.status == "accepted":
+        raise HTTPException(409, "该补丁已接受，验收记录保留")
+    if not acceptance_ready(record, comparison):
+        raise HTTPException(
+            409,
+            "请先完成漏洞复现、补丁后阻断、正常功能保持和所选检查；语法通过不能代替修复验收",
+        )
+    if not body.test_reviewed or str(body.comparison_stage_id) != comparison.get(
+        "stage_id"
+    ):
+        raise HTTPException(409, "请审阅当前测试断言、前后结果与补丁，再确认接受")
     candidates = [
         session.get(Candidate, UUID(identifier)) for identifier in record.candidate_ids
     ]
@@ -66,6 +96,26 @@ def accept(
         workspace.id,
         body.reason,
     )
+    from app.persistence.stage_models import StageRun
+
+    session.add(
+        StageRun(
+            audit_id=record.audit_id,
+            kind="verification_acceptance",
+            status="completed",
+            phase="patch_accepted",
+            result={
+                "repair_id": str(record.id),
+                "comparison_stage_id": comparison["stage_id"],
+                "receipt_hash": comparison["receipt_hash"],
+                "suite_hash": comparison["identity"]["suite_hash"],
+                "actor_id": str(workspace.id),
+                "reason": body.reason,
+                "test_reviewed": True,
+                "scope": comparison["meaning"],
+            },
+        )
+    )
     session.add(record)
     session.commit()
     return {
@@ -73,6 +123,40 @@ def accept(
         "original_snapshot_unchanged": True,
         "delivery": "download_diff_for_manual_application",
     }
+
+
+class ReportRequest(StrictModel):
+    force: bool = False
+
+
+@router.post("/audits/{audit_id}/report-analysis")
+def generate_report(
+    audit_id: UUID, body: ReportRequest, session: SessionDep, workspace: LocalWorkspace
+):
+    from app.persistence.stage_models import StageRun
+    from app.services.report_generation import source_fingerprint
+
+    if not audit_settings.AI_MODEL or not audit_settings.AI_BASE_URL:
+        raise HTTPException(409, "请先配置模型服务，中文 AI 报告不能使用模板代替")
+    document = build_report(session, owned_run(audit_id, session, workspace))
+    active = session.exec(
+        select(StageRun).where(
+            StageRun.audit_id == audit_id,
+            StageRun.kind == "report",
+            StageRun.status.in_(["queued", "running"]),
+        )
+    ).first()
+    if active:
+        return active
+    if document["ai_report"]["status"] == "ready" and not body.force:
+        return session.get(StageRun, UUID(document["ai_report"]["stage_id"]))
+    return create_stage(
+        audit_id,
+        "report",
+        {"source_fingerprint": source_fingerprint(document)},
+        session,
+        workspace,
+    )
 
 
 @router.get("/audits/{audit_id}/report")
@@ -83,6 +167,8 @@ def report(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
 @router.get("/audits/{audit_id}/report.md", response_class=PlainTextResponse)
 def report_markdown(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     document = build_report(session, owned_run(audit_id, session, workspace))
+    if document["ai_report"]["status"] != "ready":
+        raise HTTPException(409, "AI 中文报告尚未生成或结果已变化，请先生成或更新报告")
     return PlainTextResponse(
         markdown_report(document),
         headers={"Content-Disposition": f'attachment; filename="{audit_id}-report.md"'},

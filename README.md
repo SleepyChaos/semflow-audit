@@ -14,6 +14,8 @@
 
 首次运行见[协作者环境与启动清单](system/collaborator-setup.md)。开发命令默认在 `system/` 执行；`.env` 与运行产物 `artifacts/` 保持在仓库根目录并由 Git 忽略。
 
+当前系统已同步多页面 UI 工作台、AI 中文报告和项目级修复前后验证。新版 Windows 独立运行方式见 [UI 本地启动](system/LOCAL_SETUP.md)，页面与演示说明见 [工作台交付文档](design/UI_WORKBENCH_DELIVERY.md)。
+
 ## 归档说明
 
 已登记 [46 项相关文献](research/papers/README.md)，已收集全文分布于 `research/papers/` 与 `benchmarks/papers/`；未下载项保留来源记录。[39 个测试数据包](benchmarks/datasets/README.md)包含 17,271 个成员，支持离线验证及恢复。

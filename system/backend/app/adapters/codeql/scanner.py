@@ -1,4 +1,5 @@
 import json
+import platform
 import shutil
 import subprocess
 from pathlib import Path
@@ -26,15 +27,22 @@ class CodeQLScanner:
         self, source: Path, output: Path, log: Path, plan: ScanPlan
     ) -> None:
         runtime = None
+        extractor_options = []
         if plan.language == "python":
             interpreter = shutil.which(audit_settings.CODEQL_PYTHON_BIN)
             if interpreter is None:
                 raise AuditError("找不到配置的 Python 抽取解释器")
-            runtime = (log.parent / "runtime").resolve()
-            runtime.mkdir(exist_ok=True)
-            alias = runtime / "python3"
-            if not alias.exists():
-                alias.symlink_to(interpreter)
+            if platform.system() == "Windows":
+                runtime = Path(interpreter).resolve().parent
+                extractor_options.append(
+                    "--extractor-option=python_executable_name=python"
+                )
+            else:
+                runtime = (log.parent / "runtime").resolve()
+                runtime.mkdir(exist_ok=True)
+                alias = runtime / "python3"
+                if not alias.exists():
+                    alias.symlink_to(interpreter)
         run_command(
             [
                 audit_settings.CODEQL_BIN,
@@ -45,6 +53,7 @@ class CodeQLScanner:
                 f"--source-root={source}",
                 f"--threads={audit_settings.CODEQL_THREADS}",
                 "--build-mode=none",
+                *extractor_options,
             ],
             log,
             audit_settings.SCAN_TIMEOUT,

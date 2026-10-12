@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
 import { useState } from "react"
 import { toast } from "sonner"
 import {
@@ -11,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ProjectReplayReview } from "./ProjectReplayReview"
+import { RuleValidationSummary } from "./RuleValidationSummary"
 export function RuleCard({
   rule,
   awaiting,
@@ -31,7 +33,7 @@ export function RuleCard({
     onError: (error: Error) => toast.error(error.message),
   })
   return (
-    <article className="candidate-card">
+    <article className="candidate-card rule-card" id={`rule-${rule.id}`}>
       <header>
         <h4>{rule.title}</h4>
         <Badge variant="outline">{rule.status}</Badge>
@@ -39,6 +41,26 @@ export function RuleCard({
       <p>
         用途 {rule.purpose} · 策略 {rule.strategy} · 版本 {rule.id}
       </p>
+      <RuleValidationSummary rule={rule} />
+      <div className="stage-row">
+        <Link
+          className="text-action"
+          to="/audits/$auditId"
+          params={{ auditId: rule.audit_id }}
+          search={{ stage: "rules" }}
+        >
+          来源审计任务 →
+        </Link>
+        {rule.status === "published" && (
+          <Link
+            className="button-link outline"
+            to="/audits/new"
+            search={{ ruleId: rule.id }}
+          >
+            用于新审计
+          </Link>
+        )}
+      </div>
       <details>
         <summary>查询与模型模块</summary>
         <pre className="source-code">{rule.query}</pre>
@@ -76,6 +98,9 @@ export function RuleCard({
           {JSON.stringify(rule.validation, null, 2)}
         </pre>
       </details>
+      {action.error ? (
+        <p role="alert">操作失败：{action.error.message}</p>
+      ) : null}
       <ProjectReplayReview rule={rule} />
       {awaiting && !rule.fixtures_approved ? (
         <div className="stage-form">

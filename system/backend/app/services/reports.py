@@ -1,5 +1,3 @@
-import json
-
 from sqlmodel import Session, select
 
 from app.persistence.audit_models import AuditRun
@@ -11,6 +9,8 @@ from app.persistence.stage_models import (
     RepairRecord,
     StageRun,
 )
+from app.services.readable_reports import markdown_report as markdown_report
+from app.services.result_explanations import explain_candidate, explain_validation
 
 
 def build_report(session: Session, audit: AuditRun) -> dict:
@@ -62,8 +62,34 @@ def build_report(session: Session, audit: AuditRun) -> dict:
         status: sum(row.status == status for row in instances)
         for status in ["confirmed", "excluded", "pending", "insufficient"]
     }
-    return {
+    from app.services.repair_comparison import comparison_state
+
+    verification = [
+        {"repair_id": str(row.id), "comparison": comparison_state(session, row)}
+        for row in repairs
+    ]
+    report = {
         "schema_version": "2",
+        "reader_guide": {
+            "candidates": [
+                explain_candidate(row.model_dump(mode="json"), dump(evidence))
+                for row in instances
+            ],
+            "repairs": [
+                {
+                    "repair_id": str(row.id),
+                    "checks": explain_validation(
+                        row.validation,
+                        next(
+                            item["comparison"]
+                            for item in verification
+                            if item["repair_id"] == str(row.id)
+                        ),
+                    ),
+                }
+                for row in repairs
+            ],
+        },
         "audit": audit.model_dump(mode="json"),
         "summary": {
             "static_alerts": len(audit.findings),
@@ -98,13 +124,15 @@ def build_report(session: Session, audit: AuditRun) -> dict:
                 "meaning": "Proposals only; original candidates and counts retained",
             }
             for stage in stages
-            if stage.kind == "review" and stage.prompt_version in {"4", "5", "6", "7", "8", "9", "10"}
+            if stage.kind == "review"
+            and stage.prompt_version in {"4", "5", "6", "7", "8", "9", "10"}
         ],
         "candidates": dump(candidates),
         "decisions": dump(decisions),
         "evidence": dump(evidence),
         "repairs": dump(repairs),
         "rules": dump(rules),
+        "verification": verification,
         "coverage": audit.coverage,
         "limitations": [
             "未报告告警不代表安全",
@@ -114,39 +142,7 @@ def build_report(session: Session, audit: AuditRun) -> dict:
             "未执行/失败阶段保留不确定性",
         ],
     }
+    from app.services.report_generation import report_state, source_fingerprint
 
-
-def markdown_report(report: dict) -> str:
-    audit = report["audit"]
-    sections = [
-        f"# 审计报告：{audit['project_name']}",
-        f"快照：`{audit['snapshot_hash']}`\n\n语言：{audit['language']}\n\nCodeQL：{audit['codeql_version']}\n\n状态：{audit['status']}",
-        "## 汇总\n\n```json\n"
-        + json.dumps(report["summary"], ensure_ascii=False, indent=2)
-        + "\n```",
-        "## 覆盖范围\n\n```json\n"
-        + json.dumps(report["coverage"], ensure_ascii=False, indent=2)
-        + "\n```",
-    ]
-    for title, key in [
-        ("原始静态告警", None),
-        ("独立粗筛与覆盖", "discovery"),
-        ("根因关联建议", "root_relations"),
-        ("阶段执行与版本", "stages"),
-        ("锚点评价与未评估范围", "anchor_assessments"),
-        ("候选与人工判断", "candidates"),
-        ("判断历史", "decisions"),
-        ("取证证据", "evidence"),
-        ("修复与验证", "repairs"),
-        ("规则与知识版本", "rules"),
-    ]:
-        data = audit["findings"] if key is None else report[key]
-        sections.append(
-            f"## {title}\n\n```json\n"
-            + json.dumps(data, ensure_ascii=False, indent=2)
-            + "\n```"
-        )
-    sections.append(
-        "## 解释边界\n\n" + "\n".join("- " + text for text in report["limitations"])
-    )
-    return "\n\n".join(sections) + "\n"
+    report["ai_report"] = report_state(stages, source_fingerprint(report))
+    return report

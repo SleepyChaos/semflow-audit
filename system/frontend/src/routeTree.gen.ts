@@ -12,6 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
+import { Route as LayoutKnowledgeRouteImport } from './routes/_layout/knowledge'
+import { Route as LayoutRulesRouteImport } from './routes/_layout/rules'
+import { Route as LayoutAuditsIndexRouteImport } from './routes/_layout/audits.index'
+import { Route as LayoutAuditsAuditIdRouteImport } from './routes/_layout/audits.$auditId'
+import { Route as LayoutAuditsNewRouteImport } from './routes/_layout/audits.new'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
@@ -27,27 +32,90 @@ const LayoutIndexRoute = LayoutIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutKnowledgeRoute = LayoutKnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutRulesRoute = LayoutRulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutAuditsIndexRoute = LayoutAuditsIndexRouteImport.update({
+  id: '/audits/',
+  path: '/audits/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutAuditsAuditIdRoute = LayoutAuditsAuditIdRouteImport.update({
+  id: '/audits/$auditId',
+  path: '/audits/$auditId',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutAuditsNewRoute = LayoutAuditsNewRouteImport.update({
+  id: '/audits/new',
+  path: '/audits/new',
+  getParentRoute: () => LayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
   '/login': typeof LoginRoute
+  '/knowledge': typeof LayoutKnowledgeRoute
+  '/rules': typeof LayoutRulesRoute
+  '/audits/$auditId': typeof LayoutAuditsAuditIdRoute
+  '/audits/new': typeof LayoutAuditsNewRoute
+  '/audits/': typeof LayoutAuditsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/knowledge': typeof LayoutKnowledgeRoute
+  '/rules': typeof LayoutRulesRoute
   '/': typeof LayoutIndexRoute
+  '/audits/$auditId': typeof LayoutAuditsAuditIdRoute
+  '/audits/new': typeof LayoutAuditsNewRoute
+  '/audits': typeof LayoutAuditsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_layout': typeof LayoutRouteWithChildren
   '/login': typeof LoginRoute
+  '/_layout/knowledge': typeof LayoutKnowledgeRoute
+  '/_layout/rules': typeof LayoutRulesRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/audits/$auditId': typeof LayoutAuditsAuditIdRoute
+  '/_layout/audits/new': typeof LayoutAuditsNewRoute
+  '/_layout/audits/': typeof LayoutAuditsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/knowledge'
+    | '/rules'
+    | '/audits/$auditId'
+    | '/audits/new'
+    | '/audits/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/'
-  id: '__root__' | '/_layout' | '/login' | '/_layout/'
+  to:
+    | '/login'
+    | '/knowledge'
+    | '/rules'
+    | '/'
+    | '/audits/$auditId'
+    | '/audits/new'
+    | '/audits'
+  id:
+    | '__root__'
+    | '/_layout'
+    | '/login'
+    | '/_layout/knowledge'
+    | '/_layout/rules'
+    | '/_layout/'
+    | '/_layout/audits/$auditId'
+    | '/_layout/audits/new'
+    | '/_layout/audits/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -78,15 +146,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/knowledge': {
+      id: '/_layout/knowledge'
+      path: '/knowledge'
+      fullPath: '/knowledge'
+      preLoaderRoute: typeof LayoutKnowledgeRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/rules': {
+      id: '/_layout/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof LayoutRulesRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/audits/': {
+      id: '/_layout/audits/'
+      path: '/audits'
+      fullPath: '/audits/'
+      preLoaderRoute: typeof LayoutAuditsIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/audits/$auditId': {
+      id: '/_layout/audits/$auditId'
+      path: '/audits/$auditId'
+      fullPath: '/audits/$auditId'
+      preLoaderRoute: typeof LayoutAuditsAuditIdRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/audits/new': {
+      id: '/_layout/audits/new'
+      path: '/audits/new'
+      fullPath: '/audits/new'
+      preLoaderRoute: typeof LayoutAuditsNewRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
 interface LayoutRouteChildren {
+  LayoutKnowledgeRoute: typeof LayoutKnowledgeRoute
+  LayoutRulesRoute: typeof LayoutRulesRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutAuditsAuditIdRoute: typeof LayoutAuditsAuditIdRoute
+  LayoutAuditsNewRoute: typeof LayoutAuditsNewRoute
+  LayoutAuditsIndexRoute: typeof LayoutAuditsIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
+  LayoutKnowledgeRoute: LayoutKnowledgeRoute,
+  LayoutRulesRoute: LayoutRulesRoute,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutAuditsAuditIdRoute: LayoutAuditsAuditIdRoute,
+  LayoutAuditsNewRoute: LayoutAuditsNewRoute,
+  LayoutAuditsIndexRoute: LayoutAuditsIndexRoute,
 }
 
 const LayoutRouteWithChildren =
