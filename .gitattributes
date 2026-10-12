@@ -5,6 +5,13 @@
 *.tar.gz binary
 *.zip binary
 # Preserve upstream text extraction and author README bytes for checksum provenance.
-benchmark-data/papers/**/*.txt -whitespace
-benchmark-data/papers/**/*.html -whitespace
-benchmark-data/dataset-notes/*README.md -whitespace
+benchmarks/papers/**/*.txt -whitespace
+benchmarks/papers/**/*.html -whitespace
+research/papers/**/*.txt -whitespace
+research/reading/**/*.txt -whitespace
+research/reading/**/*.html -whitespace
+benchmarks/dataset-notes/*README.md -whitespace
+# Imported competition drafts retain their exact archived bytes and hashes.
+competition/deliverables/**/*.md -whitespace
+competition/review/*.md -whitespace
+competition/figureforge-texts/*.md -whitespace

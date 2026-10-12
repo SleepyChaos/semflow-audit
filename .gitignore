@@ -25,13 +25,13 @@ codeql-dbs/
 .idea/
 
 # Frontend production output
-/backend/app/frontend/
+/system/backend/app/frontend/
 
-# Local unpacked evaluation inputs; versioned bundles live in benchmark-data/datasets
-/benchmark-data/raw/
-/benchmark-data/evaluator-only/
-/benchmark-data/model-inputs/
-/benchmark-data/manifests/local-*.json
+# Local unpacked evaluation inputs; versioned bundles live in benchmarks/datasets
+/benchmarks/raw/
+/benchmarks/evaluator-only/
+/benchmarks/model-inputs/
+/benchmarks/manifests/local-*.json
 
 # Office lock files
 .~*

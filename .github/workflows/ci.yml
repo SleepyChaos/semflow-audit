@@ -3,6 +3,9 @@ on: [push, pull_request]
 jobs:
   backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: system
     services:
       postgres:
         image: pgvector/pgvector:pg17
@@ -22,8 +25,17 @@ jobs:
           python-version: '3.14'
       - run: uv sync --project backend --group dev --locked
       - run: ../.venv/bin/alembic upgrade head
-        working-directory: backend
+        working-directory: system/backend
       - run: .venv/bin/ruff check backend/app
+      - uses: github/codeql-action/setup-codeql@v3
+        id: codeql
+        with:
+          tools: https://github.com/github/codeql-action/releases/download/codeql-bundle-v2.23.5/codeql-bundle-linux64.tar.gz
+      - name: Install pinned CodeQL query dependencies
+        run: |
+          export PATH="$(dirname '${{ steps.codeql.outputs.codeql-path }}'):$PATH"
+          codeql pack download --dir "$GITHUB_WORKSPACE/artifacts/packs" codeql/python-queries@1.6.0 codeql/javascript-queries@1.4.0
+          .venv/bin/python scripts/install_query_sources.py
       - run: .venv/bin/pytest -m "not integration" -q
   frontend:
     runs-on: ubuntu-latest
@@ -33,10 +45,10 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: system/frontend/package-lock.json
       - run: npm ci
-        working-directory: frontend
+        working-directory: system/frontend
       - run: ./node_modules/.bin/biome check src/api src/features
-        working-directory: frontend
+        working-directory: system/frontend
       - run: npm run build
-        working-directory: frontend
+        working-directory: system/frontend
