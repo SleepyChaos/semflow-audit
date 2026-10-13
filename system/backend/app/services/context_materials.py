@@ -48,7 +48,7 @@ def frozen_call(
     # Bound semantic calls as well as the existing stage provider budget.
     ledger = ledger_root / "calls.json"
     calls = json.loads(ledger.read_text()) if ledger.exists() else []
-    if len(calls) >= limit:
+    if limit > 0 and len(calls) >= limit:
         raise AuditError("语义模型调用预算耗尽", code="budget_exhausted")
     save_json(directory / "input.json", {"input_hash": identity, "payload": payload})
     save_json(ledger, [*calls, {"input_hash": identity, "purpose": purpose}])

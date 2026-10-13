@@ -16,7 +16,7 @@ class ReviewState(TypedDict, total=False):
 
 
 def build_review_graph(service: ReviewService, checkpointer=None):
-    if service.stage.prompt_version in {"4", "5", "6", "7", "8", "9", "10"}:
+    if service.stage.prompt_version in {"4", "5", "6", "7", "8", "9", "10", "11", "12"}:
         from app.workflows.unified_review import build_unified_review_graph
 
         return build_unified_review_graph(service, checkpointer)

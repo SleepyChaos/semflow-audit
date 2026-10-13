@@ -16,7 +16,7 @@ def property_for(target):
     exact = str(weakness)
     priorities = [
         (
-            r"(?:CWE-|cwe[-/])0?(?:215|256|259|321|327|328|330|338|489|614|798)(?:\D|$)",
+            r"(?:CWE-|cwe[-/])0?(?:215|256|259|321|327|328|330|338|489|614|798|1004)(?:\D|$)",
             "secrets_config",
         ),
         (r"(?:CWE-|cwe[-/])0?(?:352|384|501)(?:\D|$)", "state_integrity"),
@@ -96,6 +96,18 @@ def bootstrap_files(evidence, current, modern=False):
                     )
                 )
         candidates = list(dict.fromkeys(factories + candidates))
+    # A sibling demo app is not middleware for this target. Keep ancestor bootstraps
+    # and explicit imports; independent sub-applications retain separate evidence gaps.
+    parents = [
+        Path(r["reference"].get("file", "")).parent
+        for r in current
+        if r["kind"] == "code"
+    ]
+    candidates = [
+        p
+        for p in candidates
+        if any(parent.is_relative_to(Path(p).parent) for parent in parents)
+    ]
     # Actual import/factory syntax is navigation; supplied pages establish code facts.
     return list(dict.fromkeys(candidates[:3] + related))[:7]
 
@@ -107,7 +119,8 @@ def augment_context(service, context):
     modern = (
         service.stage.kind == "scout" and service.stage.prompt_version in {"7", "8"}
     ) or (
-        service.stage.kind == "review" and service.stage.prompt_version in {"9", "10"}
+        service.stage.kind == "review"
+        and service.stage.prompt_version in {"9", "10", "11", "12"}
     )
     for file in bootstrap_files(service.evidence, materials, modern=modern):
         path = service.evidence.allowed(file)
@@ -136,7 +149,13 @@ def augment_context(service, context):
                 [*proposed, service.evidence.read(file, start, end)]
             )
         else:
-            if len(json.dumps(proposed, ensure_ascii=False)) <= cap:
+            if (
+                len(json.dumps(proposed, ensure_ascii=False)) <= cap
+                and len(
+                    json.dumps({**context, "evidence": proposed}, ensure_ascii=False)
+                )
+                <= service.inputs.max_context_chars - 4000
+            ):
                 materials = proposed
                 completed.append(file)
             else:
@@ -204,7 +223,16 @@ def validate_premises(assessment, target, context, evidence):
         raise AuditError("必要前提缺失或重复")
     for premise in assessment.premises:
         rows = evidence(premise.evidence_ids)
-        if premise.status in {"established", "contradicted", "not_applicable"}:
+        if premise.status == "not_applicable":
+            if (
+                premise.premise != "input_or_policy"
+                or assessment.security_property != "secrets_config"
+            ):
+                raise AuditError("仅配置缺陷的输入前提可不适用；操作与保护仍须实际引用")
+            # Literal configuration defects need no request input. Operation and
+            # unsafe_protection still require their own actual source quotations.
+            continue
+        if premise.status in {"established", "contradicted"}:
             code = [
                 r
                 for r in rows

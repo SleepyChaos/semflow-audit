@@ -12,5 +12,8 @@ celery_app.conf.update(
     accept_content=["json"],
     task_track_started=True,
     worker_prefetch_multiplier=1,
-    task_time_limit=audit_settings.SCAN_TIMEOUT * 8 + 120,
+    task_time_limit=None,
+    task_annotations={
+        "audit.knowledge_index": {"time_limit": audit_settings.SCAN_TIMEOUT * 8 + 120},
+    },
 )

@@ -26,7 +26,7 @@ from app.workflows.scouting import build_scout_graph
 logger = logging.getLogger(__name__)
 
 
-@celery_app.task(name="audit.stage")
+@celery_app.task(name="audit.stage", time_limit=0, soft_time_limit=0)
 def execute_stage(stage_id: str, resume: bool = False) -> None:
     repository = StageRepository()
     if not repository.claim(stage_id):
@@ -42,6 +42,11 @@ def execute_stage(stage_id: str, resume: bool = False) -> None:
         provider = CompatibleModel()
         if hasattr(provider, "bind_stage"):
             provider.bind_stage(stage_id, stage.prompt_version)
+        if stage.kind == "candidate_translation":
+            from app.services.candidate_localization import translate_candidates
+
+            translate_candidates(stage_id, provider)
+            return
         if stage.kind == "verification_suite":
             from app.services.verification_suites import SuiteService
 

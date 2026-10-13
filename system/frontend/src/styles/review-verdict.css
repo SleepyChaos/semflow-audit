@@ -1,0 +1,115 @@
+[data-verdict="supported"] {
+  --verdict-background: #e7f5f0;
+  --verdict-foreground: #176452;
+  --verdict-border: #b8ded1;
+}
+[data-verdict="excluded"] {
+  --verdict-background: #fceceb;
+  --verdict-foreground: #9c3735;
+  --verdict-border: #edc6c3;
+}
+[data-verdict="insufficient"] {
+  --verdict-background: #fff6d9;
+  --verdict-foreground: #7c5d12;
+  --verdict-border: #e8d89e;
+}
+[data-verdict="neutral"] {
+  --verdict-background: #f2f2ee;
+  --verdict-foreground: #63635b;
+  --verdict-border: #dcdcd4;
+}
+.review-verdict-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid var(--verdict-border);
+  border-radius: 6px;
+  background: var(--verdict-background);
+  color: var(--verdict-foreground);
+  font-size: 12px;
+  font-weight: 600;
+}
+.candidate-option[data-verdict] {
+  background: var(--verdict-background);
+}
+.candidate-option[data-verdict][aria-pressed="true"] {
+  border-left-color: var(--verdict-foreground);
+  box-shadow: inset 0 0 0 1px var(--verdict-border);
+}
+.candidate-option:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+.candidate-review-summary {
+  display: grid;
+  gap: 18px;
+}
+.review-verdict-panel {
+  border: 1px solid var(--verdict-border);
+  border-left: 4px solid var(--verdict-foreground);
+  border-radius: 6px;
+  background: var(--verdict-background);
+  color: var(--verdict-foreground);
+  padding: 16px 18px;
+}
+.review-verdict-panel > strong {
+  display: block;
+  margin-bottom: 8px;
+}
+.review-detail-section {
+  display: grid;
+  gap: 10px;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.evidence-workspace .review-detail-section h4,
+.evidence-workspace .review-detail-section h5 {
+  margin: 0;
+  font-weight: 600;
+}
+.review-detail-section ul,
+.review-detail-section ol {
+  padding-left: 22px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.review-detail-section ul {
+  list-style: disc;
+}
+.review-detail-section ol {
+  list-style: decimal;
+}
+.human-decision-disclosure {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.human-decision-disclosure > summary,
+.candidate-manual-source > summary {
+  font-weight: 600;
+}
+
+.classification-controls {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 0;
+}
+.classification-controls label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+.classification-controls p {
+  flex-basis: 100%;
+}
+.evidence-choice.evidence-source-disclosure > summary {
+  padding: 10px 14px;
+  background: var(--muted);
+  cursor: pointer;
+  font-size: 13px;
+}

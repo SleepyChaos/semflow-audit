@@ -83,6 +83,21 @@
   border: 0;
   background: #fcfcfb;
 }
+.evidence-choice .evidence-source-disclosure > summary {
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: 12px;
+}
+.evidence-source-disclosure > summary:hover {
+  background: var(--secondary);
+}
+.evidence-source-disclosure > summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
 .evidence-digest {
   font-size: 10px;
   color: #8a857c;

@@ -17,7 +17,12 @@ from app.services.context_materials import (
 )
 from app.services.read_tools import observe_tool, reused_read, window_observations
 from app.services.review import ReviewService
-from app.services.review_pool import batch_context, batches, pool_for_resume
+from app.services.review_pool import (
+    batch_context,
+    batches,
+    fit_batches,
+    pool_for_resume,
+)
 from app.services.unified_review_results import save_batch
 
 
@@ -39,7 +44,16 @@ class UnifiedReview:
         context = batch_context(self, entries)
         if feedback:
             context["server_feedback"] = feedback
-        modern = self.stage.prompt_version in {"5", "6", "7", "8", "9", "10"}
+        modern = self.stage.prompt_version in {
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+        }
         if modern:
             from app.services.review_tools import SOURCE_TOOL_CONTRACT
 
@@ -47,7 +61,7 @@ class UnifiedReview:
         steps = call_limit or self.inputs.max_steps
         for step in range(steps):
             self.repository.active(self.stage_id)
-            if self.stage.prompt_version in {"8", "9", "10"}:
+            if self.stage.prompt_version in {"8", "9", "10", "11", "12"}:
                 from app.services.discovery_context import (
                     refresh_citation_contract,
                     refresh_control_context,
@@ -56,19 +70,30 @@ class UnifiedReview:
                 context = refresh_citation_contract(
                     refresh_control_context(self, context)
                 )
+            from app.adapters.context_packing import fit_navigation
+
+            context = fit_navigation(context, self.inputs.max_context_chars)
             if (
                 len(json.dumps(context, ensure_ascii=False))
                 > self.inputs.max_context_chars
             ):
                 raise AuditError("复核批次必要上下文超过预算", code="context_budget")
-            final_only = self.stage.prompt_version in {"6", "7", "8", "9", "10"} and (
+            final_only = self.stage.prompt_version in {
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+            } and (
                 step == steps - 1
                 or any(r.get("reused") for r in context.get("tool_trace", []))
             )
             context["remaining_model_calls_in_batch"] = steps - step
             context["finalize_required"] = final_only
             schema = FinalUnifiedReviewResponse if final_only else UnifiedReviewResponse
-            if self.stage.prompt_version in {"8", "9", "10"}:
+            if self.stage.prompt_version in {"8", "9", "10", "11", "12"}:
                 from app.contracts.discovery_semantics import (
                     FinalUnifiedReviewResponseV8,
                     UnifiedReviewResponseV8,
@@ -78,6 +103,17 @@ class UnifiedReview:
                     FinalUnifiedReviewResponseV8
                     if final_only
                     else UnifiedReviewResponseV8
+                )
+            if self.stage.prompt_version in {"11", "12"}:
+                from app.contracts.review_presentation import (
+                    FinalPresentedReviewResponse,
+                    PresentedReviewResponse,
+                )
+
+                schema = (
+                    FinalPresentedReviewResponse
+                    if final_only
+                    else PresentedReviewResponse
                 )
             response = frozen_call(
                 self.provider,
@@ -138,10 +174,12 @@ class UnifiedReview:
         schedule = batches(
             pool,
             self.inputs.batch_size,
-            self.stage.prompt_version in {"5", "6", "7", "8", "9", "10"},
-            coherent_conditions=self.stage.prompt_version in {"9", "10"},
+            self.stage.prompt_version in {"5", "6", "7", "8", "9", "10", "11", "12"},
+            coherent_conditions=self.stage.prompt_version in {"9", "10", "11", "12"},
         )
-        schedule = schedule[: self.inputs.max_batches]
+        schedule = fit_batches(self, schedule)
+        if self.inputs.max_batches:
+            schedule = schedule[: self.inputs.max_batches]
         self.repository.update(
             self.stage_id,
             result={
@@ -151,27 +189,30 @@ class UnifiedReview:
                     "scheduled_candidates": sum(map(len, schedule)),
                     "batch_limit": self.inputs.max_batches,
                     "scheduled_batches": len(schedule),
-                    "remaining_reason": "explicit batch/call/time budgets; unprocessed candidates are unknown",
+                    "remaining_reason": "explicit scope, provider interruption or lack of progress; unprocessed candidates are unknown",
                 },
             },
         )
+        stop_reason = None
         for index, entries in enumerate(schedule):
             batch_id = digest(entries)[:24]
             current = self.repository.get(self.stage_id).result
             if batch_id in {r["batch_id"] for r in current.get("batches", [])}:
                 continue
             try:
-                available = getattr(self.provider, "policy", {}).get(
-                    "max_calls", 24
-                ) - self.provider.usage.get("calls", 0)
+                maximum = getattr(self.provider, "policy", {}).get("max_calls", 24)
+                available = maximum - self.provider.usage.get("calls", 0)
                 call_limit = (
-                    max(
+                    self.inputs.max_steps
+                    if maximum == 0
+                    else max(
                         1,
                         min(
                             self.inputs.max_steps, available // (len(schedule) - index)
                         ),
                     )
-                    if self.stage.prompt_version in {"6", "7", "8", "9", "10"}
+                    if self.stage.prompt_version
+                    in {"6", "7", "8", "9", "10", "11", "12"}
                     else None
                 )
                 result = self.inspect_batch(batch_id, entries, call_limit)
@@ -199,12 +240,34 @@ class UnifiedReview:
                         "batches": [*current.get("batches", []), failed],
                     },
                 )
-                if code in {"budget_exhausted", "timeout", "provider_error"}:
+                if code in {
+                    "budget_exhausted",
+                    "timeout",
+                    "provider_error",
+                    "rate_limited",
+                }:
+                    stop_reason = code
                     break
-        if self.stage.prompt_version in {"8", "9", "10"}:
+            from app.adapters.ai.policy import stalled
+
+            if stalled(
+                self.repository.get(self.stage_id).result.get("batches", []),
+                getattr(self.provider, "policy", {}),
+            ):
+                stop_reason = "no_progress"
+                break
+        self.repository.update(
+            self.stage_id,
+            result={
+                **self.repository.get(self.stage_id).result,
+                "stop_reason": stop_reason,
+            },
+        )
+        if self.stage.prompt_version in {"8", "9", "10", "11", "12"}:
             from app.services.review_recovery import recover_unreviewed
 
-            recover_unreviewed(self, schedule)
+            if not stop_reason:
+                recover_unreviewed(self, schedule)
         return {}
 
     def finalize(self, state):
@@ -256,7 +319,12 @@ class UnifiedReview:
                     if e["origin"] == "static" and e["candidate_id"] in reviewed
                 }
             ],
-            "summary": f"Reviewed {len(reviewed)} candidate recommendations; {len(uncovered)} candidates remain unreviewed. Human confirmation required.",
+            "summary": f"已复核 {len(reviewed)} 项，仍有 {len(uncovered)} 项未完成；采用 AI 分类，可人工调整。"
+            if self.stage.prompt_version == "12"
+            else f"Reviewed {len(reviewed)} candidate recommendations; {len(uncovered)} candidates remain unreviewed. Human confirmation required.",
+            "classification_mode": "automatic_with_human_override"
+            if self.stage.prompt_version == "12"
+            else "human_confirmation",
             "coverage_status": "partial" if uncovered else "completed",
             "snapshot_hash": self.evidence.audit.snapshot_hash,
         }
@@ -264,7 +332,9 @@ class UnifiedReview:
         self.repository.update(
             self.stage_id,
             status="completed",
-            phase="awaiting_human_decisions",
+            phase="classifications_ready"
+            if self.stage.prompt_version == "12"
+            else "awaiting_human_decisions",
             result=final,
             usage=self.provider.usage,
         )

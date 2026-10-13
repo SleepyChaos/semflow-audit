@@ -1,6 +1,6 @@
 import { useState } from "react"
-import type { Candidate, Evidence, StageRun } from "@/api/stages"
-import { uniqueCandidates } from "@/features/audit-task/task-summary"
+import type { Candidate } from "@/api/stages"
+import { currentReviewCandidates, reviewVerdict } from "./review-status"
 import { CandidateCard } from "./CandidateCard"
 export const humanStatuses: Record<string, string> = {
   confirmed: "已确认",
@@ -10,35 +10,43 @@ export const humanStatuses: Record<string, string> = {
 }
 export function CandidateWorkspace({
   candidates,
-  evidence,
-  stages,
   busy,
 }: {
   candidates: Candidate[]
-  evidence: Evidence[]
-  stages: StageRun[]
   busy: boolean
 }) {
-  const unique = uniqueCandidates(candidates),
+  const unique = currentReviewCandidates(candidates),
     [selected, setSelected] = useState<string | null>(null)
   const candidate = unique.find((c) => c.id === selected) ?? unique[0]
   return (
     <div className="candidate-workspace" data-testid="candidate-workspace">
       <aside className="candidate-rail">
         <div className="rail-heading">
-          待审候选 <span>{unique.length}</span>
+          漏洞列表 <span>{unique.length}</span>
         </div>
         {unique.map((c) => (
           <button
             type="button"
             className="candidate-option"
+            data-verdict={reviewVerdict(c).tone}
             aria-pressed={c.id === candidate?.id}
             key={c.id}
             onClick={() => setSelected(c.id)}
           >
-            <span>{c.explanation?.title ?? c.title}</span>
+            <span>{c.review?.detail?.title ?? c.title}</span>
+            <span
+              className="review-verdict-badge"
+              data-verdict={reviewVerdict(c).tone}
+            >
+              {reviewVerdict(c).label}
+            </span>
             <small>
-              {c.weakness} · {humanStatuses[c.status] ?? c.status}
+              {c.weakness} ·{" "}
+              {c.classification?.source === "human"
+                ? "人工调整"
+                : c.classification?.source === "ai"
+                  ? "AI 自动分类"
+                  : "待自动复核"}
             </small>
             <small>
               {c.location.file ?? "位置待核实"}
@@ -54,11 +62,9 @@ export function CandidateWorkspace({
       </aside>
       {candidate ? (
         <CandidateCard
-          key={`${candidate.id}:${candidate.status}`}
+          key={`${candidate.id}:${candidate.classification?.status}:${candidate.classification?.source}`}
           candidate={candidate}
-          evidence={evidence}
           busy={busy}
-          stages={stages}
         />
       ) : (
         <div className="empty-state">

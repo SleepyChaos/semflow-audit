@@ -32,9 +32,11 @@ export interface AuditRun {
     pipeline_version?: string
     dual_engine?: {
       status: string
+      scout_stage_id?: string
       review_ready?: boolean
       codeql?: { status: string; error?: string }
       scout?: {
+        stage_id?: string
         status: string
         error?: string
         coverage?: {

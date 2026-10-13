@@ -50,6 +50,9 @@ def create_stage(
     inputs: dict,
     session: SessionDep,
     workspace: LocalWorkspace,
+    *,
+    initial_result: dict | None = None,
+    prompt_version: str | None = None,
 ):
     owned_run(audit_id, session, workspace)
     run = session.exec(
@@ -63,6 +66,7 @@ def create_stage(
         "report",
         "verification_suite",
         "verification",
+        "candidate_translation",
     }:
         raise HTTPException(409, "此记录不支持后台重跑")
     ready = (
@@ -73,7 +77,7 @@ def create_stage(
         or run.status == "completed"
         or (
             run.status == "failed"
-            and kind in {"review", "repair", "scout"}
+            and kind in {"review", "repair", "scout", "candidate_translation"}
             and run.coverage.get("dual_engine", {}).get("review_ready", False)
         )
     )
@@ -111,14 +115,17 @@ def create_stage(
         audit_id=audit_id,
         kind=kind,
         inputs=inputs,
-        prompt_version={
-            "review": "9",
+        result=initial_result or {},
+        prompt_version=prompt_version
+        or {
+            "review": "12",
             "repair": "2",
             "rule": "8",
             "scout": "7",
             "report": "2",
             "verification_suite": "1",
             "verification": "1",
+            "candidate_translation": "1",
         }[kind],
     )
     session.add(stage)
@@ -155,8 +162,33 @@ def scout(audit_id: UUID, body: dict, session: SessionDep, workspace: LocalWorks
         inputs = ScoutRequest.model_validate(body)
     except ValueError as exc:
         raise HTTPException(422, "粗筛范围或预算无效") from exc
+    if inputs.continuation_from_id:
+        raise HTTPException(422, "窗口补审请使用初审执行的补审入口")
     return create_stage(
         audit_id, "scout", inputs.model_dump(mode="json"), session, workspace
+    )
+
+
+@router.post("/stages/{identifier}/continue-scout", status_code=201)
+def continue_scout(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    from app.services.scout_continuation import continuation_inputs
+
+    previous = owned_stage(identifier, session, workspace)
+    audit = session.exec(
+        select(AuditRun).where(AuditRun.id == previous.audit_id).with_for_update()
+    ).one()
+    try:
+        inputs, result = continuation_inputs(previous, audit, session)
+    except (AuditError, KeyError, ValueError) as exc:
+        raise HTTPException(409, str(exc)) from exc
+    return create_stage(
+        audit.id,
+        "scout",
+        inputs,
+        session,
+        workspace,
+        initial_result=result,
+        prompt_version=previous.prompt_version,
     )
 
 
@@ -223,6 +255,8 @@ def retry(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
     previous = owned_stage(identifier, session, workspace)
     if previous.status not in {"failed", "cancelled"}:
         raise HTTPException(409, "仅失败或取消阶段可创建重跑记录")
+    if previous.kind == "scout" and previous.inputs.get("continuation_from_id"):
+        return continue_scout(identifier, session, workspace)
     return create_stage(
         previous.audit_id, previous.kind, previous.inputs, session, workspace
     )
@@ -269,7 +303,9 @@ def recover(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
 
 @router.get("/audits/{audit_id}/candidates")
 def candidates(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
-    owned_run(audit_id, session, workspace)
+    audit = owned_run(audit_id, session, workspace)
+    from app.services.candidate_classification import classification_view
+    from app.services.candidate_reviews import candidate_review
     from app.services.result_explanations import explain_candidate
 
     rows = session.exec(
@@ -279,15 +315,33 @@ def candidates(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     ).all()
     sources = session.exec(select(Evidence).where(Evidence.audit_id == audit_id)).all()
     evidence_data = [row.model_dump(mode="json") for row in sources]
-    return [
-        {
+    stage_rows = session.exec(
+        select(StageRun).where(StageRun.audit_id == audit_id)
+    ).all()
+    by_stage = {stage.id: stage for stage in stage_rows}
+    decisions = session.exec(
+        select(Decision)
+        .join(Candidate, Candidate.id == Decision.candidate_id)
+        .where(Candidate.audit_id == audit_id)
+        .order_by(Decision.created_at)
+    ).all()
+    latest_decisions = {decision.candidate_id: decision for decision in decisions}
+    from app.services.candidate_localization import localized_view
+
+    def present(row):
+        review = candidate_review(row, by_stage, audit.snapshot_hash)
+        classification = classification_view(row, review, latest_decisions.get(row.id))
+        payload = {
             **row.model_dump(mode="json"),
             "explanation": explain_candidate(
                 row.model_dump(mode="json"), evidence_data
             ),
+            "review": review,
+            "classification": classification,
         }
-        for row in rows
-    ]
+        return localized_view(payload, by_stage)
+
+    return [present(row) for row in rows]
 
 
 @router.get("/candidates/{identifier}/decisions")
@@ -411,6 +465,8 @@ def stage_materials(identifier: UUID, session: SessionDep, workspace: LocalWorks
         "8",
         "9",
         "10",
+        "11",
+        "12",
     }:
         name = "review-pool.json"
     if not name:

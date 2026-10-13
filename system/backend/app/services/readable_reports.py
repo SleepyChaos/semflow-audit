@@ -12,8 +12,8 @@ def markdown_report(report: dict) -> str:
     sections = [
         f"# 审计报告：{audit['project_name']}",
         "## 阅读结论",
-        f"静态规则产生 {summary.get('static_alerts', 0)} 条告警；人工判断：已确认 {counts.get('confirmed', 0)} 个，待确认 {counts.get('pending', 0)} 个，证据不足 {counts.get('insufficient', 0)} 个，支持排除 {counts.get('excluded', 0)} 个。",
-        "静态告警、模型候选与人工确认是不同结果。零告警不代表安全，阶段执行完成也不代表漏洞已修复。",
+        f"静态规则产生 {summary.get('static_alerts', 0)} 条告警；当前分类：已确认 {counts.get('confirmed', 0)} 个，待确认 {counts.get('pending', 0)} 个，证据不足 {counts.get('insufficient', 0)} 个，支持排除 {counts.get('excluded', 0)} 个。",
+        "分类来自 AI 复核或人工调整；具体来源以执行及调整记录为准。零告警不代表安全，阶段执行完成也不代表漏洞已修复。",
         f"本次分析的语言：{audit['language']}；源码快照：`{audit['snapshot_hash']}`；CodeQL：{audit['codeql_version']}。",
         "## 问题在哪里、有什么影响",
     ]

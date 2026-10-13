@@ -6,8 +6,15 @@ from app.services.review_classification import implicated_cwes
 
 
 def validate_assessment(service, assessment, context, targets, evidence):
+    detail = getattr(assessment, "detail", None)
+    if detail is not None:
+        from app.services.review_presentation import validate_detail
+
+        validate_detail(
+            assessment, evidence, require_chinese=service.stage.prompt_version == "12"
+        )
     identifier = str(assessment.candidate_id)
-    if service.stage.prompt_version in {"8", "9", "10"}:
+    if service.stage.prompt_version in {"8", "9", "10", "11", "12"}:
         from app.services.discovery_context import validate_premises
 
         validate_premises(assessment, targets[identifier], context, evidence)
@@ -59,11 +66,11 @@ def validate_assessment(service, assessment, context, targets, evidence):
             ):
                 raise AuditError("实际操作没有符号绑定，偏移主行号不能绕过危险调用校验")
     if (
-        service.stage.prompt_version in {"5", "6", "7", "8", "9", "10"}
+        service.stage.prompt_version in {"5", "6", "7", "8", "9", "10", "11", "12"}
         and assessment.assessment == "supported"
         and (
             bool(implicated_cwes(targets[identifier], assessment) & {78, 94, 95})
-            if service.stage.prompt_version in {"8", "9", "10"}
+            if service.stage.prompt_version in {"8", "9", "10", "11", "12"}
             else assessment.weakness
             in {"CWE-78", "CWE-078", "CWE-94", "CWE-094", "CWE-95", "CWE-095"}
         )

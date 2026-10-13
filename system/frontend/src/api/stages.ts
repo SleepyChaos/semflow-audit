@@ -1,6 +1,7 @@
 import { apiJson, downloadArtifact } from "./backend"
 import { attachDecisionTimes } from "./candidate-history"
 import type { RepairComparison } from "./verification"
+import type { CandidateReview } from "./review"
 export interface StageRun {
   id: string
   audit_id: string
@@ -15,6 +16,7 @@ export interface StageRun {
   model_calls: Record<string, unknown>[]
   usage: Record<string, number>
   created_at: string
+  updated_at?: string
 }
 export interface CandidateExplanation {
   title: string
@@ -34,6 +36,15 @@ export interface ValidationCheck {
   next_step: string
 }
 export interface Candidate {
+  needs_localization?: boolean
+  localization_pending?: boolean
+  localization_error?: string | null
+  classification?: {
+    status: string
+    source: "ai" | "human" | "pending"
+    updated_at?: string | null
+  }
+  review?: CandidateReview | null
   explanation?: CandidateExplanation
   id: string
   audit_id: string
@@ -170,6 +181,8 @@ export const getCapabilities = () =>
 export const startStage = (auditId: string, kind: string, body: unknown) =>
   post<StageRun>(`/audits/${auditId}/${kind}`, body)
 export const retryStage = (id: string) => post<StageRun>(`/stages/${id}/retry`)
+export const continueScout = (id: string) =>
+  post<StageRun>(`/stages/${id}/continue-scout`)
 export const cancelStage = (id: string) => post(`/stages/${id}/cancel`)
 export const recoverStage = (id: string) => post(`/stages/${id}/recover`)
 export const getStageLogs = (id: string) =>

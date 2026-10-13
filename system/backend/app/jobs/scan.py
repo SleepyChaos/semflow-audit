@@ -14,7 +14,7 @@ from app.workflows.scanning import build_scan_graph
 logger = logging.getLogger(__name__)
 
 
-@celery_app.task(name="audit.scan")
+@celery_app.task(name="audit.scan", time_limit=0, soft_time_limit=0)
 def execute_scan(run_id: str) -> None:
     repository = AuditRepository()
     if not repository.claim(run_id):

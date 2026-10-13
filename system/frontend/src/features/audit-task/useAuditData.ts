@@ -37,6 +37,7 @@ export function useAuditData(auditId: string) {
     enabled: Boolean(run),
     retry: 1,
     refetchInterval: (query) =>
+      ["queued", "running"].includes(run?.status ?? "") ||
       query.state.data?.some((stage) =>
         ["queued", "running"].includes(stage.status),
       )

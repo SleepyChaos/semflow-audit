@@ -4,13 +4,11 @@ export function ReviewControls({
   reason,
   pending,
   onStart,
-  children,
 }: {
   disabled: boolean
   reason: string | null
   pending: boolean
   onStart: () => void
-  children: React.ReactNode
 }) {
   return (
     <div className="review-controls">
@@ -18,7 +16,8 @@ export function ReviewControls({
         <div>
           <h3>统一复核</h3>
           <p>
-            汇合 CodeQL 告警与 AI 粗筛候选，检查前提和反证，再由人工作出判断。
+            汇合 CodeQL 与 AI
+            初审结果，自动区分真实、误报和证据不足，并生成每项的项目描述、利用用例与关联源码。
           </p>
           {reason && <p className="action-hint">{reason}</p>}
         </div>
@@ -26,10 +25,6 @@ export function ReviewControls({
           {pending ? "正在提交…" : "启动统一复核"}
         </Button>
       </div>
-      <details className="advanced-options">
-        <summary>高级选项与人工补充证据</summary>
-        {children}
-      </details>
     </div>
   )
 }

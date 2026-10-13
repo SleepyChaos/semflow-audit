@@ -51,6 +51,8 @@ def category(file: str) -> str:
         or path.name == "activate_this.py"
     ):
         return "third_party_or_generated"
+    if "migrations" in parts:
+        return "migration"
     if path.suffix in TEMPLATES:
         return "template"
     if parts & {"routes", "route", "controllers", "api"} or path.stem in {
@@ -58,6 +60,8 @@ def category(file: str) -> str:
         "server",
         "main",
         "index",
+        "views",
+        "apis",
     }:
         return "entrypoint"
     if any(term in path.stem for term in ("auth", "passport", "permission", "session")):
@@ -78,6 +82,7 @@ def priority(file: str) -> int:
         "configuration": 3,
         "source": 4,
         "third_party_or_generated": 9,
+        "migration": 8,
     }[category(file)]
 
 

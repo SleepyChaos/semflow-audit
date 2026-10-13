@@ -23,7 +23,7 @@ export function RunList({
               "扫描状态",
               "静态告警",
               "AI 候选",
-              "人工确认",
+              "确认真实",
               "创建时间",
               "操作",
             ].map((label) => (

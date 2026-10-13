@@ -40,9 +40,12 @@ def save_batch(service, batch_id, response, context):
             if (
                 identifier not in targets
                 or identifier in checked
-                or (stage.prompt_version in {"8", "9", "10"} and counts[identifier] > 1)
+                or (
+                    stage.prompt_version in {"8", "9", "10", "11", "12"}
+                    and counts[identifier] > 1
+                )
             ):
-                if stage.prompt_version not in {"8", "9", "10"}:
+                if stage.prompt_version not in {"8", "9", "10", "11", "12"}:
                     raise AuditError("复核候选无效或重复")
                 rejected_assessments.append(
                     {
@@ -57,7 +60,7 @@ def save_batch(service, batch_id, response, context):
             try:
                 validate_assessment(service, assessment, context, targets, evidence)
             except AuditError as exc:
-                if stage.prompt_version not in {"8", "9", "10"}:
+                if stage.prompt_version not in {"8", "9", "10", "11", "12"}:
                     raise
                 rejected_assessments.append(
                     {
@@ -78,7 +81,15 @@ def save_batch(service, batch_id, response, context):
             ):
                 raise AuditError("复核目标跨阶段", code="identity_error")
             row.model_assessment = assessment.assessment
-            if stage.prompt_version in {"8", "9", "10"}:
+            if stage.prompt_version == "12":
+                from app.services.candidate_classification import (
+                    apply_model_classification,
+                )
+
+                apply_model_classification(row, assessment.assessment, db)
+                row.title = assessment.detail.title
+                row.description = assessment.detail.description
+            if stage.prompt_version in {"8", "9", "10", "11", "12"}:
                 from app.services.review_classification import decision
 
                 classification = decision(row.weakness, assessment.weakness)
@@ -126,7 +137,7 @@ def save_batch(service, batch_id, response, context):
                 service.evidence.allowed(location["file"])
                 evidence(finding.evidence_ids, location)
             except AuditError as exc:
-                if stage.prompt_version not in {"8", "9", "10"}:
+                if stage.prompt_version not in {"8", "9", "10", "11", "12"}:
                     raise
                 rejected_findings.append(
                     {"finding": finding.model_dump(mode="json"), "reason": str(exc)}
@@ -162,12 +173,19 @@ def save_batch(service, batch_id, response, context):
                 db.flush()
             # Grounding locates a hypothesis; it does not establish its necessary premises.
             recommendations.append({"id": str(row.id), "recommendation": "pending"})
-        if response.anchor_assessments and stage.prompt_version not in {"8", "9", "10"}:
+        if response.anchor_assessments and stage.prompt_version not in {
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+        }:
             raise AuditError("统一复核批次没有提供锚点评价目标")
         result = {
             "batch_id": batch_id,
             "status": "partial"
-            if stage.prompt_version in {"8", "9", "10"} and set(targets) - checked
+            if stage.prompt_version in {"8", "9", "10", "11", "12"}
+            and set(targets) - checked
             else "completed",
             "summary": response.summary,
             "candidate_ids": list(targets),

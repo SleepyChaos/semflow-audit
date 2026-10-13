@@ -118,7 +118,8 @@ export function RepairPanel({
           <div>
             <p>先确认缺陷</p>
             <p className="page-note">
-              修复只针对人工确认的候选。请先核对源码和判断依据。
+              修复针对分类为真实的候选，默认采用 AI
+              复核结果，可在复审页调整分类。
             </p>
             <Link
               className="text-action"

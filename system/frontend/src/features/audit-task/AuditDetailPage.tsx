@@ -1,4 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router"
+import { ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { reviewBlockReason } from "@/features/codeql-stage/discovery-state"
 import { RunDetails } from "@/features/codeql-stage/RunDetails"
 import {
   type AuditStage,
@@ -48,6 +51,10 @@ export function AuditDetailPage({
     ? summarizeCandidates(data.candidates.data)
     : undefined
   const action = getTaskAction(data.run, data.candidates.data, data.stages.data)
+  const reviewBlocked = reviewBlockReason(data.run, data.stages.data ?? [], {
+    pending: data.stages.isPending,
+    error: data.stages.error,
+  })
   const reverse: Record<string, AuditStage> = {
     codeql: "scan",
     ai: "review",
@@ -78,22 +85,46 @@ export function AuditDetailPage({
           </strong>
         </span>
         <span>
-          人工确认{" "}
+          确认真实{" "}
           <strong>
             {summary?.confirmed ??
               (data.candidates.isError ? "无法读取" : "读取中")}
           </strong>
         </span>
-        {action && action.stage !== stage && (
-          <Link
-            to="/audits/$auditId"
-            params={{ auditId }}
-            search={{ stage: action.stage }}
-            title={action.reason}
-          >
-            {action.label} →
-          </Link>
-        )}
+        {stage === "scan" ? (
+          <div className="task-summary-action">
+            <Button
+              size="lg"
+              disabled={Boolean(reviewBlocked)}
+              aria-describedby={
+                reviewBlocked ? "review-block-reason" : undefined
+              }
+              onClick={() => changeStage("review")}
+            >
+              复核候选
+              <ArrowRight data-icon="inline-end" />
+            </Button>
+            {reviewBlocked ? (
+              <p id="review-block-reason" role="status">
+                {reviewBlocked}
+              </p>
+            ) : null}
+          </div>
+        ) : action && action.stage !== stage ? (
+          <div className="task-summary-action">
+            <Button asChild size="lg">
+              <Link
+                to="/audits/$auditId"
+                params={{ auditId }}
+                search={{ stage: action.stage }}
+                title={action.reason}
+              >
+                {action.label}
+                <ArrowRight data-icon="inline-end" />
+              </Link>
+            </Button>
+          </div>
+        ) : null}
       </div>
       <RunDetails
         run={data.run}

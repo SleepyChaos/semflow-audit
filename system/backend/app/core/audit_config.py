@@ -35,6 +35,8 @@ class AuditSettings(BaseSettings):
     AI_STAGE_MAX_CALLS: int = 24
     AI_STAGE_MAX_TOKENS: int = 100000
     AI_STAGE_MAX_SECONDS: int = 300
+    AI_AUDIT_EXECUTION_MODE: Literal["bounded", "progress"] = "progress"
+    AI_STAGE_MAX_NO_PROGRESS: int = 3
     EMBEDDING_MODEL: str = ""
     EMBEDDING_REVISION: str = ""
     EMBEDDING_DIMENSIONS: int = 0

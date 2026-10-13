@@ -175,7 +175,39 @@ def batches(pool, size, prioritize_scout=False, coherent_conditions=False):
             r["candidate_id"],
         ),
     )
-    return [entries[start : start + size] for start in range(0, len(entries), size)]
+    if not coherent_conditions:
+        return [entries[start : start + size] for start in range(0, len(entries), size)]
+    groups = []
+    for entry in entries:
+        key = (entry["location"]["file"], property_for(entry))
+        if (
+            not groups
+            or len(groups[-1]) >= size
+            or key != (groups[-1][0]["location"]["file"], property_for(groups[-1][0]))
+        ):
+            groups.append([])
+        groups[-1].append(entry)
+    return groups
+
+
+def fit_batches(service, schedule):
+    """Split oversized cohorts before model calls; never discard target evidence."""
+    from app.adapters.context_packing import context_size, fit_navigation
+
+    fitted = []
+    for entries in schedule:
+        if len(entries) > 1:
+            context = fit_navigation(
+                batch_context(service, entries), service.inputs.max_context_chars
+            )
+            if context_size(context) > service.inputs.max_context_chars:
+                middle = len(entries) // 2
+                fitted.extend(
+                    fit_batches(service, [entries[:middle], entries[middle:]])
+                )
+                continue
+        fitted.append(entries)
+    return fitted
 
 
 def batch_context(service, entries):
@@ -190,18 +222,19 @@ def batch_context(service, entries):
     materials.extend(project_documents(service.evidence))
     materials = list({r["id"]: r for r in materials}.values())
     bindings = []
-    if service.stage.prompt_version in {"5", "6", "7", "8", "9", "10"}:
+    if service.stage.prompt_version in {"5", "6", "7", "8", "9", "10", "11", "12"}:
         from app.adapters.python_bindings import location_bindings
 
         bindings = location_bindings(service.evidence, [r["location"] for r in entries])
-    if service.stage.prompt_version in {"6", "7", "8", "9", "10"}:
+    if service.stage.prompt_version in {"6", "7", "8", "9", "10", "11", "12"}:
         from app.services.review_tools import prime_source_pages
 
         materials = prime_source_pages(
             service.evidence,
             materials,
             entries,
-            include_related=service.stage.prompt_version in {"7", "8", "9", "10"},
+            include_related=service.stage.prompt_version
+            in {"7", "8", "9", "10", "11", "12"},
         )
         entries = [
             {
@@ -242,7 +275,7 @@ def batch_context(service, entries):
         for p in service.evidence.files()
     ]
     framework_reference = []
-    if service.stage.prompt_version in {"7", "8", "9", "10"} and any(
+    if service.stage.prompt_version in {"7", "8", "9", "10", "11", "12"} and any(
         r["reference"].get("file", "").endswith(".ejs")
         for r in materials
         if r["kind"] == "code"
@@ -270,7 +303,7 @@ def batch_context(service, entries):
                     "reason": "Target source and related counterevidence serve different proof obligations; both bodies are supplied.",
                 },
             }
-            if service.stage.prompt_version in {"7", "8", "9", "10"}
+            if service.stage.prompt_version in {"7", "8", "9", "10", "11", "12"}
             else {}
         ),
         "snapshot": service.evidence.audit.snapshot_hash,
@@ -295,7 +328,7 @@ def batch_context(service, entries):
         "scope_limit": "Current batch only; related files can be read, other candidates are not assumed reviewed",
     }
 
-    if service.stage.prompt_version in {"8", "9", "10"}:
+    if service.stage.prompt_version in {"8", "9", "10", "11", "12"}:
         from app.services.discovery_context import augment_context
 
         context = augment_context(service, context)

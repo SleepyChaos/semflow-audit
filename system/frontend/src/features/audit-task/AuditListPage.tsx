@@ -69,7 +69,8 @@ export function AuditListPage() {
         <RunList runs={filtered} />
       )}
       <p className="page-note">
-        静态告警来自 CodeQL；AI 候选需要复核，只有人工确认计入已确认缺陷。
+        静态告警来自 CodeQL；AI 候选需要复核，通过 AI
+        复核或人工调整的分类用于后续流程。
       </p>
     </div>
   )

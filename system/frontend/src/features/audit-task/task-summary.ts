@@ -98,7 +98,7 @@ export function getTaskAction(
     return {
       label: "修复与导出",
       stage: "repair",
-      reason: `已人工确认 ${summary.confirmed} 个缺陷`,
+      reason: `已分类为真实的缺陷 ${summary.confirmed} 个`,
     }
   return {
     label: "查看复核",

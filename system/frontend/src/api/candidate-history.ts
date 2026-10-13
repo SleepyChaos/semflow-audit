@@ -4,6 +4,15 @@ import type { Candidate } from "./stages"
 // Repeated executions keep every record; resolve differing human states using
 // actual decision history, not the candidate creation order.
 export async function attachDecisionTimes(candidates: Candidate[]) {
+  if (candidates.every((candidate) => candidate.classification)) {
+    return candidates.map((candidate) => ({
+      ...candidate,
+      latest_decision_at:
+        candidate.classification?.source === "human"
+          ? (candidate.classification.updated_at ?? undefined)
+          : undefined,
+    }))
+  }
   const groups = new Map<string, Candidate[]>()
   for (const candidate of candidates) {
     const key = candidate.identity_key || candidate.id

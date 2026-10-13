@@ -125,7 +125,7 @@ def build_report(session: Session, audit: AuditRun) -> dict:
             }
             for stage in stages
             if stage.kind == "review"
-            and stage.prompt_version in {"4", "5", "6", "7", "8", "9", "10"}
+            and stage.prompt_version in {"4", "5", "6", "7", "8", "9", "10", "11", "12"}
         ],
         "candidates": dump(candidates),
         "decisions": dump(decisions),
@@ -136,7 +136,7 @@ def build_report(session: Session, audit: AuditRun) -> dict:
         "coverage": audit.coverage,
         "limitations": [
             "未报告告警不代表安全",
-            "模型判断需要真实证据与人工确认",
+            "AI 复核基于真实证据，人工可调整分类",
             "补丁验证结果不是修复正确性的完整证明",
             "样本通过不代表规则真实项目准确率",
             "未执行/失败阶段保留不确定性",

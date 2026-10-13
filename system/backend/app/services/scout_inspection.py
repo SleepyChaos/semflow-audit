@@ -39,7 +39,7 @@ def compact_pages(rows):
     return result
 
 
-def selected_units(service, project):
+def eligible_units(service, project):
     units = project["units"]
     if service.inputs.inspection_paths:
         roots = [service.evidence.allowed(p) for p in service.inputs.inspection_paths]
@@ -53,11 +53,23 @@ def selected_units(service, project):
         ]
     if not service.inputs.include_third_party:
         units = [u for u in units if u["role_hint"] != "third_party_or_generated"]
-    return units[: service.inputs.max_units]
+    return units
+
+
+def selected_units(service, project):
+    units = eligible_units(service, project)
+    if service.inputs.continuation_from_id:
+        done = set(
+            service.stage.result.get("continuation", {}).get("inherited_unit_ids", [])
+        )
+        units = [unit for unit in units if unit["id"] not in done]
+    return units[: service.inputs.max_units] if service.inputs.max_units else units
 
 
 def call_allocation(service, remaining_units):
     maximum = getattr(service.provider, "policy", {}).get("max_calls", 24)
+    if maximum == 0:
+        return service.inputs.steps_per_unit
     available = maximum - service.provider.usage.get("calls", 0)
     return max(
         1, min(service.inputs.steps_per_unit, available - max(0, remaining_units - 1))
@@ -151,6 +163,9 @@ def inspect_unit(service, project, unit, call_limit):
             or any(r.get("reused") for r in context["tool_trace"])
         )
         context["finalize_required"] = final_only
+        from app.adapters.context_packing import fit_navigation
+
+        context = fit_navigation(context, service.inputs.max_context_chars)
         if (
             len(json.dumps(context, ensure_ascii=False))
             > service.inputs.max_context_chars

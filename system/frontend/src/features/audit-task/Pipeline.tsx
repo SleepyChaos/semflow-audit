@@ -3,7 +3,7 @@ import type { StageRun } from "@/api/stages"
 import { cn } from "@/lib/utils"
 
 const stages = [
-  { id: "codeql", name: "CodeQL 审计" },
+  { id: "codeql", name: "审计发现" },
   { id: "ai", name: "AI 复审" },
   { id: "repair", name: "修复与报告" },
   { id: "rag", name: "RAG 规则" },

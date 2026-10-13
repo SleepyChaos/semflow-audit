@@ -1,7 +1,9 @@
 @import "./styles/stage-foundation.css";
+@import "./styles/discovery.css";
 @import "./styles/workspace.css";
 @import "./styles/overview.css";
 @import "./styles/review.css";
+@import "./styles/review-verdict.css";
 @import "./styles/rules.css";
 @import "./styles/knowledge.css";
 @import "./styles/controls.css";

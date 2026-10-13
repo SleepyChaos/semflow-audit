@@ -3,8 +3,8 @@
 import re
 
 HUMAN_STATUS = {
-    "confirmed": "已人工确认",
-    "pending": "待人工确认",
+    "confirmed": "确认真实",
+    "pending": "待复核",
     "excluded": "人工判断支持排除",
     "insufficient": "证据不足，暂不能判断",
 }
@@ -77,7 +77,7 @@ def explain_candidate(candidate: dict, evidence: list[dict]) -> dict:
         observation = "关联源码这一行直接返回 URL 查询参数。如果返回内容按 HTML 处理，输入中的标签可能被浏览器当作网页代码，而不是普通文字。还需结合响应类型和上下游防护核对。"
     state = candidate.get("status", "pending")
     next_step = {
-        "confirmed": "已有人工作出确认，可选择此缺陷生成修复；修复后还需要功能与漏洞测试。",
+        "confirmed": "当前分类为真实，可选择此缺陷生成修复；修复后还需要功能与漏洞测试。",
         "excluded": "查看人工判断理由和反证；如出现新证据，可以重新记录判断。",
         "insufficient": "补充缺失的源码、配置或测试证据，再进行复核。",
     }.get(

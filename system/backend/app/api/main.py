@@ -2,6 +2,8 @@ from fastapi import APIRouter
 
 from app.api.routes import (
     audits,
+    candidate_sources,
+    candidate_text,
     knowledge,
     repairs,
     rules,
@@ -14,6 +16,8 @@ api_router = APIRouter()
 for router in (
     audits.router,
     stages.router,
+    candidate_sources.router,
+    candidate_text.router,
     knowledge.router,
     rules.router,
     repairs.router,

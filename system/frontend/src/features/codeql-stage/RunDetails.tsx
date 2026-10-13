@@ -1,23 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Download, RotateCcw } from "lucide-react"
-import { useState } from "react"
 import { toast } from "sonner"
 import {
   type AuditRun,
   cancelRun,
   downloadSarif,
-  getLogs,
   recoverRun,
   retryRun,
 } from "@/api/audits"
 import { getCapabilities, getStages } from "@/api/stages"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { ReviewPanel } from "@/features/ai-review/ReviewPanel"
 import { RepairPanel } from "@/features/repair/RepairPanel"
 import { RulePanel } from "@/features/rules/RulePanel"
-import { FindingDetails } from "./FindingDetails"
+import { DiscoveryPanel } from "./DiscoveryPanel"
+import { reviewBlockReason } from "./discovery-state"
 
 const phases: Record<string, string> = {
   queued: "等待后台执行",
@@ -42,12 +40,12 @@ export function RunDetails({
   onStageChange: (stage: string) => void
   onCreated: (id: string) => void
 }) {
-  const [findingId, setFindingId] = useState<string | null>(null)
   const cache = useQueryClient()
   const stages = useQuery({
     queryKey: ["stages", run.id],
     queryFn: () => getStages(run.id),
     refetchInterval: (query) =>
+      ["queued", "running"].includes(run.status) ||
       query.state.data?.some((item) =>
         ["queued", "running"].includes(item.status),
       )
@@ -58,11 +56,6 @@ export function RunDetails({
     queryKey: ["capabilities"],
     queryFn: getCapabilities,
     refetchInterval: 15000,
-  })
-  const logs = useQuery({
-    queryKey: ["logs", run.id],
-    queryFn: () => getLogs(run.id),
-    refetchInterval: run.status === "running" ? 3000 : false,
   })
   const retry = useMutation({
     mutationFn: () => retryRun(run.id),
@@ -82,7 +75,6 @@ export function RunDetails({
       ]),
     onError: (error: Error) => toast.error(error.message),
   })
-  const finding = run.findings.find((item) => item.id === findingId)
   return (
     <section className="detail-panel">
       <header className="detail-heading">
@@ -134,60 +126,21 @@ export function RunDetails({
       </header>
       <Tabs value={activeStage} onValueChange={onStageChange}>
         <TabsContent value="codeql">
-          {run.error ? (
-            <Alert variant="destructive">
-              <AlertTitle>CodeQL 分支未完成</AlertTitle>
-              <AlertDescription>{run.error}</AlertDescription>
-            </Alert>
-          ) : null}
-          <dl className="run-metadata">
-            <div>
-              <dt>代码快照</dt>
-              <dd>{run.snapshot_hash.slice(0, 16)}</dd>
-            </div>
-            <div>
-              <dt>CodeQL</dt>
-              <dd>{run.codeql_version ?? "待执行"}</dd>
-            </div>
-            <div>
-              <dt>查询包</dt>
-              <dd>{run.query_pack}</dd>
-            </div>
-          </dl>
-          {run.coverage.unscanned_languages?.length ? (
-            <Alert>
-              <AlertTitle>覆盖范围</AlertTitle>
-              <AlertDescription>
-                本次未扫描：{run.coverage.unscanned_languages.join("、")}
-              </AlertDescription>
-            </Alert>
-          ) : null}
-          {run.status === "completed" && !run.findings.length ? (
-            <p className="py-5">本次规则集未报告告警，不代表代码不存在漏洞。</p>
-          ) : null}
-          <div className="findings-list">
-            {run.findings.map((item) => (
-              <Button
-                key={item.id}
-                variant={findingId === item.id ? "secondary" : "ghost"}
-                className="finding-button"
-                onClick={() => setFindingId(item.id)}
-              >
-                {item.rule} · {item.locations[0].file}:{item.locations[0].line}
-              </Button>
-            ))}
-          </div>
-          {finding ? (
-            <FindingDetails key={finding.id} finding={finding} runId={run.id} />
-          ) : null}
-          <details className="execution-log">
-            <summary>执行日志</summary>
-            <pre>
-              {logs.error
-                ? logs.error.message
-                : logs.data?.text || "暂无执行日志"}
-            </pre>
-          </details>
+          <DiscoveryPanel
+            key={run.id}
+            run={run}
+            stages={stages.data ?? []}
+            stagesPending={stages.isPending}
+            stagesError={stages.error}
+            onReloadStages={() => {
+              void stages.refetch()
+            }}
+            onReview={() => onStageChange("ai")}
+            reviewBlockedReason={reviewBlockReason(run, stages.data ?? [], {
+              pending: stages.isPending,
+              error: stages.error,
+            })}
+          />
         </TabsContent>
         <TabsContent value="ai">
           <ReviewPanel

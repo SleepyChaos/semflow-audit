@@ -55,15 +55,23 @@ class ScoutService:
             if project["snapshot"] != self.evidence.audit.snapshot_hash:
                 raise AuditError("项目地图快照不匹配")
         else:
-            project = build_project_map(
-                self.evidence,
-                self.inputs.window_lines,
-                "business_semantic"
-                if self.stage.prompt_version in {"6", "7", "8"}
-                else "business_first"
-                if self.stage.prompt_version in {"4", "5", "6", "7", "8"}
-                else "balanced",
-            )
+            if self.inputs.continuation_from_id:
+                from app.services.scout_continuation import frozen_map
+
+                previous = self.repository.get(str(self.inputs.continuation_from_id))
+                if previous.audit_id != self.stage.audit_id or previous.kind != "scout":
+                    raise AuditError("补审来源不属于当前审计")
+                project = frozen_map(previous, self.evidence.audit)
+            else:
+                project = build_project_map(
+                    self.evidence,
+                    self.inputs.window_lines,
+                    "business_semantic"
+                    if self.stage.prompt_version in {"6", "7", "8"}
+                    else "business_first"
+                    if self.stage.prompt_version in {"4", "5", "6", "7", "8"}
+                    else "balanced",
+                )
             save_json(path, project)
         identity = digest({"project": project, "inputs": self.stage.inputs})
         receipt = self.directory / "scout-map-receipt.json"
@@ -282,10 +290,16 @@ class ScoutService:
             selected_units(self, project)
             if modern
             else project["units"][: self.inputs.max_units]
+            if self.inputs.max_units
+            else project["units"]
         )
         for index, unit in enumerate(units):
             current = self.repository.get(self.stage_id).result
-            if unit["id"] in {r["unit_id"] for r in current.get("units", [])}:
+            if unit["id"] in {
+                r["unit_id"]
+                for r in current.get("units", [])
+                if r["status"] == "inspected"
+            }:
                 continue
             try:
                 response = (
@@ -308,12 +322,26 @@ class ScoutService:
                     "reason": str(exc)[:500],
                     "code": code,
                 }
+                current = self.repository.get(self.stage_id).result
                 self.repository.update(
                     self.stage_id,
                     result={**current, "units": [*current.get("units", []), failed]},
                 )
-                if code in {"budget_exhausted", "timeout", "provider_error"}:
+                if code in {
+                    "budget_exhausted",
+                    "timeout",
+                    "provider_error",
+                    "rate_limited",
+                }:
                     stopped = code
+                    break
+                from app.adapters.ai.policy import stalled
+
+                if stalled(
+                    self.repository.get(self.stage_id).result.get("units", []),
+                    getattr(self.provider, "policy", {}),
+                ):
+                    stopped = "no_progress"
                     break
         return {"stop_reason": stopped}
 
@@ -349,9 +377,13 @@ class ScoutService:
             "meaning": "Inspected windows are not verified safe business flows",
         }
         if self.stage.prompt_version in {"4", "5", "6", "7", "8"}:
-            from app.services.scout_inspection import selected_units, task_coverage
+            from app.services.scout_inspection import (
+                eligible_units,
+                selected_units,
+                task_coverage,
+            )
 
-            selected = {u["id"] for u in selected_units(self, project)}
+            selected = done | {u["id"] for u in selected_units(self, project)}
             eligible = {
                 u["id"]
                 for u in project["units"]
@@ -359,6 +391,9 @@ class ScoutService:
                 or u["role_hint"] != "third_party_or_generated"
             }
             coverage.update(
+                continuable_windows=sum(
+                    u["id"] not in done for u in eligible_units(self, project)
+                ),
                 eligible_windows=len(eligible),
                 inspected_eligible_windows=len(done & eligible),
                 scheduled_windows=len(selected),

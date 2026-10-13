@@ -17,7 +17,7 @@ class ReviewRequest(StrictModel):
     include_scout: bool = True
     scout_candidate_ids: list[UUID] = Field(default_factory=list, max_length=200)
     batch_size: int = Field(4, ge=1, le=8)
-    max_batches: int = Field(24, ge=1, le=100)
+    max_batches: int = Field(0, ge=0, le=100, description="0 schedules all candidates")
 
 
 class DecisionRequest(StrictModel):

@@ -21,9 +21,8 @@ def recover_unreviewed(service, schedule):
     ]
     for entry in unresolved:
         service.repository.active(service.stage_id)
-        available = getattr(service.provider, "policy", {}).get(
-            "max_calls", 24
-        ) - service.provider.usage.get("calls", 0)
+        maximum = getattr(service.provider, "policy", {}).get("max_calls", 24)
+        available = (maximum - service.provider.usage.get("calls", 0)) if maximum else 2
         if available < 1:
             break
         identifier = entry["candidate_id"]
@@ -80,5 +79,18 @@ def recover_unreviewed(service, schedule):
                     ],
                 },
             )
-            if code in {"budget_exhausted", "timeout", "provider_error"}:
+            if code in {
+                "budget_exhausted",
+                "timeout",
+                "provider_error",
+                "rate_limited",
+            }:
                 break
+        from app.adapters.ai.policy import stalled
+
+        current = service.repository.get(service.stage_id).result
+        if stalled(current.get("batches", []), getattr(service.provider, "policy", {})):
+            service.repository.update(
+                service.stage_id, result={**current, "stop_reason": "no_progress"}
+            )
+            break

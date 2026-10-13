@@ -160,10 +160,15 @@ export function UploadForm({
             {mutation.isPending ? "上传中" : "开始审计"}
           </Button>
         </div>
-        <details>
+        <details open>
           <summary>补充已发布规则（最多 4 个版本）</summary>
-          {rules.error ? <p role="alert">{rules.error.message}</p> : null}
-          {rules.data?.length ? (
+          {rules.isPending ? (
+            <p role="status" className="text-sm text-muted-foreground">
+              正在读取已发布规则…
+            </p>
+          ) : rules.error ? (
+            <p role="alert">读取已发布规则失败：{rules.error.message}</p>
+          ) : rules.data?.length ? (
             rules.data.map((rule) => (
               <label
                 className="stage-check"
@@ -187,7 +192,8 @@ export function UploadForm({
             ))
           ) : (
             <p className="text-sm text-muted-foreground">
-              没有可选发布规则，使用固定 CodeQL 基线。
+              当前语言暂无已发布的补充规则，不影响内置 CodeQL 扫描和 AI
+              初审。规则生成、验收并发布后，可在这里选择。
             </p>
           )}
         </details>

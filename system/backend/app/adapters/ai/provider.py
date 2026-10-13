@@ -46,8 +46,24 @@ class CompatibleModel:
 
         self.response_directory = ArtifactStore().directory(stage_id)
         stage = repository.get(stage_id)
-        self.policy = stage.model_config_snapshot or policy_snapshot()
-        if stage.kind == "review" and prompt_version in {"6", "7", "8", "9", "10"}:
+        self.policy = stage.model_config_snapshot or policy_snapshot(stage.kind)
+        if stage.kind == "candidate_translation":
+            self.policy = {
+                **self.policy,
+                "budgets": {
+                    **self.policy["budgets"],
+                    "candidate_translation": self.policy["budgets"]["review"],
+                },
+            }
+        if stage.kind == "review" and prompt_version in {
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+        }:
             self.policy = {
                 **self.policy,
                 "budgets": {
@@ -154,6 +170,7 @@ class CompatibleModel:
                     json.dumps(payload, sort_keys=True).encode()
                 ).hexdigest(),
                 "reserved_tokens": input_bound + output,
+                "input_bound_method": "utf8_bytes_upper_bound",
                 "attempt": attempt + 1,
                 "prompt_version": version,
                 "prompt_hash": sha256(prompt.encode()).hexdigest(),
@@ -230,10 +247,16 @@ class CompatibleModel:
                 record["error_code"] = (
                     "timeout"
                     if type(exc).__name__ == "APITimeoutError"
+                    else "rate_limited"
+                    if type(exc).__name__ == "RateLimitError"
                     else "provider_error"
                 )
+                if record["error_code"] == "rate_limited":
+                    record["retry_after"] = exc.response.headers.get("retry-after")
                 error = AuditError(
-                    f"模型服务请求失败（{type(exc).__name__}）；检查服务配置"
+                    "模型服务限流；进度已保留，额度恢复后可继续审计"
+                    if record["error_code"] == "rate_limited"
+                    else f"模型服务请求失败（{type(exc).__name__}）；检查服务配置"
                 )
             except ValidationError as exc:
                 validation_feedback = [
