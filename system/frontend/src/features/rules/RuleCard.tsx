@@ -36,10 +36,27 @@ export function RuleCard({
     <article className="candidate-card rule-card" id={`rule-${rule.id}`}>
       <header>
         <h4>{rule.title}</h4>
-        <Badge variant="outline">{rule.status}</Badge>
+        <Badge variant="outline">
+          {(
+            {
+              draft: "草稿",
+              validated: "验收通过",
+              published: "已发布",
+              retired: "已停用",
+              failed: "验收失败",
+            } as Record<string, string>
+          )[rule.status] ?? rule.status}
+        </Badge>
       </header>
       <p>
-        用途 {rule.purpose} · 策略 {rule.strategy} · 版本 {rule.id}
+        {(
+          {
+            review_anchor: "复审锚点",
+            vulnerability_detector: "漏洞检测规则",
+            framework_model: "框架建模",
+          } as Record<string, string>
+        )[rule.purpose] ?? rule.purpose}{" "}
+        · 版本 {rule.id.slice(0, 8)}
       </p>
       <RuleValidationSummary rule={rule} />
       <div className="stage-row">
@@ -137,6 +154,11 @@ export function RuleCard({
             onClick={() => action.mutate("publish")}
           >
             发布此版本
+          </Button>
+        ) : null}
+        {!["validated", "published", "retired"].includes(rule.status) ? (
+          <Button disabled variant="outline">
+            完成全部验收后可发布
           </Button>
         ) : null}
         {rule.status === "published" ? (

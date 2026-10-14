@@ -1,0 +1,140 @@
+.repair-diff {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.repair-diff .downstream-section-heading {
+  padding: 18px;
+  border-bottom: 1px solid var(--border);
+  background: #fafaf7;
+}
+.diff-view-controls {
+  display: flex;
+  gap: 6px;
+}
+.diff-file-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.diff-file-tabs button {
+  max-width: 100%;
+  height: auto;
+  min-height: 34px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.diff-add-count {
+  color: #246c48;
+  font-size: 11px;
+}
+.diff-remove-count {
+  color: #a0403b;
+  font-size: 11px;
+}
+.diff-reasons {
+  padding: 10px 18px;
+  background: #f8f7f2;
+  color: var(--muted-foreground);
+}
+.diff-reasons:empty {
+  display: none;
+}
+.diff-scroll {
+  max-height: 760px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.diff-scroll:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+.diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font:
+    12px / 1.7 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+}
+.diff-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #eeeee8;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 500;
+}
+.diff-split th {
+  width: 50%;
+}
+.diff-table td + td,
+.diff-table th + th {
+  border-left: 1px solid #d8dbd5;
+}
+.diff-cell {
+  position: relative;
+  vertical-align: top;
+  padding: 4px 10px 4px 68px;
+  background: #fff;
+}
+.diff-cell code {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #2a3732;
+}
+.diff-line-number {
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  width: 35px;
+  text-align: right;
+  color: #747c76;
+  user-select: none;
+}
+.diff-marker {
+  position: absolute;
+  left: 49px;
+  top: 4px;
+  color: #5b6b61;
+  user-select: none;
+}
+.diff-removed {
+  background: #fff0ee;
+}
+.diff-removed code,
+.diff-removed .diff-marker {
+  color: #9a3831;
+}
+.diff-added {
+  background: #eaf7ee;
+}
+.diff-added code,
+.diff-added .diff-marker {
+  color: #216743;
+}
+.diff-table .diff-section td {
+  padding: 8px 14px;
+  color: #5c6771;
+  background: #eef3f7;
+  font-size: 11px;
+}
+
+.diff-view-controls,
+.diff-file-tabs {
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+.diff-file-tabs {
+  border-bottom: 1px solid var(--border);
+}

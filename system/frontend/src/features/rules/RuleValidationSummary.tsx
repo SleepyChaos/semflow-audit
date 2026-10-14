@@ -1,4 +1,5 @@
 import type { RuleVersion } from "@/api/stages"
+import { checkTone } from "@/features/stages/check-state"
 
 const names: Record<string, string> = {
   passed: "通过",
@@ -18,10 +19,10 @@ function status(value: unknown) {
 }
 export function RuleValidationSummary({ rule }: { rule: RuleVersion }) {
   return (
-    <section className="validation-summary" aria-label="规则验收摘要">
+    <section className="rule-validation-grid" aria-label="规则验收摘要">
       {[
         ["编译", status(rule.validation.compile)],
-        ["开发样本", status(rule.validation.development)],
+        ["开发正反例", status(rule.validation.development)],
         ["独立测试", status(rule.validation.independent_holdout)],
         ["项目回扫", status(rule.validation.project_replay)],
         ["样本人工批准", rule.fixtures_approved ? "已批准" : "待批准"],
@@ -34,10 +35,9 @@ export function RuleValidationSummary({ rule }: { rule: RuleVersion }) {
               : "尚不可发布",
         ],
       ].map(([label, value]) => (
-        <div key={label}>
-          <span>
-            {label}：{value}
-          </span>
+        <div key={label} data-status={checkTone(value)}>
+          <span>{label}</span>
+          <strong>{value}</strong>
         </div>
       ))}
     </section>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { labelStatus } from "@/features/stages/stage-labels"
 import { RepairComparison } from "./RepairComparison"
+import { RepairDiff } from "./RepairDiff"
 import { ValidationSummary } from "./ValidationSummary"
 export function RepairCard({
   record,
@@ -30,9 +31,12 @@ export function RepairCard({
     onError: (error: Error) => toast.error(error.message),
   })
   return (
-    <article className="candidate-card">
+    <article className="candidate-card repair-result">
       <header>
-        <h4>修复尝试 {record.id.slice(0, 8)}</h4>
+        <h3>
+          修复补丁 · {new Set(record.changes.map((change) => change.file)).size}{" "}
+          个文件
+        </h3>
         <Badge variant="outline">
           {record.acceptance_ready && record.status !== "accepted"
             ? "前后对比通过，待人工接受"
@@ -45,6 +49,7 @@ export function RepairCard({
         Diff：{record.changes.length} 个修改 · 人工接受：
         {record.acceptance_reason ? "已记录" : "尚未接受"}
       </p>
+      <RepairDiff record={record} />
       {record.validation_summary ? (
         <ValidationSummary checks={record.validation_summary} />
       ) : (
@@ -59,15 +64,6 @@ export function RepairCard({
         busy={busy}
         accepted={record.status === "accepted"}
       />
-      {record.changes.map((change, index) => (
-        <details key={`${change.file}:${index}`}>
-          <summary>{change.file} · 查看具体改动</summary>
-          <p>{change.reason}</p>
-          <pre className="source-code">
-            {`--- 原文\n${change.old_text}\n+++ 新文\n${change.new_text}`}
-          </pre>
-        </details>
-      ))}
       <details>
         <summary>验证结果（技术详情）</summary>
         <pre className="source-code">

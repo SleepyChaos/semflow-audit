@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
 import { useState } from "react"
 import { toast } from "sonner"
 import type { AuditRun } from "@/api/audits"
@@ -11,6 +10,7 @@ import {
 } from "@/api/stages"
 import { Button } from "@/components/ui/button"
 import { uniqueCandidates } from "@/features/audit-task/task-summary"
+
 export function RuleGenerationForm({
   run,
   capabilities,
@@ -20,214 +20,244 @@ export function RuleGenerationForm({
   capabilities: Capabilities | undefined
   busy: boolean
 }) {
-  const [requirement, setRequirement] = useState(""),
-    [strategy, setStrategy] = useState("auto"),
-    [purpose, setPurpose] = useState("review_anchor"),
-    [holdout, setHoldout] = useState("none"),
-    [candidate, setCandidate] = useState("none"),
-    [sourcePaths, setSourcePaths] = useState("")
-  const cache = useQueryClient(),
-    candidates = useQuery({
-      queryKey: ["candidates", run.id],
-      queryFn: () => getCandidates(run.id),
-      retry: false,
-    }),
-    holdouts = useQuery({
-      queryKey: ["rule-holdouts"],
-      queryFn: getRuleHoldouts,
-    })
+  const [requirement, setRequirement] = useState("")
+  const [candidateId, setCandidateId] = useState("none")
+  const [purpose, setPurpose] = useState("vulnerability_detector")
+  const [strategy, setStrategy] = useState("auto")
+  const [holdout, setHoldout] = useState("none")
+  const [paths, setPaths] = useState("")
+  const cache = useQueryClient()
+  const candidates = useQuery({
+    queryKey: ["candidates", run.id],
+    queryFn: () => getCandidates(run.id),
+    retry: false,
+  })
+  const holdouts = useQuery({
+    queryKey: ["rule-holdouts"],
+    queryFn: getRuleHoldouts,
+  })
   const confirmed = uniqueCandidates(candidates.data ?? []).filter(
-    (c) => c.status === "confirmed",
+    (item) => item.status === "confirmed",
   )
-  const selectedCandidate = confirmed.some((c) => c.id === candidate)
-    ? candidate
-    : "none"
+  const selected = confirmed.find((item) => item.id === candidateId)
   const selectedHoldout = holdouts.data?.find(
-    (h) =>
-      h.id === holdout && h.language === run.language && h.purpose === purpose,
+    (item) =>
+      item.id === holdout &&
+      item.language === run.language &&
+      item.purpose === purpose,
   )
+  const effectiveRequirement =
+    requirement.trim() ||
+    (selected
+      ? `检测与「${selected.review?.detail?.title ?? selected.title}」相同的漏洞条件，依据原始源码和复核证据提炼规则，避免匹配正常行为。`
+      : "")
+  const blocked = candidates.isPending
+    ? "正在读取漏洞…"
+    : candidates.error
+      ? "漏洞读取失败，请重新读取"
+      : !capabilities?.model_configured
+        ? "模型服务尚未配置"
+        : !selected && !paths.trim()
+          ? "选择真实漏洞，或填写明确的源码范围"
+          : effectiveRequirement.length < 10
+            ? "补充至少 10 个字符的规则目标"
+            : busy
+              ? "当前规则任务仍在执行"
+              : run.status !== "completed"
+                ? "等待审计发现完成"
+                : null
   const start = useMutation({
     mutationFn: () =>
       startStage(run.id, "rule", {
-        requirement,
-        strategy,
+        requirement: effectiveRequirement,
         purpose,
+        strategy,
+        candidate_id: selected?.id ?? null,
         holdout_id: selectedHoldout?.id ?? null,
-        candidate_id: selectedCandidate === "none" ? null : selectedCandidate,
-        source_paths: sourcePaths
+        source_paths: paths
           .split(/\r?\n/)
-          .map((p) => p.trim())
+          .map((path) => path.trim())
           .filter(Boolean),
       }),
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
   })
-  const blocked = !capabilities?.model_configured
-    ? "模型服务尚未配置"
-    : requirement.trim().length < 10
-      ? "请填写至少 10 个字符的规则目标"
-      : selectedCandidate === "none" && !sourcePaths.trim()
-        ? "请填写快照中的源码路径，或选择已确认缺陷"
-        : busy
-          ? "当前阶段正在执行，请等待或取消"
-          : run.status !== "completed"
-            ? "等待扫描完成后生成规则"
-            : null
   return (
-    <div className="rule-generation">
+    <div className="rule-generation downstream-rule-form">
       <section className="form-section">
-        <div className="section-heading">
-          <h3>01 / 规则目标</h3>
-          <span className="page-note">定义需要补充的覆盖</span>
+        <div className="downstream-section-heading">
+          <div>
+            <h3>选择要提炼的漏洞</h3>
+            <p>默认生成漏洞检测规则，平台自动选择检索和生成策略。</p>
+          </div>
         </div>
         <div className="stage-form">
           <label>
-            规则目标与覆盖缺口
+            规则来源
+            <select
+              className="native-select"
+              aria-label="规则来源"
+              value={selected?.id ?? "none"}
+              onChange={(event) => setCandidateId(event.target.value)}
+            >
+              <option value="none">选择真实漏洞，或从明确需求生成</option>
+              {confirmed.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.review?.detail?.title ?? item.title} ·{" "}
+                  {item.location.file}:{item.location.line}
+                </option>
+              ))}
+            </select>
+          </label>
+          {selected ? (
+            <div className="rule-selected-target">
+              <strong>
+                {selected.review?.detail?.title ?? selected.title}
+              </strong>
+              <p>
+                {selected.location.file}:{selected.location.line} ·{" "}
+                {selected.weakness}
+              </p>
+              <small>从关联证据提炼，通常无需另填源码路径。</small>
+            </div>
+          ) : (
+            <label>
+              源码范围（从需求生成时必填）
+              <textarea
+                className="audit-textarea"
+                value={paths}
+                onChange={(event) => setPaths(event.target.value)}
+                placeholder="快照内文件或目录，例如 app.py"
+              />
+            </label>
+          )}
+          <label>
+            补充规则目标{selected ? "（可选）" : ""}
             <textarea
               className="audit-textarea"
               value={requirement}
-              onChange={(e) => setRequirement(e.target.value)}
+              onChange={(event) => setRequirement(event.target.value)}
               maxLength={5000}
-              placeholder="例如：补充识别 Flask GET 装饰器路由中，将请求参数未经转义返回 HTML 的反射型 XSS。"
+              placeholder={
+                selected
+                  ? "留空按所选漏洞的实际条件生成；可补充需要覆盖或排除的场景"
+                  : "说明需要检测的漏洞条件与正常行为边界"
+              }
             />
           </label>
-          <div className="form-columns">
-            <label>
-              规则用途
-              <select
-                aria-label="规则用途"
-                className="native-select"
-                value={purpose}
-                onChange={(e) => {
-                  setPurpose(e.target.value)
-                  setHoldout("none")
-                }}
-              >
-                <option value="review_anchor">复审锚点（不证明漏洞）</option>
-                <option value="vulnerability_detector">漏洞检测规则</option>
-                <option value="framework_model">框架建模与集成查询</option>
-              </select>
-            </label>
-            <label>
-              提炼已确认缺陷
-              <select
-                className="native-select"
-                aria-label="提炼已确认缺陷"
-                value={selectedCandidate}
-                onChange={(e) => setCandidate(e.target.value)}
-              >
-                <option value="none">从明确需求生成</option>
-                {confirmed.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <label>
-            相关源码路径（每行一个）
-            <textarea
-              className="audit-textarea"
-              value={sourcePaths}
-              onChange={(e) => setSourcePaths(e.target.value)}
-              maxLength={4000}
-              placeholder="app.py"
-            />
-          </label>
-          <p className="page-note">
-            选择已确认缺陷后，可从关联证据读取源码；仅生成锚点不能证明漏洞。
-          </p>
-          {candidates.error && (
-            <p role="alert">候选读取失败：{candidates.error.message}</p>
-          )}
+          {candidates.error ? (
+            <p role="alert">{candidates.error.message}</p>
+          ) : null}
         </div>
       </section>
-      <section className="form-section">
-        <h3>02 / 检索与生成策略</h3>
-        <div className="stage-form">
-          <p className="page-note">
-            材料须匹配 {run.language === "python" ? "Python" : "JavaScript"}{" "}
-            和固定 CodeQL 语言库版本。
-            {run.language === "python"
-              ? "当前 python-all 4.0.10。"
-              : "当前 javascript-all 2.4.0。"}
-            正文内容哈希与语言库版本是不同字段，由服务端检查匹配。
-          </p>
-          <Link
-            className="text-action"
-            to="/knowledge"
-            search={{ auditId: run.id }}
-          >
-            检查知识库与版本 →
-          </Link>
-          <label>
-            规则生成策略
-            <select
-              className="native-select"
-              aria-label="规则生成策略"
-              value={strategy}
-              onChange={(e) => setStrategy(e.target.value)}
-            >
-              <option value="auto">根据覆盖分析选择</option>
-              <option value="model">补充 .qll 模型</option>
-              <option value="extend">扩展查询</option>
-              <option value="new_query">新查询</option>
-            </select>
-          </label>
-          <p className="page-note">
-            检索方式：{capabilities?.retrieval ?? "读取中"}
-            。生成会引用实际匹配的知识与范例。
-          </p>
-        </div>
-      </section>
-      <section className="form-section">
-        <h3>03 / 独立验收</h3>
+      <details className="downstream-disclosure">
+        <summary>
+          独立验收测试集{" "}
+          <span>
+            {selectedHoldout ? "已选择" : "可生成草稿 · 未选择时不能发布"}
+          </span>
+        </summary>
         <div className="stage-form">
           <label>
             独立规则测试集
             <select
-              aria-label="独立规则测试集"
               className="native-select"
+              aria-label="独立规则测试集"
               value={selectedHoldout?.id ?? "none"}
-              onChange={(e) => setHoldout(e.target.value)}
+              onChange={(event) => setHoldout(event.target.value)}
             >
-              <option value="none">未选择独立集（可生成，暂不能发布）</option>
+              <option value="none">暂不选择，仅生成与检查草稿</option>
               {holdouts.data
                 ?.filter(
-                  (h) => h.language === run.language && h.purpose === purpose,
+                  (item) =>
+                    item.language === run.language && item.purpose === purpose,
                 )
-                .map((h) => (
-                  <option value={h.id} key={h.id}>
-                    {h.operation} · {h.id}
+                .map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.operation} · {item.id}
                   </option>
                 ))}
             </select>
           </label>
-          {holdouts.error && <p role="alert">{holdouts.error.message}</p>}
           <p className="page-note">
-            编译和自生成样本通过后，仍需独立测试、人工批准样本、核对项目根因，再发布版本。
+            独立测试与开发正反例分别验收，全部发布门满足后才可发布。
+          </p>
+          {holdouts.error ? (
+            <p role="alert">测试集读取失败：{holdouts.error.message}</p>
+          ) : null}
+        </div>
+      </details>
+      <details className="downstream-disclosure">
+        <summary>
+          高级规则设置{" "}
+          <span>
+            {purpose === "vulnerability_detector"
+              ? "漏洞检测规则"
+              : purpose === "review_anchor"
+                ? "复审锚点"
+                : "框架建模"}{" "}
+            · 自动检索
+          </span>
+        </summary>
+        <div className="stage-form">
+          <label>
+            规则用途
+            <select
+              className="native-select"
+              aria-label="规则用途"
+              value={purpose}
+              onChange={(event) => {
+                setPurpose(event.target.value)
+                setHoldout("none")
+              }}
+            >
+              <option value="vulnerability_detector">漏洞检测规则</option>
+              <option value="review_anchor">复审锚点（不证明漏洞）</option>
+              <option value="framework_model">框架建模与集成查询</option>
+            </select>
+          </label>
+          <label>
+            生成策略
+            <select
+              className="native-select"
+              value={strategy}
+              onChange={(event) => setStrategy(event.target.value)}
+            >
+              <option value="auto">自动选择</option>
+              <option value="model">补充模型</option>
+              <option value="extend">扩展查询</option>
+              <option value="new_query">新建查询</option>
+            </select>
+          </label>
+          {selected ? (
+            <label>
+              额外源码路径
+              <textarea
+                className="audit-textarea"
+                value={paths}
+                onChange={(event) => setPaths(event.target.value)}
+              />
+            </label>
+          ) : null}
+          <p className="page-note">
+            检索匹配语言及 CodeQL 库版本的参考资料与完整范例。技术方式：
+            {capabilities?.retrieval ?? "读取中"}
           </p>
         </div>
-      </section>
-      <div className="form-submit">
+      </details>
+      <div className="downstream-submit">
         <div>
-          {blocked ? (
-            <p className="action-hint">{blocked}</p>
-          ) : (
-            <p className="page-note">
-              生成后请核对规则、样本与项目命中，不会自动发布。
-            </p>
-          )}
-          {start.error && (
-            <p role="alert">生成提交失败：{start.error.message}</p>
-          )}
+          <strong>{blocked ?? "目标已准备好"}</strong>
+          <p>生成后查看查询、正反例与项目命中；不会自动发布。</p>
+          {start.error ? (
+            <p role="alert">提交失败：{start.error.message}</p>
+          ) : null}
         </div>
         <Button
           disabled={Boolean(blocked) || start.isPending}
           onClick={() => start.mutate()}
         >
-          {start.isPending ? "正在提交…" : "检索知识并生成规则"}
+          {start.isPending ? "正在提交…" : "生成检测规则"}
         </Button>
       </div>
     </div>

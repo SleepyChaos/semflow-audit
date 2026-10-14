@@ -117,6 +117,7 @@ test("选择项目测试集后，补丁请求携带固定测试身份", async ({
     "/audits/task-1/candidates": [{ ...candidate, status: "confirmed" }],
   })
   await page.goto("/audits/task-1?stage=repair")
+  await page.getByText("项目验收测试", { exact: false }).first().click()
   await expect(
     page.getByRole("button", { name: "AI 生成验收测试草案" }),
   ).toBeDisabled()
@@ -127,7 +128,7 @@ test("选择项目测试集后，补丁请求携带固定测试身份", async ({
   const sent = page.waitForRequest(
     (r) => r.url().endsWith("/task-1/repair") && r.method() === "POST",
   )
-  await page.getByRole("button", { name: "生成并验证修复 Diff" }).click()
+  await page.getByRole("button", { name: "生成修复补丁" }).click()
   expect((await sent).postDataJSON().verification_suite_id).toBe("suite-1")
 })
 
@@ -155,6 +156,7 @@ test("重跑得到新验证结果后，旧审阅勾选失效", async ({ page }) 
     })
   })
   await page.goto("/audits/task-1?stage=repair")
+  await page.getByText("项目验收测试", { exact: false }).first().click()
   await page
     .getByRole("checkbox", { name: candidate.title, exact: true })
     .check()

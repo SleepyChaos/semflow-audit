@@ -1,7 +1,7 @@
 import { apiJson, downloadArtifact } from "./backend"
 import { attachDecisionTimes } from "./candidate-history"
-import type { RepairComparison } from "./verification"
 import type { CandidateReview } from "./review"
+import type { RepairComparison } from "./verification"
 export interface StageRun {
   id: string
   audit_id: string

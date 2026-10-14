@@ -110,7 +110,9 @@ export function AuditDetailPage({
               </p>
             ) : null}
           </div>
-        ) : action && action.stage !== stage ? (
+        ) : action &&
+          action.stage !== stage &&
+          !["repair", "rules"].includes(stage) ? (
           <div className="task-summary-action">
             <Button asChild size="lg">
               <Link
