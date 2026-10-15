@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Download } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import { type AuditRun, downloadSarif } from "@/api/audits"
 import {
   downloadReport,
   downloadReportJson,
@@ -8,14 +10,17 @@ import {
   startReport,
 } from "@/api/stages"
 import { Button } from "@/components/ui/button"
+import { codeqlStatus } from "@/features/codeql-stage/discovery-state"
 import { ReportIssueContext } from "./ReportIssueContext"
 
 export function AIReportPanel({
   auditId,
   modelReady,
+  run,
 }: {
   auditId: string
   modelReady: boolean
+  run: AuditRun
 }) {
   const cache = useQueryClient()
   const [pendingDownload, setPendingDownload] = useState(false)
@@ -131,6 +136,17 @@ export function AIReportPanel({
           }
         >
           导出 JSON 报告
+        </Button>
+        <Button
+          variant="outline"
+          disabled={codeqlStatus(run) !== "completed"}
+          onClick={() =>
+            downloadSarif(auditId).catch((error: Error) =>
+              toast.error(error.message),
+            )
+          }
+        >
+          <Download size={16} /> 下载 CodeQL SARIF
         </Button>
       </div>
       {!modelReady && (

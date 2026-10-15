@@ -1,13 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Download, RotateCcw } from "lucide-react"
+import { RotateCcw } from "lucide-react"
 import { toast } from "sonner"
-import {
-  type AuditRun,
-  cancelRun,
-  downloadSarif,
-  recoverRun,
-  retryRun,
-} from "@/api/audits"
+import { type AuditRun, cancelRun, recoverRun, retryRun } from "@/api/audits"
 import { getCapabilities, getStages } from "@/api/stages"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
@@ -17,20 +11,7 @@ import { ReportPanel } from "@/features/repair/ReportPanel"
 import { RulePanel } from "@/features/rules/RulePanel"
 import { AuditExecutionLogs } from "@/features/shell/AuditExecutionLogs"
 import { DiscoveryPanel } from "./DiscoveryPanel"
-import { reviewBlockReason } from "./discovery-state"
 
-const phases: Record<string, string> = {
-  queued: "等待后台执行",
-  database: "正在建立 CodeQL 数据库",
-  scan: "正在运行漏洞查询",
-  parse: "正在保存告警证据",
-  supplement: "正在执行补充规则",
-  cancelled: "扫描已取消",
-  completed: "静态扫描完成",
-  codeql_ready: "CodeQL 完成，等待 Agent 汇合",
-  discovery_ready: "双引擎发现完成，等待复核",
-  discovery_partial: "双引擎部分完成，请查看各路覆盖",
-}
 export function RunDetails({
   run,
   onCreated,
@@ -79,53 +60,38 @@ export function RunDetails({
   })
   return (
     <section className="detail-panel">
-      <header className="detail-heading">
-        <div>
-          <h2>{run.project_name}</h2>
-          <p>{phases[run.phase] ?? run.phase}</p>
+      {activeStage === "codeql" && run.status !== "completed" ? (
+        <div className="stage-row scan-execution-actions">
+          {["queued", "running"].includes(run.status) ? (
+            <Button
+              variant="outline"
+              disabled={control.isPending}
+              onClick={() => control.mutate("cancel")}
+            >
+              取消扫描
+            </Button>
+          ) : null}
+          {run.status === "running" ? (
+            <Button
+              variant="outline"
+              disabled={control.isPending}
+              onClick={() => control.mutate("recover")}
+            >
+              回收无进展执行
+            </Button>
+          ) : null}
+          {["failed", "cancelled"].includes(run.status) ? (
+            <Button
+              variant="outline"
+              disabled={retry.isPending}
+              onClick={() => retry.mutate()}
+            >
+              <RotateCcw data-icon="inline-start" />
+              创建重试任务
+            </Button>
+          ) : null}
         </div>
-        {run.status === "completed" ? (
-          <Button
-            variant="outline"
-            onClick={() =>
-              downloadSarif(run.id).catch((error: Error) =>
-                toast.error(error.message),
-              )
-            }
-          >
-            <Download data-icon="inline-start" />
-            下载 SARIF
-          </Button>
-        ) : null}
-        {["queued", "running"].includes(run.status) ? (
-          <Button
-            variant="outline"
-            disabled={control.isPending}
-            onClick={() => control.mutate("cancel")}
-          >
-            取消扫描
-          </Button>
-        ) : null}
-        {run.status === "running" ? (
-          <Button
-            variant="outline"
-            disabled={control.isPending}
-            onClick={() => control.mutate("recover")}
-          >
-            回收无进展执行
-          </Button>
-        ) : null}
-        {["failed", "cancelled"].includes(run.status) ? (
-          <Button
-            variant="outline"
-            disabled={retry.isPending}
-            onClick={() => retry.mutate()}
-          >
-            <RotateCcw data-icon="inline-start" />
-            创建重试任务
-          </Button>
-        ) : null}
-      </header>
+      ) : null}
       <Tabs value={activeStage} onValueChange={onStageChange}>
         <TabsContent value="codeql">
           <DiscoveryPanel
@@ -137,11 +103,6 @@ export function RunDetails({
             onReloadStages={() => {
               void stages.refetch()
             }}
-            onReview={() => onStageChange("ai")}
-            reviewBlockedReason={reviewBlockReason(run, stages.data ?? [], {
-              pending: stages.isPending,
-              error: stages.error,
-            })}
           />
         </TabsContent>
         <TabsContent value="ai">

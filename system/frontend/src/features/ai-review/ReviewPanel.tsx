@@ -45,7 +45,6 @@ export function ReviewPanel({
   return (
     <section className="stage-section">
       <ReviewControls
-        auditId={run.id}
         disabled={!modelReady || !ready || busy}
         pending={start.isPending}
         onStart={() => start.mutate()}

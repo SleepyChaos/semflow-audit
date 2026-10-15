@@ -1,7 +1,4 @@
 import { Link, useNavigate } from "@tanstack/react-router"
-import { ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { reviewBlockReason } from "@/features/codeql-stage/discovery-state"
 import { RunDetails } from "@/features/codeql-stage/RunDetails"
 import {
   type AuditStage,
@@ -10,7 +7,7 @@ import {
   stagePanels,
 } from "@/features/shell/navigation"
 import { PageHeader } from "@/features/shell/PageHeader"
-import { getTaskAction, summarizeCandidates } from "./task-summary"
+import { TaskStageHeader } from "./TaskStageHeader"
 import { useAuditData } from "./useAuditData"
 export function AuditDetailPage({
   auditId,
@@ -47,14 +44,6 @@ export function AuditDetailPage({
       </div>
     )
   const selected = auditStages.find((item) => item.id === stage)!
-  const summary = data.candidates.isSuccess
-    ? summarizeCandidates(data.candidates.data)
-    : undefined
-  const action = getTaskAction(data.run, data.candidates.data, data.stages.data)
-  const reviewBlocked = reviewBlockReason(data.run, data.stages.data ?? [], {
-    pending: data.stages.isPending,
-    error: data.stages.error,
-  })
   const reverse: Record<string, AuditStage> = {
     codeql: "scan",
     ai: "review",
@@ -65,70 +54,7 @@ export function AuditDetailPage({
   return (
     <div className="page-stack">
       <PageHeader title={selected.title} description={selected.description} />
-      <div className="task-summary-strip">
-        <span>
-          项目 <strong>{data.run.project_name}</strong>
-        </span>
-        <span>
-          静态告警{" "}
-          <strong>
-            {data.run.coverage.dual_engine?.codeql?.status === "completed" ||
-            data.run.status === "completed"
-              ? data.run.findings.length
-              : "—"}
-          </strong>
-        </span>
-        <span>
-          AI 候选{" "}
-          <strong>
-            {summary?.aiCandidates ??
-              (data.candidates.isError ? "无法读取" : "读取中")}
-          </strong>
-        </span>
-        <span>
-          确认真实{" "}
-          <strong>
-            {summary?.confirmed ??
-              (data.candidates.isError ? "无法读取" : "读取中")}
-          </strong>
-        </span>
-        {stage === "scan" ? (
-          <div className="task-summary-action">
-            <Button
-              size="lg"
-              disabled={Boolean(reviewBlocked)}
-              aria-describedby={
-                reviewBlocked ? "review-block-reason" : undefined
-              }
-              onClick={() => changeStage("review")}
-            >
-              复核候选
-              <ArrowRight data-icon="inline-end" />
-            </Button>
-            {reviewBlocked ? (
-              <p id="review-block-reason" role="status">
-                {reviewBlocked}
-              </p>
-            ) : null}
-          </div>
-        ) : action &&
-          action.stage !== stage &&
-          !["repair", "report", "rules", "review"].includes(stage) ? (
-          <div className="task-summary-action">
-            <Button asChild size="lg">
-              <Link
-                to="/audits/$auditId"
-                params={{ auditId }}
-                search={{ stage: action.stage }}
-                title={action.reason}
-              >
-                {action.label}
-                <ArrowRight data-icon="inline-end" />
-              </Link>
-            </Button>
-          </div>
-        ) : null}
-      </div>
+      <TaskStageHeader run={data.run} stage={stage} data={data} />
       <RunDetails
         run={data.run}
         activeStage={stagePanels[stage]}
