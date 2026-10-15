@@ -94,6 +94,7 @@ def report_batches(source):
             ],
             "decisions": latest_per_candidate(source["decisions"], ids),
             "assessments": latest_per_candidate(source.get("assessments", []), ids),
+            "review_context": source.get("review_context", []),
             "repairs": source["repairs"][-12:],
             "verification": source.get("verification", []),
             "rules": source["rules"][-12:],

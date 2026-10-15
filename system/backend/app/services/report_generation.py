@@ -65,6 +65,9 @@ def report_source(report: dict, *, scrub: bool = True) -> dict:
                     "counterevidence_ids",
                     "runtime_unknowns",
                     "premises",
+                    "weakness",
+                    "security_property",
+                    "detail",
                 )
             }
             for stage in report.get("stages", [])
@@ -72,6 +75,20 @@ def report_source(report: dict, *, scrub: bool = True) -> dict:
             for batch in stage.get("result", {}).get("batches", [])
             for row in batch.get("assessments", [])
             if row.get("candidate_id") in candidate_ids or not candidate_ids
+        ],
+        "review_context": [
+            {
+                "stage_id": row.get("id"),
+                "status": row.get("status"),
+                "coverage_status": row.get("result", {}).get("coverage_status"),
+                "stop_reason": row.get("result", {}).get("stop_reason"),
+                "unreviewed_candidate_ids": row.get("result", {}).get(
+                    "unreviewed_candidate_ids", []
+                ),
+                "root_relations": row.get("result", {}).get("root_relations", []),
+            }
+            for row in report.get("stages", [])
+            if row.get("kind") == "review"
         ],
         "stages": [
             {k: row.get(k) for k in ("id", "kind", "status", "phase", "error")}

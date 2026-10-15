@@ -13,7 +13,9 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { ReviewPanel } from "@/features/ai-review/ReviewPanel"
 import { RepairPanel } from "@/features/repair/RepairPanel"
+import { ReportPanel } from "@/features/repair/ReportPanel"
 import { RulePanel } from "@/features/rules/RulePanel"
+import { AuditExecutionLogs } from "@/features/shell/AuditExecutionLogs"
 import { DiscoveryPanel } from "./DiscoveryPanel"
 import { reviewBlockReason } from "./discovery-state"
 
@@ -150,6 +152,16 @@ export function RunDetails({
             )}
             modelReady={Boolean(capabilities.data?.model_configured)}
           />
+          <AuditExecutionLogs key={run.id} auditId={run.id} />
+        </TabsContent>
+        <TabsContent value="report">
+          <ReportPanel
+            run={run}
+            stages={(stages.data ?? []).filter(
+              (item) => item.kind === "report",
+            )}
+            modelReady={Boolean(capabilities.data?.model_configured)}
+          />
         </TabsContent>
         <TabsContent value="repair">
           <RepairPanel
@@ -157,7 +169,6 @@ export function RunDetails({
             stages={(stages.data ?? []).filter((item) =>
               [
                 "repair",
-                "report",
                 "verification",
                 "verification_suite",
                 "verification_acceptance",

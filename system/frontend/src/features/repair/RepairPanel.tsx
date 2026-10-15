@@ -17,7 +17,6 @@ import {
   type WorkflowStep,
   WorkflowSteps,
 } from "@/features/stages/WorkflowSteps"
-import { AIReportPanel } from "./AIReportPanel"
 import { RepairCard } from "./RepairCard"
 import { RepairTargets } from "./RepairTargets"
 import { VerificationSuitePanel } from "./VerificationSuitePanel"
@@ -36,7 +35,6 @@ export function RepairPanel({
   const [profile, setProfile] = useState("syntax")
   const [rescan, setRescan] = useState(true)
   const [suiteId, setSuiteId] = useState("")
-  const [reportOpen, setReportOpen] = useState(false)
   const cache = useQueryClient()
   const busy = stages.some((stage) =>
     ["queued", "running"].includes(stage.status),
@@ -320,19 +318,6 @@ export function RepairPanel({
           </p>
         </div>
       )}
-      <details
-        className="downstream-disclosure"
-        onToggle={(event) => {
-          if (event.currentTarget.open) setReportOpen(true)
-        }}
-      >
-        <summary>
-          审计报告与导出 <span>可独立生成，不必等待修复完成</span>
-        </summary>
-        {reportOpen ? (
-          <AIReportPanel auditId={run.id} modelReady={modelReady} />
-        ) : null}
-      </details>
       <details className="downstream-disclosure">
         <summary>后台执行历史</summary>
         <StageHistory stages={stages} />

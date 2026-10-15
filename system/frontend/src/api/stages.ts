@@ -124,6 +124,8 @@ export interface AIReportIssue {
 }
 export interface AuditReport {
   candidates: Candidate[]
+  evidence?: Evidence[]
+  summary?: { candidate_states: Record<string, number> }
   ai_report?: {
     status: string
     stage_id?: string | null

@@ -59,6 +59,7 @@ export function AuditDetailPage({
     codeql: "scan",
     ai: "review",
     repair: "repair",
+    report: "report",
     rag: "rules",
   }
   return (
@@ -112,7 +113,7 @@ export function AuditDetailPage({
           </div>
         ) : action &&
           action.stage !== stage &&
-          !["repair", "rules"].includes(stage) ? (
+          !["repair", "report", "rules", "review"].includes(stage) ? (
           <div className="task-summary-action">
             <Button asChild size="lg">
               <Link

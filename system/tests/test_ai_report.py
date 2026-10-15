@@ -242,3 +242,57 @@ def test_private_fingerprint_detects_secret_changes_without_sending_them():
     data["repairs"][0]["changes"][0]["new_text"] = "password='SYNTHETIC_NEW'"
     assert source_fingerprint(data) != before
     assert "SYNTHETIC_NEW" not in str(report_source(data))
+
+
+def test_review_details_and_uncertainty_reach_report_batches_and_freshness():
+    from app.services.report_materials import report_batches
+
+    data = source()
+    detail = {
+        "title": "本项目的输出风险",
+        "description": "函数将输入直接返回",
+        "impact": "响应类型仍待核实",
+        "exploitation": {
+            "example": "synthetic request",
+            "execution_status": "not_executed",
+        },
+        "evidence_ids": ["source"],
+    }
+    data["candidates"][0]["review"] = {"status": "insufficient", "detail": detail}
+    data["candidates"][0]["classification"] = {"status": "insufficient", "source": "ai"}
+    assessment = {
+        "candidate_id": "one",
+        "assessment": "insufficient",
+        "detail": detail,
+        "missing_premises": ["响应类型"],
+        "runtime_unknowns": ["部署环境"],
+    }
+    data["stages"] = [
+        {
+            "id": "review-stage",
+            "kind": "review",
+            "status": "completed",
+            "result": {
+                "batches": [{"assessments": [assessment]}],
+                "unreviewed_candidate_ids": ["unchecked"],
+                "root_relations": [
+                    {"candidate_ids": ["one", "unchecked"], "relationship": "possible"}
+                ],
+            },
+        }
+    ]
+    batch = report_batches(report_source(data))[0]
+    assert batch["candidates"][0]["classification"]["status"] == "insufficient"
+    assert (
+        batch["assessments"][0]["detail"]["exploitation"]["execution_status"]
+        == "not_executed"
+    )
+    assert batch["assessments"][0]["runtime_unknowns"] == ["部署环境"]
+    assert batch["review_context"][0]["unreviewed_candidate_ids"] == ["unchecked"]
+    assert batch["review_context"][0]["root_relations"][0]["relationship"] == "possible"
+    before = source_fingerprint(data)
+    detail["exploitation"]["example"] = "changed synthetic request"
+    assert source_fingerprint(data) != before
+    before = source_fingerprint(data)
+    data["candidates"][0]["classification"] = {"status": "excluded", "source": "human"}
+    assert source_fingerprint(data) != before

@@ -4,10 +4,11 @@ import { candidate, mockAuditApi } from "./fixtures/audit-api"
 test("仅待确认候选可导出报告，但必须先确认再修复", async ({ page }) => {
   await mockAuditApi(page)
   await page.goto("/audits/task-1?stage=repair")
-  await page.getByText("审计报告与导出", { exact: false }).click()
+  await page.getByRole("link", { name: "审计报告", exact: true }).click()
   await expect(
     page.getByRole("button", { name: "导出 Markdown 报告" }),
   ).toBeEnabled()
+  await page.goto("/audits/task-1?stage=repair")
   await expect(
     page.getByRole("button", { name: "生成修复补丁" }),
   ).toBeDisabled()
@@ -60,9 +61,10 @@ test("报告未生成补丁即可下载；接受失败保留审阅理由", async
   })
   await page.goto("/audits/task-1?stage=repair")
   const report = page.waitForEvent("download")
-  await page.getByText("审计报告与导出", { exact: false }).click()
+  await page.getByRole("link", { name: "审计报告", exact: true }).click()
   await page.getByRole("button", { name: "导出 JSON 报告" }).click()
   expect((await report).suggestedFilename()).toBe("task-1-report.json")
+  await page.goto("/audits/task-1?stage=repair")
   await page.route("**/repairs/repair-1/accept", (route) =>
     route.fulfill({ status: 409, json: { detail: "验证结果已变化" } }),
   )

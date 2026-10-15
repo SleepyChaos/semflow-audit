@@ -8,6 +8,7 @@ import {
   startReport,
 } from "@/api/stages"
 import { Button } from "@/components/ui/button"
+import { ReportIssueContext } from "./ReportIssueContext"
 
 export function AIReportPanel({
   auditId,
@@ -81,9 +82,26 @@ export function AIReportPanel({
     <section className="ai-report-panel" aria-label="AI 中文分析报告">
       <h3>AI 中文分析报告</h3>
       <p className="page-note">
-        AI
-        根据本项目源码证据和检查记录，解释问题位置、风险、修复建议及验证边界。第一次导出会先生成，结果变化后需要更新。
+        AI 汇总本项目 AI
+        复审后的分类、判断依据、漏洞介绍、利用用例、关联源码和未完成范围。报告包含真实、误报与证据不足的候选，无需选择修复目标；复审结果变化后需要更新报告。
       </p>
+      {report.data?.summary?.candidate_states ? (
+        <section className="rule-validation-grid" aria-label="报告分类统计">
+          {[
+            ["confirmed", "确认真实"],
+            ["insufficient", "证据不足"],
+            ["excluded", "确认误报"],
+            ["pending", "待复核"],
+          ].map(([key, label]) => (
+            <div key={key}>
+              <span>{label}</span>
+              <strong>
+                {report.data?.summary?.candidate_states[key] ?? 0}
+              </strong>
+            </div>
+          ))}
+        </section>
+      ) : null}
       <div className="stage-row">
         <Button
           onClick={() => generate.mutate(Boolean(narrative))}
@@ -154,6 +172,10 @@ export function AIReportPanel({
                     ? `:${candidate.location.line}`
                     : ""}
                 </p>
+                <ReportIssueContext
+                  candidate={candidate}
+                  evidence={report.data?.evidence ?? []}
+                />
                 <dl>
                   <div>
                     <dt>这里发生了什么</dt>

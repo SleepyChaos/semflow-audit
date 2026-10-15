@@ -70,9 +70,10 @@
   border-radius: 8px;
 }
 .audit-log-toolbar {
-  padding: 10px 32px;
+  padding: 16px 0 0;
+  margin-top: 20px;
   background: var(--background);
-  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--border);
 }
 .audit-log-disclosures {
   display: grid;
@@ -225,14 +226,8 @@
   .discovery-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-  .audit-log-toolbar {
-    padding-inline: 24px;
-  }
 }
 @media (max-width: 700px) {
-  .audit-log-toolbar {
-    padding-inline: 16px;
-  }
   .audit-log-disclosures {
     grid-template-columns: minmax(0, 1fr);
     gap: 8px;

@@ -33,9 +33,18 @@ export function ReviewControls({
             <Link
               to="/audits/$auditId"
               params={{ auditId }}
+              search={{ stage: "report" }}
+            >
+              审计报告 <ArrowRight size={16} />
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link
+              to="/audits/$auditId"
+              params={{ auditId }}
               search={{ stage: "repair" }}
             >
-              修复与报告 <ArrowRight size={16} />
+              代码修复 <ArrowRight size={16} />
             </Link>
           </Button>
         </div>
