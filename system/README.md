@@ -67,6 +67,8 @@ npm run dev --prefix frontend -- --host 127.0.0.1
 
 打开 http://localhost:5173，直接进入本地审计工作台，无需账号或登录。初始化脚本不覆盖已有配置。macOS 沙箱若限制 SWC 缓存，可设置 `SWC_NATIVE_BINDING_CACHE` 到仓库 `artifacts/swc`。
 
+更新后端代码或切换分支后，也需要重启 Celery Worker。API 的 `--reload` 不会刷新 Worker 已缓存的 Python 模块；页面刷新同样无效。若出现磁盘上已有函数却报 `cannot import name`，先核对 Worker 启动时间，并确认没有活动、已预取或定时任务，再停止旧 Worker、按上面的命令重新启动。macOS 本地受管服务 `local.semflow-audit.worker` 可在空闲时运行 `launchctl kickstart -k gui/$(id -u)/local.semflow-audit.worker`。保留原失败记录，通过“新建重跑”验证恢复，避免把未完成执行改成成功。
+
 ## 代码与 CLI 验证
 
 ```sh
