@@ -11,7 +11,7 @@ import {
 } from "@/api/stages"
 import { Button } from "@/components/ui/button"
 import { codeqlStatus } from "@/features/codeql-stage/discovery-state"
-import { ReportIssueContext } from "./ReportIssueContext"
+import { ReportWorkspace } from "./ReportWorkspace"
 
 export function AIReportPanel({
   auditId,
@@ -90,23 +90,6 @@ export function AIReportPanel({
         AI 汇总本项目 AI
         复审后的分类、判断依据、漏洞介绍、利用用例、关联源码和未完成范围。报告包含真实、误报与证据不足的候选，无需选择修复目标；复审结果变化后需要更新报告。
       </p>
-      {report.data?.summary?.candidate_states ? (
-        <section className="rule-validation-grid" aria-label="报告分类统计">
-          {[
-            ["confirmed", "确认真实"],
-            ["insufficient", "证据不足"],
-            ["excluded", "确认误报"],
-            ["pending", "待复核"],
-          ].map(([key, label]) => (
-            <div key={key}>
-              <span>{label}</span>
-              <strong>
-                {report.data?.summary?.candidate_states[key] ?? 0}
-              </strong>
-            </div>
-          ))}
-        </section>
-      ) : null}
       <div className="stage-row">
         <Button
           onClick={() => generate.mutate(Boolean(narrative))}
@@ -167,83 +150,15 @@ export function AIReportPanel({
       )}
       {generate.error && <p role="alert">{generate.error.message}</p>}
       {narrative ? (
-        <div className="ai-report-body">
-          <p className="page-note">
-            由模型 {ai?.model} 生成 ·{" "}
-            {ai?.created_at ? new Date(ai.created_at).toLocaleString() : ""}
-            。以下是 AI 建议，人工状态和执行结果单独记录。
-          </p>
-          <h4>这个项目发现了什么</h4>
-          <p>{narrative.overview}</p>
-          {narrative.issues.map((issue) => {
-            const candidate = candidates.find(
-              (row) => row.id === issue.candidate_id,
-            )
-            return (
-              <article className="reader-explanation" key={issue.candidate_id}>
-                <h4>{issue.title}</h4>
-                <p>
-                  位置：{candidate?.location.file ?? "位置待核实"}
-                  {candidate?.location.line
-                    ? `:${candidate.location.line}`
-                    : ""}
-                </p>
-                <ReportIssueContext
-                  candidate={candidate}
-                  evidence={report.data?.evidence ?? []}
-                />
-                <dl>
-                  <div>
-                    <dt>这里发生了什么</dt>
-                    <dd>{issue.explanation}</dd>
-                  </div>
-                  <div>
-                    <dt>可能有什么影响</dt>
-                    <dd>{issue.impact}</dd>
-                  </div>
-                  <div>
-                    <dt>AI 修复建议</dt>
-                    <dd>
-                      <ul>
-                        {issue.fix_suggestions.map((text, i) => (
-                          <li key={`${i}:${text}`}>{text}</li>
-                        ))}
-                      </ul>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>建议如何验证</dt>
-                    <dd>
-                      <ul>
-                        {issue.verification_suggestions.map((text, i) => (
-                          <li key={`${i}:${text}`}>{text}</li>
-                        ))}
-                      </ul>
-                    </dd>
-                  </div>
-                </dl>
-                <p className="reader-boundary">
-                  建议的测试不代表已经执行；源码证据 ID：
-                  {issue.evidence_ids.join("、") || "暂无，需要补证据"}
-                </p>
-              </article>
-            )
-          })}
-          <h4>修复与验证到哪一步</h4>
-          <p>{narrative.repair_review}</p>
-          <h4>还有哪些不确定</h4>
-          <ul>
-            {narrative.limitations.map((text, i) => (
-              <li key={`${i}:${text}`}>{text}</li>
-            ))}
-          </ul>
-          <h4>下一步怎么做</h4>
-          <ul>
-            {narrative.next_steps.map((text, i) => (
-              <li key={`${i}:${text}`}>{text}</li>
-            ))}
-          </ul>
-        </div>
+        <ReportWorkspace
+          key={`${auditId}:${ai?.stage_id ?? "current"}`}
+          narrative={narrative}
+          candidates={candidates}
+          evidence={report.data?.evidence ?? []}
+          summary={report.data?.summary}
+          model={ai?.model}
+          createdAt={ai?.created_at}
+        />
       ) : (
         !busy &&
         !report.isPending && (

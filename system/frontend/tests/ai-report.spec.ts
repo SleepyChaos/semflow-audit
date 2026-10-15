@@ -56,10 +56,31 @@ test("首次导出为当前任务生成 AI 中文报告，成功后下载", asyn
   expect((await sent).postDataJSON()).toEqual({ force: false })
   expect((await download).suggestedFilename()).toBe("task-1-report.md")
   await expect(
-    page.getByText(narrative.overview, { exact: true }),
+    page
+      .getByRole("region", { name: "全局报告详情" })
+      .getByText(narrative.overview, { exact: true }),
   ).toBeVisible()
+  await expect(page.getByRole("button", { name: /全局报告/ })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  )
   await expect(
     page.getByText(narrative.issues[0].fix_suggestions[0], { exact: true }),
+  ).toHaveCount(0)
+  await page
+    .getByRole("button", { name: new RegExp(narrative.issues[0].title) })
+    .click()
+  await expect(
+    page.getByText(narrative.issues[0].fix_suggestions[0], { exact: true }),
+  ).toBeVisible()
+  await expect(page.getByRole("region", { name: "全局报告详情" })).toHaveCount(
+    0,
+  )
+  await page.getByRole("button", { name: /全局报告/ }).click()
+  await expect(
+    page
+      .getByRole("region", { name: "全局报告详情" })
+      .getByText(narrative.overview, { exact: true }),
   ).toBeVisible()
 })
 
