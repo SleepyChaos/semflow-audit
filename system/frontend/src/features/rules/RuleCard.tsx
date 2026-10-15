@@ -1,37 +1,18 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { useState } from "react"
-import { toast } from "sonner"
-import {
-  approveFixtures,
-  downloadQuery,
-  publishRule,
-  type RuleVersion,
-  retireRule,
-} from "@/api/stages"
+import type { RuleVersion } from "@/api/stages"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { ProjectReplayReview } from "./ProjectReplayReview"
+import { RuleActions } from "./RuleActions"
 import { RuleValidationSummary } from "./RuleValidationSummary"
 export function RuleCard({
   rule,
   awaiting,
+  embedded = false,
 }: {
   rule: RuleVersion
   awaiting: boolean
+  embedded?: boolean
 }) {
-  const [reason, setReason] = useState("")
-  const cache = useQueryClient()
-  const action = useMutation({
-    mutationFn: (kind: string) =>
-      kind === "approve"
-        ? approveFixtures(rule.id, reason)
-        : kind === "publish"
-          ? publishRule(rule.id)
-          : retireRule(rule.id),
-    onSuccess: () => cache.invalidateQueries(),
-    onError: (error: Error) => toast.error(error.message),
-  })
   return (
     <article className="candidate-card rule-card" id={`rule-${rule.id}`}>
       <header>
@@ -59,25 +40,27 @@ export function RuleCard({
         · 版本 {rule.id.slice(0, 8)}
       </p>
       <RuleValidationSummary rule={rule} />
-      <div className="stage-row">
-        <Link
-          className="text-action"
-          to="/audits/$auditId"
-          params={{ auditId: rule.audit_id }}
-          search={{ stage: "rules" }}
-        >
-          来源审计任务 →
-        </Link>
-        {rule.status === "published" && (
+      {!embedded && (
+        <div className="stage-row">
           <Link
-            className="button-link outline"
-            to="/audits/new"
-            search={{ ruleId: rule.id }}
+            className="text-action"
+            to="/audits/$auditId"
+            params={{ auditId: rule.audit_id }}
+            search={{ stage: "rules" }}
           >
-            用于新审计
+            来源审计任务 →
           </Link>
-        )}
-      </div>
+          {rule.status === "published" && (
+            <Link
+              className="button-link outline"
+              to="/audits/new"
+              search={{ ruleId: rule.id }}
+            >
+              用于新审计
+            </Link>
+          )}
+        </div>
+      )}
       <details>
         <summary>查询与模型模块</summary>
         <pre className="source-code">{rule.query}</pre>
@@ -115,62 +98,17 @@ export function RuleCard({
           {JSON.stringify(rule.validation, null, 2)}
         </pre>
       </details>
-      {action.error ? (
-        <p role="alert">操作失败：{action.error.message}</p>
-      ) : null}
-      <ProjectReplayReview rule={rule} />
-      {awaiting && !rule.fixtures_approved ? (
-        <div className="stage-form">
-          <label>
-            样本确认理由
-            <textarea
-              className="audit-textarea"
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-            />
-          </label>
-          <Button
-            disabled={reason.length < 10 || action.isPending}
-            onClick={() => action.mutate("approve")}
-          >
-            批准样本并运行真实验收
-          </Button>
+      {!embedded && (
+        <details>
+          <summary>项目复测与根因确认</summary>
+          <ProjectReplayReview rule={rule} />
+        </details>
+      )}
+      {!embedded && (
+        <div className="stage-row">
+          <RuleActions rule={rule} awaiting={awaiting} />
         </div>
-      ) : null}
-      <div className="stage-row">
-        <Button
-          variant="outline"
-          onClick={() =>
-            downloadQuery(rule.id).catch((error: Error) =>
-              toast.error(error.message),
-            )
-          }
-        >
-          下载查询
-        </Button>
-        {rule.status === "validated" ? (
-          <Button
-            disabled={action.isPending}
-            onClick={() => action.mutate("publish")}
-          >
-            发布此版本
-          </Button>
-        ) : null}
-        {!["validated", "published", "retired"].includes(rule.status) ? (
-          <Button disabled variant="outline">
-            完成全部验收后可发布
-          </Button>
-        ) : null}
-        {rule.status === "published" ? (
-          <Button
-            variant="outline"
-            disabled={action.isPending}
-            onClick={() => action.mutate("retire")}
-          >
-            停用此版本
-          </Button>
-        ) : null}
-      </div>
+      )}
       <p>样本通过不代表真实项目准确率；新扫描需显式选择发布版本。</p>
     </article>
   )

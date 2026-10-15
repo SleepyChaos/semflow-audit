@@ -22,12 +22,14 @@ export function RepairComparison({
   suiteId,
   busy,
   accepted,
+  readOnly = false,
 }: {
   id: string
   comparison?: Comparison
   suiteId: string
   busy: boolean
   accepted: boolean
+  readOnly?: boolean
 }) {
   const cache = useQueryClient()
   const run = useMutation({
@@ -109,7 +111,7 @@ export function RepairComparison({
           </pre>
         </details>
       )}
-      {!accepted && (
+      {!accepted && !readOnly && (
         <>
           <Button
             variant="outline"

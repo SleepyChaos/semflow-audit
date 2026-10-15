@@ -16,7 +16,12 @@ import {
   scoutProgress,
 } from "@/features/codeql-stage/discovery-state"
 import { type AuditStage, auditStages } from "@/features/shell/navigation"
+import {
+  repairProgress,
+  ruleProgress,
+} from "@/features/stages/downstream-progress"
 import { labelPhase, labelStatus } from "@/features/stages/stage-labels"
+import { WorkflowSteps } from "@/features/stages/WorkflowSteps"
 import type { useAuditData } from "./useAuditData"
 
 type Data = ReturnType<typeof useAuditData>
@@ -224,6 +229,15 @@ export function TaskStageHeader({
           : stage === "repair"
             ? repairSummary()
             : ruleSummary()
+  const workflow =
+    stage === "repair"
+      ? repairProgress(stages, repairs.data ?? [])
+      : stage === "rules"
+        ? ruleProgress(
+            stages,
+            (rules.data ?? []).filter((row) => row.audit_id === run.id),
+          )
+        : null
   const next = auditStages[auditStages.findIndex((s) => s.id === stage) + 1]
   const labels: Record<AuditStage, string> = {
     scan: "复核候选",
@@ -268,6 +282,12 @@ export function TaskStageHeader({
         </Button>
         {blocked ? <p id="stage-next-blocked">{blocked}</p> : null}
       </div>
+      {workflow && (
+        <WorkflowSteps
+          steps={workflow}
+          label={stage === "repair" ? "代码修复流程" : "规则生成流程"}
+        />
+      )}
     </section>
   )
 }

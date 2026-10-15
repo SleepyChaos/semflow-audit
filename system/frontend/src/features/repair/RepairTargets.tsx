@@ -1,63 +1,45 @@
-import { Link } from "@tanstack/react-router"
-import type { Candidate } from "@/api/stages"
-import { Button } from "@/components/ui/button"
+import type { Candidate, RepairRecord } from "@/api/stages"
 import { Checkbox } from "@/components/ui/checkbox"
 
 export function RepairTargets({
-  auditId,
   candidates,
   selected,
+  focused,
   onSelect,
+  onFocus,
   busy,
+  records,
 }: {
-  auditId: string
   candidates: Candidate[]
   selected: string[]
+  focused?: string
   onSelect: (value: string[]) => void
+  onFocus: (id: string) => void
   busy: boolean
+  records: RepairRecord[]
 }) {
   return (
-    <section className="repair-targets" aria-label="选择修复目标">
-      <div className="downstream-section-heading">
-        <div>
-          <h3>选择要修复的漏洞</h3>
-          <p>仅列出分类为真实的漏洞，关联文件由平台读取。</p>
-        </div>
-        <div className="stage-row">
-          <span className="selection-count">
-            已选 {selected.length} / {candidates.length}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={busy || !candidates.length}
-            onClick={() =>
-              onSelect(
-                selected.length === candidates.length
-                  ? []
-                  : candidates.map((item) => item.id),
-              )
-            }
-          >
-            {selected.length === candidates.length && candidates.length
-              ? "取消全选"
-              : "全选"}
-          </Button>
-        </div>
+    <aside className="candidate-rail result-rail" aria-label="修复漏洞列表">
+      <div className="rail-heading">
+        真实漏洞{" "}
+        <span>
+          已选 {selected.length} / {candidates.length}
+        </span>
       </div>
-      {candidates.length ? (
-        <div className="repair-target-grid">
-          {candidates.map((item) => (
-            <label
-              className="repair-target"
-              htmlFor={`repair-target-${item.id}`}
-              data-selected={selected.includes(item.id)}
+      <div className="result-list">
+        {candidates.map((item) => {
+          const attempts = records.filter((row) =>
+            row.candidate_ids.includes(item.id),
+          )
+          return (
+            <div
+              className="repair-target-row"
+              data-active={focused === item.id}
               key={item.id}
             >
               <Checkbox
-                id={`repair-target-${item.id}`}
+                aria-label={`选择修复：${item.review?.detail?.title ?? item.title}`}
                 checked={selected.includes(item.id)}
-                aria-label={item.review?.detail?.title ?? item.title}
                 disabled={busy}
                 onCheckedChange={(checked) =>
                   onSelect(
@@ -67,31 +49,32 @@ export function RepairTargets({
                   )
                 }
               />
-              <span>
-                <strong>{item.review?.detail?.title ?? item.title}</strong>
+              <button
+                type="button"
+                className="candidate-option"
+                aria-pressed={focused === item.id}
+                onClick={() => onFocus(item.id)}
+              >
+                <span>{item.review?.detail?.title ?? item.title}</span>
                 <small>
                   {item.location.file ?? "位置待核实"}:
                   {item.location.line ?? "—"} · {item.weakness}
                 </small>
-              </span>
-            </label>
-          ))}
-        </div>
-      ) : (
-        <div className="downstream-empty">
-          <h4>还没有可修复的真实漏洞</h4>
-          <p>先完成 AI 复核或调整分类，再选择修复目标。</p>
-          <Button asChild variant="outline">
-            <Link
-              to="/audits/$auditId"
-              params={{ auditId }}
-              search={{ stage: "review" }}
-            >
-              查看复核结果
-            </Link>
-          </Button>
-        </div>
-      )}
-    </section>
+                <small>
+                  {attempts.length
+                    ? `${attempts.length} 次修复尝试`
+                    : "尚未生成补丁"}
+                </small>
+              </button>
+            </div>
+          )
+        })}
+        {!candidates.length && (
+          <p className="page-note">
+            暂无确认真实的漏洞，请先在 AI 复审中核对分类。
+          </p>
+        )}
+      </div>
+    </aside>
   )
 }
