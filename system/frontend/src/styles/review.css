@@ -3,12 +3,33 @@
   grid-template-columns: 260px minmax(0, 1fr);
   border: 1px solid #dedbd4;
   margin: 22px 0;
+  align-items: stretch;
 }
 .candidate-rail {
+  /* 列表长度不参与行高计算，由右侧详情决定两栏共同高度。 */
+  contain: size;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   background: #f6f5f2;
   border-right: 1px solid #dedbd4;
 }
+.candidate-detail-scroll {
+  min-width: 0;
+  min-height: 560px;
+  max-height: clamp(640px, 80dvh, 880px);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+.candidate-detail-scroll:has(details[open]) {
+  max-height: clamp(800px, 105dvh, 1120px);
+}
 .rail-heading {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f6f5f2;
   padding: 16px;
   font-size: 13px;
   border-bottom: 1px solid #dedbd4;
@@ -218,7 +239,17 @@
     grid-template-columns: 1fr;
   }
   .candidate-rail {
+    contain: none;
+    max-height: 280px;
     border-right: 0;
+    border-bottom: 1px solid #dedbd4;
+  }
+  .candidate-detail-scroll {
+    min-height: 420px;
+    max-height: 75dvh;
+  }
+  .candidate-detail-scroll:has(details[open]) {
+    max-height: 90dvh;
   }
   .candidate-option {
     padding: 12px;
