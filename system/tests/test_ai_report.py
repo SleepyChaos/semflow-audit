@@ -151,7 +151,7 @@ def test_reports_batch_large_candidate_sets_without_omitting_any_ids():
     assert [row["id"] for batch in batches for row in batch["candidates"]] == [
         str(i) for i in range(41)
     ]
-    assert all(len(batch["candidates"]) <= 8 for batch in batches)
+    assert all(len(batch["candidates"]) <= 4 for batch in batches)
 
 
 def test_source_literals_and_connection_credentials_are_redacted():
@@ -202,7 +202,7 @@ def test_batched_generation_includes_every_candidate_in_final_ai_narrative(tmp_p
     result = service.generate(
         {"source_fingerprint": fingerprint, "material_fingerprint": fingerprint}
     )
-    assert len(calls) == 6
+    assert len(calls) == 11
     assert [issue["candidate_id"] for issue in result["narrative"]["issues"]] == [
         str(i) for i in range(41)
     ]
@@ -293,6 +293,79 @@ def test_review_details_and_uncertainty_reach_report_batches_and_freshness():
     before = source_fingerprint(data)
     detail["exploitation"]["example"] = "changed synthetic request"
     assert source_fingerprint(data) != before
+
+
+def test_report_batches_do_not_duplicate_review_narratives_or_omit_current_evidence():
+    from copy import deepcopy
+
+    from app.services.report_materials import report_batches
+
+    data = report_source(source())
+    detail = {
+        "description": "中文复审说明，输入输出均需核实。" * 120,
+        "exploitation": {
+            "example": "仅演示，未执行",
+            "execution_status": "not_executed",
+        },
+    }
+    data["candidates"] = [
+        {
+            **deepcopy(data["candidates"][0]),
+            "id": str(i),
+            "review": {
+                "stage_id": "current",
+                "status": "insufficient",
+                "detail": detail,
+            },
+            "classification": {"status": "insufficient", "source": "human"},
+        }
+        for i in range(17)
+    ]
+    data["assessments"] = [
+        {
+            "candidate_id": str(i),
+            "detail": detail,
+            "missing_premises": ["真实响应类型尚未知"],
+        }
+        for i in range(17)
+    ]
+    data["review_context"] = [
+        {
+            "stage_id": "old",
+            "root_relations": [
+                {"candidate_ids": ["old-id"], "reason": "历史记录" * 500}
+            ],
+        },
+        {"stage_id": "current", "unreviewed_candidate_ids": [], "root_relations": []},
+    ]
+    data["evidence"][0]["content"] = "完整源码仍保留在冻结材料和导出报告。" * 300
+    before = deepcopy(data)
+    batches = report_batches(data)
+    assert [row["id"] for batch in batches for row in batch["candidates"]] == [
+        str(i) for i in range(17)
+    ]
+    assert len(batches) == 5
+    for batch in batches:
+        assert batch["required_candidate_ids"] == [
+            row["id"] for row in batch["candidates"]
+        ]
+        assert all("detail" not in row["review"] for row in batch["candidates"])
+        assert all(
+            row["detail"]["exploitation"]["execution_status"] == "not_executed"
+            for row in batch["assessments"]
+        )
+        assert all(
+            row["missing_premises"] == ["真实响应类型尚未知"]
+            for row in batch["assessments"]
+        )
+        assert all(
+            ids == ["source"] for ids in batch["issue_evidence_binding"].values()
+        )
+        assert {row["id"] for row in batch["evidence"]} == {"source"}
+        assert "材料已节选" in batch["evidence"][0]["content"]
+        assert len(batch["evidence"][0]["content"]) < 700
+        assert all(row["stage_id"] == "current" for row in batch["review_context"])
+    assert data == before
     before = source_fingerprint(data)
     data["candidates"][0]["classification"] = {"status": "excluded", "source": "human"}
     assert source_fingerprint(data) != before

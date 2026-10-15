@@ -70,13 +70,84 @@ def coverage_summary(coverage):
     }
 
 
+def review_context(source, group):
+    ids = {row["id"] for row in group}
+    stages = {
+        row.get("review", {}).get("stage_id") for row in group if row.get("review")
+    }
+    contexts = source.get("review_context", [])
+    selected = [row for row in contexts if row.get("stage_id") in stages]
+    if contexts and contexts[-1] not in selected:
+        selected.append(contexts[-1])
+    return [
+        {
+            **row,
+            "root_relations": [
+                relation
+                for relation in row.get("root_relations", [])
+                if ids.intersection(relation.get("candidate_ids", []))
+            ],
+        }
+        for row in selected
+    ]
+
+
+def candidate_material(row, assessment_ids):
+    # The full review is already present in assessments. Keep one copy of its
+    # narrative, premises and exploitation instead of sending it twice per issue.
+    row = {
+        key: value
+        for key, value in row.items()
+        if key
+        in {
+            "id",
+            "origin",
+            "title",
+            "description",
+            "status",
+            "weakness",
+            "location",
+            "review",
+            "classification",
+            "evidence_ids",
+        }
+    }
+    if row["id"] not in assessment_ids or not row.get("review"):
+        return row
+    return {
+        **row,
+        "review": {
+            key: value
+            for key, value in row["review"].items()
+            if key in {"stage_id", "stage_status", "status", "evaluated", "updated_at"}
+        },
+    }
+
+
+def evidence_material(row):
+    # Reports summarize validated reviews, rather than repeating whole source
+    # windows in each batch. The frozen source and exported report retain them.
+    return {
+        key: excerpt(value, 600) if key == "content" else value
+        for key, value in row.items()
+        if key in {"id", "kind", "reference", "snapshot_hash", "digest", "content"}
+    }
+
+
 def report_batches(source):
     candidates = source["candidates"]
-    groups = [candidates[i : i + 8] for i in range(0, len(candidates), 8)] or [[]]
+    groups = [candidates[i : i + 4] for i in range(0, len(candidates), 4)] or [[]]
     result = []
     for group in groups:
         ids = {row["id"] for row in group}
         evidence_ids = {item for row in group for item in row.get("evidence_ids", [])}
+        assessments = latest_per_candidate(source.get("assessments", []), ids)
+        assessment_ids = {row["candidate_id"] for row in assessments}
+        repairs = [
+            row
+            for row in source["repairs"]
+            if ids.intersection(row.get("candidate_ids", []))
+        ]
         payload = {
             "audit": {
                 key: value
@@ -85,33 +156,42 @@ def report_batches(source):
             },
             "summary": source["summary"],
             "coverage": coverage_summary(source["coverage"]),
-            "candidates": group,
+            "candidates": [candidate_material(row, assessment_ids) for row in group],
+            "required_candidate_ids": [row["id"] for row in group],
             "issue_evidence_binding": {
                 row["id"]: row.get("evidence_ids", []) for row in group
             },
             "evidence": [
-                row for row in source["evidence"] if row["id"] in evidence_ids
+                evidence_material(row)
+                for row in source["evidence"]
+                if row["id"] in evidence_ids
             ],
             "decisions": latest_per_candidate(source["decisions"], ids),
-            "assessments": latest_per_candidate(source.get("assessments", []), ids),
-            "review_context": source.get("review_context", []),
-            "repairs": source["repairs"][-12:],
-            "verification": source.get("verification", []),
+            "assessments": assessments,
+            "review_context": review_context(source, group),
+            "repairs": repairs,
+            "verification": [
+                row
+                for row in source.get("verification", [])
+                if row.get("repair_id") in {repair["id"] for repair in repairs}
+            ],
             "rules": source["rules"][-12:],
             "stages": source["stages"][-20:],
             "material_scope": "当前候选分批生成；历史记录和长文本可节选，不能将节选视作完整源码或完整验证。所有候选都会纳入最终报告。",
         }
-        for limit in (12000, 4000, 1600, 600):
+        for limit in (4000, 1600, 600):
             bounded = excerpt(payload, limit)
-            if len(json.dumps(bounded, ensure_ascii=False).encode()) <= 45000:
+            if len(json.dumps(bounded, ensure_ascii=False).encode()) <= 34000:
                 break
         if (
-            len(json.dumps(bounded, ensure_ascii=False).encode()) > 45000
+            len(json.dumps(bounded, ensure_ascii=False).encode()) > 34000
             and len(group) > 1
         ):
-            # Split further when one eight-candidate batch has extensive evidence.
-            for row in group:
-                result.extend(report_batches({**source, "candidates": [row]}))
+            # Split proportionally so a large group does not become N repeated
+            # one-issue requests, each carrying project-level context again.
+            middle = len(group) // 2
+            for subgroup in [group[:middle], group[middle:]]:
+                result.extend(report_batches({**source, "candidates": subgroup}))
         else:
             result.append(bounded)
     for index, payload in enumerate(result):
