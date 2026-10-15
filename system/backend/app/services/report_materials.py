@@ -143,11 +143,6 @@ def report_batches(source):
         evidence_ids = {item for row in group for item in row.get("evidence_ids", [])}
         assessments = latest_per_candidate(source.get("assessments", []), ids)
         assessment_ids = {row["candidate_id"] for row in assessments}
-        repairs = [
-            row
-            for row in source["repairs"]
-            if ids.intersection(row.get("candidate_ids", []))
-        ]
         payload = {
             "audit": {
                 key: value
@@ -155,7 +150,6 @@ def report_batches(source):
                 if key != "findings"
             },
             "summary": source["summary"],
-            "coverage": coverage_summary(source["coverage"]),
             "candidates": [candidate_material(row, assessment_ids) for row in group],
             "required_candidate_ids": [row["id"] for row in group],
             "issue_evidence_binding": {
@@ -169,15 +163,7 @@ def report_batches(source):
             "decisions": latest_per_candidate(source["decisions"], ids),
             "assessments": assessments,
             "review_context": review_context(source, group),
-            "repairs": repairs,
-            "verification": [
-                row
-                for row in source.get("verification", [])
-                if row.get("repair_id") in {repair["id"] for repair in repairs}
-            ],
-            "rules": source["rules"][-12:],
-            "stages": source["stages"][-20:],
-            "material_scope": "当前候选分批生成；历史记录和长文本可节选，不能将节选视作完整源码或完整验证。所有候选都会纳入最终报告。",
+            "material_scope": "只撰写当前候选详情；全局覆盖、修复、验证和规则在独立全局报告中汇总，本批未提供不等于不存在。长文本可节选，所有候选都会纳入最终报告。",
         }
         for limit in (4000, 1600, 600):
             bounded = excerpt(payload, limit)
@@ -195,23 +181,24 @@ def report_batches(source):
         else:
             result.append(bounded)
     for index, payload in enumerate(result):
-        payload["batch"] = {"index": index + 1, "total": len(result)}
+        payload["batch"] = {"scope": "issues", "index": index + 1, "total": len(result)}
     return result
 
 
-def combine_reports(reports):
+def combine_reports(reports, overview):
     return {
-        "overview": "\n\n".join(row.overview for row in reports),
+        "overview": overview.overview,
         "issues": [
             issue.model_dump(mode="json") for row in reports for issue in row.issues
         ],
-        "repair_review": "\n\n".join(
-            dict.fromkeys(row.repair_review for row in reports)
-        ),
+        "repair_review": overview.repair_review,
         "limitations": list(
-            dict.fromkeys(item for row in reports for item in row.limitations)
+            dict.fromkeys(
+                [
+                    *overview.limitations,
+                    *(item for row in reports for item in row.limitations),
+                ]
+            )
         ),
-        "next_steps": list(
-            dict.fromkeys(item for row in reports for item in row.next_steps)
-        ),
+        "next_steps": overview.next_steps,
     }

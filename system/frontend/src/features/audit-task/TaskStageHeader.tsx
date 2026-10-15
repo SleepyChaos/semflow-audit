@@ -130,6 +130,7 @@ export function TaskStageHeader({
         detail: "等待当前审计结果对应的报告。",
       }
     const ai = report.data?.ai_report
+    const counts = report.data?.summary?.candidate_states
     const labels: Record<string, string> = {
       ready: "审计报告已生成",
       running: "正在生成审计报告",
@@ -142,8 +143,9 @@ export function TaskStageHeader({
       title: labels[ai?.status ?? ""] ?? "尚未生成审计报告",
       detail:
         ai?.status === "ready"
-          ? ai.narrative?.overview.slice(0, 120) ||
-            "当前复审结论已汇总，可下载报告。"
+          ? counts
+            ? `确认真实 ${counts.confirmed ?? 0} · 证据不足 ${counts.insufficient ?? 0} · 确认误报 ${counts.excluded ?? 0}${counts.pending ? ` · 待复核 ${counts.pending}` : ""} · 完整报告可下载`
+            : `已汇总 ${ai.narrative?.issues.length ?? 0} 项候选，可查看详情或下载完整报告。`
           : ai?.status === "failed"
             ? "报告生成未完成，原有复审结论和证据保留。可在下方重试，或先导出 JSON / SARIF。"
             : ai?.status === "stale"

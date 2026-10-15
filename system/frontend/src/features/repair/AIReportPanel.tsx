@@ -85,70 +85,75 @@ export function AIReportPanel({
   }
   return (
     <section className="ai-report-panel" aria-label="AI 中文分析报告">
-      <h3>AI 中文分析报告</h3>
-      <p className="page-note">
-        AI 汇总本项目 AI
-        复审后的分类、判断依据、漏洞介绍、利用用例、关联源码和未完成范围。报告包含真实、误报与证据不足的候选，无需选择修复目标；复审结果变化后需要更新报告。
-      </p>
-      <div className="stage-row">
-        <Button
-          onClick={() => generate.mutate(Boolean(narrative))}
-          disabled={!modelReady || busy}
-        >
-          {busy
-            ? "正在生成中文报告…"
-            : narrative
-              ? "重新生成 AI 中文报告"
-              : "生成 AI 中文报告"}
-        </Button>
-        <Button
-          variant="outline"
-          disabled={
-            !modelReady || busy || report.isPending || Boolean(report.error)
-          }
-          onClick={exportMarkdown}
-        >
-          导出 Markdown 报告
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            downloadReportJson(auditId).catch((error: Error) =>
-              toast.error(error.message),
-            )
-          }
-        >
-          导出 JSON 报告
-        </Button>
-        <Button
-          variant="outline"
-          disabled={codeqlStatus(run) !== "completed"}
-          onClick={() =>
-            downloadSarif(auditId).catch((error: Error) =>
-              toast.error(error.message),
-            )
-          }
-        >
-          <Download size={16} /> 下载 CodeQL SARIF
-        </Button>
-      </div>
-      {!modelReady && (
-        <p role="status">
-          模型尚未配置，无法生成 AI 报告；JSON 原始记录仍可导出。
-        </p>
-      )}
-      {ai?.status === "stale" && (
-        <p role="status">
-          审计判断或验证结果已变化，请更新 AI 中文报告后再导出。
-        </p>
-      )}
-      {report.error && <p role="alert">报告读取失败：{report.error.message}</p>}
-      {ai?.error && (
-        <p role="alert">
-          报告生成失败：{ai.error}。原有源码与人工判断保留，可重新生成。
-        </p>
-      )}
-      {generate.error && <p role="alert">{generate.error.message}</p>}
+      <section className="action-banner report-controls" aria-label="报告操作">
+        <div>
+          <h3>审计报告</h3>
+          <p>
+            汇总全部复审结论、漏洞详情与修复验证进展，可生成报告或下载审计产物。
+          </p>
+        </div>
+        <div className="stage-row">
+          <Button
+            onClick={() => generate.mutate(Boolean(narrative))}
+            disabled={!modelReady || busy}
+          >
+            {busy
+              ? "正在生成中文报告…"
+              : narrative
+                ? "重新生成 AI 中文报告"
+                : "生成 AI 中文报告"}
+          </Button>
+          <Button
+            variant="outline"
+            disabled={
+              !modelReady || busy || report.isPending || Boolean(report.error)
+            }
+            onClick={exportMarkdown}
+          >
+            导出 Markdown 报告
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() =>
+              downloadReportJson(auditId).catch((error: Error) =>
+                toast.error(error.message),
+              )
+            }
+          >
+            导出 JSON 报告
+          </Button>
+          <Button
+            variant="outline"
+            disabled={codeqlStatus(run) !== "completed"}
+            onClick={() =>
+              downloadSarif(auditId).catch((error: Error) =>
+                toast.error(error.message),
+              )
+            }
+          >
+            <Download size={16} /> 下载 CodeQL SARIF
+          </Button>
+        </div>
+        {!modelReady && (
+          <p role="status">
+            模型尚未配置，无法生成 AI 报告；JSON 原始记录仍可导出。
+          </p>
+        )}
+        {ai?.status === "stale" && (
+          <p role="status">
+            审计判断或验证结果已变化，请更新 AI 中文报告后再导出。
+          </p>
+        )}
+        {report.error && (
+          <p role="alert">报告读取失败：{report.error.message}</p>
+        )}
+        {ai?.error && (
+          <p role="alert">
+            报告生成失败：{ai.error}。原有源码与人工判断保留，可重新生成。
+          </p>
+        )}
+        {generate.error && <p role="alert">{generate.error.message}</p>}
+      </section>
       {narrative ? (
         <ReportWorkspace
           key={`${auditId}:${ai?.stage_id ?? "current"}`}
@@ -161,7 +166,8 @@ export function AIReportPanel({
         />
       ) : (
         !busy &&
-        !report.isPending && (
+        !report.isPending &&
+        !ai?.error && (
           <p className="page-note">
             尚无与当前结果匹配的 AI
             中文报告。点击生成后，这里将展示具体分析和修复建议。

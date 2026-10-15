@@ -181,6 +181,11 @@ def test_batched_generation_includes_every_candidate_in_final_ai_narrative(tmp_p
         def generate(self, purpose, payload, schema):
             calls.append(payload)
             narrative = response().model_dump()
+            narrative["overview"] = (
+                "独立的全项目审计结论，不重复分批说明。"
+                if payload["batch"]["scope"] == "global"
+                else "仅对当前批次的漏洞进行说明。"
+            )
             narrative["issues"] = [
                 {**narrative["issues"][0], "candidate_id": row["id"]}
                 for row in payload["candidates"]
@@ -202,7 +207,8 @@ def test_batched_generation_includes_every_candidate_in_final_ai_narrative(tmp_p
     result = service.generate(
         {"source_fingerprint": fingerprint, "material_fingerprint": fingerprint}
     )
-    assert len(calls) == 11
+    assert len(calls) == 12
+    assert result["narrative"]["overview"] == "独立的全项目审计结论，不重复分批说明。"
     assert [issue["candidate_id"] for issue in result["narrative"]["issues"]] == [
         str(i) for i in range(41)
     ]
@@ -210,6 +216,7 @@ def test_batched_generation_includes_every_candidate_in_final_ai_narrative(tmp_p
 
 def test_flask_config_literals_are_redacted_and_current_judgments_are_retained():
     from app.services.report_materials import redact, report_batches
+    from app.services.report_overview import overview_material
 
     for text in [
         "app.secret_key = 'SYNTHETIC_FLASK_SECRET'",
@@ -230,9 +237,10 @@ def test_flask_config_literals_are_redacted_and_current_judgments_are_retained()
         }
     }
     batch = report_batches(data)[0]
+    overview = overview_material(data)
     assert {row["candidate_id"] for row in batch["decisions"]} == {"one", "two"}
-    assert batch["coverage"]["dual_engine"]["codeql"]["status"] == "failed"
-    assert batch["coverage"]["dual_engine"]["scout"]["uninspected_windows"] == 4
+    assert overview["coverage"]["dual_engine"]["codeql"]["status"] == "failed"
+    assert overview["coverage"]["dual_engine"]["scout"]["uninspected_windows"] == 4
 
 
 def test_private_fingerprint_detects_secret_changes_without_sending_them():
@@ -242,6 +250,50 @@ def test_private_fingerprint_detects_secret_changes_without_sending_them():
     data["repairs"][0]["changes"][0]["new_text"] = "password='SYNTHETIC_NEW'"
     assert source_fingerprint(data) != before
     assert "SYNTHETIC_NEW" not in str(report_source(data))
+
+
+def test_repair_history_does_not_multiply_issue_batches_or_hide_failed_checks():
+    from copy import deepcopy
+
+    from app.services.report_materials import report_batches
+    from app.services.report_overview import overview_material
+
+    data = report_source(source())
+    data["candidates"] = [{**data["candidates"][0], "id": str(i)} for i in range(17)]
+    expected = report_batches(data)
+    data["repairs"] = [
+        {
+            "id": str(i),
+            "status": "needs_review",
+            "candidate_ids": ["0"],
+            "changes": [
+                {
+                    "file": "app.py",
+                    "old_text": "old line" * 10000,
+                    "new_text": "new line" * 10000,
+                    "reason": "需要修复输出编码",
+                }
+            ],
+            "validation": {
+                "application": {"status": "failed", "output": "旧文本匹配失败"}
+            },
+        }
+        for i in range(3)
+    ]
+    data["verification"] = [{"repair_id": "0", "comparison": {"status": "missing"}}]
+    before = deepcopy(data)
+    assert report_batches(data) == expected
+    overview = overview_material(data)
+    assert len(overview["review_summary"]) == 17
+    assert overview["required_candidate_ids"] == []
+    assert len(overview["repairs"]) == 3
+    assert all(
+        row["validation"]["application"]["status"] == "failed"
+        for row in overview["repairs"]
+    )
+    assert overview["verification"][0]["comparison"]["status"] == "missing"
+    assert all("new_text" not in row["changes"][0] for row in overview["repairs"])
+    assert data == before
 
 
 def test_review_details_and_uncertainty_reach_report_batches_and_freshness():
