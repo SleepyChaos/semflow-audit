@@ -19,7 +19,9 @@ for (const previous of ["insufficient", "excluded"]) {
     ).toBeVisible()
     await page.goto("/audits/task-1?stage=rules")
     await expect(
-      page.getByLabel("提炼已确认缺陷").locator('option[value="newer"]'),
+      page
+        .getByLabel("规则来源", { exact: true })
+        .locator('option[value="newer"]'),
     ).toHaveCount(1)
   })
 }
@@ -48,11 +50,8 @@ test("同身份相互冲突的人工判断按实际判断时间取最新，保�
       .locator(".candidate-card header")
       .getByText("支持排除", { exact: true }),
   ).toBeVisible()
-  await page
-    .getByText("全部原始候选记录与复核历史（未删除或按根因合并）", {
-      exact: true,
-    })
-    .click()
+  await page.getByText("高级诊断", { exact: true }).click()
+  await page.getByText("原始候选与复核记录", { exact: true }).click()
   await expect(
     page.locator("pre").filter({ hasText: '"id": "newer"' }).first(),
   ).toBeVisible()

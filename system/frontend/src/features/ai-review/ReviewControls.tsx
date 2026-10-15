@@ -1,10 +1,14 @@
+import { Link } from "@tanstack/react-router"
+import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 export function ReviewControls({
+  auditId,
   disabled,
   reason,
   pending,
   onStart,
 }: {
+  auditId: string
   disabled: boolean
   reason: string | null
   pending: boolean
@@ -21,9 +25,20 @@ export function ReviewControls({
           </p>
           {reason && <p className="action-hint">{reason}</p>}
         </div>
-        <Button disabled={disabled || pending} onClick={onStart}>
-          {pending ? "正在提交…" : "启动统一复核"}
-        </Button>
+        <div className="review-flow-actions">
+          <Button disabled={disabled || pending} onClick={onStart}>
+            {pending ? "正在提交…" : "启动统一复核"}
+          </Button>
+          <Button asChild variant="outline">
+            <Link
+              to="/audits/$auditId"
+              params={{ auditId }}
+              search={{ stage: "repair" }}
+            >
+              修复与报告 <ArrowRight size={16} />
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   )

@@ -11,7 +11,13 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { labelPhase, labelStatus } from "./stage-labels"
-export function StageHistory({ stages }: { stages: StageRun[] }) {
+export function StageHistory({
+  stages,
+  title = "执行历史",
+}: {
+  stages: StageRun[]
+  title?: string
+}) {
   const [selected, setSelected] = useState<string | null>(null)
   const stage = stages.find((item) => item.id === selected)
   const cache = useQueryClient()
@@ -33,7 +39,7 @@ export function StageHistory({ stages }: { stages: StageRun[] }) {
   })
   return (
     <section className="stage-history">
-      <h3>执行历史</h3>
+      <h3>{title}</h3>
       {!stages.length ? (
         <p>尚未执行该阶段。</p>
       ) : (
