@@ -16,7 +16,8 @@ import { currentReviewCandidates } from "@/features/ai-review/review-status"
 import { StageHistory } from "@/features/stages/StageHistory"
 import { RepairActions } from "./RepairActions"
 import { RepairCard } from "./RepairCard"
-import { RepairTargets } from "./RepairTargets"
+import { RepairProgressBadges, RepairTargets } from "./RepairTargets"
+import { repairProgressState } from "./repair-progress"
 
 export function RepairPanel({
   run,
@@ -166,6 +167,7 @@ export function RepairPanel({
             }}
             busy={busy}
             records={records}
+            stages={stages}
           />
           <section
             className="result-detail-scroll"
@@ -180,6 +182,9 @@ export function RepairPanel({
                     {current.location.file}:{current.location.line} ·{" "}
                     {current.weakness}
                   </p>
+                  <RepairProgressBadges
+                    progress={repairProgressState(stages, records, current.id)}
+                  />
                   {related.length > 1 && (
                     <label>
                       修复记录{" "}

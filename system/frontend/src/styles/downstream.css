@@ -19,6 +19,26 @@
   align-items: flex-start;
   gap: 10px;
   min-width: 0;
+  padding: 8px;
+  border-radius: 6px;
+}
+.workflow-step-status {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.workflow-steps [data-status="done"] .workflow-step-status {
+  color: #24674b;
+}
+.workflow-steps li[data-status="attention"] {
+  background: #fff5d6;
+  box-shadow: inset 0 0 0 1px #e4d297;
+}
+.workflow-steps [data-status="attention"] .workflow-step-status,
+.workflow-steps [data-status="attention"] p {
+  color: #7f601d;
 }
 .workflow-steps strong {
   font-size: 13px;

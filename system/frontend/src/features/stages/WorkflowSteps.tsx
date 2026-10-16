@@ -27,7 +27,9 @@ export function WorkflowSteps({
           <li
             key={step.title}
             data-status={step.status}
-            aria-current={step.status === "active" ? "step" : undefined}
+            aria-current={
+              ["active", "attention"].includes(step.status) ? "step" : undefined
+            }
           >
             <span className="workflow-step-icon">
               <Icon size={17} aria-hidden="true" />
@@ -35,6 +37,15 @@ export function WorkflowSteps({
             <div>
               <strong>
                 {index + 1}. {step.title}
+                <span className="workflow-step-status">
+                  {step.status === "done"
+                    ? "已完成"
+                    : step.status === "attention"
+                      ? "受阻"
+                      : step.status === "active"
+                        ? "待完成"
+                        : "待开始"}
+                </span>
               </strong>
               <p>{step.detail}</p>
             </div>

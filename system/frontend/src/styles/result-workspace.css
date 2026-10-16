@@ -131,6 +131,41 @@
   border-left-color: #d66a38;
   background: #fff;
 }
+.repair-progress-labels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.repair-progress-badge {
+  padding: 3px 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.repair-progress-badge[data-status="done"] {
+  background: #e7f5ee;
+  border-color: #b6d9c8;
+  color: #24674b;
+}
+.repair-progress-badge[data-status="active"] {
+  background: #eef4fb;
+  border-color: #c6d8eb;
+  color: #305f8e;
+}
+.repair-progress-badge[data-status="attention"] {
+  background: #fff5d6;
+  border-color: #e4d297;
+  color: #7f601d;
+}
+.repair-progress-labels .repair-block-reason {
+  flex-basis: 100%;
+  color: #7f601d;
+}
 .result-list .candidate-option {
   overflow-wrap: anywhere;
 }

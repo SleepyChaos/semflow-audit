@@ -1,6 +1,7 @@
 import { useId } from "react"
-import type { Candidate, RepairRecord } from "@/api/stages"
+import type { Candidate, RepairRecord, StageRun } from "@/api/stages"
 import { Checkbox } from "@/components/ui/checkbox"
+import { repairProgressState } from "./repair-progress"
 
 export function RepairTargets({
   candidates,
@@ -10,6 +11,7 @@ export function RepairTargets({
   onFocus,
   busy,
   records,
+  stages,
 }: {
   candidates: Candidate[]
   selected: string[]
@@ -18,6 +20,7 @@ export function RepairTargets({
   onFocus: (id: string) => void
   busy: boolean
   records: RepairRecord[]
+  stages: StageRun[]
 }) {
   const selectAllId = useId()
   return (
@@ -52,6 +55,7 @@ export function RepairTargets({
           const attempts = records.filter((row) =>
             row.candidate_ids.includes(item.id),
           )
+          const progress = repairProgressState(stages, records, item.id)
           return (
             <div
               className="repair-target-row"
@@ -81,6 +85,7 @@ export function RepairTargets({
                   {item.location.file ?? "位置待核实"}:
                   {item.location.line ?? "—"} · {item.weakness}
                 </small>
+                <RepairProgressBadges progress={progress} />
                 <small>
                   {attempts.length
                     ? `${attempts.length} 次修复尝试`
@@ -97,5 +102,45 @@ export function RepairTargets({
         )}
       </div>
     </aside>
+  )
+}
+
+export function RepairProgressBadges({
+  progress,
+}: {
+  progress: ReturnType<typeof repairProgressState>
+}) {
+  const { current, hasPatch, record } = progress
+  return (
+    <span className="repair-progress-labels">
+      {hasPatch && (
+        <span
+          className="repair-progress-badge"
+          data-status="done"
+          title="关联补丁已成功生成；是否修复该漏洞以验证结果为准"
+        >
+          ✓{" "}
+          {record?.candidate_ids.length === 1 ? "补丁已生成" : "关联补丁已生成"}
+        </span>
+      )}
+      <span
+        className="repair-progress-badge"
+        data-status={current.status}
+        title={current.detail}
+      >
+        {current.status === "attention" ? "⚠ " : ""}
+        {current.title} ·
+        {current.status === "attention"
+          ? "受阻"
+          : current.status === "done"
+            ? "已完成"
+            : current.status === "active"
+              ? "待完成"
+              : "待开始"}
+      </span>
+      {current.status === "attention" && (
+        <small className="repair-block-reason">{current.detail}</small>
+      )}
+    </span>
   )
 }
