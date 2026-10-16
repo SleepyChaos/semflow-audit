@@ -64,7 +64,7 @@ export function repairProgressState(
     suite?.status === "completed" || Boolean(comparison?.identity?.suite_id)
   const steps: WorkflowStep[] = [
     {
-      title: "生成补丁",
+      title: "生成修复补丁",
       detail: running(repair?.status)
         ? "正在生成修复补丁"
         : repair?.status === "failed"
@@ -83,7 +83,7 @@ export function repairProgressState(
             : "waiting",
     },
     {
-      title: "验收测试",
+      title: "生成验收测试",
       detail: running(suite?.status)
         ? "正在生成验收测试"
         : suite?.status === "failed"
@@ -142,7 +142,7 @@ function verificationStep(
   ready: boolean,
 ): WorkflowStep {
   const step: WorkflowStep = {
-    title: "前后验证",
+    title: "修复前后对比",
     detail: "等待运行修复前后对比",
     status: ready ? "active" : "waiting",
   }

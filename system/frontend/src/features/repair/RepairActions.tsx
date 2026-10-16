@@ -71,7 +71,7 @@ export function RepairActions({
         disabled={disabled || !suiteId || applicationFailed}
         onClick={() => action.mutate("verify")}
       >
-        运行修复前后对比
+        修复前后对比
       </Button>
       <ArrowRight className="repair-flow-arrow" size={18} aria-hidden="true" />
       <Button

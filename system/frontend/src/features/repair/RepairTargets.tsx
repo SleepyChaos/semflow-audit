@@ -110,34 +110,31 @@ export function RepairProgressBadges({
 }: {
   progress: ReturnType<typeof repairProgressState>
 }) {
-  const { current, hasPatch, record } = progress
+  const { current, steps } = progress
   return (
     <span className="repair-progress-labels">
-      {hasPatch && (
+      {steps.slice(0, 3).map((step) => (
         <span
+          key={step.title}
           className="repair-progress-badge"
-          data-status="done"
-          title="关联补丁已成功生成；是否修复该漏洞以验证结果为准"
+          data-status={step.status}
+          title={step.detail}
         >
-          ✓{" "}
-          {record?.candidate_ids.length === 1 ? "补丁已生成" : "关联补丁已生成"}
+          {step.status === "done"
+            ? "✓ "
+            : step.status === "attention"
+              ? "⚠ "
+              : ""}
+          {step.title} ·{" "}
+          {step.status === "attention"
+            ? "受阻"
+            : step.status === "done"
+              ? "已完成"
+              : step.status === "active"
+                ? "待完成"
+                : "待开始"}
         </span>
-      )}
-      <span
-        className="repair-progress-badge"
-        data-status={current.status}
-        title={current.detail}
-      >
-        {current.status === "attention" ? "⚠ " : ""}
-        {current.title} ·
-        {current.status === "attention"
-          ? "受阻"
-          : current.status === "done"
-            ? "已完成"
-            : current.status === "active"
-              ? "待完成"
-              : "待开始"}
-      </span>
+      ))}
       {current.status === "attention" && (
         <small className="repair-block-reason">{current.detail}</small>
       )}
