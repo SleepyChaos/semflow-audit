@@ -119,11 +119,11 @@ def create_stage(
         prompt_version=prompt_version
         or {
             "review": "12",
-            "repair": "3",
+            "repair": "4",
             "rule": "8",
             "scout": "7",
             "report": "5",
-            "verification_suite": "1",
+            "verification_suite": "2",
             "verification": "1",
             "candidate_translation": "1",
         }[kind],

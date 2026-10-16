@@ -73,6 +73,8 @@ export interface Evidence {
   digest: string
 }
 export interface RepairRecord {
+  needs_localization?: boolean
+  localization_pending?: boolean
   comparison?: RepairComparison
   acceptance_ready?: boolean
   validation_summary?: ValidationCheck[]
@@ -199,6 +201,8 @@ export const addEvidence = (auditId: string, file: string, line: number) =>
   )
 export const getRepairs = (auditId: string) =>
   apiJson<RepairRecord[]>(`/audits/${auditId}/repairs`)
+export const localizeRepairs = (auditId: string) =>
+  post<StageRun>(`/audits/${auditId}/localize-repairs`)
 export const acceptRepair = (
   id: string,
   reason: string,

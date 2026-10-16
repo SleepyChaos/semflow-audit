@@ -29,14 +29,13 @@ def validate_candidate(repair, state):
             checks = {"environment": {"status": "blocked", "output": str(exc)}}
         finally:
             s.directory = previous
-        if s.stage.prompt_version == "3" and all(
+        if s.stage.prompt_version in {"3", "4"} and all(
             check["status"] in {"passed", "not_run"} for check in checks.values()
         ):
             from app.services.repair_consistency import check_contract
 
-            if (
-                s.inputs.verification_suite_id
-                and repair.context(state).get("candidate_suite_feedback", False)
+            if s.inputs.verification_suite_id and repair.context(state).get(
+                "candidate_suite_feedback", False
             ):
                 from app.services.repair_suite_checks import check_selected_suite
 
@@ -53,7 +52,9 @@ def validate_candidate(repair, state):
             # Executed failures can drive the existing retry directly. Reserve
             # model consistency review for candidates that survive cheap checks.
             # Every accepted candidate still requires that independent review.
-            if all(check["status"] in {"passed", "not_run"} for check in checks.values()):
+            if all(
+                check["status"] in {"passed", "not_run"} for check in checks.values()
+            ):
                 checks["semantic_contract"] = check_contract(repair, state)
         save_json(saved, checks)
         save_json(

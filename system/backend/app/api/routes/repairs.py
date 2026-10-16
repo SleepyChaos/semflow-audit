@@ -28,11 +28,14 @@ def repairs(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     from app.services.repair_comparison import acceptance_ready, comparison_state
 
     result = []
+    from app.services.repair_localization import localized_repair, translation_jobs
+
+    translations = translation_jobs(audit_id, session)
     for row in rows:
         comparison = comparison_state(session, row)
         result.append(
             {
-                **row.model_dump(mode="json"),
+                **localized_repair(row.model_dump(mode="json"), translations),
                 "comparison": comparison,
                 "acceptance_ready": acceptance_ready(row, comparison),
                 "validation_summary": explain_validation(row.validation, comparison),

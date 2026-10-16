@@ -47,6 +47,7 @@
   background: transparent;
 }
 .result-workspace {
+  contain: layout paint;
   height: clamp(600px, 80dvh, 960px);
   grid-template-columns: minmax(230px, 26%) minmax(0, 1fr);
   margin: 0;
@@ -60,10 +61,15 @@
 }
 .result-list,
 .result-detail-scroll {
+  overscroll-behavior-y: contain;
   min-height: 0;
   min-width: 0;
   overflow-y: auto;
   scrollbar-gutter: stable;
+}
+.repair-flow-arrow {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
 }
 .result-detail-scroll {
   padding: 24px;

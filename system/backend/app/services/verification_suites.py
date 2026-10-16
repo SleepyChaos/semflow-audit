@@ -144,6 +144,7 @@ class SuiteService:
                 "language": source.audit.language,
                 "snapshot_hash": source.audit.snapshot_hash,
                 "candidates": [row.model_dump(mode="json") for row in targets],
+                "required_candidate_ids": [str(row.id) for row in targets],
                 "evidence": evidence,
                 "source_files": files,
                 "business_requirements": stage.inputs.get("requirements", ""),
@@ -158,13 +159,26 @@ class SuiteService:
         if len(json.dumps(payload).encode()) > 60000:
             raise AuditError("测试生成材料过大，请减少目标；没有省略目标后假装验证")
         self.repository.update(self.stage_id, phase="generate_verification_suite")
-        suite = self.provider.generate("verification_suite", payload, VerificationSuite)
         expected = {str(row.id) for row in targets}
-        all_ids = {
-            str(identifier) for case in suite.cases for identifier in case.candidate_ids
-        }
-        if target_ids(suite) != expected or not all_ids.issubset(expected):
-            raise AuditError("测试遗漏或引用了其他漏洞候选")
+        for attempt in range(2):
+            self.repository.active(self.stage_id)
+            suite = self.provider.generate(
+                "verification_suite", payload, VerificationSuite
+            )
+            all_ids = {
+                str(identifier)
+                for case in suite.cases
+                for identifier in case.candidate_ids
+            }
+            if target_ids(suite) == expected and all_ids.issubset(expected):
+                break
+            if attempt:
+                raise AuditError("测试遗漏或引用了其他漏洞候选")
+            payload["coverage_feedback"] = {
+                "missing_security_candidate_ids": sorted(expected - target_ids(suite)),
+                "unexpected_candidate_ids": sorted(all_ids - expected),
+                "instruction": "Regenerate the complete executable suite. Its security cases must cover every required_candidate_id exactly within the authorized set; one case may cite duplicate candidates for the same actual behavior. Do not drop assertions, skip tests or alter the implementation.",
+            }
         result = freeze_suite(
             stage, suite, stage.inputs.get("image", ""), "ai_generated"
         )

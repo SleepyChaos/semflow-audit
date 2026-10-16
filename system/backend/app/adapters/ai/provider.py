@@ -87,6 +87,7 @@ class CompatibleModel:
         if (stage.kind, prompt_version) in {
             ("repair", "2"),
             ("repair", "3"),
+            ("repair", "4"),
             ("rule", "6"),
             ("rule", "7"),
             ("rule", "8"),
@@ -105,7 +106,7 @@ class CompatibleModel:
                             )
                             * audit_settings.REPAIR_ATTEMPTS,
                         }
-                        if stage.kind == "repair" and prompt_version == "3"
+                        if stage.kind == "repair" and prompt_version in {"3", "4"}
                         else {}
                     ),
                 },

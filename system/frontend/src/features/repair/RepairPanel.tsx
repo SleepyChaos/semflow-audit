@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { ArrowRight } from "lucide-react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import type { AuditRun } from "@/api/audits"
 import {
   getCandidates,
   getRepairs,
+  localizeRepairs,
   type StageRun,
   startStage,
 } from "@/api/stages"
@@ -39,8 +41,23 @@ export function RepairPanel({
   const repairs = useQuery({
     queryKey: ["repairs", run.id],
     queryFn: () => getRepairs(run.id),
-    refetchInterval: busy ? 2500 : false,
+    refetchInterval: (query) =>
+      busy || query.state.data?.some((row) => row.localization_pending)
+        ? 2500
+        : false,
   })
+  const translate = useMutation({
+    mutationFn: () => localizeRepairs(run.id),
+    onSuccess: () => cache.invalidateQueries({ queryKey: ["repairs", run.id] }),
+  })
+  useEffect(() => {
+    if (
+      repairs.data?.some((row) => row.needs_localization) &&
+      translate.isIdle &&
+      modelReady
+    )
+      translate.mutate()
+  }, [repairs.data, translate.isIdle, translate.mutate, modelReady])
   const suites = useQuery({
     queryKey: ["verification-suites", run.id],
     queryFn: () => getVerificationSuites(run.id),
@@ -103,6 +120,11 @@ export function RepairPanel({
               ? "正在提交…"
               : `生成修复补丁${targets.length ? `（${targets.length} 项）` : ""}`}
           </Button>
+          <ArrowRight
+            className="repair-flow-arrow"
+            size={18}
+            aria-hidden="true"
+          />
           <RepairActions
             key={record?.id ?? "empty"}
             auditId={run.id}
@@ -111,6 +133,9 @@ export function RepairPanel({
             modelReady={modelReady}
           />
         </div>
+        {translate.error && (
+          <p role="alert">中文修复解读生成失败：{translate.error.message}</p>
+        )}
         <p className="page-note">
           自动读取关联文件，使用平台验证环境、语法检查及 CodeQL 复扫；
           {suite

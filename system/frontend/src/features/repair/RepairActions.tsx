@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { ArrowRight } from "lucide-react"
 import { toast } from "sonner"
 import { acceptRepair, downloadDiff, type RepairRecord } from "@/api/stages"
 import {
@@ -39,7 +40,7 @@ export function RepairActions({
       if (kind === "suite")
         return generateVerificationSuite(auditId, {
           candidate_ids: record!.candidate_ids,
-          image: "",
+          image: suite?.image ?? "",
           requirements: "",
         })
       if (kind === "verify") return verifyRepair(record!.id, suiteId!)
@@ -64,6 +65,7 @@ export function RepairActions({
       >
         生成验收测试
       </Button>
+      <ArrowRight className="repair-flow-arrow" size={18} aria-hidden="true" />
       <Button
         variant="outline"
         disabled={disabled || !suiteId || applicationFailed}
@@ -71,6 +73,7 @@ export function RepairActions({
       >
         运行修复前后对比
       </Button>
+      <ArrowRight className="repair-flow-arrow" size={18} aria-hidden="true" />
       <Button
         variant="outline"
         disabled={!record}
