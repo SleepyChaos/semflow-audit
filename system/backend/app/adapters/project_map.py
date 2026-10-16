@@ -35,7 +35,13 @@ def symbols(text: str, language: str) -> dict:
     }
 
 
-def build_project_map(evidence, window_lines: int, strategy: str = "balanced") -> dict:
+def build_project_map(
+    evidence,
+    window_lines: int,
+    strategy: str = "balanced",
+    *,
+    scheduling_profile="full",
+) -> dict:
     rows, queues, skipped = [], defaultdict(deque), []
     for path in evidence.files():
         file = path.relative_to(evidence.root).as_posix()
@@ -58,6 +64,13 @@ def build_project_map(evidence, window_lines: int, strategy: str = "balanced") -
                 "role_hint": category(file),
             }
         )
+        if scheduling_profile == "runtime_first":
+            from app.adapters.scout_scheduling import deferred_reason
+
+            reason = deferred_reason(file)
+            if reason:
+                skipped.append({"file": file, "reason": reason, "lines": len(lines)})
+                continue
         # Bound both lines and characters; retain oversized lines as explicit gaps.
         start = 0
         while start < len(lines):
@@ -70,8 +83,16 @@ def build_project_map(evidence, window_lines: int, strategy: str = "balanced") -
                 "start_line": start + 1,
                 "end_line": end,
                 "role_hint": category(file),
-                "inspection_tasks": inspection_tasks(category(file), semantic=strategy == "business_semantic"),
+                "inspection_tasks": inspection_tasks(
+                    category(file), semantic=strategy == "business_semantic"
+                ),
             }
+            if scheduling_profile == "runtime_first":
+                from app.adapters.scout_scheduling import focused_tasks
+
+                unit["inspection_tasks"] = focused_tasks(
+                    category(file), strategy == "business_semantic"
+                )
             if len(lines[start]) > 12000:
                 skipped.append({**unit, "reason": "oversized_source_line"})
             else:
@@ -120,6 +141,7 @@ def build_project_map(evidence, window_lines: int, strategy: str = "balanced") -
                 }
             )
     return {
+        "scheduling_profile": scheduling_profile,
         "strategy": strategy,
         "snapshot": evidence.audit.snapshot_hash,
         "language": evidence.audit.language,
@@ -143,14 +165,14 @@ def map_context(project: dict, unit: dict) -> dict:
                 "lines": r["lines"],
                 "role_hint": r.get("role_hint", "source"),
             }
-            for r in navigation[:30]
+            for r in navigation[:15]
         ],
-        "navigation_omitted": max(0, len(navigation) - 30),
+        "navigation_omitted": max(0, len(navigation) - 15),
         "file_count": len(project["files"]),
-        "modules": sorted({r["module"] for r in project["files"]})[:60],
+        "modules": sorted({r["module"] for r in project["files"]})[:25],
         "nearby_files": [
-            {**r, "symbols": r["symbols"][:12], "imports": r["imports"][:8]}
-            for r in related[:8]
+            {**r, "symbols": r["symbols"][:6], "imports": r["imports"][:4]}
+            for r in related[:4]
         ],
         "map_limit": "Partial inventory view; search tools can find other related source",
         "documents": project.get("documents", []),

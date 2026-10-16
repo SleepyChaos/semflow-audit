@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import pytest
 from app.adapters.local_imports import python_import_paths, python_web_entrypoint
+from app.adapters.snapshot import snapshot_digest
 from app.contracts.discovery_semantics import PremiseCheck
 from app.domain.audit import AuditError
 from app.services.discovery_context import bootstrap_files, validate_premises
@@ -50,7 +51,7 @@ def test_entrypoint_and_helpers_in_arbitrary_directories(tmp_path):
     files = list(tmp_path.rglob("*.py"))
     evidence = SimpleNamespace(
         root=tmp_path,
-        audit=SimpleNamespace(language="python"),
+        audit=SimpleNamespace(language="python", snapshot_hash=snapshot_digest(tmp_path)),
         files=lambda: files,
         allowed=lambda f: tmp_path / f,
     )

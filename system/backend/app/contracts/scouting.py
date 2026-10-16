@@ -10,10 +10,13 @@ from app.contracts.stages import StrictModel, ToolCall
 
 
 class ScoutRequest(StrictModel):
+    scheduling_profile: Literal["full", "runtime_first"] = "full"
     continuation_from_id: UUID | None = None
     paths: list[str] = Field(default_factory=list, max_length=50)
     inspection_paths: list[str] = Field(default_factory=list, max_length=50)
-    max_units: int = Field(0, ge=0, le=100, description="0 inspects all eligible windows")
+    max_units: int = Field(
+        0, ge=0, le=100, description="0 inspects all eligible windows"
+    )
     include_third_party: bool = False
     steps_per_unit: int = Field(3, ge=1, le=6)
     window_lines: int = Field(100, ge=20, le=150)
