@@ -8,7 +8,6 @@ import { Plus } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useTheme } from "@/components/theme-provider"
 import { AppSidebar } from "@/features/shell/AppSidebar"
-import { AuditExecutionLogs } from "@/features/shell/AuditExecutionLogs"
 import { EnvironmentDrawer } from "@/features/shell/EnvironmentDrawer"
 export const Route = createFileRoute("/_layout")({ component: Layout })
 function Layout() {
@@ -18,11 +17,6 @@ function Layout() {
     setTheme("light")
   }, [setTheme])
   const location = useLocation()
-  const auditMatch = location.pathname.match(/^\/audits\/([^/]+)\/?$/)
-  const auditId =
-    auditMatch && auditMatch[1] !== "new"
-      ? decodeURIComponent(auditMatch[1])
-      : null
   const section = location.pathname.startsWith("/audits")
     ? "审计任务"
     : location.pathname === "/rules"
@@ -48,9 +42,6 @@ function Layout() {
             </Link>
           </div>
         </div>
-        {auditId ? (
-          <AuditExecutionLogs key={auditId} auditId={auditId} />
-        ) : null}
         <main className="audit-content">
           <Outlet />
         </main>

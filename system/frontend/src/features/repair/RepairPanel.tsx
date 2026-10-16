@@ -1,28 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
-import { useState } from "react"
+import { ArrowRight } from "lucide-react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import type { AuditRun } from "@/api/audits"
 import {
   getCandidates,
   getRepairs,
+  localizeRepairs,
   type StageRun,
   startStage,
 } from "@/api/stages"
+import { getVerificationSuites } from "@/api/verification"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { uniqueCandidates } from "@/features/audit-task/task-summary"
+import { currentReviewCandidates } from "@/features/ai-review/review-status"
 import { StageHistory } from "@/features/stages/StageHistory"
-import { AIReportPanel } from "./AIReportPanel"
+import { RepairActions } from "./RepairActions"
 import { RepairCard } from "./RepairCard"
-import { VerificationSuitePanel } from "./VerificationSuitePanel"
+import { RepairProgressBadges, RepairTargets } from "./RepairTargets"
+import { repairProgressState } from "./repair-progress"
+
 export function RepairPanel({
   run,
   stages,
@@ -32,13 +28,13 @@ export function RepairPanel({
   stages: StageRun[]
   modelReady: boolean
 }) {
-  const [selected, setSelected] = useState<string[]>([]),
-    [paths, setPaths] = useState(""),
-    [profile, setProfile] = useState("syntax"),
-    [rescan, setRescan] = useState(true),
-    [suiteId, setSuiteId] = useState("")
-  const cache = useQueryClient(),
-    busy = stages.some((item) => ["queued", "running"].includes(item.status))
+  const [selected, setSelected] = useState<string[]>([])
+  const [focused, setFocused] = useState("")
+  const [recordId, setRecordId] = useState("")
+  const cache = useQueryClient()
+  const busy = stages.some((stage) =>
+    ["queued", "running"].includes(stage.status),
+  )
   const candidates = useQuery({
     queryKey: ["candidates", run.id],
     queryFn: () => getCandidates(run.id),
@@ -46,160 +42,200 @@ export function RepairPanel({
   const repairs = useQuery({
     queryKey: ["repairs", run.id],
     queryFn: () => getRepairs(run.id),
-    refetchInterval: busy ? 3000 : false,
+    refetchInterval: (query) =>
+      busy || query.state.data?.some((row) => row.localization_pending)
+        ? 2500
+        : false,
   })
-  const confirmed = uniqueCandidates(candidates.data ?? []).filter(
-    (item) => item.status === "confirmed",
+  const translate = useMutation({
+    mutationFn: () => localizeRepairs(run.id),
+    onSuccess: () => cache.invalidateQueries({ queryKey: ["repairs", run.id] }),
+  })
+  useEffect(() => {
+    if (
+      repairs.data?.some((row) => row.needs_localization) &&
+      translate.isIdle &&
+      modelReady
+    )
+      translate.mutate()
+  }, [repairs.data, translate.isIdle, translate.mutate, modelReady])
+  const suites = useQuery({
+    queryKey: ["verification-suites", run.id],
+    queryFn: () => getVerificationSuites(run.id),
+    refetchInterval: busy ? 2500 : false,
+  })
+  const confirmed = currentReviewCandidates(candidates.data ?? []).filter(
+    (row) =>
+      row.classification?.status === "confirmed" ||
+      (!row.classification && row.status === "confirmed"),
   )
+  const targets = selected.filter((id) =>
+    confirmed.some((row) => row.id === id),
+  )
+  const suite = targets.length
+    ? suites.data?.find((row) =>
+        targets.every((id) => row.candidate_ids.includes(id)),
+      )
+    : undefined
+  const current = confirmed.find((row) => row.id === focused) ?? confirmed[0]
+  const records = [...(repairs.data ?? [])].sort((a, b) => {
+    const time = (id: string) =>
+      stages.find((stage) => stage.id === id)?.created_at ?? ""
+    return time(b.stage_id).localeCompare(time(a.stage_id))
+  })
+  const related = records.filter((row) =>
+    row.candidate_ids.includes(current?.id ?? ""),
+  )
+  const record = related.find((row) => row.id === recordId) ?? related[0]
   const start = useMutation({
     mutationFn: () =>
       startStage(run.id, "repair", {
-        candidate_ids: selected.filter((id) =>
-          confirmed.some((item) => item.id === id),
-        ),
-        allowed_paths: paths
-          .split("\n")
-          .map((item) => item.trim())
-          .filter(Boolean),
-        validation_profile: profile,
-        rescan,
-        ...(suiteId ? { verification_suite_id: suiteId } : {}),
+        candidate_ids: targets,
+        allowed_paths: [],
+        validation_profile: "syntax",
+        rescan: true,
+        ...(suite ? { verification_suite_id: suite.id } : {}),
       }),
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
   })
-  const selectedConfirmed = selected.filter((id) =>
-    confirmed.some((item) => item.id === id),
-  )
-  const blocked = candidates.isPending
-    ? "正在读取候选，请稍候"
-    : candidates.error
-      ? "候选读取失败，无法选择修复目标"
-      : !confirmed.length
-        ? "先确认缺陷"
-        : !selectedConfirmed.length
-          ? "请勾选要修复的已确认缺陷"
-          : !modelReady
-            ? "模型服务尚未配置"
-            : busy
-              ? "当前修复阶段正在执行"
-              : null
   return (
-    <section className="stage-section">
-      <AIReportPanel auditId={run.id} modelReady={modelReady} />
-      <h3>隔离修复</h3>
-      <p className="page-note">
-        已选择 {selectedConfirmed.length} 个已确认缺陷
-      </p>
-      <div className="stage-form">
-        {confirmed.length ? (
-          confirmed.map((item) => (
-            <label
-              className="stage-check"
-              key={item.id}
-              htmlFor={`repair-${run.id}-${item.id}`}
-            >
-              <Checkbox
-                aria-label={item.title}
-                id={`repair-${run.id}-${item.id}`}
-                checked={selected.includes(item.id)}
-                onCheckedChange={(checked) =>
-                  setSelected(
-                    checked
-                      ? [...selected, item.id]
-                      : selected.filter((id) => id !== item.id),
-                  )
-                }
-              />
-              {item.explanation?.title ?? item.title}
-            </label>
-          ))
-        ) : (
-          <div>
-            <p>先确认缺陷</p>
-            <p className="page-note">
-              修复针对分类为真实的候选，默认采用 AI
-              复核结果，可在复审页调整分类。
-            </p>
-            <Link
-              className="text-action"
-              to="/audits/$auditId"
-              params={{ auditId: run.id }}
-              search={{ stage: "review" }}
-            >
-              前往 AI 复审
-            </Link>
-          </div>
+    <section className="stage-section downstream-workspace">
+      <section
+        className="action-banner result-controls"
+        aria-label="代码修复操作"
+      >
+        <div>
+          <h3>代码修复</h3>
+          <p>
+            勾选真实漏洞生成补丁，点击左侧条目查看对应的修复记录、验证结果和代码
+            Diff。
+          </p>
+        </div>
+        <div className="stage-row">
+          <Button
+            disabled={!modelReady || !targets.length || busy || start.isPending}
+            onClick={() => start.mutate()}
+          >
+            {start.isPending
+              ? "正在提交…"
+              : `生成修复补丁${targets.length ? `（${targets.length} 项）` : ""}`}
+          </Button>
+          <ArrowRight
+            className="repair-flow-arrow"
+            size={18}
+            aria-hidden="true"
+          />
+          <RepairActions
+            key={record?.id ?? "empty"}
+            auditId={run.id}
+            record={record}
+            busy={busy}
+            modelReady={modelReady}
+          />
+        </div>
+        {translate.error && (
+          <p role="alert">中文修复解读生成失败：{translate.error.message}</p>
         )}
-        <VerificationSuitePanel
-          auditId={run.id}
-          targets={selectedConfirmed}
-          suiteId={suiteId}
-          onSelect={setSuiteId}
-          modelReady={modelReady}
-          busy={busy}
-          stages={stages}
-        />
-        <label>
-          允许修改的关联文件（每行一个；源码证据文件自动加入）
-          <textarea
-            className="audit-textarea"
-            value={paths}
-            onChange={(event) => setPaths(event.target.value)}
-          />
-        </label>
-        <Select value={profile} onValueChange={setProfile}>
-          <SelectTrigger aria-label="补丁验证配置">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="syntax">隔离语法检查</SelectItem>
-            {run.language === "python" ? (
-              <SelectItem value="python_pytest">隔离 pytest</SelectItem>
-            ) : (
-              <SelectItem value="javascript_test">隔离 Node.js 测试</SelectItem>
-            )}
-          </SelectContent>
-        </Select>
-        <p className="action-hint">
-          {profile === "syntax"
-            ? "语法检查只检查代码能否解析。要验证正常业务和攻击输入，请准备项目依赖及测试，并选择项目测试。"
-            : "项目测试需要镜像中已有依赖及项目内的测试；平台不会自动安装依赖。请检查测试是否同时覆盖正常输入与攻击输入。"}
+        <p className="page-note">
+          自动读取关联文件，使用平台验证环境、语法检查及 CodeQL 复扫；
+          {suite
+            ? "已匹配固定测试集，新补丁会按该测试集的预期行为修复并执行验证。"
+            : "前后验证使用匹配的固定测试集。"}
         </p>
-        <label className="stage-check" htmlFor={`rescan-${run.id}`}>
-          <Checkbox
-            id={`rescan-${run.id}`}
-            checked={rescan}
-            onCheckedChange={(checked) => setRescan(Boolean(checked))}
-          />
-          执行 CodeQL 复扫
-        </label>
-        {blocked && confirmed.length > 0 ? (
-          <p className="action-hint">{blocked}</p>
-        ) : null}
-        <Button
-          disabled={Boolean(blocked) || start.isPending}
-          onClick={() => start.mutate()}
+        {start.error && <p role="alert">{start.error.message}</p>}
+      </section>
+      {candidates.error || repairs.error ? (
+        <p role="alert">
+          读取失败：{candidates.error?.message ?? repairs.error?.message}
+        </p>
+      ) : candidates.isPending || repairs.isPending ? (
+        <p role="status">正在读取漏洞和修复记录…</p>
+      ) : (
+        <section
+          className="candidate-workspace result-workspace"
+          aria-label="修复结果工作区"
         >
-          生成并验证修复 Diff
-        </Button>
-      </div>
-      {candidates.error ? (
-        <p role="alert">候选读取失败：{candidates.error.message}</p>
-      ) : null}
-      {start.error ? (
-        <p role="alert">修复提交失败：{start.error.message}</p>
-      ) : null}
-      {repairs.error ? <p role="alert">{repairs.error.message}</p> : null}
-      {repairs.data?.map((record) => (
-        <RepairCard
-          key={record.id}
-          record={record}
-          suiteId={suiteId}
-          busy={busy}
-        />
-      ))}
-      <StageHistory stages={stages} />
+          <RepairTargets
+            candidates={confirmed}
+            selected={targets}
+            focused={current?.id}
+            onSelect={setSelected}
+            onFocus={(id) => {
+              setFocused(id)
+              setRecordId("")
+            }}
+            busy={busy}
+            records={records}
+            stages={stages}
+          />
+          <section
+            className="result-detail-scroll"
+            aria-label="修复验证与代码对比"
+            key={current?.id ?? "empty"}
+          >
+            {current ? (
+              <>
+                <header className="result-detail-heading">
+                  <h3>{current.review?.detail?.title ?? current.title}</h3>
+                  <p>
+                    {current.location.file}:{current.location.line} ·{" "}
+                    {current.weakness}
+                  </p>
+                  <RepairProgressBadges
+                    progress={repairProgressState(stages, records, current.id)}
+                  />
+                  {related.length > 1 && (
+                    <label>
+                      修复记录{" "}
+                      <select
+                        className="native-select"
+                        aria-label="查看修复记录"
+                        value={record?.id ?? ""}
+                        onChange={(e) => setRecordId(e.target.value)}
+                      >
+                        {related.map((row, i) => (
+                          <option value={row.id} key={row.id}>
+                            {i === 0 ? "最新尝试" : "历史尝试"} ·{" "}
+                            {row.id.slice(0, 8)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                </header>
+                {record ? (
+                  <>
+                    <p className="page-note">
+                      本补丁关联 {record.candidate_ids.length}{" "}
+                      个修复目标，下方展示完整补丁及实际验证范围。
+                    </p>
+                    <RepairCard
+                      key={record.id}
+                      record={record}
+                      auditId={run.id}
+                    />
+                  </>
+                ) : (
+                  <div className="downstream-empty">
+                    <h4>该漏洞尚未生成补丁</h4>
+                    <p>勾选左侧目标后，使用上方“生成修复补丁”开始修复。</p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="downstream-empty">
+                <h4>暂无可修复的真实漏洞</h4>
+                <p>先在 AI 复审中确认漏洞分类。</p>
+              </div>
+            )}
+          </section>
+        </section>
+      )}
+      <details className="downstream-disclosure">
+        <summary>后台执行历史</summary>
+        <StageHistory stages={stages} />
+      </details>
     </section>
   )
 }

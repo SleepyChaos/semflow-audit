@@ -77,7 +77,7 @@ def test_api_default_repair3_generates_and_validates_isolated_patch(
     )
     assert response.status_code == 201
     stage = response.json()
-    assert stage["prompt_version"] == "3"
+    assert stage["prompt_version"] == "4"
     assert StageRepository().claim(stage["id"])
 
     class ContractModel(RepairModel):

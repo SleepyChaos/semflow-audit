@@ -27,5 +27,13 @@ export function currentReviewCandidates(candidates: Candidate[]) {
     if (!previous || candidate.review || !previous.review)
       byIdentity.set(key, candidate)
   }
-  return [...byIdentity.values()]
+  const priority: Record<string, number> = {
+    supported: 0,
+    insufficient: 1,
+    neutral: 1,
+    excluded: 2,
+  }
+  return [...byIdentity.values()].sort(
+    (a, b) => priority[reviewVerdict(a).tone] - priority[reviewVerdict(b).tone],
+  )
 }

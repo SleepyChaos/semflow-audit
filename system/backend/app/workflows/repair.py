@@ -22,7 +22,7 @@ class RepairState(TypedDict, total=False):
 
 
 def build_repair_graph(service: RepairService, checkpointer=None):
-    if service.stage.prompt_version in {"2", "3"}:
+    if service.stage.prompt_version in {"2", "3", "4"}:
         return build_semantic_repair_graph(service, checkpointer)
     graph = StateGraph(RepairState)
     for name, operation in {

@@ -113,3 +113,42 @@
   cursor: pointer;
   font-size: 13px;
 }
+.review-flow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.review-footer {
+  display: grid;
+  gap: 12px;
+}
+.review-completion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+}
+.review-completion span {
+  color: var(--muted-foreground);
+}
+.review-footer .stage-history {
+  border-top: 0;
+  padding-top: 0;
+}
+.review-footer-disclosure {
+  border-top: 1px solid var(--border);
+  padding-top: 4px;
+}
+@media (max-width: 700px) {
+  .review-flow-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

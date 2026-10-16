@@ -20,6 +20,17 @@ router = APIRouter(tags=["stages"])
 
 @router.post("/audits/{identifier}/localize-candidates")
 def localize(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    return enqueue_localization(identifier, session, workspace, localization_inputs)
+
+
+@router.post("/audits/{identifier}/localize-repairs")
+def localize_repairs(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    from app.services.repair_localization import localization_inputs as repair_inputs
+
+    return enqueue_localization(identifier, session, workspace, repair_inputs)
+
+
+def enqueue_localization(identifier, session, workspace, collect_inputs):
     owned_run(identifier, session, workspace)
     audit = session.exec(
         select(AuditRun).where(AuditRun.id == identifier).with_for_update()
@@ -33,7 +44,7 @@ def localize(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
     ).first()
     if active:
         return active
-    inputs = localization_inputs(audit, session)
+    inputs = collect_inputs(audit, session)
     if not inputs["fields"]:
         session.commit()
         return {"status": "completed"}

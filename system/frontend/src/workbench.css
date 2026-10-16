@@ -8,3 +8,8 @@
 @import "./styles/knowledge.css";
 @import "./styles/controls.css";
 @import "./styles/explanations.css";
+@import "./styles/downstream.css";
+@import "./styles/repair-diff.css";
+@import "./styles/task-stage.css";
+@import "./styles/report.css";
+@import "./styles/result-workspace.css";

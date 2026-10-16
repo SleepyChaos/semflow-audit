@@ -60,9 +60,16 @@ export function getTaskAction(
       stage:
         active.kind === "rule"
           ? "rules"
-          : active.kind === "repair"
+          : [
+                "repair",
+                "verification",
+                "verification_suite",
+                "verification_acceptance",
+              ].includes(active.kind)
             ? "repair"
-            : "review",
+            : active.kind === "report"
+              ? "report"
+              : "review",
       reason: "当前阶段仍在执行或等待人工确认",
     }
   if (
@@ -96,7 +103,7 @@ export function getTaskAction(
     }
   if (summary.confirmed)
     return {
-      label: "修复与导出",
+      label: "选择漏洞修复",
       stage: "repair",
       reason: `已分类为真实的缺陷 ${summary.confirmed} 个`,
     }

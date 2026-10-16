@@ -151,7 +151,7 @@ def test_reports_batch_large_candidate_sets_without_omitting_any_ids():
     assert [row["id"] for batch in batches for row in batch["candidates"]] == [
         str(i) for i in range(41)
     ]
-    assert all(len(batch["candidates"]) <= 8 for batch in batches)
+    assert all(len(batch["candidates"]) <= 4 for batch in batches)
 
 
 def test_source_literals_and_connection_credentials_are_redacted():
@@ -181,6 +181,11 @@ def test_batched_generation_includes_every_candidate_in_final_ai_narrative(tmp_p
         def generate(self, purpose, payload, schema):
             calls.append(payload)
             narrative = response().model_dump()
+            narrative["overview"] = (
+                "独立的全项目审计结论，不重复分批说明。"
+                if payload["batch"]["scope"] == "global"
+                else "仅对当前批次的漏洞进行说明。"
+            )
             narrative["issues"] = [
                 {**narrative["issues"][0], "candidate_id": row["id"]}
                 for row in payload["candidates"]
@@ -202,7 +207,8 @@ def test_batched_generation_includes_every_candidate_in_final_ai_narrative(tmp_p
     result = service.generate(
         {"source_fingerprint": fingerprint, "material_fingerprint": fingerprint}
     )
-    assert len(calls) == 6
+    assert len(calls) == 12
+    assert result["narrative"]["overview"] == "独立的全项目审计结论，不重复分批说明。"
     assert [issue["candidate_id"] for issue in result["narrative"]["issues"]] == [
         str(i) for i in range(41)
     ]
@@ -210,6 +216,7 @@ def test_batched_generation_includes_every_candidate_in_final_ai_narrative(tmp_p
 
 def test_flask_config_literals_are_redacted_and_current_judgments_are_retained():
     from app.services.report_materials import redact, report_batches
+    from app.services.report_overview import overview_material
 
     for text in [
         "app.secret_key = 'SYNTHETIC_FLASK_SECRET'",
@@ -230,9 +237,10 @@ def test_flask_config_literals_are_redacted_and_current_judgments_are_retained()
         }
     }
     batch = report_batches(data)[0]
+    overview = overview_material(data)
     assert {row["candidate_id"] for row in batch["decisions"]} == {"one", "two"}
-    assert batch["coverage"]["dual_engine"]["codeql"]["status"] == "failed"
-    assert batch["coverage"]["dual_engine"]["scout"]["uninspected_windows"] == 4
+    assert overview["coverage"]["dual_engine"]["codeql"]["status"] == "failed"
+    assert overview["coverage"]["dual_engine"]["scout"]["uninspected_windows"] == 4
 
 
 def test_private_fingerprint_detects_secret_changes_without_sending_them():
@@ -242,3 +250,174 @@ def test_private_fingerprint_detects_secret_changes_without_sending_them():
     data["repairs"][0]["changes"][0]["new_text"] = "password='SYNTHETIC_NEW'"
     assert source_fingerprint(data) != before
     assert "SYNTHETIC_NEW" not in str(report_source(data))
+
+
+def test_repair_history_does_not_multiply_issue_batches_or_hide_failed_checks():
+    from copy import deepcopy
+
+    from app.services.report_materials import report_batches
+    from app.services.report_overview import overview_material
+
+    data = report_source(source())
+    data["candidates"] = [{**data["candidates"][0], "id": str(i)} for i in range(17)]
+    expected = report_batches(data)
+    data["repairs"] = [
+        {
+            "id": str(i),
+            "status": "needs_review",
+            "candidate_ids": ["0"],
+            "changes": [
+                {
+                    "file": "app.py",
+                    "old_text": "old line" * 10000,
+                    "new_text": "new line" * 10000,
+                    "reason": "需要修复输出编码",
+                }
+            ],
+            "validation": {
+                "application": {"status": "failed", "output": "旧文本匹配失败"}
+            },
+        }
+        for i in range(3)
+    ]
+    data["verification"] = [{"repair_id": "0", "comparison": {"status": "missing"}}]
+    before = deepcopy(data)
+    assert report_batches(data) == expected
+    overview = overview_material(data)
+    assert len(overview["review_summary"]) == 17
+    assert overview["required_candidate_ids"] == []
+    assert len(overview["repairs"]) == 3
+    assert all(
+        row["validation"]["application"]["status"] == "failed"
+        for row in overview["repairs"]
+    )
+    assert overview["verification"][0]["comparison"]["status"] == "missing"
+    assert all("new_text" not in row["changes"][0] for row in overview["repairs"])
+    assert data == before
+
+
+def test_review_details_and_uncertainty_reach_report_batches_and_freshness():
+    from app.services.report_materials import report_batches
+
+    data = source()
+    detail = {
+        "title": "本项目的输出风险",
+        "description": "函数将输入直接返回",
+        "impact": "响应类型仍待核实",
+        "exploitation": {
+            "example": "synthetic request",
+            "execution_status": "not_executed",
+        },
+        "evidence_ids": ["source"],
+    }
+    data["candidates"][0]["review"] = {"status": "insufficient", "detail": detail}
+    data["candidates"][0]["classification"] = {"status": "insufficient", "source": "ai"}
+    assessment = {
+        "candidate_id": "one",
+        "assessment": "insufficient",
+        "detail": detail,
+        "missing_premises": ["响应类型"],
+        "runtime_unknowns": ["部署环境"],
+    }
+    data["stages"] = [
+        {
+            "id": "review-stage",
+            "kind": "review",
+            "status": "completed",
+            "result": {
+                "batches": [{"assessments": [assessment]}],
+                "unreviewed_candidate_ids": ["unchecked"],
+                "root_relations": [
+                    {"candidate_ids": ["one", "unchecked"], "relationship": "possible"}
+                ],
+            },
+        }
+    ]
+    batch = report_batches(report_source(data))[0]
+    assert batch["candidates"][0]["classification"]["status"] == "insufficient"
+    assert (
+        batch["assessments"][0]["detail"]["exploitation"]["execution_status"]
+        == "not_executed"
+    )
+    assert batch["assessments"][0]["runtime_unknowns"] == ["部署环境"]
+    assert batch["review_context"][0]["unreviewed_candidate_ids"] == ["unchecked"]
+    assert batch["review_context"][0]["root_relations"][0]["relationship"] == "possible"
+    before = source_fingerprint(data)
+    detail["exploitation"]["example"] = "changed synthetic request"
+    assert source_fingerprint(data) != before
+
+
+def test_report_batches_do_not_duplicate_review_narratives_or_omit_current_evidence():
+    from copy import deepcopy
+
+    from app.services.report_materials import report_batches
+
+    data = report_source(source())
+    detail = {
+        "description": "中文复审说明，输入输出均需核实。" * 120,
+        "exploitation": {
+            "example": "仅演示，未执行",
+            "execution_status": "not_executed",
+        },
+    }
+    data["candidates"] = [
+        {
+            **deepcopy(data["candidates"][0]),
+            "id": str(i),
+            "review": {
+                "stage_id": "current",
+                "status": "insufficient",
+                "detail": detail,
+            },
+            "classification": {"status": "insufficient", "source": "human"},
+        }
+        for i in range(17)
+    ]
+    data["assessments"] = [
+        {
+            "candidate_id": str(i),
+            "detail": detail,
+            "missing_premises": ["真实响应类型尚未知"],
+        }
+        for i in range(17)
+    ]
+    data["review_context"] = [
+        {
+            "stage_id": "old",
+            "root_relations": [
+                {"candidate_ids": ["old-id"], "reason": "历史记录" * 500}
+            ],
+        },
+        {"stage_id": "current", "unreviewed_candidate_ids": [], "root_relations": []},
+    ]
+    data["evidence"][0]["content"] = "完整源码仍保留在冻结材料和导出报告。" * 300
+    before = deepcopy(data)
+    batches = report_batches(data)
+    assert [row["id"] for batch in batches for row in batch["candidates"]] == [
+        str(i) for i in range(17)
+    ]
+    assert len(batches) == 5
+    for batch in batches:
+        assert batch["required_candidate_ids"] == [
+            row["id"] for row in batch["candidates"]
+        ]
+        assert all("detail" not in row["review"] for row in batch["candidates"])
+        assert all(
+            row["detail"]["exploitation"]["execution_status"] == "not_executed"
+            for row in batch["assessments"]
+        )
+        assert all(
+            row["missing_premises"] == ["真实响应类型尚未知"]
+            for row in batch["assessments"]
+        )
+        assert all(
+            ids == ["source"] for ids in batch["issue_evidence_binding"].values()
+        )
+        assert {row["id"] for row in batch["evidence"]} == {"source"}
+        assert "材料已节选" in batch["evidence"][0]["content"]
+        assert len(batch["evidence"][0]["content"]) < 700
+        assert all(row["stage_id"] == "current" for row in batch["review_context"])
+    assert data == before
+    before = source_fingerprint(data)
+    data["candidates"][0]["classification"] = {"status": "excluded", "source": "human"}
+    assert source_fingerprint(data) != before

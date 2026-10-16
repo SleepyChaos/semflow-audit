@@ -3,10 +3,9 @@ import { toast } from "sonner"
 import type { AuditRun } from "@/api/audits"
 import { getCandidates, type StageRun, startStage } from "@/api/stages"
 import { Button } from "@/components/ui/button"
-import { StageHistory } from "@/features/stages/StageHistory"
 import { CandidateWorkspace } from "./CandidateWorkspace"
-import { DiscoveryCoverage } from "./DiscoveryCoverage"
 import { ReviewControls } from "./ReviewControls"
+import { ReviewDetails } from "./ReviewDetails"
 export function ReviewPanel({
   run,
   stages,
@@ -87,56 +86,11 @@ export function ReviewPanel({
           重新读取候选与证据
         </Button>
       )}{" "}
-      <details>
-        <summary>扫描与粗筛覆盖详情</summary>
-        <DiscoveryCoverage run={run} stages={stages} />
-      </details>
-      <details>
-        <summary>全部原始候选记录与复核历史（未删除或按根因合并）</summary>
-        <pre className="source-code">
-          {JSON.stringify(candidates.data ?? [], null, 2)}
-        </pre>
-      </details>
-      <details>
-        <summary>锚点评价与未评估范围（不计为新增漏洞）</summary>
-        {stages
-          .filter((item) => item.kind === "review")
-          .map((item) => (
-            <pre className="source-code" key={item.id}>
-              {JSON.stringify(
-                {
-                  stage: item.id,
-                  assessments: item.result.anchor_assessments ?? [],
-                  unreviewed: item.result.unreviewed_anchor_ids ?? [],
-                },
-                null,
-                2,
-              )}
-            </pre>
-          ))}
-      </details>
-      <details>
-        <summary>复核前提、未评估候选与根因关联建议</summary>
-        {stages
-          .filter((item) => item.kind === "review")
-          .map((item) => (
-            <pre className="source-code" key={item.id}>
-              {JSON.stringify(
-                {
-                  stage: item.id,
-                  coverage: item.result.coverage_status,
-                  batches: item.result.batches,
-                  root_relations: item.result.root_relations,
-                  unreviewed: item.result.unreviewed_candidate_ids,
-                },
-                null,
-                2,
-              )}
-            </pre>
-          ))}
-        <p>关联建议保留全部候选与触发路径，不自动减少已确认数量。</p>
-      </details>
-      <StageHistory stages={stages} />
+      <ReviewDetails
+        run={run}
+        stages={stages}
+        candidates={candidates.data ?? []}
+      />
     </section>
   )
 }

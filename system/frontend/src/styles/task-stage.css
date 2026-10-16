@@ -1,0 +1,38 @@
+.task-stage-strip {
+  min-height: 104px;
+  flex-wrap: nowrap;
+  gap: 24px;
+}
+.task-stage-status {
+  flex: 1;
+  min-width: 0;
+}
+.task-stage-status > strong {
+  display: block;
+  margin: 0 0 5px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.task-stage-status > p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+.task-stage-strip .task-summary-action {
+  flex-shrink: 0;
+}
+.scan-execution-actions {
+  margin-bottom: 16px;
+}
+@media (max-width: 700px) {
+  .task-stage-strip {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .task-stage-strip .task-summary-action {
+    width: 100%;
+    margin-left: 0;
+  }
+}

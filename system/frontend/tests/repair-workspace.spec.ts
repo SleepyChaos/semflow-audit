@@ -4,14 +4,16 @@ import { candidate, mockAuditApi } from "./fixtures/audit-api"
 test("仅待确认候选可导出报告，但必须先确认再修复", async ({ page }) => {
   await mockAuditApi(page)
   await page.goto("/audits/task-1?stage=repair")
+  await page.getByRole("link", { name: "审计报告", exact: true }).click()
   await expect(
     page.getByRole("button", { name: "导出 Markdown 报告" }),
   ).toBeEnabled()
+  await page.goto("/audits/task-1?stage=repair")
   await expect(
-    page.getByRole("button", { name: "生成并验证修复 Diff" }),
+    page.getByRole("button", { name: "生成修复补丁" }),
   ).toBeDisabled()
-  await expect(page.getByText("先确认缺陷")).toBeVisible()
-  await page.getByRole("link", { name: "前往 AI 复审" }).click()
+  await expect(page.getByText("还没有可修复的真实漏洞")).toBeVisible()
+  await page.getByRole("link", { name: "查看复核结果" }).click()
   await expect(page).toHaveURL(/stage=review/)
 })
 test("选择确认候选发送隔离验证选项和 ID", async ({ page }) => {
@@ -22,11 +24,11 @@ test("选择确认候选发送隔离验证选项和 ID", async ({ page }) => {
   await page
     .getByRole("checkbox", { name: candidate.title, exact: true })
     .check()
-  await expect(page.getByText("已选择 1 个已确认缺陷")).toBeVisible()
+  await expect(page.getByText("已选 1 / 1", { exact: true })).toBeVisible()
   const sent = page.waitForRequest(
     (r) => r.url().endsWith("/task-1/repair") && r.method() === "POST",
   )
-  await page.getByRole("button", { name: "生成并验证修复 Diff" }).click()
+  await page.getByRole("button", { name: "生成修复补丁" }).click()
   expect((await sent).postDataJSON()).toEqual({
     candidate_ids: ["candidate-1"],
     allowed_paths: [],
@@ -59,8 +61,10 @@ test("报告未生成补丁即可下载；接受失败保留审阅理由", async
   })
   await page.goto("/audits/task-1?stage=repair")
   const report = page.waitForEvent("download")
+  await page.getByRole("link", { name: "审计报告", exact: true }).click()
   await page.getByRole("button", { name: "导出 JSON 报告" }).click()
   expect((await report).suggestedFilename()).toBe("task-1-report.json")
+  await page.goto("/audits/task-1?stage=repair")
   await page.route("**/repairs/repair-1/accept", (route) =>
     route.fulfill({ status: 409, json: { detail: "验证结果已变化" } }),
   )

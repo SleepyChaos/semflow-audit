@@ -18,6 +18,7 @@ import { auditStages, languageName, normalizeStage } from "./navigation"
 const icons = {
   scan: Search,
   review: FileText,
+  report: FileText,
   repair: Wrench,
   rules: BookOpen,
 }

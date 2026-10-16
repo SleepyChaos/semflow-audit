@@ -22,16 +22,19 @@ export function RepairComparison({
   suiteId,
   busy,
   accepted,
+  readOnly = false,
 }: {
   id: string
   comparison?: Comparison
   suiteId: string
   busy: boolean
   accepted: boolean
+  readOnly?: boolean
 }) {
   const cache = useQueryClient()
   const run = useMutation({
-    mutationFn: () => verifyRepair(id, suiteId),
+    mutationFn: () =>
+      verifyRepair(id, suiteId || comparison?.identity?.suite_id || ""),
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
   })
@@ -108,12 +111,12 @@ export function RepairComparison({
           </pre>
         </details>
       )}
-      {!accepted && (
+      {!accepted && !readOnly && (
         <>
           <Button
             variant="outline"
             disabled={
-              !suiteId ||
+              !(suiteId || comparison?.identity?.suite_id) ||
               busy ||
               run.isPending ||
               ["queued", "running"].includes(status)
@@ -122,7 +125,7 @@ export function RepairComparison({
           >
             运行修复前后对比
           </Button>
-          {!suiteId && (
+          {!suiteId && !comparison?.identity?.suite_id && (
             <p className="page-note">
               先在上方选择覆盖修复目标的项目验收测试集。
             </p>

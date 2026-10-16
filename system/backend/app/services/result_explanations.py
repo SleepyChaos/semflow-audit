@@ -5,7 +5,7 @@ import re
 HUMAN_STATUS = {
     "confirmed": "确认真实",
     "pending": "待复核",
-    "excluded": "人工判断支持排除",
+    "excluded": "确认误报",
     "insufficient": "证据不足，暂不能判断",
 }
 WEAKNESSES = {

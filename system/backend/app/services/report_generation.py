@@ -12,6 +12,7 @@ from app.domain.audit import AuditError
 from app.persistence.audit_repository import AuditRepository
 from app.persistence.stage_repository import StageRepository
 from app.services.report_materials import combine_reports, redact, report_batches
+from app.services.report_overview import overview_material
 
 
 def report_source(report: dict, *, scrub: bool = True) -> dict:
@@ -65,6 +66,9 @@ def report_source(report: dict, *, scrub: bool = True) -> dict:
                     "counterevidence_ids",
                     "runtime_unknowns",
                     "premises",
+                    "weakness",
+                    "security_property",
+                    "detail",
                 )
             }
             for stage in report.get("stages", [])
@@ -72,6 +76,20 @@ def report_source(report: dict, *, scrub: bool = True) -> dict:
             for batch in stage.get("result", {}).get("batches", [])
             for row in batch.get("assessments", [])
             if row.get("candidate_id") in candidate_ids or not candidate_ids
+        ],
+        "review_context": [
+            {
+                "stage_id": row.get("id"),
+                "status": row.get("status"),
+                "coverage_status": row.get("result", {}).get("coverage_status"),
+                "stop_reason": row.get("result", {}).get("stop_reason"),
+                "unreviewed_candidate_ids": row.get("result", {}).get(
+                    "unreviewed_candidate_ids", []
+                ),
+                "root_relations": row.get("result", {}).get("root_relations", []),
+            }
+            for row in report.get("stages", [])
+            if row.get("kind") == "review"
         ],
         "stages": [
             {k: row.get(k) for k in ("id", "kind", "status", "phase", "error")}
@@ -211,18 +229,21 @@ class ReportService:
         if actual != state["material_fingerprint"]:
             raise AuditError("报告冻结材料被修改，不能继续生成", code="integrity_error")
         responses = []
-        batches = report_batches(source)
+        batches = [overview_material(source), *report_batches(source)]
         for index, batch in enumerate(batches):
             self.repository.active(self.stage_id)
             self.repository.update(self.stage_id, phase="write_chinese_report")
             response = self.provider.generate("report", batch, AIReportResponse)
             validate_response(response, batch)
             responses.append(response)
-            (self.directory / f"report-batch-{index + 1}.json").write_text(
+            name = (
+                "report-overview.json" if index == 0 else f"report-batch-{index}.json"
+            )
+            (self.directory / name).write_text(
                 json.dumps(response.model_dump(mode="json"), ensure_ascii=False),
                 encoding="utf-8",
             )
-        return {"narrative": combine_reports(responses)}
+        return {"narrative": combine_reports(responses[1:], responses[0])}
 
     def save(self, state):
         self.repository.active(self.stage_id)

@@ -88,7 +88,7 @@ class SemanticRepair:
 
         acceptance = acceptance_contract(s)
         image_id = None
-        if acceptance and s.stage.prompt_version == "3":
+        if acceptance and s.stage.prompt_version in {"3", "4"}:
             from app.adapters.repair.verification_runner import resolve_image
 
             image_id = resolve_image(acceptance["image"])

@@ -1,4 +1,5 @@
 import type { ValidationCheck } from "@/api/stages"
+import { checkTone } from "@/features/stages/check-state"
 
 export function ValidationSummary({ checks }: { checks: ValidationCheck[] }) {
   return (
@@ -9,7 +10,11 @@ export function ValidationSummary({ checks }: { checks: ValidationCheck[] }) {
       </p>
       <dl>
         {checks.map((check) => (
-          <div className="validation-check" key={check.label}>
+          <div
+            className="validation-check"
+            data-status={checkTone(check.status)}
+            key={check.label}
+          >
             <dt>
               <strong>{check.label}</strong>
               <span>{check.status}</span>

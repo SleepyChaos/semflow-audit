@@ -143,7 +143,7 @@ test("初始阶段列表为空时仍轮询，CodeQL 完成后持续更新 AI 并
   ).toBeDisabled()
   await expect(
     ai.getByRole("button", { name: "进入 AI 复审", exact: true }),
-  ).toBeDisabled()
+  ).toHaveCount(0)
   complete = true
   await expect(ai.getByText("部分完成", { exact: true }).first()).toBeVisible({
     timeout: 10000,
@@ -155,7 +155,7 @@ test("初始阶段列表为空时仍轮询，CodeQL 完成后持续更新 AI 并
   await expect(review).toBeEnabled({ timeout: 10000 })
   await expect(
     ai.getByRole("button", { name: "进入 AI 复审", exact: true }),
-  ).toBeEnabled()
+  ).toHaveCount(0)
   await review.click()
   await expect(page).toHaveURL(/stage=review/)
 })
@@ -237,12 +237,12 @@ test("AI 已结束但 CodeQL 仍在运行时复核入口保持禁用，汇总后
   await expect(review).toBeDisabled()
   await expect(
     page.getByRole("button", { name: "进入 AI 复审", exact: true }),
-  ).toBeDisabled()
+  ).toHaveCount(0)
   scanning = false
   await expect(review).toBeEnabled({ timeout: 10000 })
   await expect(
     page.getByRole("button", { name: "进入 AI 复审", exact: true }),
-  ).toBeEnabled()
+  ).toHaveCount(0)
 })
 
 test("历史静态任务明确标注初审未执行，窄屏不横向溢出", async ({ page }) => {

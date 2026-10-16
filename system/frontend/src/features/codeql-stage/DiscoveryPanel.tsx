@@ -10,7 +10,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -33,16 +32,12 @@ export function DiscoveryPanel({
   stagesPending,
   stagesError,
   onReloadStages,
-  onReview,
-  reviewBlockedReason,
 }: {
   run: AuditRun
   stages: StageRun[]
   stagesPending: boolean
   stagesError: Error | null
   onReloadStages: () => void
-  onReview: () => void
-  reviewBlockedReason: string | null
 }) {
   const [candidateId, setCandidateId] = useState<string | null>(null)
   const scout = currentScout(run, stages)
@@ -256,28 +251,6 @@ export function DiscoveryPanel({
             </>
           )}
         </CardContent>
-        <CardFooter className="discovery-review-action">
-          <Button
-            variant="outline"
-            disabled={Boolean(reviewBlockedReason)}
-            aria-describedby={
-              reviewBlockedReason ? "discovery-review-block-reason" : undefined
-            }
-            onClick={onReview}
-          >
-            进入 AI 复审
-            <ChevronRight data-icon="inline-end" />
-          </Button>
-          {reviewBlockedReason ? (
-            <p
-              id="discovery-review-block-reason"
-              role="status"
-              className="page-note"
-            >
-              {reviewBlockedReason}
-            </p>
-          ) : null}
-        </CardFooter>
       </Card>
     </div>
   )

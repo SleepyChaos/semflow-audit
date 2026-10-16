@@ -1,7 +1,7 @@
 import { apiJson, downloadArtifact } from "./backend"
 import { attachDecisionTimes } from "./candidate-history"
-import type { RepairComparison } from "./verification"
 import type { CandidateReview } from "./review"
+import type { RepairComparison } from "./verification"
 export interface StageRun {
   id: string
   audit_id: string
@@ -73,6 +73,8 @@ export interface Evidence {
   digest: string
 }
 export interface RepairRecord {
+  needs_localization?: boolean
+  localization_pending?: boolean
   comparison?: RepairComparison
   acceptance_ready?: boolean
   validation_summary?: ValidationCheck[]
@@ -124,6 +126,8 @@ export interface AIReportIssue {
 }
 export interface AuditReport {
   candidates: Candidate[]
+  evidence?: Evidence[]
+  summary?: { candidate_states: Record<string, number> }
   ai_report?: {
     status: string
     stage_id?: string | null
@@ -197,6 +201,8 @@ export const addEvidence = (auditId: string, file: string, line: number) =>
   )
 export const getRepairs = (auditId: string) =>
   apiJson<RepairRecord[]>(`/audits/${auditId}/repairs`)
+export const localizeRepairs = (auditId: string) =>
+  post<StageRun>(`/audits/${auditId}/localize-repairs`)
 export const acceptRepair = (
   id: string,
   reason: string,

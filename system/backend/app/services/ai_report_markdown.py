@@ -26,7 +26,7 @@ def narrative_sections(report: dict) -> list[str]:
         sections.extend(
             [
                 f"### {index}. {issue['title']}",
-                f"位置：`{position}`；人工状态：**{HUMAN_STATUS.get(row['status'], row['status'])}**。",
+                f"位置：`{position}`；复审分类：**{HUMAN_STATUS.get(row['status'], row['status'])}**。",
                 f"**这里发生了什么：** {issue['explanation']}",
                 f"**可能造成什么影响：** {issue['impact']}",
                 "**AI 修复建议：**\n\n"

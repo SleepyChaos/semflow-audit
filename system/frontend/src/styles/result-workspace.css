@@ -1,0 +1,229 @@
+.result-controls.action-banner {
+  display: grid;
+  gap: 14px;
+}
+.result-controls .stage-row {
+  margin: 0;
+  align-items: center;
+}
+.result-action-note {
+  flex-basis: 100%;
+  color: var(--muted-foreground);
+}
+.result-inline-setting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.result-inline-setting .native-select {
+  width: auto;
+  max-width: 260px;
+}
+.result-action-review {
+  flex-basis: 100%;
+}
+.result-action-review > summary {
+  padding: 8px 0;
+  cursor: pointer;
+}
+.result-action-review label {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+.task-stage-strip:has(.workflow-steps) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px 24px;
+}
+.task-stage-strip > .workflow-steps {
+  grid-column: 1 / -1;
+  padding: 18px 0 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+}
+.result-workspace {
+  contain: layout paint;
+  height: clamp(600px, 80dvh, 960px);
+  grid-template-columns: minmax(230px, 26%) minmax(0, 1fr);
+  margin: 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.result-rail {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+.result-list,
+.result-detail-scroll {
+  overscroll-behavior-y: contain;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+.repair-flow-arrow {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+}
+.result-detail-scroll {
+  padding: 24px;
+  overflow-wrap: anywhere;
+}
+.result-detail-heading {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+.result-detail-heading h3 {
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 600;
+}
+.result-detail-heading p {
+  color: var(--muted-foreground);
+  margin-top: 6px;
+}
+.result-detail-heading label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 12px;
+}
+.result-detail-heading .native-select {
+  width: auto;
+}
+.result-detail-scroll .repair-result,
+.result-detail-scroll .rule-card {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.repair-target-row {
+  display: flex;
+  align-items: flex-start;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid #e5e2dc;
+}
+.repair-select-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.repair-target-row > [role="checkbox"] {
+  flex-shrink: 0;
+  margin: 20px 0 0 12px;
+}
+.repair-target-row .candidate-option {
+  flex: 1;
+  min-width: 0;
+  border-bottom: 0;
+  border-left: 0;
+}
+.repair-target-row[data-active="true"] {
+  border-left-color: #d66a38;
+  background: #fff;
+}
+.repair-progress-labels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.repair-progress-badge {
+  padding: 3px 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.repair-progress-badge[data-status="done"] {
+  background: #e7f5ee;
+  border-color: #b6d9c8;
+  color: #24674b;
+}
+.repair-progress-badge[data-status="active"] {
+  background: #eef4fb;
+  border-color: #c6d8eb;
+  color: #305f8e;
+}
+.repair-progress-badge[data-status="attention"] {
+  background: #fff5d6;
+  border-color: #e4d297;
+  color: #7f601d;
+}
+.repair-progress-labels .repair-block-reason {
+  flex-basis: 100%;
+  color: #7f601d;
+}
+.result-list .candidate-option {
+  overflow-wrap: anywhere;
+}
+.result-list .candidate-option:hover {
+  background: #eeece6;
+}
+.result-detail-scroll .repair-comparison {
+  margin: 16px 0;
+}
+.result-detail-scroll .validation-summary {
+  margin-top: 18px;
+}
+.result-detail-scroll .repair-diff {
+  margin: 22px 0;
+}
+.result-detail-scroll .repair-diff .downstream-section-heading {
+  padding: 14px;
+}
+.result-detail-scroll .rule-validation-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.result-detail-scroll > details,
+.result-detail-scroll .rule-card > details {
+  margin-top: 16px;
+}
+.result-detail-scroll details > summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  background: #f6f5f2;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+@media (max-width: 1100px) {
+  .result-workspace {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+  .result-detail-scroll {
+    padding: 18px;
+  }
+}
+@media (max-width: 700px) {
+  .task-stage-strip:has(.workflow-steps) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .result-workspace {
+    height: auto;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .result-rail {
+    height: 300px;
+    max-height: none;
+  }
+  .result-detail-scroll {
+    height: 75dvh;
+    min-height: 440px;
+    padding: 14px;
+  }
+  .result-inline-setting {
+    flex-wrap: wrap;
+  }
+}

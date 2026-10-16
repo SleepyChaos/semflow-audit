@@ -43,6 +43,23 @@ def build_report(session: Session, audit: AuditRun) -> dict:
     def dump(rows):
         return [row.model_dump(mode="json") for row in rows]
 
+    from app.services.candidate_classification import classification_view
+    from app.services.candidate_reviews import candidate_review
+
+    by_stage = {row.id: row for row in stages}
+    latest_decisions = {row.candidate_id: row for row in decisions}
+
+    def reviewed_candidate(row):
+        review = candidate_review(row, by_stage, audit.snapshot_hash)
+        return {
+            **row.model_dump(mode="json"),
+            "review": review,
+            "classification": classification_view(
+                row, review, latest_decisions.get(row.id)
+            ),
+            "evidence_ids": review["evidence_ids"] if review else row.evidence_ids,
+        }
+
     # Re-running review must not multiply counts for the same vulnerability instance.
     by_identity = {}
     decision_times = {row.candidate_id: row.created_at for row in decisions}
@@ -127,7 +144,7 @@ def build_report(session: Session, audit: AuditRun) -> dict:
             if stage.kind == "review"
             and stage.prompt_version in {"4", "5", "6", "7", "8", "9", "10", "11", "12"}
         ],
-        "candidates": dump(candidates),
+        "candidates": [reviewed_candidate(row) for row in candidates],
         "decisions": dump(decisions),
         "evidence": dump(evidence),
         "repairs": dump(repairs),

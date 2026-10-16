@@ -21,9 +21,11 @@ export function ReviewControls({
           </p>
           {reason && <p className="action-hint">{reason}</p>}
         </div>
-        <Button disabled={disabled || pending} onClick={onStart}>
-          {pending ? "正在提交…" : "启动统一复核"}
-        </Button>
+        <div className="review-flow-actions">
+          <Button disabled={disabled || pending} onClick={onStart}>
+            {pending ? "正在提交…" : "启动统一复核"}
+          </Button>
+        </div>
       </div>
     </div>
   )
