@@ -91,21 +91,6 @@ export function RepairPanel({
               ? "正在提交…"
               : `生成修复补丁${targets.length ? `（${targets.length} 项）` : ""}`}
           </Button>
-          <Button
-            variant="outline"
-            disabled={busy || !confirmed.length}
-            onClick={() =>
-              setSelected(
-                targets.length === confirmed.length
-                  ? []
-                  : confirmed.map((row) => row.id),
-              )
-            }
-          >
-            {targets.length === confirmed.length && confirmed.length
-              ? "取消全选"
-              : "全选漏洞"}
-          </Button>
           <RepairActions
             key={record?.id ?? "empty"}
             auditId={run.id}

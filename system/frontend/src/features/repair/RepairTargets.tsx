@@ -1,3 +1,4 @@
+import { useId } from "react"
 import type { Candidate, RepairRecord } from "@/api/stages"
 import { Checkbox } from "@/components/ui/checkbox"
 
@@ -18,10 +19,30 @@ export function RepairTargets({
   busy: boolean
   records: RepairRecord[]
 }) {
+  const selectAllId = useId()
   return (
     <aside className="candidate-rail result-rail" aria-label="修复漏洞列表">
       <div className="rail-heading">
-        真实漏洞{" "}
+        <label className="repair-select-all" htmlFor={selectAllId}>
+          <Checkbox
+            id={selectAllId}
+            aria-label="全选漏洞"
+            checked={
+              selected.length === candidates.length && candidates.length > 0
+                ? true
+                : selected.length > 0
+                  ? "indeterminate"
+                  : false
+            }
+            disabled={busy || !candidates.length}
+            onCheckedChange={(checked) =>
+              onSelect(
+                checked === true ? candidates.map((item) => item.id) : [],
+              )
+            }
+          />
+          全选漏洞
+        </label>
         <span>
           已选 {selected.length} / {candidates.length}
         </span>

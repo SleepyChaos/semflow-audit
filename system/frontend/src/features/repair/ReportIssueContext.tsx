@@ -64,8 +64,7 @@ export function ReportIssueContext({
         </details>
       ) : null}
       {sources.length ? (
-        <details>
-          <summary>关联源码与证据（{sources.length}）</summary>
+        <section className="report-source-group" aria-label="关联源码与证据">
           {sources.map((row) => (
             <details key={row.id}>
               <summary>
@@ -77,7 +76,7 @@ export function ReportIssueContext({
               <pre className="source-code">{row.content}</pre>
             </details>
           ))}
-        </details>
+        </section>
       ) : null}
     </div>
   )
