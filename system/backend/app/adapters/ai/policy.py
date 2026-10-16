@@ -26,7 +26,7 @@ def policy_snapshot(kind: str | None = None) -> dict:
         "max_seconds": audit_settings.AI_STAGE_MAX_SECONDS,
         "recovery_attempts": 1,
     }
-    if kind in {"scout", "review"}:
+    if kind in {"scout", "review", "repair"}:
         policy["execution_mode"] = audit_settings.AI_AUDIT_EXECUTION_MODE
         policy["max_no_progress"] = max(1, audit_settings.AI_STAGE_MAX_NO_PROGRESS)
         if policy["execution_mode"] == "progress":

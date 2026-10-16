@@ -45,6 +45,9 @@ def test_progress_keeps_accounting_without_byte_reservation_stop(monkeypatch):
     bounded = {**policy, "max_tokens": 100000}
     with pytest.raises(AuditError, match="tokens="):
         CallBudget(bounded, records).reserve(6000, 60000)
+    assert policy_snapshot("repair")["max_calls"] == 0
+    assert policy_snapshot("rule")["max_calls"] > 0
+    monkeypatch.setattr(audit_settings, "AI_AUDIT_EXECUTION_MODE", "bounded")
     assert policy_snapshot("repair")["max_calls"] > 0
 
 

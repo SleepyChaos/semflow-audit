@@ -38,7 +38,9 @@ def pipeline_context(monkeypatch, tmp_path, request):
         session.commit()
         archive = tmp_path / "test.zip"
         with ZipFile(archive, "w") as bundle:
-            if request.node.get_closest_marker("integration"):
+            if request.node.get_closest_marker("integration") and not hasattr(
+                request, "param"
+            ):
                 from pathlib import Path
 
                 fixtures = Path(__file__).parent / "fixtures/vulnerable"

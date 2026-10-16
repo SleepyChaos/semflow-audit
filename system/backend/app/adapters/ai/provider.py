@@ -86,6 +86,7 @@ class CompatibleModel:
             }
         if (stage.kind, prompt_version) in {
             ("repair", "2"),
+            ("repair", "3"),
             ("rule", "6"),
             ("rule", "7"),
             ("rule", "8"),
@@ -96,6 +97,17 @@ class CompatibleModel:
                     "context_chars": audit_settings.SEMANTIC_CONTEXT_CHARS,
                     "tool_limit": audit_settings.SEMANTIC_TOOL_LIMIT,
                     "repair_attempts": audit_settings.REPAIR_ATTEMPTS,
+                    **(
+                        {
+                            "repair_context_max_chars": audit_settings.SEMANTIC_REPAIR_MAX_CONTEXT_CHARS,
+                            "repair_call_limit": (
+                                audit_settings.SEMANTIC_TOOL_LIMIT + 4
+                            )
+                            * audit_settings.REPAIR_ATTEMPTS,
+                        }
+                        if stage.kind == "repair" and prompt_version == "3"
+                        else {}
+                    ),
                 },
             }
         version = prompt_version

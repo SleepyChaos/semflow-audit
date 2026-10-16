@@ -70,7 +70,28 @@ def parse_results(xml, exit_code, suite):
                 if is_assertion_failure(failure, suite.language)
                 else "error"
             )
-        cases[name] = {"status": status, "output": output[-4000:]}
+        message = "" if detail is None else detail.get("message", "").strip()
+        exception = re.match(r"^([A-Za-z_][A-Za-z_0-9.]*)(?=:|$)", message)
+        locations = re.findall(
+            r"(?m)^([^\s].*?\.py):([0-9]+): ([A-Za-z_][\w.]*)\s*$",
+            "" if detail is None else detail.text or "",
+        )
+        location = next(
+            (
+                row
+                for row in reversed(locations)
+                if exception and row[2] == exception.group(1)
+            ),
+            None,
+        )
+        cases[name] = {
+            "exception_file": location[0] if location else None,
+            "exception_line": int(location[1]) if location else None,
+            "status": status,
+            "output": output[-4000:],
+            "exception_type": exception.group(1) if exception else None,
+            "exception_message": message[:500],
+        }
     expected = {case.name for case in suite.cases}
     complete = not duplicate and set(cases) == expected and exit_code in {0, 1}
     if exit_code == 0 and any(row["status"] != "passed" for row in cases.values()):
