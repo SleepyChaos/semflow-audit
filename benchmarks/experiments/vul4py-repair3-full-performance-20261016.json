@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "cwd": "/Users/chaos/Documents/GitHub/semflow-audit",
+  "env": {
+    "PYTHONPATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-repair3-full-performance-v1/implementation/system/backend:/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-repair3-full-performance-v1/implementation/system:/Users/chaos/Documents/GitHub/semflow-audit/system",
+    "ARTIFACT_ROOT": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts",
+    "CODEQL_PACK_PATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/packs",
+    "SCAN_TIMEOUT": "120"
+  },
+  "steps": [
+    {
+      "id": "freeze",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_followup_prepare",
+        "--origin",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261013-full-v1",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-repair3-full-performance-v1"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "repair-config",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_repair",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-repair3-full-performance-v1",
+        "--initialize-only",
+        "--prompt-version",
+        "3",
+        "--generate-uncalibrated"
+      ],
+      "timeout_seconds": 120,
+      "depends_on": [
+        "freeze"
+      ]
+    },
+    {
+      "id": "full-repair-performance",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_performance",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-repair3-full-performance-v1"
+      ],
+      "timeout_seconds": 604800,
+      "depends_on": [
+        "repair-config"
+      ]
+    }
+  ]
+}

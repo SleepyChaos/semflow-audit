@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "cwd": "/Users/chaos/Documents/GitHub/semflow-audit",
+  "env": {
+    "PYTHONPATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/cqllm/20261015-full-v1/implementation/system/backend:/Users/chaos/Documents/GitHub/semflow-audit/system",
+    "ARTIFACT_ROOT": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts",
+    "CODEQL_PACK_PATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/packs",
+    "SCAN_TIMEOUT": "120"
+  },
+  "steps": [
+    {
+      "id": "no-rag-prompt-pilot",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.cqllm_prompt_pilot",
+        "--origin",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/cqllm/20261015-full-v1",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/cqllm/20261015-prompt-v2-pilot",
+        "--count",
+        "12"
+      ],
+      "timeout_seconds": 7200
+    }
+  ]
+}

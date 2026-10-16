@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "cwd": "/Users/chaos/Documents/GitHub/semflow-audit",
+  "lock_path": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/pipeline/20261015-cqllm-to-vul4py-v1/controller.lock",
+  "env": {
+    "PYTHONPATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2/implementation/system/backend:/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2/implementation/system:/Users/chaos/Documents/GitHub/semflow-audit/system",
+    "ARTIFACT_ROOT": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts",
+    "CODEQL_PACK_PATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/packs",
+    "SCAN_TIMEOUT": "120"
+  },
+  "steps": [
+    {
+      "id": "freeze-vul4py",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_followup_prepare",
+        "--origin",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261013-full-v1",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2"
+      ],
+      "timeout_seconds": 900,
+      "depends_on": []
+    },
+    {
+      "id": "wait-cqllm",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.pipeline_wait",
+        "--upstream",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/pipeline/20261015-cqllm-v1",
+        "--receipt",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/pipeline/20261015-cqllm-to-vul4py-v1/upstream-observation.json"
+      ],
+      "timeout_seconds": 172800,
+      "depends_on": [
+        "freeze-vul4py"
+      ]
+    },
+    {
+      "id": "cqllm-report",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.cqllm_results",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/cqllm/20261015-full-v1",
+        "--report",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/cqllm/20261015-full-v1/reports/final"
+      ],
+      "timeout_seconds": 300,
+      "depends_on": [
+        "wait-cqllm"
+      ]
+    },
+    {
+      "id": "repair-config",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_repair",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2",
+        "--initialize-only"
+      ],
+      "timeout_seconds": 120,
+      "depends_on": [
+        "cqllm-report"
+      ]
+    },
+    {
+      "id": "repair-only",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_pipeline",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2"
+      ],
+      "timeout_seconds": 86400,
+      "depends_on": [
+        "repair-config"
+      ]
+    },
+    {
+      "id": "prepare-e2e",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_e2e_prepare",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2"
+      ],
+      "timeout_seconds": 1800,
+      "depends_on": [
+        "repair-only"
+      ]
+    },
+    {
+      "id": "preflight",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.full_test_preflight",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2"
+      ],
+      "timeout_seconds": 120,
+      "depends_on": [
+        "prepare-e2e"
+      ]
+    },
+    {
+      "id": "repair-gate",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.full_test_gate",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2",
+        "--phase",
+        "repair"
+      ],
+      "timeout_seconds": 120,
+      "depends_on": [
+        "preflight"
+      ]
+    },
+    {
+      "id": "e2e",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_e2e",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2",
+        "--isolate-project-failures"
+      ],
+      "timeout_seconds": 172800,
+      "depends_on": [
+        "repair-gate"
+      ]
+    },
+    {
+      "id": "e2e-gate",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.full_test_gate",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2",
+        "--phase",
+        "e2e"
+      ],
+      "timeout_seconds": 120,
+      "depends_on": [
+        "e2e"
+      ]
+    },
+    {
+      "id": "reconcile",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.full_test_progress",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2",
+        "--save",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-fixed-v2/progress-final.json"
+      ],
+      "timeout_seconds": 120,
+      "depends_on": [
+        "e2e-gate"
+      ]
+    }
+  ]
+}

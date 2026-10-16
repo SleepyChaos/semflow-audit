@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "cwd": "/Users/chaos/Documents/GitHub/semflow-audit",
+  "env": {
+    "PYTHONPATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-repair3-r14-selected-suite/implementation/system/backend:/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-repair3-r14-selected-suite/implementation/system",
+    "ARTIFACT_ROOT": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts",
+    "CODEQL_PACK_PATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/packs",
+    "SCAN_TIMEOUT": "120"
+  },
+  "steps": [
+    {
+      "id": "repair3-r14-selected-suite",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.repair_iteration",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-repair3-r14-selected-suite"
+      ],
+      "timeout_seconds": 7200
+    }
+  ]
+}
