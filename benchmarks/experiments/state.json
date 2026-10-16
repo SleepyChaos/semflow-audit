@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "2026-10-05-v1",
-  "updated_at": "2026-10-09",
-  "execution_status": "owasp48_frozen_acceptance_and_comparison_complete",
+  "updated_at": "2026-10-16",
+  "execution_status": "vul4py_full_repair_performance_completed",
   "active_phase": "P1",
   "active_task": "E02",
   "completed": [
@@ -36,9 +36,14 @@
     }
   ],
   "next_action": {
-    "task": "CHAIN-COMPLETION-20261009-RESUME",
-    "instruction": "自动审批服务恢复后，读取链路报告和v3冻结配置，从v2已完成上传ID恢复；先证据确认/Repair2/隐藏联合测试，再知识索引/Rule8批准holdout发布再用，报告/隔离/停用及自己的测试数据清理。不得绕过审核、消费默认队列或把未评估记通过。",
-    "source": "docs/research/chain-completion-20261009-results.md"
+    "task": "VUL4PY-FULL-REPAIR-PERFORMANCE-20261016",
+    "status": "completed",
+    "root": "artifacts/research/vul4py/20261016-repair3-full-performance-v1",
+    "pipeline": "artifacts/research/pipeline/20261016-repair3-full-performance-v1",
+    "plan": "benchmarks/experiments/vul4py-repair3-full-performance-20261016.json",
+    "instruction": "100/100已结束，北京时间15:01:51完成，约76分钟。91实际模型阶段，42未校准候选/12已评分/46失败；联合1项。823调用，输入8873416输出479883；P50 25.04/P95 88.89/最大100.84秒(含失败阶段)。没有运行中的全量任务；发现端到端尚未启动，本表不含该阶段。",
+    "report": "benchmarks/reports/vul4py-repair3-full-performance-20261016.md",
+    "portable_report": "artifacts/research/reports/Vul4Py全量修复测试完整报告-20261016.html"
   },
   "current_batch": "20261005-calibration-v1",
   "experiment_id": "20261005-calibration-v1",
@@ -1905,5 +1910,494 @@
     "prepared_resume": "../../artifacts/research/chain-completion/20261009-v3/config.json",
     "cleanup": "own_services_stopped_test_accounts_retained_for_resume",
     "blocker": "automatic_approval_service_usage_limit_not_safety_rejection"
+  },
+  "prior_next_actions": [
+    {
+      "task": "CHAIN-COMPLETION-20261009-RESUME",
+      "instruction": "自动审批服务恢复后，读取链路报告和v3冻结配置，从v2已完成上传ID恢复；先证据确认/Repair2/隐藏联合测试，再知识索引/Rule8批准holdout发布再用，报告/隔离/停用及自己的测试数据清理。不得绕过审核、消费默认队列或把未评估记通过。",
+      "source": "docs/research/chain-completion-20261009-results.md"
+    }
+  ],
+  "full_test_followup_20261013": {
+    "status": "resumed_infrastructure_recovery_required",
+    "plan": "vul4py-cqllm-full-test-plan.md",
+    "modules": [
+      "vul4py_security_repair",
+      "cqllm_codeql_generation"
+    ],
+    "reference_document": "数据集对比.docx",
+    "realvuln_report": "../reports/realvuln-20261013-final-capability.md",
+    "output": "artifacts/research/vul4py/20261013-full-v1",
+    "execution_order": [
+      "cqllm_full_component_generation_596",
+      "vul4py_remediation_parallel",
+      "vul4py_remaining_e2e_after_remediation",
+      "archive_github_release_assets"
+    ],
+    "end_to_end_inputs": {
+      "frozen": 100,
+      "prepared": 95,
+      "input_failed": 5,
+      "reason": "production snapshot rejects source symlinks"
+    },
+    "end_to_end_model_execution_started": false,
+    "latest_observed_partial_progress": {
+      "observed_at": "2026-10-15T05:13:45.416426+00:00",
+      "output": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261013-full-v1",
+      "calibration": {
+        "expected": 100,
+        "records": 100,
+        "all_have_receipts": true,
+        "statuses": {
+          "oracle_not_calibrated": 72,
+          "accepted": 15,
+          "environment_failed": 13
+        },
+        "missing": [],
+        "invalid": [],
+        "unexpected": [],
+        "accepted": 15
+      },
+      "known_location_repair": {
+        "expected": 100,
+        "records": 100,
+        "all_have_receipts": true,
+        "statuses": {
+          "not_evaluated": 85,
+          "evaluated": 2,
+          "repair_failed": 13
+        },
+        "missing": [],
+        "invalid": [],
+        "unexpected": [],
+        "actual_stages": 14,
+        "patches_evaluated": 2,
+        "joint_pass": 1,
+        "failure_reasons": {
+          "语义取证重复停滞，需明确缺失事实": 7,
+          "必要修改代码超过上下文预算，请减少目标或文件": 3,
+          "关键上下文超过预算，需缩小目标；未截断原文": 2,
+          "快照包含不允许的符号链接": 1
+        },
+        "recovery_required": {
+          "provider_interrupted": [],
+          "integrity_guard": []
+        },
+        "ready_for_e2e": true
+      },
+      "implementation_integrity": {
+        "matches": true,
+        "files": 201,
+        "added": [],
+        "missing": [],
+        "changed": []
+      },
+      "end_to_end": {
+        "expected": 100,
+        "records": 8,
+        "all_have_receipts": false,
+        "statuses": {
+          "completed": 1,
+          "partial": 5,
+          "provider_interrupted": 1,
+          "input_failed": 1
+        },
+        "missing": [
+          "case-008",
+          "case-009",
+          "case-011",
+          "case-012",
+          "case-013",
+          "case-014",
+          "case-015",
+          "case-016",
+          "case-017",
+          "case-018",
+          "case-019",
+          "case-020",
+          "case-021",
+          "case-022",
+          "case-023",
+          "case-024",
+          "case-025",
+          "case-026",
+          "case-027",
+          "case-028",
+          "case-029",
+          "case-030",
+          "case-031",
+          "case-032",
+          "case-033",
+          "case-034",
+          "case-035",
+          "case-036",
+          "case-037",
+          "case-038",
+          "case-039",
+          "case-040",
+          "case-041",
+          "case-042",
+          "case-043",
+          "case-044",
+          "case-045",
+          "case-046",
+          "case-047",
+          "case-048",
+          "case-049",
+          "case-050",
+          "case-051",
+          "case-052",
+          "case-053",
+          "case-054",
+          "case-055",
+          "case-056",
+          "case-057",
+          "case-058",
+          "case-059",
+          "case-060",
+          "case-061",
+          "case-062",
+          "case-063",
+          "case-064",
+          "case-065",
+          "case-066",
+          "case-067",
+          "case-068",
+          "case-069",
+          "case-070",
+          "case-071",
+          "case-072",
+          "case-073",
+          "case-074",
+          "case-075",
+          "case-076",
+          "case-077",
+          "case-078",
+          "case-079",
+          "case-080",
+          "case-081",
+          "case-082",
+          "case-083",
+          "case-084",
+          "case-085",
+          "case-086",
+          "case-087",
+          "case-088",
+          "case-089",
+          "case-090",
+          "case-091",
+          "case-092",
+          "case-093",
+          "case-094",
+          "case-095",
+          "case-096",
+          "case-097",
+          "case-098",
+          "case-099",
+          "case-100"
+        ],
+        "invalid": [],
+        "unexpected": [],
+        "input_statuses": {
+          "prepared": 95,
+          "input_failed": 5
+        }
+      },
+      "cqllm": {
+        "output": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/cqllm/20261015-full-v1",
+        "status": "manifest_present_execution_needs_verification",
+        "runner_ready": true,
+        "execution": {
+          "phase": "generation",
+          "planned_tasks": 596,
+          "generation_receipts": 36,
+          "evaluation_receipts": 0,
+          "updated_at": "2026-10-15T05:13:08.471588+00:00",
+          "arms": {
+            "no_rag": {
+              "frozen_rows": 298,
+              "attempted": 18,
+              "statuses": {
+                "compile_failed": 18
+              },
+              "first_compile_pass": 0,
+              "final_compile_pass": 0,
+              "execution_pass": 0,
+              "calls": 39,
+              "input_tokens": 61764,
+              "output_tokens": 76561
+            },
+            "current_rag": {
+              "frozen_rows": 298,
+              "attempted": 18,
+              "statuses": {
+                "compiled": 11,
+                "compile_failed": 7
+              },
+              "first_compile_pass": 9,
+              "final_compile_pass": 11,
+              "execution_pass": 0,
+              "calls": 27,
+              "input_tokens": 323464,
+              "output_tokens": 17528
+            }
+          },
+          "semantic_correctness": "not_evaluated_no_independent_gold"
+        }
+      },
+      "next_action": "run_full_source_e2e",
+      "no_model_calls_made_by_this_check": true
+    },
+    "automation_protocol": "full-test-automation-20261015.md",
+    "upload_destination": "GitHub Release assets",
+    "automation": {
+      "id": "automation",
+      "kind": "heartbeat",
+      "status": "PAUSED",
+      "interval_minutes": 30,
+      "created_date": "2026-10-15",
+      "destination": "current_thread",
+      "reason": "用户明确要求机械脚本执行，不要定时"
+    },
+    "mechanical_pipeline": {
+      "plan": "full-test-pipeline-20261015-v2.json",
+      "output": "artifacts/research/pipeline/20261015-mechanical-v2",
+      "status": "blocked",
+      "control": "local_process_no_scheduler",
+      "remaining_adapter": "cqllm_run and final archive/upload step not yet wired",
+      "current_phase": "e2e-gate",
+      "monitor": "scripts.benchmarks.mechanical_monitor"
+    },
+    "cqllm": {
+      "status": "running",
+      "protocol": "cqllm-protocol-20261015.md",
+      "output": "artifacts/research/cqllm/20261015-full-v1",
+      "controller_output": "artifacts/research/pipeline/20261015-cqllm-v1",
+      "tasks": 596,
+      "source_bound_rule8_test": false
+    },
+    "vul4py_remediation": {
+      "report": "../reports/vul4py-environment-remediation-20261015.md",
+      "new_environment_output": "artifacts/research/vul4py/20261015-oracle-env-v4",
+      "initial_projects": [
+        "CVE-2024-53848",
+        "CVE-2022-24439"
+      ],
+      "status": "native_git_validation_and_environment_batch_running",
+      "first_environment_result": {
+        "case": "CVE-2024-53848",
+        "status": "oracle_not_calibrated",
+        "missing_test_dependencies_resolved": true,
+        "remaining": "Click deprecation warning escalates to collection error under project original pytest settings; assertions not modified"
+      },
+      "environment_batch": {
+        "selected": 33,
+        "scheduling": "wait on kernel file lock then sequential checkpoints",
+        "new_model_calls": 0,
+        "status": "running_serially_v4"
+      },
+      "validated": {
+        "CVE-2024-53848": {
+          "functional_tests_per_version": 526,
+          "functional_failures": 0,
+          "security_oracle_accepted": false,
+          "reason": "vulnerable new-test API incompatibility"
+        },
+        "native_git_fixture_tracked_bytes_unchanged": true
+      },
+      "latest_git_fixture_output": "artifacts/research/vul4py/20261015-oracle-env-v5",
+      "latest_git_fixture_status": "locked_nested_submodules_restored_oracle_running"
+    }
+  },
+  "realvuln_ablation_20261014": {
+    "status": "completed",
+    "output": "artifacts/research/realvuln/20261014-ablation",
+    "upstream_projects": 26,
+    "gold": 676,
+    "new_reviews": {
+      "D": 26,
+      "E": 26,
+      "F": 20
+    },
+    "reused_F": 6,
+    "new_codeql_scans": 0,
+    "new_scout_calls": 0,
+    "completed_review_projects": {
+      "D": 26,
+      "E": 26,
+      "F": 26
+    },
+    "D_metrics": {
+      "tp": 110,
+      "fp": 63,
+      "fn": 566,
+      "precision": 0.6358381502890174,
+      "recall": 0.16272189349112426,
+      "f3": 0.1758031005274093
+    },
+    "remaining": [],
+    "process_recovery": {
+      "project": "realvuln-pythonssti",
+      "group": "E",
+      "stage_id": "c0ee1519-9733-4c18-b814-777c9af54245",
+      "same_pool": true,
+      "completed_calls": 2,
+      "interrupted_segment_wall_seconds": null,
+      "unreceipted_inflight_call_cannot_be_excluded": true
+    },
+    "E_metrics": {
+      "tp": 311,
+      "fp": 210,
+      "fn": 365,
+      "precision": 0.5969289827255279,
+      "recall": 0.46005917159763315,
+      "f3": 0.4708554125662377
+    },
+    "report": "../reports/realvuln-ablation-20261014-results.md",
+    "formal_metrics": {
+      "A": {
+        "tp": 106,
+        "fp": 297,
+        "fn": 570,
+        "precision": 0.2630272952853598,
+        "recall": 0.15680473372781065,
+        "f1": 0.19647822057460612,
+        "f3": 0.1634037305379991
+      },
+      "B": {
+        "tp": 389,
+        "fp": 534,
+        "fn": 287,
+        "precision": 0.42145178764897073,
+        "recall": 0.5754437869822485,
+        "f1": 0.48655409631019386,
+        "f3": 0.5551591265876981
+      },
+      "C": {
+        "tp": 416,
+        "fp": 910,
+        "fn": 260,
+        "precision": 0.3137254901960784,
+        "recall": 0.6153846153846154,
+        "f1": 0.4155844155844156,
+        "f3": 0.5614035087719298
+      },
+      "D": {
+        "tp": 110,
+        "fp": 63,
+        "fn": 566,
+        "precision": 0.6358381502890174,
+        "recall": 0.16272189349112426,
+        "f1": 0.2591283863368669,
+        "f3": 0.1758031005274093
+      },
+      "E": {
+        "tp": 311,
+        "fp": 210,
+        "fn": 365,
+        "precision": 0.5969289827255279,
+        "recall": 0.46005917159763315,
+        "f1": 0.5196324143692564,
+        "f3": 0.4708554125662377
+      },
+      "F": {
+        "tp": 354,
+        "fp": 366,
+        "fn": 322,
+        "precision": 0.49166666666666664,
+        "recall": 0.5236686390532544,
+        "f1": 0.5071633237822349,
+        "f3": 0.5202821869488536
+      }
+    },
+    "new_execution_resources": {
+      "calls": 1973,
+      "input_tokens": 19824675,
+      "output_tokens": 2456491,
+      "unknown_usage_calls": 1
+    },
+    "validation": {
+      "project_rows": 156,
+      "discovery_gold_rows": 676,
+      "review_gold_rows": 2028,
+      "new_review_stages": 72,
+      "adopted_review_stages": 78,
+      "prompt_policy_snapshot_identity_verified": true,
+      "scoring_and_cost_ledgers_reconciled": true
+    },
+    "limitations": [
+      "GitHub paper-compatible source; exact HF byte identity unverified",
+      "tuned benchmark and single paired run",
+      "307 F unresolved candidates; supported is a model verdict",
+      "unknown usage and interrupted timing retained",
+      "failed batches may not retain complete tool traces",
+      "F latter projects used bounded concurrency2"
+    ],
+    "portable_review_package": "artifacts/research/realvuln/20261014-ablation/realvuln-ablation-20261014-review.zip"
+  },
+  "cqllm_vul4py_followup": {
+    "controller_pid": 55068,
+    "status": "e2e",
+    "controller_output": "artifacts/research/pipeline/20261015-cqllm-to-vul4py-v1",
+    "cqllm_report": "artifacts/research/cqllm/20261015-full-v1/reports/final",
+    "vul4py_output": "artifacts/research/vul4py/20261015-fixed-v2",
+    "poll_seconds": 30,
+    "scheduled_automation": false,
+    "oracle_regime": "原100项冻结校准回执；15可评估，85未校准保留未评估，不混入环境变体。环境33项补测独立保留。",
+    "old_results_preserved": true,
+    "cqllm_completed_at": "2026-10-15T09:43:56.759129+00:00",
+    "cqllm_execution_pass": {
+      "no_rag": 8,
+      "current_rag": 222
+    },
+    "vul4py_repair_terminal": 100,
+    "vul4py_repair_joint_pass": 2
+  },
+  "cqllm_prompt_v2_development": {
+    "status": "completed",
+    "controller_pid": 69992,
+    "controller": "artifacts/research/pipeline/20261015-cqllm-prompt-v2-pilot",
+    "output": "artifacts/research/cqllm/20261015-prompt-v2-pilot",
+    "protocol": "cqllm-prompt-v2-development-20261015.md",
+    "tasks": 12,
+    "retrieval": false,
+    "formal_v1_unchanged": true,
+    "scope": "benchmark metadata prompt only; production Rule8 unchanged",
+    "completed": 12,
+    "v1_first_compile": 0,
+    "v1_final_compile": 1,
+    "v2_first_compile": 8,
+    "v2_final_compile": 10,
+    "report": "benchmarks/reports/cqllm-prompt-v2-development-20261015.md",
+    "execution_and_semantics": "not_evaluated"
+  },
+  "vul4py_optimized_v3": {
+    "controller_pid": 94436,
+    "root": "artifacts/research/vul4py/20261015-optimized-v3",
+    "controller": "artifacts/research/pipeline/20261015-vul4py-optimized-v3",
+    "status": "paused_by_user",
+    "tests_passed": 54,
+    "case004_old_windows": 183,
+    "case004_runtime_windows": 80,
+    "oracle_calibrated": 15,
+    "old_results_preserved": true,
+    "template_only_repair_still_unsupported": true,
+    "paused_at": "2026-10-16T01:55:06.736157+00:00",
+    "e2e_terminal": 36,
+    "e2e_joint_pass": 1,
+    "diagnosis": "benchmarks/reports/vul4py-v3-paused-diagnosis-20261016.md"
+  },
+  "efficiency_pilot": {
+    "v4_controller": 38453,
+    "v4b_controller": 39026,
+    "protocol": "vul4py-efficiency-pilot-protocol-20261016.md",
+    "full_run_paused": true,
+    "behavior_tests_passed": 70,
+    "status": "completed",
+    "scout_calls_old": 123,
+    "scout_calls_new": 94,
+    "scout_seconds_old": 569.0453112908872,
+    "scout_seconds_new": 513.22113954206,
+    "report": "benchmarks/reports/vul4py-efficiency-pilot-20261016.md"
   }
 }

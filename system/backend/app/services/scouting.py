@@ -1,6 +1,7 @@
 """Bounded independent discovery with explicit source coverage and immutable attempts."""
 
 import json
+from datetime import UTC
 
 from sqlmodel import Session, select
 
@@ -71,6 +72,7 @@ class ScoutService:
                     else "business_first"
                     if self.stage.prompt_version in {"4", "5", "6", "7", "8"}
                     else "balanced",
+                    scheduling_profile=self.inputs.scheduling_profile,
                 )
             save_json(path, project)
         identity = digest({"project": project, "inputs": self.stage.inputs})
@@ -295,6 +297,28 @@ class ScoutService:
         )
         for index, unit in enumerate(units):
             current = self.repository.get(self.stage_id).result
+            from datetime import datetime
+
+            progress_path = self.directory / "scout-progress.json"
+            save_json(
+                progress_path,
+                {
+                    "status": "running",
+                    "observed_at": datetime.now(UTC).isoformat(),
+                    "unit_id": unit["id"],
+                    "file": unit["file"],
+                    "scheduled_windows": len(units),
+                    "completed_windows": len(
+                        {
+                            r["unit_id"]
+                            for r in current.get("units", [])
+                            if r["status"] == "inspected"
+                        }
+                    ),
+                    "calls": self.provider.usage.get("calls", 0),
+                    "meaning": "Actual completed-window and call counters; process heartbeat alone is not progress",
+                },
+            )
             if unit["id"] in {
                 r["unit_id"]
                 for r in current.get("units", [])
@@ -411,6 +435,16 @@ class ScoutService:
                 task_coverage=task_coverage(result, project),
             )
         result = {**result, "coverage": coverage, "snapshot_hash": project["snapshot"]}
+        save_json(
+            self.directory / "scout-progress.json",
+            {
+                "status": "stage_finished",
+                "coverage_status": coverage["status"],
+                "completed_windows": len(done),
+                "planned_windows": len(project["units"]),
+                "calls": self.provider.usage.get("calls", 0),
+            },
+        )
         save_json(self.directory / "scout-result.json", result)
         self.repository.update(
             self.stage_id,

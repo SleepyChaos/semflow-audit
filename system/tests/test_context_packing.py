@@ -3,6 +3,7 @@
 from types import SimpleNamespace
 
 from app.adapters.context_packing import context_size, fit_navigation
+from app.adapters.snapshot import snapshot_digest
 from app.services.discovery_context import bootstrap_files, property_for
 from app.services.review_pool import batches, fit_batches
 
@@ -62,7 +63,7 @@ def test_independent_demo_bootstrap_is_not_target_middleware(tmp_path):
     evidence = SimpleNamespace(
         root=tmp_path,
         files=lambda: list(tmp_path.rglob("*.py")),
-        audit=SimpleNamespace(language="python"),
+        audit=SimpleNamespace(language="python", snapshot_hash=snapshot_digest(tmp_path)),
         allowed=lambda file: tmp_path / file,
     )
     files = bootstrap_files(

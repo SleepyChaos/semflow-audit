@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "cwd": "/Users/chaos/Documents/GitHub/semflow-audit",
+  "env": {
+    "PYTHONPATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261013-full-v1/implementation/system/backend:/Users/chaos/Documents/GitHub/semflow-audit/system",
+    "ARTIFACT_ROOT": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts"
+  },
+  "steps": [
+    {
+      "id": "recover-repair",
+      "depends_on": [],
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_recover",
+        "--output",
+        "artifacts/research/vul4py/20261013-full-v1"
+      ],
+      "timeout_seconds": 86400
+    },
+    {
+      "id": "repair-summary",
+      "depends_on": [
+        "recover-repair"
+      ],
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_pipeline",
+        "--output",
+        "artifacts/research/vul4py/20261013-full-v1"
+      ],
+      "timeout_seconds": 86400
+    },
+    {
+      "id": "repair-gate",
+      "depends_on": [
+        "repair-summary"
+      ],
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.full_test_gate",
+        "--output",
+        "artifacts/research/vul4py/20261013-full-v1",
+        "--phase",
+        "repair"
+      ],
+      "timeout_seconds": 86400
+    },
+    {
+      "id": "e2e",
+      "depends_on": [
+        "repair-gate"
+      ],
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_e2e",
+        "--output",
+        "artifacts/research/vul4py/20261013-full-v1"
+      ],
+      "timeout_seconds": 86400
+    },
+    {
+      "id": "e2e-gate",
+      "depends_on": [
+        "e2e"
+      ],
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.full_test_gate",
+        "--output",
+        "artifacts/research/vul4py/20261013-full-v1",
+        "--phase",
+        "e2e"
+      ],
+      "timeout_seconds": 86400
+    },
+    {
+      "id": "cqllm",
+      "depends_on": [
+        "e2e-gate"
+      ],
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.cqllm_run",
+        "--output",
+        "artifacts/research/cqllm/20261015-full-v1"
+      ],
+      "timeout_seconds": 86400
+    }
+  ]
+}

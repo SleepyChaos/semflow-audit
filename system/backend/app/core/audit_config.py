@@ -41,6 +41,7 @@ class AuditSettings(BaseSettings):
     EMBEDDING_REVISION: str = ""
     EMBEDDING_DIMENSIONS: int = 0
     SEMANTIC_CONTEXT_CHARS: int = 40000
+    SEMANTIC_REPAIR_MAX_CONTEXT_CHARS: int = 80000
     SEMANTIC_TOOL_LIMIT: int = 8
     REPAIR_ATTEMPTS: int = 3
     VALIDATOR_PYTHON_IMAGE: str = "ai-code-audit-validator:local"

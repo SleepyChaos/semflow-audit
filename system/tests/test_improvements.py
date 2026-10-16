@@ -295,7 +295,7 @@ def test_new_api_uses_validated_semantic_versions_and_rejects_wrong_holdout(
     api = pipeline_context["client"]
     identifier = pipeline_context["run_id"]
     response = api.post(f"/api/v1/audits/{identifier}/review", json={})
-    assert response.status_code == 201 and response.json()["prompt_version"] == "9"
+    assert response.status_code == 201 and response.json()["prompt_version"] == "12"
     scout = api.post(f"/api/v1/audits/{identifier}/scout", json={})
     assert scout.status_code == 201 and scout.json()["prompt_version"] == "7"
     holdouts = api.get("/api/v1/rules/holdouts")

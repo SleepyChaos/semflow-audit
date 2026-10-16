@@ -54,7 +54,14 @@ def reused_read(context, call):
         }
         for r in context.get("tool_trace", [])
     ]
-    return existing_read(call, context["evidence"], traces)
+    return existing_read(
+        call,
+        context["evidence"],
+        traces,
+        file_lengths={
+            row["file"]: row["total_lines"] for row in context.get("source_windows", [])
+        },
+    )
 
 
 def observe_tool(context, call, data, reused=False):

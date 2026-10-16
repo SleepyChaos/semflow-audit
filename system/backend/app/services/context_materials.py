@@ -25,12 +25,38 @@ def save_json(path: Path, value) -> None:
 
 
 def frozen_call(
-    provider, purpose, payload, schema, directory: Path, limit=12, ledger_directory=None
+    provider,
+    purpose,
+    payload,
+    schema,
+    directory: Path,
+    limit=None,
+    ledger_directory=None,
 ):
     ledger_root = ledger_directory or directory.parent
     policy = semantic_policy(ledger_root)
+    if limit is None:
+        # Each understanding namespace and patch attempt is bounded by the
+        # frozen graph policy. Reserve its actual maximum planned calls rather
+        # than aborting a progressing repair at the old blanket 12-call cap.
+        limit = policy.get("repair_call_limit", 12) if purpose == "repair" else 12
     serialized = json.dumps(payload, ensure_ascii=False)
-    if len(serialized) > policy["context_chars"]:
+    from app.adapters.repair.context_budget import context_limits
+
+    limits = context_limits(purpose, payload, policy, len(serialized))
+    save_json(
+        directory / "payload-metrics.json",
+        {
+            "phase": payload.get("phase"),
+            "characters": len(serialized),
+            **limits,
+            "fields": {
+                key: len(json.dumps(value, ensure_ascii=False))
+                for key, value in payload.items()
+            },
+        },
+    )
+    if limits["status"] == "rejected_context":
         raise AuditError(
             "关键上下文超过预算，需缩小目标；未截断原文", code="context_budget"
         )
@@ -100,7 +126,7 @@ def deduplicate(materials: list[dict]) -> list[dict]:
     )
 
 
-def project_inventory(evidence: EvidenceService) -> dict:
+def project_inventory(evidence: EvidenceService, *, read_documents=True) -> dict:
     paths = sorted(
         p.relative_to(evidence.root).as_posix()
         for p in evidence.root.rglob("*")
@@ -112,7 +138,11 @@ def project_inventory(evidence: EvidenceService) -> dict:
     for name in ("README.md", "pyproject.toml", "package.json", "requirements.txt"):
         path = evidence.root / name
         if path.is_file():
-            docs.append(read_document(evidence, name))
+            docs.append(
+                read_document(evidence, name)
+                if read_documents
+                else {"file": name, "status": "unread", "tool": "read_document"}
+            )
     return {
         "files": paths,
         "documents": docs,
@@ -152,8 +182,11 @@ def semantic_policy(directory: Path):
     """Resume uses DB-frozen limits; artifact edits cannot expand a stage budget."""
     defaults = {
         "context_chars": audit_settings.SEMANTIC_CONTEXT_CHARS,
+        "repair_context_max_chars": audit_settings.SEMANTIC_REPAIR_MAX_CONTEXT_CHARS,
         "tool_limit": audit_settings.SEMANTIC_TOOL_LIMIT,
         "repair_attempts": audit_settings.REPAIR_ATTEMPTS,
+        "repair_call_limit": (audit_settings.SEMANTIC_TOOL_LIMIT + 4)
+        * audit_settings.REPAIR_ATTEMPTS,
     }
     path = directory / "semantic-policy.json"
     policy = json.loads(path.read_text()) if path.exists() else defaults

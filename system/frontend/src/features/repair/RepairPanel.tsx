@@ -8,6 +8,7 @@ import {
   type StageRun,
   startStage,
 } from "@/api/stages"
+import { getVerificationSuites } from "@/api/verification"
 import { Button } from "@/components/ui/button"
 import { currentReviewCandidates } from "@/features/ai-review/review-status"
 import { StageHistory } from "@/features/stages/StageHistory"
@@ -40,6 +41,11 @@ export function RepairPanel({
     queryFn: () => getRepairs(run.id),
     refetchInterval: busy ? 2500 : false,
   })
+  const suites = useQuery({
+    queryKey: ["verification-suites", run.id],
+    queryFn: () => getVerificationSuites(run.id),
+    refetchInterval: busy ? 2500 : false,
+  })
   const confirmed = currentReviewCandidates(candidates.data ?? []).filter(
     (row) =>
       row.classification?.status === "confirmed" ||
@@ -48,6 +54,11 @@ export function RepairPanel({
   const targets = selected.filter((id) =>
     confirmed.some((row) => row.id === id),
   )
+  const suite = targets.length
+    ? suites.data?.find((row) =>
+        targets.every((id) => row.candidate_ids.includes(id)),
+      )
+    : undefined
   const current = confirmed.find((row) => row.id === focused) ?? confirmed[0]
   const records = [...(repairs.data ?? [])].sort((a, b) => {
     const time = (id: string) =>
@@ -65,6 +76,7 @@ export function RepairPanel({
         allowed_paths: [],
         validation_profile: "syntax",
         rescan: true,
+        ...(suite ? { verification_suite_id: suite.id } : {}),
       }),
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
@@ -100,8 +112,10 @@ export function RepairPanel({
           />
         </div>
         <p className="page-note">
-          自动读取关联文件，使用平台验证环境、语法检查及 CodeQL
-          复扫；前后验证使用匹配的固定测试集。
+          自动读取关联文件，使用平台验证环境、语法检查及 CodeQL 复扫；
+          {suite
+            ? "已匹配固定测试集，新补丁会按该测试集的预期行为修复并执行验证。"
+            : "前后验证使用匹配的固定测试集。"}
         </p>
         {start.error && <p role="alert">{start.error.message}</p>}
       </section>

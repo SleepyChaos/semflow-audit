@@ -52,7 +52,10 @@ def property_for(target):
 
 
 def bootstrap_files(evidence, current, modern=False):
-    paths = [p.relative_to(evidence.root).as_posix() for p in evidence.files()]
+    from app.adapters.project_navigation import navigation_index
+
+    index = navigation_index(evidence)
+    paths = index["paths"]
     candidates = [
         p
         for p in paths
@@ -76,16 +79,10 @@ def bootstrap_files(evidence, current, modern=False):
     if modern and evidence.audit.language == "python":
         from app.adapters.local_imports import (
             python_import_paths,
-            python_web_entrypoint,
         )
 
         allowed = set(paths)
-        factories = []
-        for name in paths:
-            if name.endswith(".py"):
-                body = evidence.allowed(name).read_text()
-                if python_web_entrypoint(body):
-                    factories.append(name)
+        factories = index["python_factories"]
         for row in current:
             if row["kind"] == "code" and row["reference"].get("file", "").endswith(
                 ".py"

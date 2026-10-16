@@ -77,7 +77,8 @@ def test_unknown_candidates_are_not_presented_as_confirmed_vulnerabilities():
     data["summary"]["candidate_states"] = {"confirmed": 0, "pending": 1}
     data["candidates"][0].update(status="pending", weakness="unknown", location={})
     text = markdown_report(data).split("原始记录")[0]
-    assert "待人工确认" in text
+    assert "待确认 1 个" in text
+    assert "已确认 0 个" in text
     assert "位置待核实" in text
     assert "已证实" not in text
 

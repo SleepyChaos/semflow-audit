@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "cwd": "/Users/chaos/Documents/GitHub/semflow-audit",
+  "env": {
+    "PYTHONPATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-efficiency-v4-pilot/implementation/system/backend:/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-efficiency-v4-pilot/implementation/system",
+    "ARTIFACT_ROOT": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts",
+    "CODEQL_PACK_PATH": "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/packs",
+    "SCAN_TIMEOUT": "120"
+  },
+  "steps": [
+    {
+      "id": "efficiency-pilot",
+      "argv": [
+        "{python}",
+        "-m",
+        "scripts.benchmarks.vul4py_efficiency_pilot",
+        "--origin",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261015-optimized-v3",
+        "--output",
+        "/Users/chaos/Documents/GitHub/semflow-audit/artifacts/research/vul4py/20261016-efficiency-v4-pilot"
+      ],
+      "timeout_seconds": 7200
+    }
+  ]
+}

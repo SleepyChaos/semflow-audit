@@ -3,7 +3,7 @@
 from app.services.context_materials import digest
 
 
-def existing_read(call, collected, traces):
+def existing_read(call, collected, traces, *, file_lengths=None):
     for trace in traces:
         if (trace["name"], trace["arguments"]) == (call["name"], call["arguments"]):
             return next(row for row in collected if row["id"] == trace["evidence_id"])
@@ -20,6 +20,11 @@ def existing_read(call, collected, traces):
         or end < start
     ):
         return None
+    total = (file_lengths or {}).get(args.get("file"))
+    if total is not None:
+        end = min(end, total)
+        if start > end:
+            return None
     for row in collected:
         ref = row["reference"]
         if (
@@ -49,5 +54,28 @@ def progress_feedback(original, traces):
         "validation_feedback": original,
         "latest_observation": traces[-1] if traces else None,
         "instruction": "Evidence contains exact read bodies. Reuse their existing IDs. Do not reread a supplied window. If evidence suffices return ready; otherwise name a NEW missing fact and read only its absent source/document. Never infer safety from budget exhaustion.",
+        "search_contract": "Search results are navigation matches, not file bodies; read the matched source range instead of repeating search. Source window metadata gives the actual EOF; never assume more lines beyond total_lines.",
         "reused_requests": len(reused),
     }
+
+
+def read_coverage(windows):
+    """Union exact read ranges; a set of pages can cover a complete file."""
+    files = {}
+    for row in windows:
+        entry = files.setdefault(
+            row["file"],
+            {"file": row["file"], "total_lines": row["total_lines"], "ranges": []},
+        )
+        entry["ranges"].append((row["start_line"], row["end_line"]))
+    result = []
+    for entry in files.values():
+        cursor, gaps = 1, []
+        for start, end in sorted(entry.pop("ranges")):
+            if start > cursor:
+                gaps.append({"start_line": cursor, "end_line": start - 1})
+            cursor = max(cursor, end + 1)
+        if cursor <= entry["total_lines"]:
+            gaps.append({"start_line": cursor, "end_line": entry["total_lines"]})
+        result.append({**entry, "fully_supplied": not gaps, "unread_ranges": gaps})
+    return result

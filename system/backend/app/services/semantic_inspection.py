@@ -7,7 +7,6 @@ from app.services.context_materials import (
     digest,
     frozen_call,
     project_inventory,
-    read_document,
     save_json,
     semantic_policy,
     verify_snapshot,
@@ -34,19 +33,36 @@ class SemanticInspection:
         self.reference_context = reference_context
         self.require_grounded_source = require_grounded_source
 
-    def inspect(self, targets, materials, *, feedback=None, namespace="initial"):
+    def inspect(
+        self,
+        targets,
+        materials,
+        *,
+        feedback=None,
+        namespace="initial",
+        requested_behavior=None,
+        repair_scope=None,
+    ):
         directory = self.directory / "semantics" / namespace
-        inventory = project_inventory(self.evidence)
+        inventory = project_inventory(
+            self.evidence, read_documents=self.purpose != "repair"
+        )
         from app.services.inspection_progress import (
             existing_read,
             progress_feedback,
+            read_coverage,
             stable_evidence,
         )
 
         merge = stable_evidence if self.progressive else deduplicate
-        collected = merge([*materials, *inventory["documents"]])
+        collected = merge(
+            [*materials, *[row for row in inventory["documents"] if "id" in row]]
+        )
         traces = []
         citation_repair = False
+        source_clarification = False
+        rejected_tools = []
+        last_tool_error = None
         # Tool budget is shared across all repair understanding retries.
         budget_path = self.directory / "semantics" / "tools.json"
         import json
@@ -65,8 +81,14 @@ class SemanticInspection:
                 "phase": "inspect_semantics",
                 "targets": targets,
                 "inventory": {k: v for k, v in inventory.items() if k != "documents"},
+                "available_documents": inventory["documents"]
+                if self.purpose == "repair"
+                else [],
                 "evidence": collected,
                 "tool_trace": traces,
+                "latest_tool_error": last_tool_error,
+                "requested_behavior": requested_behavior,
+                "repair_scope": repair_scope,
                 "feedback": progress_feedback(feedback, traces)
                 if self.progressive
                 else feedback,
@@ -81,6 +103,19 @@ class SemanticInspection:
                     ),
                 ),
             }
+            if self.purpose == "repair":
+                from app.services.rule_preparation_context import source_windows
+
+                payload["source_windows"] = source_windows(self.evidence, collected)
+                payload["source_coverage"] = read_coverage(payload["source_windows"])
+                payload["inspection_boundary"] = {
+                    "request": "Confirmed candidate describes the requested repair, not independently proven source facts. Do not require an upstream patch or hidden-test details.",
+                    "search": "Search/call results locate source; read_source supplies bodies. Already supplied bodies and EOF are explicit in source_windows.",
+                    "implementation_choices": "Choose an evidence-compatible minimal implementation; unknown upstream naming is not a business prerequisite. Preserve known public APIs and unrelated behavior.",
+                }
+                from app.services.inspection_tools import TOOL_CONTRACT
+
+                payload["tool_contract"] = TOOL_CONTRACT
             if self.reference_context is not None:
                 from app.services.rule_preparation_context import source_windows
 
@@ -88,6 +123,10 @@ class SemanticInspection:
                     **self.reference_context,
                     "source_windows": source_windows(self.evidence, collected),
                 }
+            if self.purpose == "repair":
+                from app.adapters.semantic_packing import pack_repair_payload
+
+                payload = pack_repair_payload(payload)
             response = frozen_call(
                 self.provider,
                 self.purpose,
@@ -102,7 +141,7 @@ class SemanticInspection:
             known = {row["id"] for row in collected}
             if self.reference_context:
                 known.update(r["id"] for r in self.reference_context["knowledge"])
-            invalid = any(
+            invalid = response.action != "tool" and any(
                 not set(fact.evidence_ids).issubset(known)
                 or (fact.state == "supported" and not fact.evidence_ids)
                 for fact in response.facts
@@ -115,9 +154,40 @@ class SemanticInspection:
                     "prior_feedback": feedback,
                     "validation_error": "Only use the exact IDs present in evidence. Supported facts need an actually read citation. Reissue the complete interpretation; no new facts or assumed IDs.",
                     "allowed_evidence_ids": sorted(known),
+                    "invalid_facts": [
+                        f.model_dump(mode="json")
+                        for f in response.facts
+                        if not set(f.evidence_ids).issubset(known)
+                        or (f.state == "supported" and not f.evidence_ids)
+                    ],
+                    "request_intent": "Cite repair_request evidence only for the stated repair intent. It cannot establish actual behavior or safety; those require code citations. You may request a new source read to resolve critical unknowns.",
                 }
                 continue
             if response.action != "tool":
+                if (
+                    self.progressive
+                    and self.purpose == "repair"
+                    and response.action in {"ready", "insufficient"}
+                    and not source_clarification
+                    and len(budget) < self.policy["tool_limit"]
+                    and any(
+                        f.critical
+                        and f.state == "unknown"
+                        and f.category == "implementation"
+                        for f in response.facts
+                    )
+                ):
+                    source_clarification = True
+                    feedback = {
+                        "prior_feedback": feedback,
+                        "unresolved_source_facts": [
+                            f.model_dump(mode="json")
+                            for f in response.facts
+                            if f.critical and f.state == "unknown"
+                        ],
+                        "instruction": "Before declaring unavailable repository facts, use remaining read-only tools for the named unread implementation or caller. This is one clarification opportunity, not permission to invent business requirements. Return insufficient if business constraints remain unknown after actual source inspection.",
+                    }
+                    continue
                 if response.action != "ready" or any(
                     f.critical and f.state in {"unknown", "conflicting"}
                     for f in response.facts
@@ -147,7 +217,7 @@ class SemanticInspection:
                     for f in response.facts
                 ):
                     raise AuditError(
-                        "规则准备结论缺少实际源码引用", code="evidence_insufficient"
+                        "语义准备结论缺少实际源码引用", code="evidence_insufficient"
                     )
                 result = {
                     "view": response.model_dump(mode="json"),
@@ -175,7 +245,17 @@ class SemanticInspection:
                 None,
             )
             reused = (
-                existing_read(call, collected, traces) if self.progressive else None
+                existing_read(
+                    call,
+                    collected,
+                    traces,
+                    file_lengths={
+                        row["file"]: row["total_lines"]
+                        for row in payload.get("source_windows", [])
+                    },
+                )
+                if self.progressive
+                else None
             )
             if reused:
                 if sum(t.get("reused", False) for t in traces) >= 2:
@@ -195,7 +275,27 @@ class SemanticInspection:
                     for t in traces
                 ):
                     raise AuditError("语义取证重复停滞，需明确缺失事实")
-                data = self.read_tool(call)
+                try:
+                    data = self.read_tool(call)
+                except AuditError as error:
+                    if not (
+                        self.progressive and self.purpose == "repair"
+                    ) or error.code in {"integrity_error", "identity_error"}:
+                        raise
+                    if call in rejected_tools:
+                        raise AuditError(
+                            "修复取证重复无效请求，需更正参数或范围",
+                            code="invalid_tool_request",
+                        ) from error
+                    rejected_tools.append(call)
+                    last_tool_error = {
+                        "requested": call,
+                        "status": "not_read",
+                        "reason": str(error),
+                        "instruction": "No evidence was read. Correct the tool arguments using tool_contract; do not cite an absent body or retry the same rejected request.",
+                    }
+                    continue
+                last_tool_error = None
                 budget.append(
                     {
                         "namespace": namespace,
@@ -211,6 +311,7 @@ class SemanticInspection:
                     "name": call["name"],
                     "arguments": call["arguments"],
                     "evidence_id": data["id"],
+                    "read_adjustment": data.get("read_adjustment"),
                     **(
                         {
                             "reused": bool(reused),
@@ -231,11 +332,15 @@ class SemanticInspection:
         raise AuditError("语义理解预算耗尽", code="budget_exhausted")
 
     def read_tool(self, call):
+        from app.services.inspection_tools import read_page
+
         operations = {
-            "read_source": self.evidence.read,
+            "read_source": lambda **args: read_page(self.evidence, "read_source", args),
             "search_source": self.evidence.search,
             "callers": self.evidence.callers,
-            "read_document": lambda **args: read_document(self.evidence, **args),
+            "read_document": lambda **args: read_page(
+                self.evidence, "read_document", args
+            ),
         }
         try:
             return operations[call["name"]](**call["arguments"])
