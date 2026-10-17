@@ -51,7 +51,7 @@ docker pull node:22-bookworm-slim
 
 设置根目录 `.env` 中的 `AI_BASE_URL`、`AI_MODEL`、`AI_API_KEY`（OpenAI 兼容服务）。可选 `EMBEDDING_MODEL` 需要同一网关支持 embeddings；没有配置向量服务仍支持实际 BM25。重启 API 与 Worker 后配置生效；生产模块没有假模型降级。
 
-本次配置 `EMBEDDING_MODEL=doubao-embedding-vision`、`EMBEDDING_REVISION=doubao-embedding-vision-251215`、`EMBEDDING_DIMENSIONS=2048`；更换空间需重建索引。模型协议显式使用 `AI_THINKING_MODE=disabled`、`AI_RULE_TOKENS=6000`，阶段恢复沿用已冻结配置。新 rule v8 需要两个集合都有匹配版本材料；首批资料可从 `system/` 目录采集、核验及索引：
+停用向量化服务时将 `EMBEDDING_MODEL`、`EMBEDDING_REVISION` 留空，`EMBEDDING_DIMENSIONS=0`；已有文档和向量保留，检索使用 BM25。文档已有向量不能代替新查询的向量，恢复向量检索仍需相同模型及空间；更换空间需重建索引。无向量服务时，按 API 模块职责补充查询词，避免中文问题与 QL 声明没有共同词而漏取已有材料。模型协议显式使用 `AI_THINKING_MODE=disabled`、`AI_RULE_TOKENS=6000`，阶段恢复沿用已冻结配置。新 rule v8 需要两个集合都有匹配版本材料；首批资料可从 `system/` 目录采集、核验及索引：
 
 ```sh
 PYTHONPATH=backend .venv/bin/python scripts/curate_rule_corpus.py --validate --index --per-language 14

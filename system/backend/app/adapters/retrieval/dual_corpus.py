@@ -97,7 +97,13 @@ def retrieve_both(
         if exact_cwe:
             from app.adapters.retrieval.role_queries import role_query
 
-            slot_query, slot_mode = role_query(topic, title_terms, query, mode)
+            slot_query, slot_mode = role_query(
+                topic,
+                title_terms,
+                query,
+                mode,
+                lexical_only=not audit_settings.EMBEDDING_MODEL,
+            )
         records = KnowledgeRetriever().retrieve(
             owner,
             language,

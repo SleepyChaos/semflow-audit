@@ -15,7 +15,18 @@ def refined_slots(language, topic, slots):
     return result
 
 
-def role_query(topic, title_terms, query, mode):
+def role_query(topic, title_terms, query, mode, *, lexical_only=False):
+    if lexical_only and title_terms:
+        # These slots already restrict the query to a named API module. Natural
+        # language (especially Chinese) may share no tokens with QL declarations;
+        # rank that module's actual declarations rather than returning no material.
+        return (
+            " ".join(title_terms)
+            + " import DataFlow Node source sink isSource isSink barrier flow",
+            "bm25",
+        )
+    if lexical_only and topic:
+        return f"{query} {topic[0]} {topic[1]} import from select where", "bm25"
     if (
         topic
         and topic[1] in {"CWE-078", "CWE-022", "CWE-943"}
