@@ -25,7 +25,6 @@
   outline-offset: 3px;
 }
 .audit-shell {
-  --sidebar-expanded-width: 224px;
   transition: grid-template-columns 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .audit-shell[data-sidebar-collapsed="true"] {
@@ -38,7 +37,8 @@
 .audit-sidebar > .audit-brand,
 .audit-sidebar > .sidebar-navigation,
 .audit-sidebar > .environment-trigger {
-  width: calc(var(--sidebar-expanded-width) - 25px);
+  width: 100%;
+  min-width: 0;
   flex-shrink: 0;
 }
 .audit-brand > span,
@@ -47,8 +47,15 @@
 .audit-sidebar .sidebar-project > * {
   transition: opacity 160ms ease, visibility 160ms ease;
 }
-.audit-sidebar .nav-label {
+.audit-sidebar .nav-label,
+.audit-sidebar .nav-caption,
+.audit-brand > span {
   white-space: nowrap;
+}
+.audit-sidebar .nav-label,
+.audit-brand > span {
+  min-width: 0;
+  overflow: hidden;
 }
 .audit-shell[data-sidebar-collapsed="true"] .audit-brand > span,
 .audit-shell[data-sidebar-collapsed="true"] .nav-label,
@@ -61,6 +68,24 @@
 .sidebar-project {
   position: relative;
   color: inherit;
+  height: 42px;
+  margin-block: 3px;
+  gap: 0;
+  align-content: center;
+}
+.sidebar-project > strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.audit-sidebar .audit-nav {
+  min-height: 42px;
+}
+.audit-sidebar .sidebar-navigation {
+  gap: 12px;
+}
+.audit-sidebar .nav-group + .nav-group {
+  padding-top: 12px;
 }
 .sidebar-project:focus-visible {
   outline: 2px solid #b95123;
@@ -92,11 +117,6 @@
 }
 .audit-sidebar .select-task-link > svg {
   order: -1;
-}
-@media (min-width: 701px) and (max-width: 1100px) {
-  .audit-shell {
-    --sidebar-expanded-width: 200px;
-  }
 }
 @media (max-width: 700px) {
   .audit-sidebar > .audit-brand,

@@ -1,3 +1,15 @@
+.audit-stage-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.audit-stage-body > .detail-panel {
+  padding: 0;
+  border-radius: 0;
+}
+.audit-stage-body [role="tabpanel"] > .stage-section {
+  padding-top: 0;
+}
 .task-stage-strip {
   min-height: 104px;
   flex-wrap: nowrap;

@@ -54,19 +54,21 @@ export function AuditDetailPage({
   return (
     <div className="page-stack">
       <PageHeader title={selected.title} description={selected.description} />
-      <TaskStageHeader run={data.run} stage={stage} data={data} />
-      <RunDetails
-        run={data.run}
-        activeStage={stagePanels[stage]}
-        onStageChange={(value) => changeStage(normalizeStage(reverse[value]))}
-        onCreated={(id) =>
-          navigate({
-            to: "/audits/$auditId",
-            params: { auditId: id },
-            search: { stage: "scan" },
-          })
-        }
-      />
+      <div className="audit-stage-body">
+        <TaskStageHeader run={data.run} stage={stage} data={data} />
+        <RunDetails
+          run={data.run}
+          activeStage={stagePanels[stage]}
+          onStageChange={(value) => changeStage(normalizeStage(reverse[value]))}
+          onCreated={(id) =>
+            navigate({
+              to: "/audits/$auditId",
+              params: { auditId: id },
+              search: { stage: "scan" },
+            })
+          }
+        />
+      </div>
     </div>
   )
 }
