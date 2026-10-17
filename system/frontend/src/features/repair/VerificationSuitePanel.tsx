@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
+import { useEffect, useId, useState } from "react"
 import { toast } from "sonner"
 import type { StageRun } from "@/api/stages"
 import {
@@ -8,6 +8,7 @@ import {
   importVerificationSuite,
 } from "@/api/verification"
 import { Button } from "@/components/ui/button"
+import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 
 export function VerificationSuitePanel({
   auditId,
@@ -26,6 +27,7 @@ export function VerificationSuitePanel({
   busy: boolean
   stages: StageRun[]
 }) {
+  const selectionId = useId()
   const [image, setImage] = useState("")
   const [requirements, setRequirements] = useState("")
   const [importText, setImportText] = useState("")
@@ -108,21 +110,22 @@ export function VerificationSuitePanel({
         AI 生成验收测试草案
       </Button>
       {generate.error && <p role="alert">{generate.error.message}</p>}
-      <label>
+      <label htmlFor={selectionId}>
         选择已固定的项目测试集
-        <select
+        <WorkspaceSelect
+          id={selectionId}
           className="native-select"
           aria-label="选择项目验收测试集"
           value={selected ? suiteId : ""}
-          onChange={(event) => onSelect(event.target.value)}
-        >
-          <option value="">未选择；只能生成补丁草稿，不能确认修复</option>
-          {available.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.suite.title}
-            </option>
-          ))}
-        </select>
+          onValueChange={onSelect}
+          options={[
+            { value: "", label: "未选择；只能生成补丁草稿，不能确认修复" },
+            ...available.map((item) => ({
+              value: item.id,
+              label: <>{item.suite.title}</>,
+            })),
+          ]}
+        />
       </label>
       {suites.error && (
         <p role="alert">测试集读取失败：{suites.error.message}</p>

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import { getRules, getStages } from "@/api/stages"
 import { Button } from "@/components/ui/button"
+import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 import { PageHeader } from "@/features/shell/PageHeader"
 import { RuleCard } from "./RuleCard"
 export function RulesPage({ ruleId }: { ruleId?: string }) {
@@ -69,36 +70,39 @@ export function RulesPage({ ruleId }: { ruleId?: string }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select
+        <WorkspaceSelect
           aria-label="规则语言"
           value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
-          <option value="all">所有语言</option>
-          <option value="python">Python</option>
-          <option value="javascript">JS / TS</option>
-        </select>
-        <select
+          onValueChange={setLanguage}
+          options={[
+            { value: "all", label: "所有语言" },
+            { value: "python", label: "Python" },
+            { value: "javascript", label: "JS / TS" },
+          ]}
+        />
+        <WorkspaceSelect
           aria-label="筛选规则用途"
           value={purpose}
-          onChange={(e) => setPurpose(e.target.value)}
-        >
-          <option value="all">所有用途</option>
-          <option value="review_anchor">复审锚点</option>
-          <option value="vulnerability_detector">漏洞检测</option>
-          <option value="framework_model">框架建模</option>
-        </select>
-        <select
+          onValueChange={setPurpose}
+          options={[
+            { value: "all", label: "所有用途" },
+            { value: "review_anchor", label: "复审锚点" },
+            { value: "vulnerability_detector", label: "漏洞检测" },
+            { value: "framework_model", label: "框架建模" },
+          ]}
+        />
+        <WorkspaceSelect
           aria-label="规则状态"
           value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="all">所有状态</option>
-          <option value="draft">草稿</option>
-          <option value="validated">已验证</option>
-          <option value="published">已发布</option>
-          <option value="retired">已停用</option>
-        </select>
+          onValueChange={setStatus}
+          options={[
+            { value: "all", label: "所有状态" },
+            { value: "draft", label: "草稿" },
+            { value: "validated", label: "已验证" },
+            { value: "published", label: "已发布" },
+            { value: "retired", label: "已停用" },
+          ]}
+        />
       </div>
       {rules.isPending ? (
         <p>正在读取规则…</p>

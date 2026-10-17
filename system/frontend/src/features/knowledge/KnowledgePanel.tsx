@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { importKnowledge } from "@/api/stages"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 export function KnowledgePanel({
   language,
   embeddingReady,
@@ -50,15 +51,16 @@ export function KnowledgePanel({
       <div className="form-columns">
         <label htmlFor="knowledge-corpus">
           材料分类
-          <select
+          <WorkspaceSelect
             id="knowledge-corpus"
             className="native-select"
             value={corpus}
-            onChange={(e) => setCorpus(e.target.value)}
-          >
-            <option value="reference">参考知识与 API 文档</option>
-            <option value="rule_example">完整规则范例</option>
-          </select>
+            onValueChange={setCorpus}
+            options={[
+              { value: "reference", label: "参考知识与 API 文档" },
+              { value: "rule_example", label: "完整规则范例" },
+            ]}
+          />
         </label>
         <label htmlFor="knowledge-api-version">
           CodeQL语言库版本（规则生成按此过滤）

@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useId, useState } from "react"
 import { toast } from "sonner"
 import { confirmProjectMatch, type RuleVersion } from "@/api/stages"
 import { Button } from "@/components/ui/button"
+import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 
 interface Replay {
   status: string
@@ -17,6 +18,7 @@ interface Replay {
 }
 
 export function ProjectReplayReview({ rule }: { rule: RuleVersion }) {
+  const selectionId = useId()
   const replay = rule.validation.project_replay as Replay | undefined
   const [finding, setFinding] = useState("")
   const [reason, setReason] = useState("")
@@ -46,22 +48,27 @@ export function ProjectReplayReview({ rule }: { rule: RuleVersion }) {
         "baseline_match_needs_confirmation",
       ].includes(replay.status) ? (
         <>
-          <label>
+          <label htmlFor={selectionId}>
             对应目标根因的结果
-            <select
+            <WorkspaceSelect
+              id={selectionId}
               value={finding}
-              onChange={(event) => setFinding(event.target.value)}
-            >
-              <option value="">请选择并核对路径</option>
-              {replay.findings
-                .filter((item) => replay.matched_ids.includes(item.id))
-                .map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.locations[0]?.file}:{item.locations[0]?.line} ·{" "}
-                    {item.message}
-                  </option>
-                ))}
-            </select>
+              onValueChange={setFinding}
+              options={[
+                { value: "", label: "请选择并核对路径" },
+                ...replay.findings
+                  .filter((item) => replay.matched_ids.includes(item.id))
+                  .map((item) => ({
+                    value: item.id,
+                    label: (
+                      <>
+                        {item.locations[0]?.file}:{item.locations[0]?.line} ·{" "}
+                        {item.message}
+                      </>
+                    ),
+                  })),
+              ]}
+            />
           </label>
           {finding ? (
             <pre className="source-code">

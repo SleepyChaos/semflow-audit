@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useId, useState } from "react"
 import { toast } from "sonner"
 import { classifyCandidate } from "@/api/review"
 import type { Candidate } from "@/api/stages"
 import { Button } from "@/components/ui/button"
+import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 import { CandidateEvidence } from "./CandidateEvidence"
 import { CandidateReviewSummary } from "./CandidateReviewSummary"
 import { reviewVerdict } from "./review-status"
@@ -15,6 +16,7 @@ export function CandidateCard({
   candidate: Candidate
   busy: boolean
 }) {
+  const selectionId = useId()
   const [status, setStatus] = useState(
     candidate.classification?.status === "pending"
       ? "insufficient"
@@ -52,18 +54,20 @@ export function CandidateCard({
         </span>
       </header>
       <div className="classification-controls">
-        <label>
+        <label htmlFor={selectionId}>
           调整评价分类
-          <select
+          <WorkspaceSelect
+            id={selectionId}
             className="native-select"
             value={status}
-            onChange={(event) => setStatus(event.target.value)}
+            onValueChange={setStatus}
             disabled={busy || mutation.isPending}
-          >
-            <option value="confirmed">确认真实</option>
-            <option value="excluded">确认误报</option>
-            <option value="insufficient">证据不足</option>
-          </select>
+            options={[
+              { value: "confirmed", label: "确认真实" },
+              { value: "excluded", label: "确认误报" },
+              { value: "insufficient", label: "证据不足" },
+            ]}
+          />
         </label>
         <Button
           variant="outline"

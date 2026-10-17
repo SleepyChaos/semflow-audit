@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { useState } from "react"
+import { useId, useState } from "react"
 import type { AuditRun } from "@/api/audits"
 import {
   type Capabilities,
@@ -8,6 +8,7 @@ import {
   getRules,
   type StageRun,
 } from "@/api/stages"
+import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 import { currentReviewCandidates } from "@/features/ai-review/review-status"
 import { StageHistory } from "@/features/stages/StageHistory"
 import { RuleActions } from "./RuleActions"
@@ -23,6 +24,7 @@ export function RulePanel({
   stages: StageRun[]
   capabilities?: Capabilities
 }) {
+  const selectionId = useId()
   const [focused, setFocused] = useState("")
   const [versionId, setVersionId] = useState("")
   const busy = stages.some((row) => ["queued", "running"].includes(row.status))
@@ -196,21 +198,26 @@ export function RulePanel({
                 </p>
               )}
               {related.length > 1 && (
-                <label>
+                <label htmlFor={selectionId}>
                   规则版本{" "}
-                  <select
+                  <WorkspaceSelect
+                    id={selectionId}
                     className="native-select"
                     aria-label="查看规则版本"
                     value={rule?.id ?? ""}
-                    onChange={(e) => setVersionId(e.target.value)}
-                  >
-                    {related.map((row, i) => (
-                      <option key={row.id} value={row.id}>
-                        {i === 0 ? "最新版本" : "历史版本"} ·{" "}
-                        {row.id.slice(0, 8)}
-                      </option>
-                    ))}
-                  </select>
+                    onValueChange={setVersionId}
+                    options={[
+                      ...related.map((row, i) => ({
+                        value: row.id,
+                        label: (
+                          <>
+                            {i === 0 ? "最新版本" : "历史版本"} ·{" "}
+                            {row.id.slice(0, 8)}
+                          </>
+                        ),
+                      })),
+                    ]}
+                  />
                 </label>
               )}
             </header>

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { ArrowRight } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useId, useState } from "react"
 import { toast } from "sonner"
 import type { AuditRun } from "@/api/audits"
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/api/stages"
 import { getVerificationSuites } from "@/api/verification"
 import { Button } from "@/components/ui/button"
+import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 import { currentReviewCandidates } from "@/features/ai-review/review-status"
 import { StageHistory } from "@/features/stages/StageHistory"
 import { RepairActions } from "./RepairActions"
@@ -28,6 +29,7 @@ export function RepairPanel({
   stages: StageRun[]
   modelReady: boolean
 }) {
+  const selectionId = useId()
   const [selected, setSelected] = useState<string[]>([])
   const [focused, setFocused] = useState("")
   const [recordId, setRecordId] = useState("")
@@ -186,21 +188,26 @@ export function RepairPanel({
                     progress={repairProgressState(stages, records, current.id)}
                   />
                   {related.length > 1 && (
-                    <label>
+                    <label htmlFor={selectionId}>
                       修复记录{" "}
-                      <select
+                      <WorkspaceSelect
+                        id={selectionId}
                         className="native-select"
                         aria-label="查看修复记录"
                         value={record?.id ?? ""}
-                        onChange={(e) => setRecordId(e.target.value)}
-                      >
-                        {related.map((row, i) => (
-                          <option value={row.id} key={row.id}>
-                            {i === 0 ? "最新尝试" : "历史尝试"} ·{" "}
-                            {row.id.slice(0, 8)}
-                          </option>
-                        ))}
-                      </select>
+                        onValueChange={setRecordId}
+                        options={[
+                          ...related.map((row, i) => ({
+                            value: row.id,
+                            label: (
+                              <>
+                                {i === 0 ? "最新尝试" : "历史尝试"} ·{" "}
+                                {row.id.slice(0, 8)}
+                              </>
+                            ),
+                          })),
+                        ]}
+                      />
                     </label>
                   )}
                 </header>

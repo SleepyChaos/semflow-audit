@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 import { PageHeader } from "@/features/shell/PageHeader"
 import { RunList } from "./RunList"
 import { useAudits } from "./useAuditData"
@@ -34,27 +35,29 @@ export function AuditListPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select
+        <WorkspaceSelect
           aria-label="筛选语言"
           value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
-          <option value="all">所有语言</option>
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript / TypeScript</option>
-        </select>
-        <select
+          onValueChange={setLanguage}
+          options={[
+            { value: "all", label: "所有语言" },
+            { value: "python", label: "Python" },
+            { value: "javascript", label: "JavaScript / TypeScript" },
+          ]}
+        />
+        <WorkspaceSelect
           aria-label="筛选扫描状态"
           value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="all">所有扫描状态</option>
-          <option value="completed">扫描完成</option>
-          <option value="running">扫描中</option>
-          <option value="failed">扫描失败</option>
-          <option value="queued">等待扫描</option>
-          <option value="cancelled">已取消</option>
-        </select>
+          onValueChange={setStatus}
+          options={[
+            { value: "all", label: "所有扫描状态" },
+            { value: "completed", label: "扫描完成" },
+            { value: "running", label: "扫描中" },
+            { value: "failed", label: "扫描失败" },
+            { value: "queued", label: "等待扫描" },
+            { value: "cancelled", label: "已取消" },
+          ]}
+        />
         <Button variant="outline" onClick={() => audits.refetch()}>
           刷新
         </Button>

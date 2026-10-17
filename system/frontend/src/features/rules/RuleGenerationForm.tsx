@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useId, useState } from "react"
 import { toast } from "sonner"
 import type { AuditRun } from "@/api/audits"
 import {
@@ -9,6 +9,7 @@ import {
   startStage,
 } from "@/api/stages"
 import { Button } from "@/components/ui/button"
+import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 
 export function RuleGenerationForm({
   run,
@@ -21,6 +22,7 @@ export function RuleGenerationForm({
   busy: boolean
   candidate?: Candidate
 }) {
+  const selectionId = useId()
   const [holdout, setHoldout] = useState("")
   const cache = useQueryClient()
   const holdouts = useQuery({
@@ -59,22 +61,27 @@ export function RuleGenerationForm({
         {start.isPending ? "正在提交…" : "生成检测规则"}
       </Button>
       {available.length > 0 && (
-        <label className="result-inline-setting">
+        <label htmlFor={selectionId} className="result-inline-setting">
           独立验收集
-          <select
+          <WorkspaceSelect
+            id={selectionId}
             className="native-select"
             aria-label="独立规则测试集"
             value={selectedHoldout?.id ?? ""}
-            onChange={(e) => setHoldout(e.target.value)}
+            onValueChange={setHoldout}
             disabled={busy}
-          >
-            <option value="">暂不选择，生成草稿</option>
-            {available.map((row) => (
-              <option key={row.id} value={row.id}>
-                {row.operation} · {row.id.slice(0, 8)}
-              </option>
-            ))}
-          </select>
+            options={[
+              { value: "", label: "暂不选择，生成草稿" },
+              ...available.map((row) => ({
+                value: row.id,
+                label: (
+                  <>
+                    {row.operation} · {row.id.slice(0, 8)}
+                  </>
+                ),
+              })),
+            ]}
+          />
         </label>
       )}
       {holdouts.error && (

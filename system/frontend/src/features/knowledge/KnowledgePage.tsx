@@ -4,6 +4,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { getCapabilities, getKnowledge, indexKnowledge } from "@/api/stages"
 import { Button } from "@/components/ui/button"
+import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 import { PageHeader } from "@/features/shell/PageHeader"
 import { KnowledgePanel } from "./KnowledgePanel"
 
@@ -80,16 +81,17 @@ export function KnowledgePage({ auditId }: { auditId?: string }) {
         <div className="knowledge-import">
           <div className="section-heading">
             <h2>导入资料</h2>
-            <select
+            <WorkspaceSelect
               className="native-select"
               aria-label="导入资料语言"
               value={importLanguage}
-              onChange={(e) => setImportLanguage(e.target.value)}
-            >
-              <option value="python">Python</option>
-              <option value="javascript">JavaScript</option>
-              <option value="any">通用知识</option>
-            </select>
+              onValueChange={setImportLanguage}
+              options={[
+                { value: "python", label: "Python" },
+                { value: "javascript", label: "JavaScript" },
+                { value: "any", label: "通用知识" },
+              ]}
+            />
           </div>
           <KnowledgePanel
             key={importLanguage}
@@ -100,24 +102,26 @@ export function KnowledgePage({ auditId }: { auditId?: string }) {
         </div>
       )}
       <div className="filter-bar">
-        <select
+        <WorkspaceSelect
           aria-label="知识语言"
           value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
-          <option value="all">所有语言</option>
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
-        </select>
-        <select
+          onValueChange={setLanguage}
+          options={[
+            { value: "all", label: "所有语言" },
+            { value: "python", label: "Python" },
+            { value: "javascript", label: "JavaScript" },
+          ]}
+        />
+        <WorkspaceSelect
           aria-label="材料类型"
           value={corpus}
-          onChange={(e) => setCorpus(e.target.value)}
-        >
-          <option value="all">所有材料类型</option>
-          <option value="reference">参考知识 / API</option>
-          <option value="rule_example">完整规则范例</option>
-        </select>
+          onValueChange={setCorpus}
+          options={[
+            { value: "all", label: "所有材料类型" },
+            { value: "reference", label: "参考知识 / API" },
+            { value: "rule_example", label: "完整规则范例" },
+          ]}
+        />
         <span className="filter-count">{filtered.length} 份资料</span>
         <Button variant="outline" onClick={() => docs.refetch()}>
           刷新
