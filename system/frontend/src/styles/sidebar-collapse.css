@@ -1,0 +1,71 @@
+.workspace-toolbar-start {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #deddd7;
+  border-radius: 5px;
+  color: #66655e;
+  background: #fcfcfb;
+}
+.sidebar-toggle:hover {
+  color: #b95123;
+  background: #f4e8dd;
+}
+.sidebar-toggle:focus-visible {
+  outline: 2px solid #b95123;
+  outline-offset: 3px;
+}
+.audit-shell[data-sidebar-collapsed="true"] {
+  grid-template-columns: 68px minmax(0, 1fr);
+}
+.audit-shell[data-sidebar-collapsed="true"] .audit-sidebar {
+  padding-inline: 8px;
+}
+.audit-shell[data-sidebar-collapsed="true"] .audit-brand {
+  padding-inline: 0;
+  justify-content: center;
+}
+.audit-shell[data-sidebar-collapsed="true"] .audit-brand > span,
+.audit-shell[data-sidebar-collapsed="true"] .nav-label,
+.audit-shell[data-sidebar-collapsed="true"] .nav-caption,
+.audit-shell[data-sidebar-collapsed="true"] .sidebar-project {
+  display: none;
+}
+.audit-shell[data-sidebar-collapsed="true"] .audit-nav {
+  justify-content: center;
+  padding-inline: 0;
+}
+.audit-sidebar svg {
+  flex-shrink: 0;
+}
+.audit-shell[data-sidebar-collapsed="true"] .select-task-link {
+  justify-content: center;
+}
+.audit-shell[data-sidebar-collapsed="true"] .environment-trigger {
+  justify-content: center;
+  gap: 8px;
+  padding-inline: 0;
+}
+.audit-shell[data-sidebar-collapsed="true"] .environment-trigger > svg {
+  margin-left: 0;
+}
+@media (max-width: 700px) {
+  .audit-shell[data-sidebar-collapsed="true"] .audit-sidebar {
+    display: none;
+  }
+  .workspace-toolbar-start {
+    gap: 8px;
+  }
+  .workspace-toolbar-start .breadcrumb {
+    gap: 6px;
+  }
+}
