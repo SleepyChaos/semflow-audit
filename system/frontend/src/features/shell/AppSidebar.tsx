@@ -5,6 +5,7 @@ import {
   ChevronRight,
   Database,
   FileText,
+  FolderCode,
   House,
   Library,
   Search,
@@ -92,15 +93,27 @@ export function AppSidebar({ onEnvironment }: { onEnvironment: () => void }) {
           </Link>
         </div>
         <div className="nav-group">
-          <p className="nav-caption">当前审计</p>
+          <p className="nav-caption current-audit-caption">当前审计</p>
           {auditId ? (
             <>
-              <div className="sidebar-project">
+              <Link
+                to="/audits/$auditId"
+                params={{ auditId }}
+                search={{ stage }}
+                className="sidebar-project"
+                aria-label={`当前审计：${run?.project_name ?? auditId}`}
+                title={`${run?.project_name ?? auditId}${run ? ` · ${languageName(run.language)}` : ""}`}
+              >
+                <FolderCode
+                  size={22}
+                  className="sidebar-project-icon"
+                  aria-hidden="true"
+                />
                 <strong title={run?.project_name}>
                   {run?.project_name ?? auditId}
                 </strong>
                 <span>{run ? languageName(run.language) : "正在读取项目"}</span>
-              </div>
+              </Link>
               {auditStages.map((item) => {
                 const Icon = icons[item.id]
                 return (

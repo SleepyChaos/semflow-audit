@@ -44,7 +44,7 @@
 .audit-brand > span,
 .audit-sidebar .nav-label,
 .audit-sidebar .nav-caption,
-.audit-sidebar .sidebar-project {
+.audit-sidebar .sidebar-project > * {
   transition: opacity 160ms ease, visibility 160ms ease;
 }
 .audit-sidebar .nav-label {
@@ -53,9 +53,43 @@
 .audit-shell[data-sidebar-collapsed="true"] .audit-brand > span,
 .audit-shell[data-sidebar-collapsed="true"] .nav-label,
 .audit-shell[data-sidebar-collapsed="true"] .nav-caption,
-.audit-shell[data-sidebar-collapsed="true"] .sidebar-project {
+.audit-shell[data-sidebar-collapsed="true"] .sidebar-project > strong,
+.audit-shell[data-sidebar-collapsed="true"] .sidebar-project > span {
   opacity: 0;
   visibility: hidden;
+}
+.sidebar-project {
+  position: relative;
+  color: inherit;
+}
+.sidebar-project:focus-visible {
+  outline: 2px solid #b95123;
+  outline-offset: 4px;
+}
+.sidebar-project > .sidebar-project-icon {
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  box-sizing: content-box;
+  padding: 7px;
+  border-radius: 6px;
+  color: #b95123;
+  background: #f4e8dd;
+  opacity: 0;
+  visibility: hidden;
+}
+.audit-shell[data-sidebar-collapsed="true"] .sidebar-project-icon,
+.audit-shell[data-sidebar-collapsed="true"] .current-audit-caption {
+  opacity: 1;
+  visibility: visible;
+}
+.audit-shell[data-sidebar-collapsed="true"] .current-audit-caption {
+  width: 44px;
+  margin-left: 0;
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-align: center;
 }
 .audit-sidebar svg {
   flex-shrink: 0;
@@ -93,7 +127,7 @@
   .audit-brand > span,
   .audit-sidebar .nav-label,
   .audit-sidebar .nav-caption,
-  .audit-sidebar .sidebar-project {
+  .audit-sidebar .sidebar-project > * {
     transition: none;
   }
 }
