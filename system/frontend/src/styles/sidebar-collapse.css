@@ -79,19 +79,9 @@
   opacity: 0;
   visibility: hidden;
 }
-.audit-shell[data-sidebar-collapsed="true"] .sidebar-project-icon,
-.audit-shell[data-sidebar-collapsed="true"] .current-audit-caption {
+.audit-shell[data-sidebar-collapsed="true"] .sidebar-project-icon {
   opacity: 1;
   visibility: visible;
-}
-.audit-sidebar .current-audit-caption {
-  width: 44px;
-  margin-left: 12px;
-  font-size: 10px;
-  line-height: 16.5px;
-  letter-spacing: 0;
-  white-space: nowrap;
-  text-align: left;
 }
 .audit-sidebar svg {
   flex-shrink: 0;

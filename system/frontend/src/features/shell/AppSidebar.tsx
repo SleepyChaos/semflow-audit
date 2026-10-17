@@ -94,7 +94,6 @@ export function AppSidebar({ onEnvironment }: { onEnvironment: () => void }) {
           </Link>
         </div>
         <div className="nav-group">
-          <p className="nav-caption current-audit-caption">当前审计</p>
           {auditId ? (
             <>
               <Link
