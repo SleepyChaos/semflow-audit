@@ -24,41 +24,60 @@
   outline: 2px solid #b95123;
   outline-offset: 3px;
 }
+.audit-shell {
+  --sidebar-expanded-width: 224px;
+  transition: grid-template-columns 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
 .audit-shell[data-sidebar-collapsed="true"] {
   grid-template-columns: 68px minmax(0, 1fr);
 }
-.audit-shell[data-sidebar-collapsed="true"] .audit-sidebar {
-  padding-inline: 8px;
+.audit-sidebar {
+  min-width: 0;
+  overflow-x: hidden;
 }
-.audit-shell[data-sidebar-collapsed="true"] .audit-brand {
-  padding-inline: 0;
-  justify-content: center;
+.audit-sidebar > .audit-brand,
+.audit-sidebar > .sidebar-navigation,
+.audit-sidebar > .environment-trigger {
+  width: calc(var(--sidebar-expanded-width) - 25px);
+  flex-shrink: 0;
+}
+.audit-brand > span,
+.audit-sidebar .nav-label,
+.audit-sidebar .nav-caption,
+.audit-sidebar .sidebar-project {
+  transition: opacity 160ms ease, visibility 160ms ease;
+}
+.audit-sidebar .nav-label {
+  white-space: nowrap;
 }
 .audit-shell[data-sidebar-collapsed="true"] .audit-brand > span,
 .audit-shell[data-sidebar-collapsed="true"] .nav-label,
 .audit-shell[data-sidebar-collapsed="true"] .nav-caption,
 .audit-shell[data-sidebar-collapsed="true"] .sidebar-project {
-  display: none;
-}
-.audit-shell[data-sidebar-collapsed="true"] .audit-nav {
-  justify-content: center;
-  padding-inline: 0;
+  opacity: 0;
+  visibility: hidden;
 }
 .audit-sidebar svg {
   flex-shrink: 0;
 }
-.audit-shell[data-sidebar-collapsed="true"] .select-task-link {
-  justify-content: center;
+.audit-sidebar .select-task-link {
+  justify-content: flex-start;
+  gap: 12px;
 }
-.audit-shell[data-sidebar-collapsed="true"] .environment-trigger {
-  justify-content: center;
-  gap: 8px;
-  padding-inline: 0;
+.audit-sidebar .select-task-link > svg {
+  order: -1;
 }
-.audit-shell[data-sidebar-collapsed="true"] .environment-trigger > svg {
-  margin-left: 0;
+@media (min-width: 701px) and (max-width: 1100px) {
+  .audit-shell {
+    --sidebar-expanded-width: 200px;
+  }
 }
 @media (max-width: 700px) {
+  .audit-sidebar > .audit-brand,
+  .audit-sidebar > .sidebar-navigation,
+  .audit-sidebar > .environment-trigger {
+    width: auto;
+  }
   .audit-shell[data-sidebar-collapsed="true"] .audit-sidebar {
     display: none;
   }
@@ -67,5 +86,14 @@
   }
   .workspace-toolbar-start .breadcrumb {
     gap: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .audit-shell,
+  .audit-brand > span,
+  .audit-sidebar .nav-label,
+  .audit-sidebar .nav-caption,
+  .audit-sidebar .sidebar-project {
+    transition: none;
   }
 }
