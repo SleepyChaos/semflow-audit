@@ -9,6 +9,7 @@ import {
   House,
   Library,
   Search,
+  ShieldCheck,
   SquareTerminal,
   Wrench,
 } from "lucide-react"
@@ -18,7 +19,7 @@ import { auditStages, languageName, normalizeStage } from "./navigation"
 
 const icons = {
   scan: Search,
-  review: FileText,
+  review: ShieldCheck,
   report: FileText,
   repair: Wrench,
   rules: BookOpen,
