@@ -39,6 +39,13 @@ class VerificationSuite(StrictModel):
             )
             if not allowed or len(path.parts) != 1 or "\\" in name or ":" in name:
                 raise ValueError("测试只能保存在独立测试目录，不允许修改项目文件")
+            if self.language == "python":
+                try:
+                    compile(self.files[name], name, "exec")
+                except SyntaxError as exc:
+                    raise ValueError(
+                        f"测试语法无效：{name}:{exc.lineno}：{exc.msg}；请返回修正后的完整测试集"
+                    ) from exc
         names = [row.name for row in self.cases]
         if len(set(names)) != len(names):
             raise ValueError("测试名称必须唯一，不使用参数化子用例")

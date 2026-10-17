@@ -124,6 +124,19 @@ def test_suite_cannot_write_outside_tests_or_omit_normal_behavior():
         VerificationSuite.model_validate(suite)
 
 
+def test_generated_python_syntax_errors_reach_model_validation_before_freezing():
+    suite = spec().model_dump(mode="json")
+    suite["files"]["test_verification.py"] = (
+        "def test_security():\n    assert True\n  assert False\n"
+    )
+    with pytest.raises(ValueError, match="test_verification.py:3"):
+        VerificationSuite.model_validate(suite)
+    suite["files"]["test_verification.py"] = (
+        "def test_security():\n    assert True\ndef test_normal():\n    assert True\n"
+    )
+    assert VerificationSuite.model_validate(suite).cases[0].name == "test_security"
+
+
 @pytest.mark.parametrize(
     "message",
     [
