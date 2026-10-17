@@ -1,0 +1,117 @@
+:root {
+  --motion-feedback: 150ms;
+  --motion-content: 220ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Feedback changes paint properties; navigation rows keep their coordinates. */
+:where(.audit-shell, .welcome-page)
+  :is(button, a[href], summary, input, select, textarea, .upload-drop) {
+  transition-property:
+    background-color, border-color, color, box-shadow, opacity, transform;
+  transition-duration: var(--motion-feedback);
+  transition-timing-function: var(--motion-ease);
+}
+.audit-shell :is(.repair-target-row, .stage-check) {
+  transition:
+    background-color var(--motion-feedback) ease,
+    border-color var(--motion-feedback) ease;
+}
+.audit-shell .audit-nav[aria-current="page"]::before {
+  animation: nav-selection-in var(--motion-content) var(--motion-ease);
+  transform-origin: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :where(.audit-shell, .welcome-page)
+    :is([data-slot="button"], .button-link):not(:disabled):not(
+      [aria-disabled="true"]
+    ):hover {
+    transform: translateY(-1px);
+  }
+  .audit-shell summary:hover {
+    background-color: var(--muted);
+  }
+}
+:where(.audit-shell, .welcome-page)
+  :is([data-slot="button"], .button-link, .sidebar-toggle):not(:disabled):not(
+    [aria-disabled="true"]
+  ):active {
+  transform: scale(0.98);
+}
+.audit-shell [data-slot="checkbox"]:not(:disabled):active {
+  transform: scale(0.92);
+}
+.audit-shell [data-slot="checkbox-indicator"] {
+  animation: check-in var(--motion-feedback) var(--motion-ease);
+}
+
+/* Keyed detail panes and mounted tab content fade in once, not on polling. */
+.audit-shell [data-slot="tabs-content"][data-state="active"],
+.audit-shell .candidate-detail-scroll,
+.audit-shell .report-detail-scroll,
+.audit-shell .result-detail-scroll,
+.audit-shell .diff-table {
+  animation: content-in var(--motion-content) ease-out;
+}
+.audit-shell .toolbar-execution-log > summary > svg:last-child {
+  transition: transform var(--motion-content) var(--motion-ease);
+}
+
+/* Native details retain keyboard and toggle behavior, including during reversal. */
+@supports (interpolate-size: allow-keywords) and selector(::details-content) {
+  .audit-shell details {
+    interpolate-size: allow-keywords;
+  }
+  .audit-shell details::details-content {
+    block-size: 0;
+    opacity: 0;
+    overflow: clip;
+    transition:
+      block-size var(--motion-content) var(--motion-ease),
+      opacity var(--motion-feedback) ease,
+      content-visibility var(--motion-content) allow-discrete;
+  }
+  .audit-shell details[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+
+/* Radix owns enter/exit lifecycle and focus; match the workspace cadence. */
+[data-slot="dialog-overlay"],
+[data-slot="dialog-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="dropdown-menu-sub-content"] {
+  animation-duration: var(--motion-content);
+  animation-timing-function: var(--motion-ease);
+}
+
+@keyframes content-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes check-in {
+  from { opacity: 0; transform: scale(0.75); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes nav-selection-in {
+  from { opacity: 0; transform: scaleY(0.65); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.audit-shell, .welcome-page),
+  :where(.audit-shell, .welcome-page) *,
+  :where(.audit-shell, .welcome-page) *::before,
+  :where(.audit-shell, .welcome-page) *::after,
+  .audit-shell details::details-content,
+  [data-slot="dialog-overlay"],
+  [data-slot="dialog-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="dropdown-menu-sub-content"] {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

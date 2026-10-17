@@ -159,7 +159,10 @@ export function RepairDiff({ record }: { record: RepairRecord }) {
                 tabIndex={0}
                 aria-label={`${file.name} 代码对比`}
               >
-                <table className={`diff-table diff-${mode}`}>
+                <table
+                  key={`${file.name}:${mode}`}
+                  className={`diff-table diff-${mode}`}
+                >
                   <caption className="sr-only">
                     {file.name} 修复前后代码对比
                   </caption>
