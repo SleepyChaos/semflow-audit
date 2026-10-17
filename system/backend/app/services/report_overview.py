@@ -1,5 +1,10 @@
 """Project-wide report material, sent once rather than per vulnerability."""
 
+from app.services.report_execution_summary import (
+    rule_summary,
+    validation_summary,
+    verification_summary,
+)
 from app.services.report_materials import coverage_summary, excerpt, review_context
 
 
@@ -42,10 +47,12 @@ def overview_material(source):
         ],
         "review_context": review_context(source, candidates),
         "repairs": [repair_summary(row) for row in source["repairs"]],
-        "verification": excerpt(source.get("verification", []), 1000),
-        "rules": excerpt(source["rules"], 1000),
+        "verification": [
+            verification_summary(row) for row in source.get("verification", [])
+        ],
+        "rules": [rule_summary(row) for row in source["rules"]],
         "stages": source["stages"],
-        "material_scope": "全局汇总；补丁仅提供文件、修改目的和真实验证状态，完整 diff 与历史保留在本地报告中。节选与未执行不能作为已验证事实。",
+        "material_scope": "全局汇总；补丁提供文件、修改目的和真实验证状态；前后验证按测试类别及修复前后状态统计，保留失败和不确定原因。原始 SARIF、逐轮测试日志、完整 diff 与历史保留在本地报告中。节选与未执行不能作为已验证事实。",
     }
 
 
@@ -65,5 +72,5 @@ def repair_summary(row):
         {"file": change.get("file"), "reason": excerpt(change.get("reason"), 600)}
         for change in row.get("changes", [])
     ]
-    summary["validation"] = excerpt(row.get("validation", {}), 1000)
+    summary["validation"] = validation_summary(row.get("validation", {}))
     return summary

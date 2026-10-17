@@ -122,7 +122,7 @@ def create_stage(
             "repair": "4",
             "rule": "8",
             "scout": "7",
-            "report": "5",
+            "report": "6",
             "verification_suite": "2",
             "verification": "1",
             "candidate_translation": "1",
