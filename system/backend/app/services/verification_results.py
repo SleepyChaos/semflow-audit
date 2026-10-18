@@ -1,5 +1,7 @@
 """Host verdicts from calibrated, repeated test results; never model verdicts."""
 
+import re
+
 LABELS = {
     "passed": "通过",
     "assertion_failed": "断言未通过",
@@ -7,6 +9,18 @@ LABELS = {
     "skipped": "跳过",
     "missing": "未执行",
 }
+
+
+def execution_problem(runs):
+    for run in runs:
+        for side in ("before", "after"):
+            module = re.search(
+                r"ModuleNotFoundError: No module named ['\"]([^'\"\n]+)['\"]",
+                run[side].get("output", ""),
+            )
+            if module:
+                return f"测试环境缺少 Python 依赖 {module[1]}，验收用例尚未执行"
+    return "测试错误、跳过或缺失，不能当作漏洞复现或修复证据"
 
 
 def compare_runs(suite, runs):
@@ -38,7 +52,7 @@ def compare_runs(suite, runs):
             "missing",
         }:
             uncertain.append(case.name)
-            reason = "测试错误、跳过或缺失，不能当作漏洞复现或修复证据"
+            reason = execution_problem(runs)
         elif case.category == "security":
             if b == "passed":
                 uncertain.append(case.name)

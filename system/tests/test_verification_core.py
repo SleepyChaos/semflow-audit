@@ -47,6 +47,20 @@ def run(security="assertion_failed", normal="passed"):
     }
 
 
+def test_missing_project_dependency_explains_unexecuted_cases():
+    collection_failure = {
+        "status": "inconclusive",
+        "cases": {},
+        "output": "E   ModuleNotFoundError: No module named 'flask'",
+    }
+    result = compare_runs(
+        spec(), [{"before": collection_failure, "after": collection_failure}] * 2
+    )
+    assert result["status"] == "inconclusive"
+    assert all(row["before"] == row["after"] == "missing" for row in result["cases"])
+    assert all("缺少 Python 依赖 flask" in row["reason"] for row in result["cases"])
+
+
 def test_same_security_case_must_reproduce_before_and_pass_after():
     suite = spec()
     result = compare_runs(

@@ -123,7 +123,7 @@ def create_stage(
             "rule": "8",
             "scout": "7",
             "report": "6",
-            "verification_suite": "2",
+            "verification_suite": "3",
             "verification": "1",
             "candidate_translation": "1",
         }[kind],
