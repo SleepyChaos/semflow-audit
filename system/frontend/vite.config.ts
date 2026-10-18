@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     port: 5174,
     strictPort: true,
-    proxy: { "/api": process.env.SEMFLOW_API_PROXY ?? "http://127.0.0.1:8001" },
+    proxy: { "/api": process.env.SEMFLOW_API_PROXY ?? "http://127.0.0.1:8000" },
     host: "127.0.0.1",
   },
   build: {

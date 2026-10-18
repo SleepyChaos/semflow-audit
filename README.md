@@ -12,7 +12,7 @@
 | `design/` | 开发过程中的架构、模块边界、设计和实施计划 | [设计文档索引](design/README.md) |
 | `competition/` | 竞赛作品报告、模板、测试章节、校对材料和配图 | [竞赛资料索引](competition/README.md) |
 
-首次运行见[协作者环境与启动清单](system/collaborator-setup.md)。开发命令默认在 `system/` 执行；`.env` 与运行产物 `artifacts/` 保持在仓库根目录并由 Git 忽略。
+跨平台协作推荐 [Docker 启动方案](system/docker/README.md)，包含 Windows PowerShell 和 macOS/Linux 启动脚本及当前验证范围。原生开发见[协作者环境与启动清单](system/collaborator-setup.md)。开发命令默认在 `system/` 执行；`.env` 与运行产物 `artifacts/` 保持在仓库根目录并由 Git 忽略。
 
 当前系统已同步多页面 UI 工作台、AI 中文报告和项目级修复前后验证。新版 Windows 独立运行方式见 [UI 本地启动](system/LOCAL_SETUP.md)，页面与演示说明见 [工作台交付文档](design/UI_WORKBENCH_DELIVERY.md)。
 

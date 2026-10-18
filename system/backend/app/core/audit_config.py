@@ -15,7 +15,7 @@ class AuditSettings(BaseSettings):
     CODEQL_PACK_PATH: Path = ROOT / "artifacts/packs"
     PYTHON_QUERY_PACK: str = "codeql/python-queries@1.6.0"
     JAVASCRIPT_QUERY_PACK: str = "codeql/javascript-queries@1.4.0"
-    REDIS_URL: str = "redis://127.0.0.1:6389/0"
+    REDIS_URL: str = "redis://127.0.0.1:16380/0"
     UPLOAD_LIMIT: int = 20 * 1024 * 1024
     EXTRACT_LIMIT: int = 100 * 1024 * 1024
     FILE_LIMIT: int = 2000

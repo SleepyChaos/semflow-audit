@@ -1,5 +1,7 @@
 # Semflow Audit UI V2 本地启动
 
+跨平台协作优先使用 [Docker 启动方案](docker/README.md)。以下是保留的 Windows 原生开发脚本说明，需要本机安装工具链；容器方案的端口与数据卷独立。
+
 GitHub 仓库已采用五目录布局：源码与依赖配置位于 `system/`，工作台说明位于 `design/UI_WORKBENCH_DELIVERY.md`。`.env`、`.tools` 和运行产物仍位于仓库根目录。将独立副本目录命名为 `semflow-audit-ui`，在根目录运行 `start-local.cmd`；依赖安装命令在 `system/` 执行。
 
 新版代码：D:\semflow-audit-ui。原版 D:\semflow-audit 独立保留。

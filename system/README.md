@@ -8,6 +8,7 @@
 - [CodeQL 分析中段介入 LLM 的详细设计](../design/development/codeql-intermediate-llm-design.md)
 - [工作区迁移说明](../design/workspace-migration.md)
 - [协作者本地环境与启动清单](collaborator-setup.md)
+- [Docker 跨平台协作环境（接入验证中）](docker/README.md)
 - [测试结果、环境与版本归档](../benchmarks/testing/README.md)
 - [2026-10-09 新样本补测与失败记录](../benchmarks/reports/supplemental-20261009-results.md)
 - [各链路最新测试情况与用途（仍有未完成环节）](../benchmarks/reports/chain-completion-20261009-results.md)
@@ -65,7 +66,7 @@ PYTHONPATH=backend .venv/bin/python scripts/curate_rule_corpus.py --validate --i
 npm run dev --prefix frontend -- --host 127.0.0.1
 ```
 
-打开 http://localhost:5173，直接进入本地审计工作台，无需账号或登录。初始化脚本不覆盖已有配置。macOS 沙箱若限制 SWC 缓存，可设置 `SWC_NATIVE_BINDING_CACHE` 到仓库 `artifacts/swc`。
+打开 http://127.0.0.1:5174，直接进入本地审计工作台，无需账号或登录。初始化脚本从 `system/.env.example` 生成配置，不覆盖已有配置。API 默认端口 8000；自定义 API 端口时，通过 `SEMFLOW_API_PROXY` 环境变量指定 Vite 代理目标。macOS 沙箱若限制 SWC 缓存，可设置 `SWC_NATIVE_BINDING_CACHE` 到仓库 `artifacts/swc`。
 
 更新后端代码或切换分支后，也需要重启 Celery Worker。API 的 `--reload` 不会刷新 Worker 已缓存的 Python 模块；页面刷新同样无效。若出现磁盘上已有函数却报 `cannot import name`，先核对 Worker 启动时间，并确认没有活动、已预取或定时任务，再停止旧 Worker、按上面的命令重新启动。macOS 本地受管服务 `local.semflow-audit.worker` 可在空闲时运行 `launchctl kickstart -k gui/$(id -u)/local.semflow-audit.worker`。保留原失败记录，通过“新建重跑”验证恢复，避免把未完成执行改成成功。
 

@@ -15,3 +15,7 @@ benchmarks/dataset-notes/*README.md -whitespace
 competition/deliverables/**/*.md -whitespace
 competition/review/*.md -whitespace
 competition/figureforge-texts/*.md -whitespace
+
+# Keep container text input identical on Windows checkouts.
+system/** text=auto eol=lf
+*.ps1 text eol=lf

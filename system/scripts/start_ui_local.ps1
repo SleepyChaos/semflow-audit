@@ -6,10 +6,12 @@ Set-Location $root
 $python = Join-Path $root '.venv\Scripts\python.exe'
 if (!(Test-Path -LiteralPath $python)) { $python = Join-Path $systemRoot '.venv\Scripts\python.exe' }
 if (!(Test-Path -LiteralPath $python)) { throw 'Install the independent virtual environment first. See LOCAL_SETUP.md.' }
+$node = (Get-Command node -ErrorAction Stop).Source
 & $python -X utf8 "$systemRoot\scripts\prepare_ui_local.py"
 if ($LASTEXITCODE -ne 0) { throw 'Independent configuration failed.' }
 $env:PYTHONUTF8 = '1'
 $env:PYTHONIOENCODING = 'utf-8'
+$env:SEMFLOW_API_PROXY = 'http://127.0.0.1:8001'
 $env:SWC_NATIVE_BINDING_CACHE = Join-Path $env:USERPROFILE '.semflow-swc-cache'
 $env:PATH = "$root\.tools\codeql;$(Split-Path $python -Parent);$env:PATH"
 $logs = Join-Path $root 'artifacts\local'
@@ -56,7 +58,7 @@ try {
 } finally { Pop-Location }
 Start-ServiceProcess 'api' $python '-m uvicorn app.main:app --host 127.0.0.1 --port 8001' "$systemRoot\backend"
 Start-ServiceProcess 'worker' $python '-m celery -A app.jobs.celery_app:celery_app worker --pool=solo --concurrency=1 --loglevel=INFO' "$systemRoot\backend"
-Start-ServiceProcess 'frontend' 'D:\node.exe' "`"$systemRoot\frontend\node_modules\vite\bin\vite.js`" --host 127.0.0.1 --port 5174 --strictPort" "$systemRoot\frontend"
+Start-ServiceProcess 'frontend' $node "`"$systemRoot\frontend\node_modules\vite\bin\vite.js`" --host 127.0.0.1 --port 5174 --strictPort" "$systemRoot\frontend"
 foreach ($url in @('http://127.0.0.1:8001/api/v1/utils/health-check/', 'http://127.0.0.1:5174')) {
     $ready = $false
     for ($attempt = 0; $attempt -lt 30; $attempt++) {
