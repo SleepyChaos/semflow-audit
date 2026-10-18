@@ -9,7 +9,11 @@ import {
   type StageRun,
 } from "@/api/stages"
 import { WorkspaceSelect } from "@/components/WorkspaceSelect"
-import { currentReviewCandidates } from "@/features/ai-review/review-status"
+import {
+  candidateMemberIds,
+  candidateSourceLabel,
+  currentReviewCandidates,
+} from "@/features/ai-review/review-status"
 import { StageHistory } from "@/features/stages/StageHistory"
 import { RuleActions } from "./RuleActions"
 import { RuleCard } from "./RuleCard"
@@ -52,7 +56,10 @@ export function RulePanel({
   const sourceId = (stageId: string) =>
     stages.find((row) => row.id === stageId)?.inputs.candidate_id
   const standalone = taskRules.filter(
-    (row) => !confirmed.some((c) => c.id === sourceId(row.stage_id)),
+    (row) =>
+      !confirmed.some((c) =>
+        candidateMemberIds(c).some((id) => id === sourceId(row.stage_id)),
+      ),
   )
   const standaloneRule = standalone.find((row) => `rule:${row.id}` === focused)
   const current = standaloneRule
@@ -60,7 +67,9 @@ export function RulePanel({
     : (confirmed.find((row) => row.id === focused) ?? confirmed[0])
   const related = standaloneRule
     ? [standaloneRule]
-    : taskRules.filter((row) => sourceId(row.stage_id) === current?.id)
+    : taskRules.filter((row) =>
+        candidateMemberIds(current).some((id) => id === sourceId(row.stage_id)),
+      )
   const rule = related.find((row) => row.id === versionId) ?? related[0]
   const latestStage = [...stages].sort((a, b) =>
     b.created_at.localeCompare(a.created_at),
@@ -131,8 +140,10 @@ export function RulePanel({
             </div>
             <div className="result-list">
               {confirmed.map((row) => {
-                const versions = taskRules.filter(
-                  (item) => sourceId(item.stage_id) === row.id,
+                const versions = taskRules.filter((item) =>
+                  candidateMemberIds(row).some(
+                    (id) => id === sourceId(item.stage_id),
+                  ),
                 )
                 return (
                   <button
@@ -146,6 +157,7 @@ export function RulePanel({
                     }}
                   >
                     <span>{row.review?.detail?.title ?? row.title}</span>
+                    <small>{candidateSourceLabel(row)}</small>
                     <small>
                       {row.location.file}:{row.location.line} · {row.weakness}
                     </small>

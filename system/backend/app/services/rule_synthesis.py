@@ -337,17 +337,21 @@ class RuleSynthesis:
         from app.services.context_materials import save_json
 
         save_json(pack / "project-replay.json", result)
-        if (
-            result["status"] in {"target_missed", "already_covered"}
-            and s.inputs.candidate_id
-        ):
+        if result["status"] == "target_missed" and s.inputs.candidate_id:
             return self._failure(
                 state,
-                AuditError("单规则补漏未通过；见 project_feedback"),
+                AuditError("原项目单规则未命中目标；见 project_feedback"),
                 pack / "project-execution.log",
             )
         return {"draft_ok": True}
 
     def exhausted(self, state):
         self.service.repository.active(self.service.stage_id)
-        raise AuditError("两次规则编译/契约/开发样例验证均未通过；草稿与日志已保留")
+        diagnostic = self.service.repository.get(self.service.stage_id).result.get(
+            "last_diagnostic", {}
+        )
+        raise AuditError(
+            "规则两轮尝试未通过："
+            + diagnostic.get("message", "请查看规则验证日志")
+            + "；草稿与日志已保留"
+        )

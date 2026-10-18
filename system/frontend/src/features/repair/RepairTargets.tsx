@@ -1,6 +1,10 @@
 import { useId } from "react"
 import type { Candidate, RepairRecord, StageRun } from "@/api/stages"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  candidateMemberIds,
+  candidateSourceLabel,
+} from "@/features/ai-review/review-status"
 import { repairProgressState } from "./repair-progress"
 
 export function RepairTargets({
@@ -52,10 +56,11 @@ export function RepairTargets({
       </div>
       <div className="result-list">
         {candidates.map((item) => {
+          const members = candidateMemberIds(item)
           const attempts = records.filter((row) =>
-            row.candidate_ids.includes(item.id),
+            members.some((id) => row.candidate_ids.includes(id)),
           )
-          const progress = repairProgressState(stages, records, item.id)
+          const progress = repairProgressState(stages, records, members)
           return (
             <div
               className="repair-target-row"
@@ -81,6 +86,7 @@ export function RepairTargets({
                 onClick={() => onFocus(item.id)}
               >
                 <span>{item.review?.detail?.title ?? item.title}</span>
+                <small>{candidateSourceLabel(item)}</small>
                 <small>
                   {item.location.file ?? "位置待核实"}:
                   {item.location.line ?? "—"} · {item.weakness}

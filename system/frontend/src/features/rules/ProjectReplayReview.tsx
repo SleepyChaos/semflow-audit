@@ -36,9 +36,18 @@ export function ProjectReplayReview({ rule }: { rule: RuleVersion }) {
     onError: (error: Error) => toast.error(error.message),
   })
   if (!replay) return null
+  const baselineReuse = replay.status === "already_covered"
   return (
     <section className="stage-form">
-      <h4>原项目单规则复测：{replay.status}</h4>
+      <h4>
+        原项目单规则复测：
+        {baselineReuse ? "命中目标，原基线已覆盖" : replay.status}
+      </h4>
+      {baselineReuse ? (
+        <p>
+          规则已命中此漏洞，可继续验证并复用；这属于基线能力复用，不计为新增检出。
+        </p>
+      ) : null}
       <p>
         请核对输入源、传播、防护与汇点是否对应同一已确认漏洞。位置或 CWE
         相近只提供匹配线索；其他告警仍待审查。
@@ -46,6 +55,7 @@ export function ProjectReplayReview({ rule }: { rule: RuleVersion }) {
       {[
         "candidate_match_needs_confirmation",
         "baseline_match_needs_confirmation",
+        "already_covered",
       ].includes(replay.status) ? (
         <>
           <label htmlFor={selectionId}>
@@ -88,7 +98,7 @@ export function ProjectReplayReview({ rule }: { rule: RuleVersion }) {
               maxLength={4000}
             />
           </label>
-          {replay.baseline_matching_ids?.length ? (
+          {!baselineReuse && replay.baseline_matching_ids?.length ? (
             <label>
               原基线相近结果不属于此目标的依据
               <textarea
@@ -103,13 +113,14 @@ export function ProjectReplayReview({ rule }: { rule: RuleVersion }) {
             disabled={
               !finding ||
               reason.trim().length < 10 ||
-              (replay.baseline_matching_ids?.length > 0 &&
+              (!baselineReuse &&
+                replay.baseline_matching_ids?.length > 0 &&
                 baselineReason.trim().length < 10) ||
               confirm.isPending
             }
             onClick={() => confirm.mutate()}
           >
-            确认新规则补上此漏洞
+            {baselineReuse ? "确认规则复用与目标路径" : "确认规则命中目标根因"}
           </Button>
         </>
       ) : null}

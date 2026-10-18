@@ -1,7 +1,11 @@
 import { useState } from "react"
 import type { Candidate } from "@/api/stages"
 import { CandidateCard } from "./CandidateCard"
-import { currentReviewCandidates, reviewVerdict } from "./review-status"
+import {
+  candidateSourceLabel,
+  currentReviewCandidates,
+  reviewVerdict,
+} from "./review-status"
 export const humanStatuses: Record<string, string> = {
   confirmed: "已确认",
   excluded: "支持排除",
@@ -40,6 +44,12 @@ export function CandidateWorkspace({
             >
               {reviewVerdict(c).label}
             </span>
+            <small>
+              {candidateSourceLabel(c)}
+              {c.issue && c.issue.current_ids.length > 1
+                ? ` · 已合并 ${c.issue.current_ids.length} 条发现`
+                : ""}
+            </small>
             <small>
               {c.weakness} ·{" "}
               {c.classification?.source === "human"

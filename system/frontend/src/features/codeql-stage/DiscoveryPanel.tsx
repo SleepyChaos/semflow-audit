@@ -44,8 +44,8 @@ export function DiscoveryPanel({
   const progress = scoutProgress(run, scout)
   const scoutIds = scoutSourceIds(run, scout)
   const candidates = useQuery({
-    queryKey: ["candidates", run.id],
-    queryFn: () => getCandidates(run.id),
+    queryKey: ["discovery-candidates", run.id],
+    queryFn: () => getCandidates(run.id, false),
     retry: false,
     refetchInterval: activeStatus(run.status) || progress.busy ? 3000 : false,
   })

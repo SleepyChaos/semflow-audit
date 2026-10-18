@@ -5,6 +5,7 @@ const names: Record<string, string> = {
   passed: "通过",
   failed: "失败",
   target_detected: "目标根因已确认",
+  already_covered: "命中目标，基线已覆盖",
   candidate_match_needs_confirmation: "命中候选，待确认根因",
   baseline_match_needs_confirmation: "与基线相近，待确认",
   not_evaluated: "未评估",

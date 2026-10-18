@@ -4,7 +4,7 @@ import type { AuditStage } from "@/features/shell/navigation"
 export function uniqueCandidates(candidates: Candidate[]) {
   const identities = new Map<string, Candidate>()
   for (const candidate of candidates) {
-    const key = candidate.identity_key || candidate.id,
+    const key = candidate.issue?.key || candidate.identity_key || candidate.id,
       previous = identities.get(key)
     const rank = (status: string) =>
       ["confirmed", "excluded"].includes(status)
@@ -31,7 +31,9 @@ export function uniqueCandidates(candidates: Candidate[]) {
 export function summarizeCandidates(candidates: Candidate[]) {
   const unique = uniqueCandidates(candidates)
   return {
-    aiCandidates: unique.filter((c) => c.origin === "ai").length,
+    aiCandidates: unique.filter(
+      (c) => c.issue?.origins.includes("ai") ?? c.origin === "ai",
+    ).length,
     confirmed: unique.filter((c) => c.status === "confirmed").length,
     pending: unique.filter((c) =>
       ["pending", "insufficient"].includes(c.status),

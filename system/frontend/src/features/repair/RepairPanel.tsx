@@ -13,7 +13,10 @@ import {
 import { getVerificationSuites } from "@/api/verification"
 import { Button } from "@/components/ui/button"
 import { WorkspaceSelect } from "@/components/WorkspaceSelect"
-import { currentReviewCandidates } from "@/features/ai-review/review-status"
+import {
+  candidateMemberIds,
+  currentReviewCandidates,
+} from "@/features/ai-review/review-status"
 import { StageHistory } from "@/features/stages/StageHistory"
 import { RepairActions } from "./RepairActions"
 import { RepairCard } from "./RepairCard"
@@ -86,7 +89,7 @@ export function RepairPanel({
     return time(b.stage_id).localeCompare(time(a.stage_id))
   })
   const related = records.filter((row) =>
-    row.candidate_ids.includes(current?.id ?? ""),
+    candidateMemberIds(current).some((id) => row.candidate_ids.includes(id)),
   )
   const record = related.find((row) => row.id === recordId) ?? related[0]
   const start = useMutation({
@@ -185,7 +188,11 @@ export function RepairPanel({
                     {current.weakness}
                   </p>
                   <RepairProgressBadges
-                    progress={repairProgressState(stages, records, current.id)}
+                    progress={repairProgressState(
+                      stages,
+                      records,
+                      candidateMemberIds(current),
+                    )}
                   />
                   {related.length > 1 && (
                     <label htmlFor={selectionId}>
@@ -214,8 +221,7 @@ export function RepairPanel({
                 {record ? (
                   <>
                     <p className="page-note">
-                      本补丁关联 {record.candidate_ids.length}{" "}
-                      个修复目标，下方展示完整补丁及实际验证范围。
+                      本补丁覆盖当前漏洞，下方展示完整补丁及实际验证范围。
                     </p>
                     <RepairCard
                       key={record.id}

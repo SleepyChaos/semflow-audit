@@ -9,15 +9,16 @@ const newest = (rows: StageRun[]) =>
 export function repairProgressState(
   stages: StageRun[],
   records: RepairRecord[],
-  candidateId?: string,
+  candidate?: string | string[],
 ) {
+  const candidateIds = typeof candidate === "string" ? [candidate] : candidate
   const repair = newest(
     stages.filter(
       (stage) =>
         stage.kind === "repair" &&
-        (!candidateId ||
-          (stage.inputs.candidate_ids as string[] | undefined)?.includes(
-            candidateId,
+        (!candidateIds ||
+          candidateIds.some((id) =>
+            (stage.inputs.candidate_ids as string[] | undefined)?.includes(id),
           )),
     ),
   )
@@ -42,7 +43,7 @@ export function repairProgressState(
         rescan?.patched_snapshot_hash ||
         application?.status === "passed"),
   )
-  const targets = candidateId ? [candidateId] : (record?.candidate_ids ?? [])
+  const targets = record?.candidate_ids ?? candidateIds ?? []
   const suite = newest(
     stages.filter(
       (stage) =>
@@ -104,7 +105,7 @@ export function repairProgressState(
     verificationStep(
       record,
       verification,
-      candidateId,
+      candidateIds,
       tests?.status,
       rescan?.status,
       hasPatch && suiteReady,
@@ -136,7 +137,7 @@ export function repairProgressState(
 function verificationStep(
   record: RepairRecord | undefined,
   stage: StageRun | undefined,
-  candidateId: string | undefined,
+  candidateIds: string[] | undefined,
   syntax: string | undefined,
   rescan: string | undefined,
   ready: boolean,
@@ -155,7 +156,9 @@ function verificationStep(
     return { ...step, detail: "验证已取消，尚未完成", status: "attention" }
   const cases =
     comparison?.cases?.filter(
-      (test) => !candidateId || test.candidate_ids.includes(candidateId),
+      (test) =>
+        !candidateIds ||
+        candidateIds.some((id) => test.candidate_ids.includes(id)),
     ) ?? []
   const blocked = cases.find(
     (test) =>
@@ -170,7 +173,7 @@ function verificationStep(
       detail:
         comparison?.status === "stale"
           ? "材料已变化，需要重新验证"
-          : candidateId && cases.length
+          : candidateIds && cases.length
             ? "该项用例通过，关联补丁仍有其他验证未通过"
             : "验证未通过或证据不足，请查看具体结果",
       status: "attention",

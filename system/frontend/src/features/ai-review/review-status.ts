@@ -1,6 +1,8 @@
 import type { Candidate } from "@/api/stages"
 
 export function reviewVerdict(candidate: Candidate) {
+  if (candidate.issue?.conflict)
+    return { tone: "insufficient", label: "结论待核对" }
   if (candidate.classification?.source === "human") {
     if (candidate.classification.status === "confirmed")
       return { tone: "supported", label: "确认真实" }
@@ -22,7 +24,7 @@ export function currentReviewCandidates(candidates: Candidate[]) {
   // The API orders immutable attempts by creation time; display the newest review
   // for each identity, while retaining prior human decisions in execution history.
   for (const candidate of candidates) {
-    const key = candidate.identity_key || candidate.id
+    const key = candidate.issue?.key || candidate.identity_key || candidate.id
     const previous = byIdentity.get(key)
     if (!previous || candidate.review || !previous.review)
       byIdentity.set(key, candidate)
@@ -36,4 +38,16 @@ export function currentReviewCandidates(candidates: Candidate[]) {
   return [...byIdentity.values()].sort(
     (a, b) => priority[reviewVerdict(a).tone] - priority[reviewVerdict(b).tone],
   )
+}
+
+export function candidateMemberIds(candidate?: Candidate) {
+  return candidate?.issue?.member_ids ?? (candidate ? [candidate.id] : [])
+}
+
+export function candidateSourceLabel(candidate: Candidate) {
+  const origins = candidate.issue?.origins ?? [candidate.origin]
+  return ["static", "ai"]
+    .filter((origin) => origins.includes(origin))
+    .map((origin) => (origin === "static" ? "CodeQL" : "AI 初审"))
+    .join(" + ")
 }

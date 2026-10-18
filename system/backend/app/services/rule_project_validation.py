@@ -119,6 +119,7 @@ def replay_project(service, pack):
         )
     if (
         target
+        and matched
         and target.static_finding_id
         and any(f["id"] == target.static_finding_id for f in audit.findings)
     ):
@@ -149,9 +150,15 @@ def confirm_project_match(
     if result.get("status") not in {
         "candidate_match_needs_confirmation",
         "baseline_match_needs_confirmation",
+        "already_covered",
     } or finding_id not in result.get("matched_ids", []):
         raise AuditError("请选择单规则复测中对应目标的待确认结果")
-    if result.get("baseline_matching_ids") and not baseline_exclusion_reason:
+    baseline_reuse = result["status"] == "already_covered"
+    if (
+        result.get("baseline_matching_ids")
+        and not baseline_reuse
+        and not baseline_exclusion_reason
+    ):
         raise AuditError("需说明原基线相近结果为何不是此目标根因")
     if result.get("findings_hash") != digest(result.get("findings")):
         raise AuditError("单规则结果内容已变化")
@@ -172,6 +179,7 @@ def confirm_project_match(
         "project_replay": {
             **result,
             "status": "target_detected",
+            "coverage": "baseline_reuse" if baseline_reuse else "root_confirmed",
             "confirmation": {
                 "actor_id": str(actor_id),
                 "finding_id": finding_id,

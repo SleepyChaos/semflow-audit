@@ -110,8 +110,34 @@ def candidate_material(row, assessment_ids):
             "review",
             "classification",
             "evidence_ids",
+            "issue",
         }
     }
+    if row.get("issue"):
+        row["issue"] = {
+            **{key: value for key, value in row["issue"].items() if key != "sources"},
+            "sources": [
+                {
+                    "id": source["id"],
+                    "origin": source["origin"],
+                    "classification": source["classification"],
+                    "review": {
+                        key: value
+                        for key, value in (source.get("review") or {}).items()
+                        if key
+                        in {
+                            "status",
+                            "reason",
+                            "checked_premises",
+                            "missing_premises",
+                            "runtime_unknowns",
+                            "evidence_ids",
+                        }
+                    },
+                }
+                for source in row["issue"]["sources"]
+            ],
+        }
     if row["id"] not in assessment_ids or not row.get("review"):
         return row
     return {

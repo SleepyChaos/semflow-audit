@@ -20,7 +20,9 @@ def build_report(session: Session, audit: AuditRun) -> dict:
         .order_by(StageRun.created_at)
     ).all()
     candidates = session.exec(
-        select(Candidate).where(Candidate.audit_id == audit.id)
+        select(Candidate)
+        .where(Candidate.audit_id == audit.id)
+        .order_by(Candidate.created_at)
     ).all()
     ids = [row.id for row in candidates]
     decisions = (
@@ -43,40 +45,13 @@ def build_report(session: Session, audit: AuditRun) -> dict:
     def dump(rows):
         return [row.model_dump(mode="json") for row in rows]
 
-    from app.services.candidate_classification import classification_view
-    from app.services.candidate_reviews import candidate_review
+    from app.services.candidate_views import present_candidates
 
-    by_stage = {row.id: row for row in stages}
-    latest_decisions = {row.candidate_id: row for row in decisions}
-
-    def reviewed_candidate(row):
-        review = candidate_review(row, by_stage, audit.snapshot_hash)
-        return {
-            **row.model_dump(mode="json"),
-            "review": review,
-            "classification": classification_view(
-                row, review, latest_decisions.get(row.id)
-            ),
-            "evidence_ids": review["evidence_ids"] if review else row.evidence_ids,
-        }
-
-    # Re-running review must not multiply counts for the same vulnerability instance.
-    by_identity = {}
-    decision_times = {row.candidate_id: row.created_at for row in decisions}
-    for row in candidates:
-        key = row.identity_key or str(row.id)
-        previous = by_identity.get(key)
-        if previous is None or (
-            (row.id in decision_times, decision_times.get(row.id, row.created_at))
-            > (
-                previous.id in decision_times,
-                decision_times.get(previous.id, previous.created_at),
-            )
-        ):
-            by_identity[key] = row
-    instances = list(by_identity.values())
+    instances = present_candidates(
+        candidates, stages, decisions, audit, grouped=True, evidence=dump(evidence)
+    )
     counts = {
-        status: sum(row.status == status for row in instances)
+        status: sum(row["status"] == status for row in instances)
         for status in ["confirmed", "excluded", "pending", "insufficient"]
     }
     from app.services.repair_comparison import comparison_state
@@ -88,10 +63,7 @@ def build_report(session: Session, audit: AuditRun) -> dict:
     report = {
         "schema_version": "2",
         "reader_guide": {
-            "candidates": [
-                explain_candidate(row.model_dump(mode="json"), dump(evidence))
-                for row in instances
-            ],
+            "candidates": [explain_candidate(row, dump(evidence)) for row in instances],
             "repairs": [
                 {
                     "repair_id": str(row.id),
@@ -112,9 +84,10 @@ def build_report(session: Session, audit: AuditRun) -> dict:
             "static_alerts": len(audit.findings),
             "candidate_states": counts,
             "confirmed_ai_discoveries": sum(
-                row.origin == "ai"
-                and row.novelty == "new_location"
-                and row.status == "confirmed"
+                row["origin"] == "ai"
+                and "static" not in row["issue"]["origins"]
+                and row["novelty"] == "new_location"
+                and row["status"] == "confirmed"
                 for row in instances
             ),
             "meaning": "AI recommendations are not counted as confirmed detection gains",
@@ -138,13 +111,14 @@ def build_report(session: Session, audit: AuditRun) -> dict:
             {
                 "stage_id": str(stage.id),
                 "relations": stage.result.get("root_relations", []),
-                "meaning": "Proposals only; original candidates and counts retained",
+                "meaning": "Original proposals and source candidates retained; displayed issues use evidence-backed grouping",
             }
             for stage in stages
             if stage.kind == "review"
             and stage.prompt_version in {"4", "5", "6", "7", "8", "9", "10", "11", "12"}
         ],
-        "candidates": [reviewed_candidate(row) for row in candidates],
+        "candidates": instances,
+        "candidate_history": present_candidates(candidates, stages, decisions, audit),
         "decisions": dump(decisions),
         "evidence": dump(evidence),
         "repairs": dump(repairs),

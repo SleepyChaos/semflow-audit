@@ -48,7 +48,7 @@ export function ReviewDetails({
         </strong>
         {total !== null && remaining !== null ? (
           <span>
-            已处理 {Math.max(0, total - remaining)} / {total} 项 ·{" "}
+            原始发现已处理 {Math.max(0, total - remaining)} / {total} 条 ·{" "}
             {remaining ? `${remaining} 项尚未复核` : "本轮候选无遗漏"}
           </span>
         ) : null}
@@ -82,7 +82,7 @@ export function ReviewDetails({
               <DiscoveryCoverage run={run} stages={stages} />
             </details>
             <details>
-              <summary>原始候选与复核记录</summary>
+              <summary>漏洞汇总与来源关联</summary>
               <pre className="source-code">
                 {JSON.stringify(candidates, null, 2)}
               </pre>

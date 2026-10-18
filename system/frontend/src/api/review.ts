@@ -33,7 +33,7 @@ export interface CandidateReview {
   updated_at: string
 }
 export const getCandidateEvidence = (id: string) =>
-  apiJson<Evidence[]>(`/candidates/${id}/evidence`)
+  apiJson<Evidence[]>(`/candidates/${id}/evidence?grouped=true`)
 export const classifyCandidate = (id: string, status: string) =>
   apiJson(`/candidates/${id}/classification`, {
     method: "POST",

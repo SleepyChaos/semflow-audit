@@ -1,7 +1,10 @@
 import { FileText } from "lucide-react"
 import { useId, useMemo, useState } from "react"
 import type { AuditReport, Candidate, Evidence } from "@/api/stages"
-import { reviewVerdict } from "@/features/ai-review/review-status"
+import {
+  candidateSourceLabel,
+  reviewVerdict,
+} from "@/features/ai-review/review-status"
 import { ReportIssueContext } from "./ReportIssueContext"
 
 type Narrative = NonNullable<NonNullable<AuditReport["ai_report"]>["narrative"]>
@@ -94,6 +97,7 @@ export function ReportWorkspace({
               onClick={() => setSelected(issue.candidate_id)}
             >
               <span>{issue.title}</span>
+              {candidate && <small>{candidateSourceLabel(candidate)}</small>}
               <span
                 className="review-verdict-badge"
                 data-verdict={verdict.tone}

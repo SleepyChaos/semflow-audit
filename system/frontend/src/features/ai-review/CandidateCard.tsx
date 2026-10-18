@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { WorkspaceSelect } from "@/components/WorkspaceSelect"
 import { CandidateEvidence } from "./CandidateEvidence"
 import { CandidateReviewSummary } from "./CandidateReviewSummary"
-import { reviewVerdict } from "./review-status"
+import { candidateSourceLabel, reviewVerdict } from "./review-status"
 
 export function CandidateCard({
   candidate,
@@ -41,8 +41,7 @@ export function CandidateCard({
       <header>
         <div>
           <span className="eyebrow">
-            {candidate.weakness} /{" "}
-            {candidate.origin === "ai" ? "AI 候选" : "静态告警"}
+            {candidate.weakness} / {candidateSourceLabel(candidate)}
           </span>
           <h3>{candidate.review?.detail?.title ?? candidate.title}</h3>
         </div>
@@ -53,6 +52,14 @@ export function CandidateCard({
           · {verdict.label}
         </span>
       </header>
+      {candidate.issue && candidate.issue.current_ids.length > 1 && (
+        <p className="page-note">
+          已将 {candidate.issue.current_ids.length}{" "}
+          条同根因发现合并为一个漏洞，保留各来源的证据与执行记录。
+          {candidate.issue.conflict &&
+            "两路复核结论不一致，请核对证据后调整分类。"}
+        </p>
+      )}
       <div className="classification-controls">
         <label htmlFor={selectionId}>
           调整评价分类
@@ -74,7 +81,8 @@ export function CandidateCard({
           disabled={
             busy ||
             mutation.isPending ||
-            status === candidate.classification?.status
+            (status === candidate.classification?.status &&
+              !candidate.issue?.conflict)
           }
           onClick={() => mutation.mutate()}
         >

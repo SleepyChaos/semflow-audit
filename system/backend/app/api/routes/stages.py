@@ -302,46 +302,16 @@ def recover(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
 
 
 @router.get("/audits/{audit_id}/candidates")
-def candidates(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
+def candidates(
+    audit_id: UUID,
+    session: SessionDep,
+    workspace: LocalWorkspace,
+    grouped: bool = False,
+):
     audit = owned_run(audit_id, session, workspace)
-    from app.services.candidate_classification import classification_view
-    from app.services.candidate_reviews import candidate_review
-    from app.services.result_explanations import explain_candidate
+    from app.services.candidate_views import candidate_views
 
-    rows = session.exec(
-        select(Candidate)
-        .where(Candidate.audit_id == audit_id)
-        .order_by(Candidate.created_at)
-    ).all()
-    sources = session.exec(select(Evidence).where(Evidence.audit_id == audit_id)).all()
-    evidence_data = [row.model_dump(mode="json") for row in sources]
-    stage_rows = session.exec(
-        select(StageRun).where(StageRun.audit_id == audit_id)
-    ).all()
-    by_stage = {stage.id: stage for stage in stage_rows}
-    decisions = session.exec(
-        select(Decision)
-        .join(Candidate, Candidate.id == Decision.candidate_id)
-        .where(Candidate.audit_id == audit_id)
-        .order_by(Decision.created_at)
-    ).all()
-    latest_decisions = {decision.candidate_id: decision for decision in decisions}
-    from app.services.candidate_localization import localized_view
-
-    def present(row):
-        review = candidate_review(row, by_stage, audit.snapshot_hash)
-        classification = classification_view(row, review, latest_decisions.get(row.id))
-        payload = {
-            **row.model_dump(mode="json"),
-            "explanation": explain_candidate(
-                row.model_dump(mode="json"), evidence_data
-            ),
-            "review": review,
-            "classification": classification,
-        }
-        return localized_view(payload, by_stage)
-
-    return [present(row) for row in rows]
+    return candidate_views(session, audit, grouped=grouped)
 
 
 @router.get("/candidates/{identifier}/decisions")

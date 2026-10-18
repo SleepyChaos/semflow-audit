@@ -36,6 +36,15 @@ export interface ValidationCheck {
   next_step: string
 }
 export interface Candidate {
+  issue?: {
+    key: string
+    canonical_id: string
+    member_ids: string[]
+    current_ids: string[]
+    origins: string[]
+    evidence_ids: string[]
+    conflict: boolean
+  }
   needs_localization?: boolean
   localization_pending?: boolean
   localization_error?: string | null
@@ -174,9 +183,11 @@ const post = <T>(path: string, body?: unknown) =>
   })
 export const getStages = (auditId: string) =>
   apiJson<StageRun[]>(`/audits/${auditId}/stages`)
-export const getCandidates = async (auditId: string) =>
+export const getCandidates = async (auditId: string, grouped = true) =>
   attachDecisionTimes(
-    await apiJson<Candidate[]>(`/audits/${auditId}/candidates`),
+    await apiJson<Candidate[]>(
+      `/audits/${auditId}/candidates?grouped=${grouped}`,
+    ),
   )
 export const getEvidence = (auditId: string) =>
   apiJson<Evidence[]>(`/audits/${auditId}/evidence`)

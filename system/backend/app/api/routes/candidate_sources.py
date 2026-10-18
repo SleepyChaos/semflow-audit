@@ -45,13 +45,28 @@ def owned_candidate(identifier, session, workspace):
 
 
 @router.get("/candidates/{identifier}/evidence")
-def evidence(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+def evidence(
+    identifier: UUID,
+    session: SessionDep,
+    workspace: LocalWorkspace,
+    grouped: bool = False,
+):
     candidate, audit = owned_candidate(identifier, session, workspace)
+    identifiers = candidate.evidence_ids
+    if grouped:
+        from app.services.candidate_views import candidate_views
+
+        group = next(
+            row
+            for row in candidate_views(session, audit, grouped=True)
+            if str(identifier) in row["issue"]["member_ids"]
+        )
+        identifiers = group["evidence_ids"]
     return session.exec(
         select(Evidence)
         .where(
             Evidence.audit_id == audit.id,
-            Evidence.id.in_([UUID(value) for value in candidate.evidence_ids]),
+            Evidence.id.in_([UUID(value) for value in identifiers]),
             Evidence.snapshot_hash == audit.snapshot_hash,
         )
         .order_by(Evidence.created_at)
