@@ -1,5 +1,7 @@
 # 容器化协作环境
 
+协作者首次启动见仓库根目录 [Docker 启动说明](../../DOCKER.md)；本页保留容器实现细节和实测记录。
+
 应用栈已在 macOS Docker Desktop 上完成真实构建、启动和 CodeQL 样例扫描。独立修复验证服务尚待批准，完整四阶段尚未验收。现有 `system/compose.yml` 与本机开发服务保留。
 
 目标是 Windows、macOS、Linux 使用同一 Linux 工具链：生产前端、FastAPI、Celery、PostgreSQL/pgvector、Redis、CodeQL CLI 2.23.5、固定 Python/JavaScript 查询库和 RAG 初始化。协作者不需要安装 uv、Python、Node 或 CodeQL。
