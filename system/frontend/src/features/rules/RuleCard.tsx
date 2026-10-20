@@ -3,6 +3,7 @@ import type { RuleVersion } from "@/api/stages"
 import { Badge } from "@/components/ui/badge"
 import { ProjectReplayReview } from "./ProjectReplayReview"
 import { RuleActions } from "./RuleActions"
+import { RuleCodeView } from "./RuleCodeView"
 import { RuleValidationSummary } from "./RuleValidationSummary"
 export function RuleCard({
   rule,
@@ -39,6 +40,7 @@ export function RuleCard({
         )[rule.purpose] ?? rule.purpose}{" "}
         · 版本 {rule.id.slice(0, 8)}
       </p>
+      <RuleCodeView key={rule.id} query={rule.query} modules={rule.modules} />
       <RuleValidationSummary rule={rule} />
       {!embedded && (
         <div className="stage-row">
@@ -61,15 +63,6 @@ export function RuleCard({
           )}
         </div>
       )}
-      <details>
-        <summary>查询与模型模块</summary>
-        <pre className="source-code">{rule.query}</pre>
-        {Object.entries(rule.modules).map(([name, content]) => (
-          <pre className="source-code" key={name}>
-            {`${name}\n${content}`}
-          </pre>
-        ))}
-      </details>
       <details>
         <summary>RAG 检索引用</summary>
         {rule.retrieval.map((item) => (

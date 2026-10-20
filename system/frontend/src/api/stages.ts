@@ -2,6 +2,15 @@ import { apiJson, downloadArtifact } from "./backend"
 import { attachDecisionTimes } from "./candidate-history"
 import type { CandidateReview } from "./review"
 import type { RepairComparison } from "./verification"
+
+export interface RuleDraft {
+  attempt: number
+  query: string
+  modules: Record<string, string>
+  diagnostic: { message: string; code: string } | null
+}
+export const getRuleDrafts = (stageId: string) =>
+  apiJson<RuleDraft[]>(`/stages/${stageId}/rule-drafts`)
 export interface StageRun {
   id: string
   audit_id: string

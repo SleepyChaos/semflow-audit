@@ -3,6 +3,7 @@ import { Check, Circle, LoaderCircle, TriangleAlert } from "lucide-react"
 export interface WorkflowStep {
   title: string
   detail: string
+  statusLabel?: string
   status: "waiting" | "active" | "done" | "attention"
 }
 export function WorkflowSteps({
@@ -38,13 +39,14 @@ export function WorkflowSteps({
               <strong>
                 {index + 1}. {step.title}
                 <span className="workflow-step-status">
-                  {step.status === "done"
-                    ? "已完成"
-                    : step.status === "attention"
-                      ? "受阻"
-                      : step.status === "active"
-                        ? "待完成"
-                        : "待开始"}
+                  {step.statusLabel ??
+                    (step.status === "done"
+                      ? "已完成"
+                      : step.status === "attention"
+                        ? "受阻"
+                        : step.status === "active"
+                          ? "待完成"
+                          : "待开始")}
                 </span>
               </strong>
               <p>{step.detail}</p>

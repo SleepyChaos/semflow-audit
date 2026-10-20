@@ -19,11 +19,12 @@ export function ruleProgress(
   const rule = rules.find((row) => row.stage_id === latest?.id)
   const running = latest && ["queued", "running"].includes(latest.status)
   const valid = rule && ["validated", "published"].includes(rule.status)
+  const targetSaved = Boolean(rule || running || latest?.inputs.candidate_id)
   return [
     {
       title: "确定规则目标",
-      detail: rule || running ? "目标已保存" : "选择确认真实的漏洞",
-      status: rule || running ? "done" : "active",
+      detail: targetSaved ? "目标已保存" : "选择确认真实的漏洞",
+      status: targetSaved ? "done" : "active",
     },
     {
       title: "检索与生成",
@@ -34,7 +35,7 @@ export function ruleProgress(
           : "自动检索参考资料与范例",
       status: running
         ? "active"
-        : latest?.status === "failed"
+        : latest?.status === "failed" && !rule
           ? "attention"
           : rule
             ? "done"
@@ -42,13 +43,20 @@ export function ruleProgress(
     },
     {
       title: "正反例与项目验收",
-      detail: valid ? "全部发布门通过" : "查看验证结果与覆盖范围",
+      detail: valid
+        ? "全部发布门通过"
+        : latest?.status === "awaiting_confirmation"
+          ? "确认开发样本后继续验收"
+          : "查看验证结果与覆盖范围",
+      statusLabel:
+        latest?.status === "awaiting_confirmation" ? "待确认" : undefined,
       status: valid
         ? "done"
-        : latest?.status === "awaiting_confirmation" ||
-            rule?.status === "failed"
-          ? "attention"
-          : "waiting",
+        : latest?.status === "awaiting_confirmation"
+          ? "active"
+          : rule && (rule.status === "failed" || latest?.status === "failed")
+            ? "attention"
+            : "waiting",
     },
     {
       title: "发布与复用",

@@ -250,6 +250,20 @@ def evidence(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
     return session.exec(select(Evidence).where(Evidence.stage_id == identifier)).all()
 
 
+@router.get("/stages/{identifier}/rule-drafts")
+def rule_drafts(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
+    stage = owned_stage(identifier, session, workspace)
+    if stage.kind != "rule":
+        raise HTTPException(404, "此执行不是规则生成任务")
+    from app.adapters.artifacts import ArtifactStore
+    from app.adapters.codeql.drafts import read_rule_drafts
+
+    try:
+        return read_rule_drafts(ArtifactStore().directory(str(identifier)))
+    except (AuditError, ValueError, KeyError) as exc:
+        raise HTTPException(409, str(exc)) from exc
+
+
 @router.post("/stages/{identifier}/retry", status_code=201)
 def retry(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
     previous = owned_stage(identifier, session, workspace)

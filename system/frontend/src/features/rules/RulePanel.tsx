@@ -17,6 +17,7 @@ import {
 import { StageHistory } from "@/features/stages/StageHistory"
 import { RuleActions } from "./RuleActions"
 import { RuleCard } from "./RuleCard"
+import { RuleDraftPreview } from "./RuleDraftPreview"
 import { RuleGenerationForm } from "./RuleGenerationForm"
 
 export function RulePanel({
@@ -71,9 +72,15 @@ export function RulePanel({
         candidateMemberIds(current).some((id) => id === sourceId(row.stage_id)),
       )
   const rule = related.find((row) => row.id === versionId) ?? related[0]
-  const latestStage = [...stages].sort((a, b) =>
+  const ruleStages = stages.filter((row) => row.kind === "rule")
+  const latestStage = [...ruleStages].sort((a, b) =>
     b.created_at.localeCompare(a.created_at),
   )[0]
+  const failedStage = [...ruleStages]
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))
+    .find((row) =>
+      candidateMemberIds(current).includes(String(row.inputs.candidate_id)),
+    )
   const awaiting = stages.some(
     (row) =>
       row.id === rule?.stage_id && row.status === "awaiting_confirmation",
@@ -111,13 +118,19 @@ export function RulePanel({
           使用自动生成策略；独立验收集与开发正反例分别验证，结果在右侧展示。
         </p>
         {latestStage?.status === "failed" && (
-          <details>
-            <summary>本次规则执行失败，查看原因</summary>
+          <div className="failure-notice">
+            <h4>本次规则执行失败</h4>
             <p role="alert">{latestStage.error}</p>
-            <Link to="/knowledge" search={{ auditId: run.id }}>
-              补充知识材料
-            </Link>
-          </details>
+            <p>
+              原有规则和源码保留，可重新生成；下方可查看已保存的规则或失败草稿。
+            </p>
+            {(latestStage.result.failure as { code?: string } | undefined)
+              ?.code === "materials_missing" && (
+              <Link to="/knowledge" search={{ auditId: run.id }}>
+                补充知识材料
+              </Link>
+            )}
+          </div>
         )}
       </section>
       {candidates.error || rules.error ? (
@@ -233,6 +246,10 @@ export function RulePanel({
                 </label>
               )}
             </header>
+            {failedStage?.status === "failed" &&
+              failedStage.id !== rule?.stage_id && (
+                <RuleDraftPreview key={failedStage.id} stage={failedStage} />
+              )}
             {rule ? (
               <RuleCard
                 key={rule.id}
@@ -240,7 +257,7 @@ export function RulePanel({
                 awaiting={awaiting}
                 embedded
               />
-            ) : (
+            ) : failedStage?.status === "failed" ? null : (
               <div className="downstream-empty">
                 <h4>该漏洞尚未生成检测规则</h4>
                 <p>

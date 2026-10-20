@@ -74,6 +74,18 @@ class RuleSynthesis:
         if s.stage.prompt_version in {"6", "7", "8"}:
             from app.services.context_materials import semantic_policy
 
+            limit = semantic_policy(s.directory)["context_chars"]
+            if s.stage.prompt_version == "8":
+                from app.services.rule_context_budget import fit_rule_context
+
+                context = fit_rule_context(context, limit)
+                serialized = json.dumps(context, ensure_ascii=False, indent=2)
+                if context.get("context_selection"):
+                    (pack / "context-selection.json").write_text(
+                        json.dumps(
+                            context["context_selection"], ensure_ascii=False, indent=2
+                        )
+                    )
             model_chars = (
                 len(
                     json.dumps(
@@ -83,7 +95,7 @@ class RuleSynthesis:
                 if s.stage.prompt_version == "8"
                 else len(serialized)
             )
-            if model_chars > semantic_policy(s.directory)["context_chars"]:
+            if model_chars > limit:
                 raise AuditError(
                     "规则输入超过上下文预算；请缩小目标或参考材料",
                     code="context_budget",
@@ -189,10 +201,18 @@ class RuleSynthesis:
         response, pack = self._load(state), self._pack(state)
         log = pack / "execution.log"
         try:
+            supplied = self._knowledge(state)
+            model_input = pack / "input.json"
+            if model_input.exists():
+                raw = model_input.read_bytes()
+                receipt = json.loads((pack / "generation-receipt.json").read_text())
+                if hashlib.sha256(raw).hexdigest() != receipt["input_digest"]:
+                    raise AuditError("规则生成输入摘要不匹配，不能继续验证")
+                supplied = json.loads(raw)["knowledge"]
             if not set(map(str, response.knowledge_ids)).issubset(
-                {r["id"] for r in self._knowledge(state)}
+                {r["id"] for r in supplied}
             ):
-                raise AuditError("模型引用了未检索到的知识片段")
+                raise AuditError("模型引用了未实际提供的知识片段")
             if s.inputs.strategy != "auto" and response.strategy != s.inputs.strategy:
                 raise AuditError("生成策略与用户选择不一致")
             if s.modern and response.purpose != s.inputs.purpose:

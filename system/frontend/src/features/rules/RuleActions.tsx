@@ -9,6 +9,14 @@ import {
   retireRule,
 } from "@/api/stages"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { ProjectReplayReview } from "./ProjectReplayReview"
 
 export function RuleActions({
@@ -21,6 +29,7 @@ export function RuleActions({
   busy?: boolean
 }) {
   const [reason, setReason] = useState("")
+  const [open, setOpen] = useState(false)
   const cache = useQueryClient()
   const action = useMutation({
     mutationFn: (kind: string) =>
@@ -29,7 +38,10 @@ export function RuleActions({
         : kind === "publish"
           ? publishRule(rule.id)
           : retireRule(rule.id),
-    onSuccess: () => cache.invalidateQueries(),
+    onSuccess: () => {
+      setOpen(false)
+      return cache.invalidateQueries()
+    },
     onError: (error: Error) => toast.error(error.message),
   })
   return (
@@ -62,23 +74,33 @@ export function RuleActions({
         </Button>
       )}
       {awaiting && !rule.fixtures_approved && (
-        <details className="result-action-review">
-          <summary>确认样本并继续验收</summary>
-          <label>
-            样本确认理由
-            <textarea
-              className="audit-textarea"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-            />
-          </label>
-          <Button
-            disabled={busy || reason.trim().length < 10 || action.isPending}
-            onClick={() => action.mutate("approve")}
-          >
-            批准样本并运行真实验收
-          </Button>
-        </details>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button disabled={busy}>确认样本并继续验收</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>确认规则开发样本</DialogTitle>
+              <DialogDescription>
+                请先审阅规则详情中的正反例，确认样本能够表达漏洞条件和正常行为，再填写确认理由继续验收。
+              </DialogDescription>
+            </DialogHeader>
+            <label>
+              样本确认理由
+              <textarea
+                className="audit-textarea"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+              />
+            </label>
+            <Button
+              disabled={busy || reason.trim().length < 10 || action.isPending}
+              onClick={() => action.mutate("approve")}
+            >
+              批准样本并运行真实验收
+            </Button>
+          </DialogContent>
+        </Dialog>
       )}
       {rule.validation.project_replay ? (
         <details className="result-action-review">
