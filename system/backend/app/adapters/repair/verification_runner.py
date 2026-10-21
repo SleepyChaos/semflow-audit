@@ -111,7 +111,15 @@ def docker_env():
     return {
         key: value
         for key, value in os.environ.items()
-        if key in {"PATH", "HOME", "DOCKER_HOST", "DOCKER_CONTEXT"}
+        if key
+        in {
+            "PATH",
+            "HOME",
+            "DOCKER_HOST",
+            "DOCKER_CONTEXT",
+            "DOCKER_TLS_VERIFY",
+            "DOCKER_CERT_PATH",
+        }
     }
 
 
@@ -125,10 +133,16 @@ def resolve_image(image):
             env=docker_env(),
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
-        raise AuditError("Docker 不可用，前后对比未执行") from exc
+        raise AuditError(
+            "验证环境不可用：缺少 Docker 客户端或连接超时，前后对比未执行",
+            code="environment_error",
+        ) from exc
     image_id = result.stdout.strip()
     if result.returncode or not image_id.startswith("sha256:"):
-        raise AuditError("项目验证镜像未安装，请先构建包含项目依赖的镜像")
+        raise AuditError(
+            "验证服务未连接或项目测试镜像未安装，请检查 validator 与 validator-init 服务",
+            code="environment_error",
+        )
     return image_id
 
 

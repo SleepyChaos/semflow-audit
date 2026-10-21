@@ -120,7 +120,12 @@ def comparison_context(pipeline_context, monkeypatch):
     )
     assert imported.status_code == 201, imported.text
     suite_id = imported.json()["id"]
+    from app.adapters.repair import verification_runner
     from app.services import repair_comparison
+
+    monkeypatch.setattr(
+        verification_runner, "resolve_image", lambda image: "sha256:test-double"
+    )
 
     monkeypatch.setattr(
         repair_comparison, "resolve_image", lambda image: "sha256:test-double"
@@ -257,6 +262,42 @@ def test_suite_cannot_bind_foreign_candidate(comparison_context):
         json={"suite": context["suite"]},
     )
     assert result.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "pipeline_context",
+    [{"app.py": "def calculate(value):\n    return eval(value)\n"}],
+    indirect=True,
+)
+def test_environment_preflight_does_not_enqueue_and_duplicate_click_reuses_job(
+    comparison_context, monkeypatch
+):
+    from app.adapters.repair import verification_runner
+    from app.domain.audit import AuditError
+
+    context = comparison_context
+    api = context["client"]
+    url = f"/api/v1/repairs/{context['repair_id']}/verify"
+    body = {"suite_id": context["suite_id"]}
+
+    def unavailable(image):
+        raise AuditError("验证服务未连接", code="environment_error")
+
+    monkeypatch.setattr(verification_runner, "resolve_image", unavailable)
+    assert api.post(url, json=body).status_code == 409
+    with Session(engine) as session:
+        assert not session.exec(
+            select(StageRun).where(
+                StageRun.audit_id == context["run_id"], StageRun.kind == "verification"
+            )
+        ).all()
+    monkeypatch.setattr(
+        verification_runner, "resolve_image", lambda image: "sha256:test-double"
+    )
+    first = api.post(url, json=body)
+    second = api.post(url, json=body)
+    assert first.status_code == second.status_code == 201
+    assert first.json()["id"] == second.json()["id"]
 
 
 @pytest.mark.parametrize(

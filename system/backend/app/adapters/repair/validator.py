@@ -1,9 +1,9 @@
 """Trusted validation presets inside a restricted Docker container, no host shell."""
 
-import os
 import subprocess
 from pathlib import Path
 
+from app.adapters.repair.verification_runner import docker_env, resolve_image
 from app.core.audit_config import audit_settings
 from app.domain.audit import AuditError
 
@@ -34,24 +34,8 @@ def validate_workspace(workspace: Path, language: str, profile: str) -> dict:
         command = (
             ["node", "-e", JS_CHECK] if profile == "syntax" else ["node", "--test"]
         )
-    environment = {
-        key: value
-        for key, value in os.environ.items()
-        if key in {"PATH", "HOME", "DOCKER_HOST", "DOCKER_CONTEXT"}
-    }
-    try:
-        inspection = subprocess.run(
-            ["docker", "image", "inspect", "--format", "{{.Id}}", image],
-            capture_output=True,
-            text=True,
-            timeout=15,
-            env=environment,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise AuditError("Docker 验证环境不可用") from exc
-    image_id = inspection.stdout.strip()
-    if inspection.returncode or not image_id.startswith("sha256:"):
-        raise AuditError("验证镜像未安装；请先构建或拉取配置的镜像")
+    environment = docker_env()
+    image_id = resolve_image(image)
     unvalidated = [
         path.relative_to(workspace).as_posix()
         for path in workspace.rglob("*")
@@ -91,7 +75,10 @@ def validate_workspace(workspace: Path, language: str, profile: str) -> dict:
         )
     except subprocess.TimeoutExpired:
         subprocess.run(
-            ["docker", "rm", "-f", container_name], capture_output=True, timeout=15
+            ["docker", "rm", "-f", container_name],
+            capture_output=True,
+            timeout=15,
+            env=environment,
         )
         return {
             "status": "failed",

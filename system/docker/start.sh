@@ -27,5 +27,5 @@ case "$action" in
         echo 'Configuration parsed. Use logs for startup failures. Registry 502/timeouts require checking Docker Desktop proxy/mirror settings.'
         ;;
     down) compose down ;;
-    logs) compose logs --tail 100 init api worker ;;
+    logs) compose logs --tail 100 init validator validator-init api worker ;;
 esac

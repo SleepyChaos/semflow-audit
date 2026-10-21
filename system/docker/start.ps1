@@ -45,5 +45,5 @@ switch ($Action) {
         Write-Host 'Configuration parsed. Next: start.ps1 logs for startup failures. Registry 502/timeouts require checking Docker Desktop proxy/mirror settings.'
     }
     'down' { Invoke-Docker -DockerArgs ($compose + @('down')) }
-    'logs' { Invoke-Docker -DockerArgs ($compose + @('logs', '--tail', '100', 'init', 'api', 'worker')) }
+    'logs' { Invoke-Docker -DockerArgs ($compose + @('logs', '--tail', '100', 'init', 'validator', 'validator-init', 'api', 'worker')) }
 }

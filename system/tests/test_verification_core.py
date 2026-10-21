@@ -6,6 +6,20 @@ from app.contracts.verification import VerificationSuite
 from app.services.verification_results import compare_runs
 
 
+def test_docker_client_keeps_tls_but_never_forwards_model_secrets(monkeypatch):
+    from app.adapters.repair.verification_runner import docker_env
+
+    monkeypatch.setenv("DOCKER_HOST", "tcp://validator:2376")
+    monkeypatch.setenv("DOCKER_TLS_VERIFY", "1")
+    monkeypatch.setenv("DOCKER_CERT_PATH", "/certs/client")
+    monkeypatch.setenv("AI_API_KEY", "test-only-secret")
+    monkeypatch.setenv("DATABASE_URL", "test-only-database")
+    environment = docker_env()
+    assert environment["DOCKER_TLS_VERIFY"] == "1"
+    assert environment["DOCKER_CERT_PATH"] == "/certs/client"
+    assert "AI_API_KEY" not in environment and "DATABASE_URL" not in environment
+
+
 def spec():
     target = str(uuid4())
     return VerificationSuite.model_validate(
@@ -59,6 +73,17 @@ def test_missing_project_dependency_explains_unexecuted_cases():
     assert result["status"] == "inconclusive"
     assert all(row["before"] == row["after"] == "missing" for row in result["cases"])
     assert all("缺少 Python 依赖 flask" in row["reason"] for row in result["cases"])
+
+
+def test_original_runtime_error_is_not_reported_as_a_failed_patch():
+    original = run(security="error")
+    original["cases"]["test_security"]["exception_type"] = "TypeError"
+    result = compare_runs(
+        spec(), [{"before": original, "after": run("passed")}] * 2
+    )
+    assert result["status"] == "inconclusive"
+    assert "原代码执行出现 TypeError" in result["cases"][0]["reason"]
+    assert result["cases"][1]["reason"] == "正常功能在修复前后均通过"
 
 
 def test_same_security_case_must_reproduce_before_and_pass_after():

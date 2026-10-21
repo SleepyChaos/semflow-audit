@@ -11,7 +11,7 @@ LABELS = {
 }
 
 
-def execution_problem(runs):
+def execution_problem(runs, case_name):
     for run in runs:
         for side in ("before", "after"):
             module = re.search(
@@ -20,6 +20,12 @@ def execution_problem(runs):
             )
             if module:
                 return f"测试环境缺少 Python 依赖 {module[1]}，验收用例尚未执行"
+    for run in runs:
+        for side, label in (("before", "原代码"), ("after", "补丁副本")):
+            case = run[side].get("cases", {}).get(case_name, {})
+            kind = case.get("exception_type") or "测试错误"
+            if case.get("status") == "error":
+                return f"{label}执行出现 {kind}，不是安全断言结果，不能判断该项修复"
     return "测试错误、跳过或缺失，不能当作漏洞复现或修复证据"
 
 
@@ -52,7 +58,7 @@ def compare_runs(suite, runs):
             "missing",
         }:
             uncertain.append(case.name)
-            reason = execution_problem(runs)
+            reason = execution_problem(runs, case.name)
         elif case.category == "security":
             if b == "passed":
                 uncertain.append(case.name)

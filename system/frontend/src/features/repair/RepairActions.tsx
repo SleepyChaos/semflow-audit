@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { acceptRepair, downloadDiff, type RepairRecord } from "@/api/stages"
 import {
   generateVerificationSuite,
+  getVerificationEnvironment,
   getVerificationSuites,
   verifyRepair,
 } from "@/api/verification"
@@ -21,6 +22,12 @@ export function RepairActions({
   modelReady: boolean
 }) {
   const cache = useQueryClient()
+  const environment = useQuery({
+    queryKey: ["verification-environment", auditId],
+    queryFn: () => getVerificationEnvironment(auditId),
+    staleTime: 15000,
+    refetchInterval: 15000,
+  })
   const suites = useQuery({
     queryKey: ["verification-suites", auditId],
     queryFn: () => getVerificationSuites(auditId),
@@ -68,7 +75,9 @@ export function RepairActions({
       <ArrowRight className="repair-flow-arrow" size={18} aria-hidden="true" />
       <Button
         variant="outline"
-        disabled={disabled || !suiteId || applicationFailed}
+        disabled={
+          disabled || !suiteId || applicationFailed || !environment.data?.ready
+        }
         onClick={() => action.mutate("verify")}
       >
         修复前后对比
@@ -94,6 +103,14 @@ export function RepairActions({
         <p role="alert">测试集读取失败：{suites.error.message}</p>
       )}
       {action.error && <p role="alert">{action.error.message}</p>}
+      {environment.data?.error && (
+        <p className="result-action-note" role="alert">
+          前后对比暂不可用：{environment.data.error}。已生成补丁与测试保留。
+        </p>
+      )}
+      {environment.error && (
+        <p role="alert">验证环境检查失败：{environment.error.message}</p>
+      )}
       {record && (
         <p className="result-action-note">
           当前补丁 {record.id.slice(0, 8)} ·{" "}

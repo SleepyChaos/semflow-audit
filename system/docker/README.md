@@ -2,7 +2,7 @@
 
 协作者首次启动见仓库根目录 [Docker 启动说明](../../DOCKER.md)；本页保留容器实现细节和实测记录。
 
-应用栈已在 macOS Docker Desktop 上完成真实构建、启动和 CodeQL 样例扫描。独立修复验证服务尚待批准，完整四阶段尚未验收。现有 `system/compose.yml` 与本机开发服务保留。
+应用栈已在 macOS Docker Desktop 上完成真实构建、启动和 CodeQL 样例扫描。独立修复验证服务已接入，使用 TLS 与独立镜像卷；完整四阶段及 Windows 真机仍需按实际项目验收。现有 `system/compose.yml` 与本机开发服务保留。
 
 目标是 Windows、macOS、Linux 使用同一 Linux 工具链：生产前端、FastAPI、Celery、PostgreSQL/pgvector、Redis、CodeQL CLI 2.23.5、固定 Python/JavaScript 查询库和 RAG 初始化。协作者不需要安装 uv、Python、Node 或 CodeQL。
 
@@ -81,7 +81,9 @@ docker compose --env-file .env.docker -f system/compose.full.yml exec api python
 docker compose --env-file .env.docker -f system/compose.full.yml down
 ```
 
-当前配置没有挂载宿主机 Docker socket，也没有部署高权限 Docker 守护进程。因此扫描、复审、报告和规则所需环境可在应用镜像中准备；修复阶段的隔离测试/前后对比尚不可在这份应用栈中执行，需要完成独立验证服务接入后才算完整容器化。Windows 真机验证尚未进行，不以 macOS 上容器成功代替 Windows 验收。
+当前配置不挂载宿主机 Docker socket。独立 `validator` 使用固定版本 Docker 28.5.2、`privileged` 权限及 TLS 控制证书，且不映射控制端口；API/Worker 只将 Docker 连接变量传给客户端，不将模型密钥传给测试容器。测试守护进程与应用在相同 `/app/artifacts` 路径读取同一命名卷，避免跨容器挂载路径失效。`validator-data` 保存验证镜像，`validator-certs` 保存客户端证书。控制证书等同于访问验证守护进程的权限。
+
+`validator-init` 构建固定依赖 Python/Flask 测试镜像并准备固定 Node 22 镜像；测试本身禁止联网、只读挂载、非 root、丢弃 capabilities 并设置资源限制。新增项目需要其他依赖时，准备项目专用镜像后创建新的冻结测试集，不改写已有测试身份。Windows 真机验证尚未进行，不以 macOS 上容器成功代替 Windows 验收。
 
 2026-10-18 验证记录（macOS Docker Desktop，应用容器为 linux/amd64）：
 
@@ -91,4 +93,13 @@ docker compose --env-file .env.docker -f system/compose.full.yml down
 - 现场生成 Flask `eval` 样例，真实执行源码抽取与固定基线查询，在 SARIF 中核对 `app.py:6` 的 `py/code-injection` 命中。
 - 新配置端口、随机密码生成、已有配置保留及原生 UI 隔离检查通过。
 
-本次没有调用 AI 服务，未测试容器内完整复审/报告生成流程；未验证 Windows 真机启动，也未执行尚未接入的隔离修复验证。容器默认是新的独立工作空间，访问 <http://localhost:5181>。
+上述 2026-10-18 初次验收没有调用 AI 服务，也未执行隔离修复验证。容器默认是新的独立工作空间，访问 <http://localhost:5181>；迁入原生测试数据需单独执行迁移。
+
+2026-10-21 修复验证接入记录：
+
+- `validator` 健康、TLS 服务名校验与 Python/Flask、Node 镜像初始化通过；未挂载宿主机 Docker socket。
+- 使用 RealVuln Flask 项目真实运行同一冻结测试集的两轮修复前后对比，四次执行均能生成并解析报告。
+- 修正测试中的 Flask 3 Cookie 接口、固定原始公开密钥输入及 XML DTD 前提，旧测试与运行记录保留。原始 XML 路径存在 `str`/`bytes` 拼接异常，结果如实记为基线证据不足；补丁仍未满足的安全断言保持未通过，未自动接受补丁。
+- 环境不可用时入队前拒绝；相同材料的重复点击复用活动任务。前端展示验证环境状态和具体失败原因。
+- 针对性判定/TLS 回归与入队接口回归通过，前端生产构建通过。未以此声称该项目全部漏洞已修复或 Windows 真机已验收。
+- 本次 RealVuln 演示的最终对比：4 项正常功能前后通过、7 项安全断言未通过、3 项原始 XML 基线异常，整体结论为证据不足。执行链路已恢复，但现有补丁不能据此验收。

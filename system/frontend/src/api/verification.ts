@@ -56,6 +56,10 @@ const post = <T>(path: string, body: unknown) =>
   })
 export const getVerificationSuites = (auditId: string) =>
   apiJson<VerificationSuite[]>(`/audits/${auditId}/verification-suites`)
+export const getVerificationEnvironment = (auditId: string) =>
+  apiJson<{ ready: boolean; error: string | null }>(
+    `/audits/${auditId}/verification-environment`,
+  )
 export const generateVerificationSuite = (
   auditId: string,
   body: { candidate_ids: string[]; image: string; requirements: string },

@@ -19,6 +19,21 @@ from app.services.verification_suites import candidate_scope, freeze_suite
 router = APIRouter(tags=["repair-verification"])
 
 
+@router.get("/audits/{audit_id}/verification-environment")
+def verification_environment(
+    audit_id: UUID, session: SessionDep, workspace: LocalWorkspace
+):
+    from app.adapters.repair.verification_runner import resolve_image
+    from app.services.verification_suites import image_default
+
+    audit = owned_run(audit_id, session, workspace)
+    try:
+        image_id = resolve_image(image_default(audit.language))
+    except AuditError as exc:
+        return {"ready": False, "error": str(exc)}
+    return {"ready": True, "image_id": image_id, "error": None}
+
+
 @router.get("/audits/{audit_id}/verification-suites")
 def suites(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
     owned_run(audit_id, session, workspace)
@@ -92,6 +107,16 @@ def verify_repair(
         identity = comparison_materials(record, body.suite_id)[0]
     except (AuditError, OSError, ValueError, KeyError) as exc:
         raise HTTPException(409, str(exc)) from exc
+    active = session.exec(
+        select(StageRun).where(
+            StageRun.audit_id == record.audit_id,
+            StageRun.kind == "verification",
+            StageRun.status.in_(["queued", "running"]),
+        )
+    ).all()
+    for stage in active:
+        if stage.inputs.get("identity") == identity:
+            return stage
     return create_stage(
         record.audit_id,
         "verification",

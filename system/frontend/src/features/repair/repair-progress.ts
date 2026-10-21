@@ -151,7 +151,11 @@ function verificationStep(
   if (running(stage?.status) || running(comparison?.status))
     return { ...step, detail: "正在对比修复前后的测试结果", status: "active" }
   if (stage?.status === "failed")
-    return { ...step, detail: "验证执行失败，可重新运行", status: "attention" }
+    return {
+      ...step,
+      detail: stage.error || "验证执行失败，可重新运行",
+      status: "attention",
+    }
   if (stage?.status === "cancelled" || comparison?.status === "cancelled")
     return { ...step, detail: "验证已取消，尚未完成", status: "attention" }
   const cases =

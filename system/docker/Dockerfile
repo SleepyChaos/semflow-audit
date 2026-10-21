@@ -1,6 +1,8 @@
 # Build context: system/. The fixed CodeQL Linux CLI requires linux/amd64.
 ARG NODE_IMAGE=node:22.22.0-bookworm-slim@sha256:7cc56ef285a8568121537d17b05e72128f01b89c54607b51acf084a50ef483f3
 ARG PYTHON_IMAGE=python:3.14.0-slim-bookworm@sha256:9bbb8720ae0a24a6ca8dd678bfdf57818fe70caf54c52a53ec01d8db43405056
+ARG DOCKER_CLI_IMAGE=docker:28.5.2-cli@sha256:625d9431a9f54c5a2bc90f24f0e1c3d55b1349fd857dd85035f98c2c9acbdd4d
+FROM ${DOCKER_CLI_IMAGE} AS docker-client
 FROM ${NODE_IMAGE} AS frontend
 WORKDIR /build/frontend
 COPY frontend/package*.json ./
@@ -20,6 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir uv==0.9.26
 COPY --from=frontend /usr/local/bin/node /usr/local/bin/node
+COPY --from=docker-client /usr/local/bin/docker /usr/local/bin/docker
 RUN curl -fL --retry 3 https://github.com/github/codeql-cli-binaries/releases/download/v2.23.5/codeql-linux64.zip -o /tmp/codeql.zip \
     && echo '43d94a2ad35523d0c41623fe9c5396242a8b842d7bd2a00044d153d9be3bfa58  /tmp/codeql.zip' | sha256sum -c - \
     && unzip -q /tmp/codeql.zip -d /opt && rm /tmp/codeql.zip

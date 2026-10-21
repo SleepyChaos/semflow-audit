@@ -100,9 +100,13 @@ def create_stage(
         if record is None or record.audit_id != audit_id:
             raise HTTPException(404, "修复不存在")
         try:
+            from app.adapters.repair.verification_runner import resolve_image
+
+            materials = comparison_materials(record, inputs["suite_id"])
+            resolve_image(materials[3].result["image"])
             inputs = {
                 **inputs,
-                "identity": comparison_materials(record, inputs["suite_id"])[0],
+                "identity": materials[0],
             }
         except (AuditError, OSError, ValueError, KeyError) as exc:
             raise HTTPException(409, str(exc)) from exc
@@ -123,7 +127,7 @@ def create_stage(
             "rule": "8",
             "scout": "7",
             "report": "6",
-            "verification_suite": "3",
+            "verification_suite": "4",
             "verification": "1",
             "candidate_translation": "1",
         }[kind],

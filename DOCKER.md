@@ -6,7 +6,9 @@
 
 Docker 应用栈包含生产前端、FastAPI、Celery Worker、PostgreSQL/pgvector、Redis、CodeQL 及 Python/JavaScript 固定查询库，首次启动会初始化数据库和 RAG 基础材料。宿主机不需要另外安装 Python、Node、uv 或 CodeQL；RAG 默认使用 BM25，不需要向量化服务。
 
-原有本机启动方式仍然保留。**修复验收测试和修复前后对比依赖的隔离执行服务尚未接入这份容器配置**，目前不能把 Docker 部署视为完整四阶段流程验收。
+原有本机启动方式仍然保留。修复验收使用独立的 Docker-in-Docker 服务 `validator`，通过 TLS 连接，不挂载宿主机 Docker socket，也不暴露 Docker 控制端口。该服务需要 `privileged` 权限；不要在不可信的共享宿主环境部署。
+
+`validator-init` 会构建 Python/Flask 测试镜像并准备 Node 镜像，成功后才启动 API 和 Worker。测试容器禁止联网、源码只读、非 root 运行，并限制 CPU、内存与进程数。内置 Flask 环境覆盖本仓库 RealVuln Flask 演示；其他项目依赖仍需专用镜像，不会自动安装上传项目声明的任意依赖。
 
 2026-10-18 已在 macOS Docker Desktop 上验证镜像构建、服务健康、页面访问、六个基础规则示例编译及真实 CodeQL 样例扫描。容器内完整 AI 复审/报告流程、Windows 真机启动尚未验收。
 
@@ -69,10 +71,10 @@ docker compose --env-file .env.docker -f system/compose.full.yml up -d --build -
 
 ```sh
 docker compose --env-file .env.docker -f system/compose.full.yml ps -a
-docker compose --env-file .env.docker -f system/compose.full.yml logs --tail 100 init api worker
+docker compose --env-file .env.docker -f system/compose.full.yml logs --tail 100 init validator validator-init api worker
 ```
 
-正常状态：`db`、`redis`、`api`、`worker` 为 `healthy`，一次性初始化服务 `init` 为 `Exited (0)`。`init` 正常退出后不会一直运行。
+正常状态：`db`、`redis`、`validator`、`api`、`worker` 为 `healthy`，一次性初始化服务 `init` 与 `validator-init` 为 `Exited (0)`。
 
 浏览器也可打开 [扫描环境接口](http://localhost:5181/api/v1/audits/environment)，查看 CodeQL 版本、查询包和队列状态；自定义端口时同步修改地址。
 
@@ -102,6 +104,7 @@ docker compose --env-file .env.docker -f system/compose.full.yml down
 | `load metadata`、代理 `502` 或 Registry 超时 | 检查 Docker Desktop 的代理、DNS 和镜像源；本地镜像代理故障时可设置 `IMAGE_REGISTRY=registry-1.docker.io` 后重新构建，仍使用官方仓库及固定摘要 |
 | API/Worker 没有启动，`init` 非零退出 | 先查看 `init` 日志，修复迁移或基础材料初始化错误；不要删除数据卷来掩盖错误 |
 | 页面可打开，但 AI 阶段失败 | 核对模型地址、密钥和模型权限；修改后重新运行 `up` |
+| 前后对比提示验证环境不可用 | 查看 `validator`、`validator-init` 日志；确认未禁止 privileged 容器、TLS 证书卷存在、测试镜像初始化成功。页面恢复后可重跑，无需重建补丁 |
 
 ## 相关文档
 

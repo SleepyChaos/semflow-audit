@@ -1,4 +1,4 @@
-# Application stack. Isolated repair verification service is pending approval.
+# Application stack with a separately privileged, TLS-authenticated test daemon.
 name: semflow-container
 
 x-app: &app
@@ -10,6 +10,7 @@ x-app: &app
     args:
       NODE_IMAGE: ${IMAGE_REGISTRY:-docker.io}/library/node:22.22.0-bookworm-slim@sha256:7cc56ef285a8568121537d17b05e72128f01b89c54607b51acf084a50ef483f3
       PYTHON_IMAGE: ${IMAGE_REGISTRY:-docker.io}/library/python:3.14.0-slim-bookworm@sha256:9bbb8720ae0a24a6ca8dd678bfdf57818fe70caf54c52a53ec01d8db43405056
+      DOCKER_CLI_IMAGE: ${IMAGE_REGISTRY:-docker.io}/library/docker:28.5.2-cli@sha256:625d9431a9f54c5a2bc90f24f0e1c3d55b1349fd857dd85035f98c2c9acbdd4d
   env_file: ../.env.docker
   environment:
     PROJECT_NAME: SemFlow Audit
@@ -26,10 +27,40 @@ x-app: &app
     EMBEDDING_MODEL: ""
     EMBEDDING_REVISION: ""
     EMBEDDING_DIMENSIONS: "0"
+    DOCKER_HOST: tcp://validator:2376
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: /certs/client
   volumes:
     - artifacts:/app/artifacts
+    - validator-certs:/certs/client:ro
 
 services:
+  validator:
+    image: ${IMAGE_REGISTRY:-docker.io}/library/docker:28.5.2-dind@sha256:2a232a42256f70d78e3cc5d2b5d6b3276710a0de0596c145f627ecfae90282ac
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+      DOCKER_TLS_SAN: DNS:validator
+    volumes:
+      - validator-data:/var/lib/docker
+      - validator-certs:/certs/client
+      - artifacts:/app/artifacts:ro
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, 'DOCKER_HOST=tcp://127.0.0.1:2376 DOCKER_TLS_VERIFY=1 DOCKER_CERT_PATH=/certs/client docker info >/dev/null 2>&1']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  validator-init:
+    <<: *app
+    command: [python, /app/system/docker/bootstrap_validator.py]
+    environment:
+      DOCKER_HOST: tcp://validator:2376
+      DOCKER_TLS_VERIFY: "1"
+      DOCKER_CERT_PATH: /certs/client
+      IMAGE_REGISTRY: ${IMAGE_REGISTRY:-docker.io}
+    depends_on:
+      validator: {condition: service_healthy}
   db:
     image: pgvector/pgvector:pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
     environment:
@@ -65,6 +96,7 @@ services:
     restart: unless-stopped
     depends_on:
       init: {condition: service_completed_successfully}
+      validator-init: {condition: service_completed_successfully}
     healthcheck:
       test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/utils/health-check/', timeout=3)"]
       interval: 10s
@@ -76,6 +108,7 @@ services:
     restart: unless-stopped
     depends_on:
       init: {condition: service_completed_successfully}
+      validator-init: {condition: service_completed_successfully}
     healthcheck:
       test: [CMD-SHELL, "celery -A app.jobs.celery_app:celery_app inspect ping --destination celery@$$HOSTNAME --timeout 5 | grep -q pong"]
       interval: 30s
@@ -86,3 +119,5 @@ volumes:
   database:
   queue:
   artifacts:
+  validator-data:
+  validator-certs:
