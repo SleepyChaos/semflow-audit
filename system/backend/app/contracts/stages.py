@@ -105,7 +105,8 @@ class ProposedChange(StrictModel):
 
 
 class RepairResponse(StrictModel):
-    changes: list[ProposedChange] = Field(min_length=1, max_length=8)
+    # A request can cover 20 findings, each requiring several source edits.
+    changes: list[ProposedChange] = Field(min_length=1, max_length=80)
     summary: str = Field(min_length=10, max_length=5000)
 
 

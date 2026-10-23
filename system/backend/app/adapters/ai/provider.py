@@ -4,10 +4,10 @@ import json
 import math
 from hashlib import sha256
 from pathlib import Path
-from time import monotonic
+from time import monotonic, sleep
 from typing import TypeVar
 
-from openai import OpenAI, OpenAIError
+from openai import APIConnectionError, OpenAI, OpenAIError
 from pydantic import BaseModel, ValidationError
 
 from app.adapters.ai.policy import CallBudget, policy_snapshot
@@ -173,7 +173,10 @@ class CompatibleModel:
             },
         ]
         output = self.policy["budgets"][purpose]
-        for attempt in range(2):
+        delays = self.policy.get("connection_retry_delays", [])
+        connection_retries = 0
+        recovered = False
+        for attempt in range(2 + len(delays)):
             validation_feedback = None
             input_bound = len(json.dumps(messages, ensure_ascii=False).encode()) + 256
             timeout = self.budget.reserve(output, input_bound)
@@ -261,6 +264,8 @@ class CompatibleModel:
                 record["error_code"] = (
                     "timeout"
                     if type(exc).__name__ == "APITimeoutError"
+                    else "connection_error"
+                    if isinstance(exc, APIConnectionError)
                     else "rate_limited"
                     if type(exc).__name__ == "RateLimitError"
                     else "provider_error"
@@ -270,6 +275,8 @@ class CompatibleModel:
                 error = AuditError(
                     "模型服务限流；进度已保留，额度恢复后可继续审计"
                     if record["error_code"] == "rate_limited"
+                    else "模型服务连接暂时失败；进度已保留，可重新生成"
+                    if isinstance(exc, APIConnectionError)
                     else f"模型服务请求失败（{type(exc).__name__}）；检查服务配置"
                 )
             except ValidationError as exc:
@@ -282,7 +289,11 @@ class CompatibleModel:
                     for row in exc.errors(include_input=False, include_url=False)[:12]
                 ]
                 record["error_code"] = "schema_invalid"
-                error = AuditError("模型输出不符合结构契约；未确认任何漏洞")
+                error = AuditError(
+                    "模型输出不符合补丁结构要求；未保存修复补丁"
+                    if purpose == "repair"
+                    else "模型输出不符合结构契约；未确认任何漏洞"
+                )
             finally:
                 if record["input_tokens"] is None or record["output_tokens"] is None:
                     self.usage["unknown_usage_calls"] = (
@@ -294,13 +305,22 @@ class CompatibleModel:
             if result is not None:
                 return result
             if (
-                attempt == 0
+                record["error_code"] in {"connection_error", "timeout"}
+                and connection_retries < len(delays)
+            ):
+                sleep(delays[connection_retries])
+                connection_retries += 1
+                continue
+            if (
+                not recovered
                 and record["error_code"] == "length"
                 and record["input_tokens"] is not None
             ):
+                recovered = True
                 output *= 2
                 continue
-            if attempt == 0 and record["error_code"] == "schema_invalid":
+            if not recovered and record["error_code"] == "schema_invalid":
+                recovered = True
                 if purpose == "repair":
                     messages = [
                         *messages,

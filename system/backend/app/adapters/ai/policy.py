@@ -25,6 +25,7 @@ def policy_snapshot(kind: str | None = None) -> dict:
         "max_tokens": audit_settings.AI_STAGE_MAX_TOKENS,
         "max_seconds": audit_settings.AI_STAGE_MAX_SECONDS,
         "recovery_attempts": 1,
+        "connection_retry_delays": [2, 4, 8],
     }
     if kind == "rule":
         # CodeQL compilation and fixture execution have their own command limits.
