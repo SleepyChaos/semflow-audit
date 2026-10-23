@@ -67,3 +67,38 @@ def test_authentication_failure_is_not_retried(monkeypatch):
     with pytest.raises(AuditError):
         provider.generate("review", {}, ReviewResponse)
     assert len(calls) == 1
+
+
+def test_ai_only_rescan_stops_rewrites_without_passing_validation():
+    from app.services.repair_semantics import SemanticRepair
+
+    checks = {
+        "isolated_tests": {"status": "passed"},
+        "rescan": {
+            "status": "needs_review",
+            "target_rules": [],
+            "new_rule_alerts": [],
+        },
+    }
+    # This path needs no model or evidence request for unrelated alerts.
+    result = SemanticRepair.diagnose(None, {"checks": checks})
+    assert result["diagnosis"]["category"] == "inconclusive"
+    assert checks["rescan"]["status"] == "needs_review"
+    assert not all(row["status"] == "passed" for row in checks.values())
+
+
+@pytest.mark.parametrize("case", ["mapped_target", "new_alert", "failed_syntax"])
+def test_actual_validation_failures_still_require_diagnosis(case):
+    from app.services.repair_consistency import unmapped_rescan_diagnosis
+
+    checks = {
+        "isolated_tests": {"status": "passed"},
+        "rescan": {"status": "needs_review", "target_rules": [], "new_rule_alerts": []},
+    }
+    if case == "mapped_target":
+        checks["rescan"]["target_rules"] = ["py/code-injection"]
+    elif case == "new_alert":
+        checks["rescan"]["new_rule_alerts"] = [{"rule": "py/new-alert"}]
+    else:
+        checks["isolated_tests"]["status"] = "failed"
+    assert unmapped_rescan_diagnosis(checks) is None

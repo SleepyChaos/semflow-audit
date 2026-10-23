@@ -203,6 +203,7 @@ class RepairService:
                 if rules and not remaining and not new_rule_alerts
                 else "needs_review",
                 "findings": findings,
+                "target_rules": sorted(rules),
                 "remaining_target_rules": sorted(
                     {finding["rule"] for finding in remaining}
                 ),

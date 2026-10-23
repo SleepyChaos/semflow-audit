@@ -135,6 +135,27 @@ def check_contract(repair, state):
     }
 
 
+def unmapped_rescan_diagnosis(checks):
+    """Stop speculative rewrites; keep the rescan and patch unverified."""
+    scan = checks.get("rescan", {})
+    if (
+        scan.get("status") == "needs_review"
+        and scan.get("target_rules") == []
+        and not scan.get("new_rule_alerts")
+        and all(
+            row["status"] in {"passed", "not_run"}
+            for name, row in checks.items()
+            if name != "rescan"
+        )
+    ):
+        return {
+            "category": "inconclusive",
+            "summary": "所选 AI 漏洞未关联 CodeQL 规则，复扫无法判定其修复效果。保留补丁供审阅，不因无关告警扩大修改范围。",
+            "next_action": "审阅补丁并单独验证所选漏洞；当前补丁仍需复核，不能据此接受补丁。",
+        }
+    return None
+
+
 def contract_diagnosis(checks):
     check = checks.get("semantic_contract")
     if (

@@ -295,6 +295,11 @@ class SemanticRepair:
         return validate_candidate(self, state)
 
     def diagnose(self, state):
+        from app.services.repair_consistency import unmapped_rescan_diagnosis
+
+        diagnosis = unmapped_rescan_diagnosis(state["checks"])
+        if diagnosis is not None:
+            return {"diagnosis": diagnosis}
         from app.services.repair_suite_checks import suite_diagnosis
 
         diagnosis = suite_diagnosis(state["checks"])
