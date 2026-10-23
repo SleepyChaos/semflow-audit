@@ -10,7 +10,9 @@ Docker 应用栈包含生产前端、FastAPI、Celery Worker、PostgreSQL/pgvect
 
 `validator-init` 会构建 Python/Flask 测试镜像并准备 Node 镜像，成功后才启动 API 和 Worker。测试容器禁止联网、源码只读、非 root 运行，并限制 CPU、内存与进程数。内置 Flask 环境覆盖本仓库 RealVuln Flask 演示；其他项目依赖仍需专用镜像，不会自动安装上传项目声明的任意依赖。
 
-2026-10-18 已在 macOS Docker Desktop 上验证镜像构建、服务健康、页面访问、六个基础规则示例编译及真实 CodeQL 样例扫描。容器内完整 AI 复审/报告流程、Windows 真机启动尚未验收。
+截至 2026-10-23，已在 macOS Docker Desktop 上使用 RealVuln Flask 项目实际走通：源码上传、CodeQL 与 AI 发现、AI 复审、中文报告、修复补丁与测试样例生成、Diff 下载、规则验收与发布，以及发布规则在新审计中的复用。Windows 真机启动尚未验收。
+
+当前演示界面的修复流程为“生成补丁 → 生成测试样例 → 下载 Diff”，已按演示需求隐藏修复前后对比入口。生成测试样例不代表测试执行通过，下载补丁也不代表安全验收通过；后台保留已有验证结果和失败历史。
 
 ## 1. 准备 Docker
 
