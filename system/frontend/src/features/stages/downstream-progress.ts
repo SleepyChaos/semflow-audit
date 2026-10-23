@@ -18,6 +18,8 @@ export function ruleProgress(
     .sort((a, b) => b.created_at.localeCompare(a.created_at))[0]
   const rule = rules.find((row) => row.stage_id === latest?.id)
   const running = latest && ["queued", "running"].includes(latest.status)
+  const generating = running && !rule
+  const validating = running && Boolean(rule)
   const valid = rule && ["validated", "published"].includes(rule.status)
   const targetSaved = Boolean(rule || running || latest?.inputs.candidate_id)
   return [
@@ -28,12 +30,12 @@ export function ruleProgress(
     },
     {
       title: "检索与生成",
-      detail: running
+      detail: generating
         ? labelPhase(latest.phase)
         : rule
           ? "规则草稿已保存"
           : "自动检索参考资料与范例",
-      status: running
+      status: generating
         ? "active"
         : latest?.status === "failed" && !rule
           ? "attention"
@@ -45,18 +47,22 @@ export function ruleProgress(
       title: "正反例与项目验收",
       detail: valid
         ? "全部发布门通过"
-        : latest?.status === "awaiting_confirmation"
-          ? "确认开发样本后继续验收"
-          : "查看验证结果与覆盖范围",
+        : validating
+          ? labelPhase(latest.phase)
+          : latest?.status === "awaiting_confirmation"
+            ? "确认开发样本后继续验收"
+            : "查看验证结果与覆盖范围",
       statusLabel:
         latest?.status === "awaiting_confirmation" ? "待确认" : undefined,
       status: valid
         ? "done"
-        : latest?.status === "awaiting_confirmation"
+        : validating
           ? "active"
-          : rule && (rule.status === "failed" || latest?.status === "failed")
-            ? "attention"
-            : "waiting",
+          : latest?.status === "awaiting_confirmation"
+            ? "active"
+            : rule && (rule.status === "failed" || latest?.status === "failed")
+              ? "attention"
+              : "waiting",
     },
     {
       title: "发布与复用",

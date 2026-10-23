@@ -29,8 +29,10 @@ def validate_candidate(repair, state):
             checks = {"environment": {"status": "blocked", "output": str(exc)}}
         finally:
             s.directory = previous
-        if s.stage.prompt_version in {"3", "4"} and all(
-            check["status"] in {"passed", "not_run"} for check in checks.values()
+        if s.stage.prompt_version in {"3", "4", "5"} and all(
+            check["status"] in {"passed", "not_run"}
+            or (name == "rescan" and check["status"] == "needs_review")
+            for name, check in checks.items()
         ):
             from app.services.repair_consistency import check_contract
 

@@ -1,12 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { ArrowRight } from "lucide-react"
 import { toast } from "sonner"
-import { acceptRepair, downloadDiff, type RepairRecord } from "@/api/stages"
+import { downloadDiff, type RepairRecord } from "@/api/stages"
 import {
   generateVerificationSuite,
-  getVerificationEnvironment,
   getVerificationSuites,
-  verifyRepair,
 } from "@/api/verification"
 import { Button } from "@/components/ui/button"
 
@@ -22,12 +20,6 @@ export function RepairActions({
   modelReady: boolean
 }) {
   const cache = useQueryClient()
-  const environment = useQuery({
-    queryKey: ["verification-environment", auditId],
-    queryFn: () => getVerificationEnvironment(auditId),
-    staleTime: 15000,
-    refetchInterval: 15000,
-  })
   const suites = useQuery({
     queryKey: ["verification-suites", auditId],
     queryFn: () => getVerificationSuites(auditId),
@@ -38,85 +30,47 @@ export function RepairActions({
     suites.data?.find((row) =>
       record.candidate_ids.every((id) => row.candidate_ids.includes(id)),
     )
-  const suiteId = suite?.id || record?.comparison?.identity?.suite_id
-  const applicationFailed =
-    (record?.validation.application as { status?: string } | undefined)
-      ?.status === "failed"
   const action = useMutation({
-    mutationFn: (kind: "suite" | "verify" | "accept") => {
-      if (kind === "suite")
-        return generateVerificationSuite(auditId, {
-          candidate_ids: record!.candidate_ids,
-          image: suite?.image ?? "",
-          requirements: "",
-        })
-      if (kind === "verify") return verifyRepair(record!.id, suiteId!)
-      return acceptRepair(
-        record!.id,
-        "用户已审阅补丁、测试断言及前后对比，接受所列测试范围内的修复。",
-        record!.comparison?.stage_id,
-        true,
-      )
-    },
+    mutationFn: () =>
+      generateVerificationSuite(auditId, {
+        candidate_ids: record!.candidate_ids,
+        image: suite?.image ?? "",
+        requirements: "",
+      }),
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
   })
-  const disabled =
-    !record || busy || action.isPending || record.status === "accepted"
   return (
     <>
       <Button
         variant="outline"
-        disabled={disabled || !modelReady}
-        onClick={() => action.mutate("suite")}
+        disabled={!record || busy || action.isPending || !modelReady}
+        onClick={() => action.mutate()}
       >
-        生成验收测试
+        生成测试样例
       </Button>
       <ArrowRight className="repair-flow-arrow" size={18} aria-hidden="true" />
       <Button
         variant="outline"
-        disabled={
-          disabled || !suiteId || applicationFailed || !environment.data?.ready
-        }
-        onClick={() => action.mutate("verify")}
-      >
-        修复前后对比
-      </Button>
-      <ArrowRight className="repair-flow-arrow" size={18} aria-hidden="true" />
-      <Button
-        variant="outline"
-        disabled={!record}
+        disabled={!record?.changes.length}
         onClick={() =>
           downloadDiff(record!.id).catch((error: Error) =>
             toast.error(error.message),
           )
         }
       >
-        下载当前 Diff
+        下载修复 Diff
       </Button>
-      {record?.acceptance_ready && record.status !== "accepted" && (
-        <Button disabled={disabled} onClick={() => action.mutate("accept")}>
-          审阅后接受补丁
-        </Button>
-      )}
       {suites.error && (
-        <p role="alert">测试集读取失败：{suites.error.message}</p>
+        <p role="alert">测试样例读取失败：{suites.error.message}</p>
       )}
       {action.error && <p role="alert">{action.error.message}</p>}
-      {environment.data?.error && (
-        <p className="result-action-note" role="alert">
-          前后对比暂不可用：{environment.data.error}。已生成补丁与测试保留。
-        </p>
-      )}
-      {environment.error && (
-        <p role="alert">验证环境检查失败：{environment.error.message}</p>
-      )}
       {record && (
         <p className="result-action-note">
           当前补丁 {record.id.slice(0, 8)} ·{" "}
-          {suiteId
-            ? "已匹配固定测试集"
-            : "尚无匹配测试集，先生成验收测试再运行前后对比"}
+          {suite
+            ? "测试样例已生成，可下载修复 Diff"
+            : "补丁已生成，可生成关联测试样例"}
         </p>
       )}
     </>

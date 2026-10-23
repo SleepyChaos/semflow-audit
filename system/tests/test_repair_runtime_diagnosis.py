@@ -1,4 +1,4 @@
-"""Only stable, located candidate name errors permit implementation feedback."""
+"""Only stable, located candidate exceptions permit implementation feedback."""
 
 from types import SimpleNamespace
 
@@ -28,3 +28,27 @@ def test_actual_junit_name_error_keeps_location(tmp_path):
     result["cases"]["test_security"]["exception_file"] = "app.py"
     result["cases"]["test_security"]["exception_type"] = "ModuleNotFoundError"
     assert candidate_runtime_errors(suite, pairs, tmp_path) == []
+
+
+def test_located_repeated_rejection_error_is_candidate_feedback(tmp_path):
+    (tmp_path / "app.py").write_text(
+        "def evaluate():\n    raise ValueError('unsupported expression')\n"
+    )
+    suite = SimpleNamespace(cases=[SimpleNamespace(name="test_security")])
+    result = {
+        "cases": {
+            "test_security": {
+                "status": "error",
+                "exception_type": "ValueError",
+                "exception_file": "app.py",
+                "exception_line": 2,
+                "exception_message": "ValueError: unsupported expression",
+            }
+        }
+    }
+    assert (
+        candidate_runtime_errors(suite, [{"after": result}] * 2, tmp_path)[0][
+            "exception_type"
+        ]
+        == "ValueError"
+    )

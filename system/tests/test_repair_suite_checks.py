@@ -130,3 +130,40 @@ def test_changed_execution_receipt_is_rejected(selected):
     path.write_text(path.read_text().replace("assertion_failed", "passed"))
     with pytest.raises(AuditError, match="收据"):
         module.check_selected_suite(repair, {"attempt": 2})
+
+
+def test_uncalibrated_path_does_not_hide_proven_failures_or_become_a_pass(
+    selected,
+    monkeypatch,
+):
+    repair, calls, source = selected
+    _, suite, _ = module.read_suite(None, None)
+    suite.cases.append(
+        VerificationCase(
+            name="test_original_xml",
+            category="functional",
+            input_description="原程序的 XML 功能",
+            expected_behavior="应解析 XML",
+        )
+    )
+    original_runner = module.run_suite
+
+    def runner(*args):
+        result = original_runner(*args)
+        result["cases"]["test_original_xml"] = {
+            "status": "error",
+            "exception_type": "TypeError",
+        }
+        return result
+
+    monkeypatch.setattr(module, "run_suite", runner)
+    first = module.check_selected_suite(repair, {"attempt": 1})
+    assert first["status"] == "failed" and first["category"] == "implementation"
+    assert first["unresolved_baseline_cases"] == ["test_original_xml"]
+    diagnosis = module.suite_diagnosis({"selected_suite": first})
+    assert all(
+        "test_original_xml" not in row for row in diagnosis["violated_constraints"]
+    )
+    second = module.check_selected_suite(repair, {"attempt": 2})
+    assert second["status"] == "blocked" and second["category"] == "inconclusive"
+    assert calls.count(str(source)) == 2

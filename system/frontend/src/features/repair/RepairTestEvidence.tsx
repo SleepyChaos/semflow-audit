@@ -23,7 +23,7 @@ export function RepairTestEvidence({
   if (!suite) return null
   return (
     <details className="repair-test-evidence">
-      <summary>验收测试用例与代码 · {suite.suite.title}</summary>
+      <summary>测试样例与代码 · {suite.suite.title}</summary>
       <p>{suite.suite.summary}</p>
       <ul>
         {suite.suite.cases.map((test) => (

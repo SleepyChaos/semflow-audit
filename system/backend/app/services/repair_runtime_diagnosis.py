@@ -37,9 +37,14 @@ def candidate_runtime_errors(suite, pairs, workspace):
             continue
         # Baseline calibration and complete execution are checked by the caller.
         # Do not treat imports, dependency versions or unknown exceptions as a
-        # request to rewrite business code. These two errors name definitions
-        # used by the executing candidate; syntax checks cannot find them.
-        if len(set(kinds)) == 1 and kinds[0] in {"NameError", "UnboundLocalError"}:
+        # request to rewrite business code. A ValueError raised inside candidate
+        # code can also escape a previously calibrated HTTP request; callers
+        # filter these observations to cases with a known original baseline.
+        if len(set(kinds)) == 1 and kinds[0] in {
+            "NameError",
+            "UnboundLocalError",
+            "ValueError",
+        }:
             errors.append(
                 {
                     "test": case.name,

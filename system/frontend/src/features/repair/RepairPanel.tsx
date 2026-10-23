@@ -21,7 +21,7 @@ import { StageHistory } from "@/features/stages/StageHistory"
 import { RepairActions } from "./RepairActions"
 import { RepairCard } from "./RepairCard"
 import { RepairProgressBadges, RepairTargets } from "./RepairTargets"
-import { repairProgressState } from "./repair-progress"
+import { hasRepairPatch, repairProgressState } from "./repair-progress"
 
 export function RepairPanel({
   run,
@@ -37,8 +37,10 @@ export function RepairPanel({
   const [focused, setFocused] = useState("")
   const [recordId, setRecordId] = useState("")
   const cache = useQueryClient()
-  const busy = stages.some((stage) =>
-    ["queued", "running"].includes(stage.status),
+  const busy = stages.some(
+    (stage) =>
+      stage.kind !== "verification" &&
+      ["queued", "running"].includes(stage.status),
   )
   const candidates = useQuery({
     queryKey: ["candidates", run.id],
@@ -91,7 +93,10 @@ export function RepairPanel({
   const related = records.filter((row) =>
     candidateMemberIds(current).some((id) => row.candidate_ids.includes(id)),
   )
-  const record = related.find((row) => row.id === recordId) ?? related[0]
+  const record =
+    related.find((row) => row.id === recordId) ??
+    related.find(hasRepairPatch) ??
+    related[0]
   const start = useMutation({
     mutationFn: () =>
       startStage(run.id, "repair", {
@@ -99,7 +104,6 @@ export function RepairPanel({
         allowed_paths: [],
         validation_profile: "syntax",
         rescan: true,
-        ...(suite ? { verification_suite_id: suite.id } : {}),
       }),
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
@@ -113,8 +117,7 @@ export function RepairPanel({
         <div>
           <h3>代码修复</h3>
           <p>
-            勾选真实漏洞生成补丁，点击左侧条目查看对应的修复记录、验证结果和代码
-            Diff。
+            勾选漏洞生成补丁和测试样例，点击左侧条目查看修复说明和代码 Diff。
           </p>
         </div>
         <div className="stage-row">
@@ -143,10 +146,10 @@ export function RepairPanel({
           <p role="alert">中文修复解读生成失败：{translate.error.message}</p>
         )}
         <p className="page-note">
-          自动读取关联文件，使用平台验证环境、语法检查及 CodeQL 复扫；
+          自动读取关联文件并生成修复补丁；
           {suite
-            ? "已匹配固定测试集，新补丁会按该测试集的预期行为修复并执行验证。"
-            : "前后验证使用匹配的固定测试集。"}
+            ? "测试样例已准备，可直接下载修复 Diff。"
+            : "生成测试样例后，可下载修复 Diff。"}
         </p>
         {start.error && <p role="alert">{start.error.message}</p>}
       </section>
@@ -176,7 +179,7 @@ export function RepairPanel({
           />
           <section
             className="result-detail-scroll"
-            aria-label="修复验证与代码对比"
+            aria-label="修复说明与代码 Diff"
             key={current?.id ?? "empty"}
           >
             {current ? (
@@ -204,12 +207,14 @@ export function RepairPanel({
                         value={record?.id ?? ""}
                         onValueChange={setRecordId}
                         options={[
-                          ...related.map((row, i) => ({
+                          ...related.map((row) => ({
                             value: row.id,
                             label: (
                               <>
-                                {i === 0 ? "最新尝试" : "历史尝试"} ·{" "}
-                                {row.id.slice(0, 8)}
+                                {row.id === related.find(hasRepairPatch)?.id
+                                  ? "最新可用补丁"
+                                  : "历史尝试"}{" "}
+                                · {row.id.slice(0, 8)}
                               </>
                             ),
                           })),
@@ -221,7 +226,7 @@ export function RepairPanel({
                 {record ? (
                   <>
                     <p className="page-note">
-                      本补丁覆盖当前漏洞，下方展示完整补丁及实际验证范围。
+                      当前漏洞关联到这份补丁；是否修复以对应测试结果为准。
                     </p>
                     <RepairCard
                       key={record.id}
@@ -247,7 +252,9 @@ export function RepairPanel({
       )}
       <details className="downstream-disclosure">
         <summary>后台执行历史</summary>
-        <StageHistory stages={stages} />
+        <StageHistory
+          stages={stages.filter((stage) => stage.kind !== "verification")}
+        />
       </details>
     </section>
   )

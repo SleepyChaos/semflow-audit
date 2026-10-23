@@ -26,6 +26,10 @@ def policy_snapshot(kind: str | None = None) -> dict:
         "max_seconds": audit_settings.AI_STAGE_MAX_SECONDS,
         "recovery_attempts": 1,
     }
+    if kind == "rule":
+        # CodeQL compilation and fixture execution have their own command limits.
+        # They must not consume the model's recovery-call time budget.
+        policy["seconds_scope"] = "model_calls"
     if kind in {"scout", "review", "repair"}:
         policy["execution_mode"] = audit_settings.AI_AUDIT_EXECUTION_MODE
         policy["max_no_progress"] = max(1, audit_settings.AI_STAGE_MAX_NO_PROGRESS)
@@ -41,7 +45,8 @@ class CallBudget:
 
     def reserve(self, output: int, input_bound: int = 0) -> float:
         elapsed = sum(row.get("seconds", 0) for row in self.records)
-        elapsed = max(elapsed, monotonic() - self.start)
+        if self.policy.get("seconds_scope") != "model_calls":
+            elapsed = max(elapsed, monotonic() - self.start)
         used = sum(
             (row["input_tokens"] + row["output_tokens"])
             if row.get("input_tokens") is not None

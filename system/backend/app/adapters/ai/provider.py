@@ -88,6 +88,7 @@ class CompatibleModel:
             ("repair", "2"),
             ("repair", "3"),
             ("repair", "4"),
+            ("repair", "5"),
             ("rule", "6"),
             ("rule", "7"),
             ("rule", "8"),
@@ -106,7 +107,7 @@ class CompatibleModel:
                             )
                             * audit_settings.REPAIR_ATTEMPTS,
                         }
-                        if stage.kind == "repair" and prompt_version in {"3", "4"}
+                        if stage.kind == "repair" and prompt_version in {"3", "4", "5"}
                         else {}
                     ),
                 },
@@ -216,12 +217,12 @@ class CompatibleModel:
                     response_format={"type": "json_object"},
                     messages=messages,
                 )
+                content = (
+                    completion.choices[0].message.content
+                    if completion.choices
+                    else None
+                )
                 if self.response_directory is not None:
-                    content = (
-                        completion.choices[0].message.content
-                        if completion.choices
-                        else None
-                    )
                     if content is not None:
                         # Preserve incomplete/schema-invalid candidates privately, never log raw output.
                         name = f"model-call-{record['call_index']}.response.txt"
@@ -300,6 +301,23 @@ class CompatibleModel:
                 output *= 2
                 continue
             if attempt == 0 and record["error_code"] == "schema_invalid":
+                if purpose == "repair":
+                    messages = [
+                        *messages,
+                        {"role": "assistant", "content": content or ""},
+                        {
+                            "role": "user",
+                            "content": (
+                                "Correct the previous complete JSON to match the supplied schema. "
+                                "Include every required field at every level, especially summary "
+                                "and each changes[].reason for a patch. Preserve the exact patch "
+                                "code and all requested targets; do not drop changes to avoid a "
+                                "formatting error. Keep unsupported premises unresolved. Diagnostics: "
+                                + json.dumps(validation_feedback, ensure_ascii=False)
+                            ),
+                        },
+                    ]
+                    continue
                 messages = [
                     *messages,
                     {

@@ -132,13 +132,14 @@ export function RepairProgressBadges({
               ? "⚠ "
               : ""}
           {step.title} ·{" "}
-          {step.status === "attention"
-            ? "受阻"
-            : step.status === "done"
-              ? "已完成"
-              : step.status === "active"
-                ? "待完成"
-                : "待开始"}
+          {step.statusLabel ??
+            (step.status === "attention"
+              ? "受阻"
+              : step.status === "done"
+                ? "已完成"
+                : step.status === "active"
+                  ? "待完成"
+                  : "待开始")}
         </span>
       ))}
       {current.status === "attention" && (

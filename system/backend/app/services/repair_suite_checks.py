@@ -32,13 +32,14 @@ def _execute(directory, identity, workspace, tests, suite, image, repository, st
 def _baseline_valid(suite, runs):
     if any(row.get("status") != "completed" for row in runs):
         return False
-    return all(
+    return any(
         [
             run.get("cases", {}).get(case.name, {}).get("status", "missing")
             for run in runs
         ]
-        == (["assertion_failed"] * 2 if case.category == "security" else ["passed"] * 2)
+        == ["assertion_failed"] * 2
         for case in suite.cases
+        if case.category == "security"
     )
 
 
@@ -88,7 +89,7 @@ def check_selected_suite(repair, state):
         return {
             "status": "blocked",
             "category": "inconclusive",
-            "output": "所选测试在原代码上未稳定复现安全断言失败或正常功能基线；不据此修改业务代码",
+            "output": "所选测试未稳定复现任何安全断言失败；不据此修改业务代码",
             "identity": identity,
             "before": before,
         }
@@ -126,30 +127,46 @@ def check_selected_suite(repair, state):
     ):
         raise AuditError("候选验收期间测试或源码发生变化", code="integrity_error")
     result = compare_runs(suite, pairs)
+    # Proven failures in calibrated cases can guide a retry even when another
+    # original path is broken. Unknown cases remain unknown and block acceptance.
+    calibrated_failure = bool(result["failures"])
     from app.services.repair_runtime_diagnosis import candidate_runtime_errors
 
     runtime_errors = candidate_runtime_errors(suite, pairs, workspace)
-    runtime_names = {row["test"] for row in runtime_errors}
+    calibrated_names = {
+        case.name
+        for case in suite.cases
+        if all(
+            run["cases"].get(case.name, {}).get("status")
+            == ("assertion_failed" if case.category == "security" else "passed")
+            for run in before
+        )
+    }
+    runtime_errors = [row for row in runtime_errors if row["test"] in calibrated_names]
     implementation_error = (
         result["status"] == "inconclusive"
-        and bool(result["uncertain"])
-        and set(result["uncertain"]).issubset(runtime_names)
+        and bool(runtime_errors)
         and all(pair["after"].get("status") == "completed" for pair in pairs)
     )
     if implementation_error:
         result["status"] = "failed"
         result["summary"] = (
-            "已校准基线后，完整执行发现候选引入明确名称解析错误；需修正候选，不能算安全通过。"
+            "已校准用例在补丁内部出现未处理异常；需修正补丁。其他未校准基线仍保留为未知。"
         )
     # The model receives case-level expected/observed behavior, not executable
     # test code or raw traceback output. Raw results remain in immutable runs.
     return {
-        "status": "blocked" if result["status"] == "inconclusive" else result["status"],
-        "category": "inconclusive"
+        "status": "failed"
+        if calibrated_failure
+        else "blocked"
         if result["status"] == "inconclusive"
+        else result["status"],
+        "category": "inconclusive"
+        if result["status"] == "inconclusive" and not calibrated_failure
         else "implementation",
         "output": result["summary"],
         "cases": result["cases"],
+        "unresolved_baseline_cases": result["uncertain"],
         "identity": {**identity, "patched_snapshot": candidate_hash},
         "runtime_errors": runtime_errors,
         "meaning": result["meaning"],
@@ -168,7 +185,9 @@ def suite_diagnosis(checks):
         "violated_constraints": [
             case["name"] + ": " + case["reason"]
             for case in result.get("cases", [])
-            if case["after"] != "passed"
+            if case["before"]
+            == ("assertion_failed" if case["category"] == "security" else "passed")
+            and case["after"] != "passed"
         ],
         "next_action": "Correct the candidate using the unchanged selected acceptance expectations"
         if result["status"] == "failed"

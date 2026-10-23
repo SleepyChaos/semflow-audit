@@ -88,7 +88,7 @@ class SemanticRepair:
 
         acceptance = acceptance_contract(s)
         image_id = None
-        if acceptance and s.stage.prompt_version in {"3", "4"}:
+        if acceptance and s.stage.prompt_version in {"3", "4", "5"}:
             from app.adapters.repair.verification_runner import resolve_image
 
             image_id = resolve_image(acceptance["image"])
@@ -105,6 +105,16 @@ class SemanticRepair:
                 "meaning": "Only these files are authorized patch targets. Other source is read-only context; inspect it only to establish dependencies or callers of these targets, not to expand this repair to another subsystem.",
             },
         )
+        if s.stage.prompt_version == "5":
+            from app.services.repair_scope import complete_target_scope
+
+            inspection = complete_target_scope(
+                self.reader,
+                inspection,
+                descriptions,
+                requested_behavior=acceptance,
+                repair_scope={"writable_files": paths},
+            )
         contents, views = patch_context(s.evidence, paths, inspection["evidence"])
         bundle = {
             "targets": descriptions,
@@ -346,6 +356,17 @@ class SemanticRepair:
                 "meaning": "Same authorized patch targets on retry; other source remains read-only context",
             },
         )
+        if self.service.stage.prompt_version == "5":
+            from app.services.repair_scope import complete_target_scope
+
+            bundle["inspection"] = complete_target_scope(
+                self.reader,
+                bundle["inspection"],
+                bundle["targets"],
+                namespace=f"retry-{state['attempt']}",
+                requested_behavior=bundle.get("acceptance_contract"),
+                repair_scope={"writable_files": state["allowed_paths"]},
+            )
         from app.services.repair_inputs import patch_context
 
         bundle["allowed_files"], bundle["file_views"] = patch_context(

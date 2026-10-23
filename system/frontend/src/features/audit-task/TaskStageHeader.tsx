@@ -169,12 +169,7 @@ export function TaskStageHeader({
         title: "正在读取修复进展",
         detail: "等待已保存的补丁与验证结果。",
       }
-    const current = newest(stages, [
-      "repair",
-      "verification",
-      "verification_suite",
-      "verification_acceptance",
-    ])
+    const current = newest(stages, ["repair", "verification_suite"])
     const records = repairs.data ?? []
     const accepted = records.filter((r) => r.status === "accepted").length
     return {
@@ -182,13 +177,13 @@ export function TaskStageHeader({
         current && activeStatus(current.status)
           ? labelPhase(current.phase)
           : current?.status === "failed"
-            ? "本次修复或验证执行失败"
+            ? "本次补丁或测试样例生成失败"
             : accepted
               ? "已有已接受的修复补丁"
               : records.length
-                ? "补丁已生成，请核对 Diff 与验证结果"
+                ? "补丁已生成，可查看并下载修复 Diff"
                 : "尚未生成修复补丁",
-      detail: `${records.length} 次修复尝试 · ${accepted} 份补丁已接受。仅可选择确认真实的漏洞，原始源码保持不变。`,
+      detail: `${records.length} 次修复记录 · 生成补丁与测试样例后下载 Diff，原始源码保持不变。`,
     }
   }
   const ruleSummary = (): Summary => {

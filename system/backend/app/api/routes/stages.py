@@ -123,7 +123,7 @@ def create_stage(
         prompt_version=prompt_version
         or {
             "review": "12",
-            "repair": "4",
+            "repair": "5",
             "rule": "8",
             "scout": "7",
             "report": "6",
