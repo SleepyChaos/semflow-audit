@@ -380,3 +380,10 @@ R13四例均评估，功能均通过，原联合仍1/4；原三困难样本调�
 - 新增design/audit-mechanisms三份详细文档：complementary-discovery、premise-review、evidence-feedback，含代码边界、作用原理、六例事实、指标解释、失败机制与因果实验。明确D组171原始候选165仍支持、原297个FP实体288所属候选仍支持，precision收益不能全部算语义排误报；F的弃权与召回损失单列。
 - 一次性本地PostgreSQL17回归85项通过，其中21项补证专项、64项原有复审/前提/展示/上下文/CLI/共享运行时；使用显式模型替身、真实持久化，0真实API调用和0新扫描。测试容器已停止删除，原业务容器未启动或改动。Ruff、相关diff空白检查及文档链接核对通过。
 - JUnit与逐文件实现SHA保存artifacts/research/verification/20261102-audit-mechanisms/feedback-regression.xml及feedback-fix-validation.json；更新独立研究状态和索引。旧RealVuln成绩及四组未执行模型重放保持原样；尚不能声称真实模型找回dvga-021或提高召回。
+
+### 2026-11-02 提交审计改进与目录只读索引
+
+- 用户要求提交文档/改动并盘点目录供审阅清理。审计补证、三机制文档及相关离线工具已选择性提交6d86060，未混入原有OpenHands/CLI改造；独立暂存快照73项审计回归和14项离线诊断通过。未推送或部署服务器。
+- 新增project_directory_index.py和design/project-directory-index-20261102.md，扫描251521条文件记录、逻辑5.79GiB、1175条Git跟踪路径，0错误，不跟随符号链接、不读取凭据。原始目录CSV/JSON位于artifacts/research/verification/20261102-project-index。
+- 主要空间在artifacts约1.94GiB、.local-workspace约1.86GiB、三个Python环境约971MiB和Node依赖359MiB。Go构建缓存668MiB等可再生成项列为候选；原始证据、未核对源码副本与独立环境按用途/恢复能力分别处理。未删除、迁移或压缩项目文件。
+- Git跟踪且至少64KiB的等大小候选逐字节SHA核对，0组完全相同大文件；不将不同文档版本或忽略产物判成可直接删除。索引区分磁盘整理、源文件组织和部署包边界。

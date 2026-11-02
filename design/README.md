@@ -7,6 +7,7 @@
 | [architecture.md](architecture.md) | 模块边界与架构 |
 | [product-workflow.md](product-workflow.md) | 功能链路与界面流程 |
 | [repository-layout.md](repository-layout.md) | 五个主目录与归档规则 |
+| [目录现状与精简候选](project-directory-index-20261102.md) | 实际目录、文件数、空间占用、可再生成项与结构简化建议 |
 | [双引擎开发计划](dual-engine-development-plan.md) | 静态扫描与独立 Agent 发现 |
 | [审计三机制详解](audit-mechanisms/README.md) | 互补发现、前提复审与反馈补证；日志证据、收益来源及DVGA本地修复 |
 | [业务语义修复](semantic-repair-plan.md) | 修复编排与验证设计 |

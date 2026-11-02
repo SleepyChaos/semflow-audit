@@ -12,6 +12,7 @@
 | 新样本与浏览器补测 | `benchmarks/supplemental_*.py/mjs`、`chain_*.py/mjs` |
 | 历史测试结果归档 | `archive_test_results.py`、`test_archive/`；[版本收据说明](../../benchmarks/testing/README.md) |
 | 既有材料盘点 | `benchmarks/current_test_inventory.py`、`inventory_collected_materials.py` |
+| 项目目录只读索引 | `project_directory_index.py --output <目录>`；[现状与精简建议](../../design/project-directory-index-20261102.md) |
 | 仓库数据打包、验证与恢复 | [archive_research_materials.py](benchmarks/archive_research_materials.py)；[公开数据归档](../../benchmarks/datasets/README.md) |
 
 ## 仓库研究数据
