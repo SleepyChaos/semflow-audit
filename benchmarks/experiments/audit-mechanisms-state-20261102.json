@@ -40,9 +40,9 @@
   ],
   "server_updated": false,
   "mechanism_documents": [
-    "design/audit-mechanisms/complementary-discovery.md",
-    "design/audit-mechanisms/premise-review.md",
-    "design/audit-mechanisms/evidence-feedback.md"
+    "design/audit-mechanisms-20261102/complementary-discovery-20261102.md",
+    "design/audit-mechanisms-20261102/premise-review-20261102.md",
+    "design/audit-mechanisms-20261102/evidence-feedback-20261102.md"
   ],
   "validation": {
     "tests": 85,

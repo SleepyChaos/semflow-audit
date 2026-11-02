@@ -2,7 +2,7 @@
 
 版本：2026-11-02 / v1。用户授权的研究方向限定于代码审计模块。RealVuln 10-14 结果用于历史诊断和开发回归；本协议的机制对照不是那次六组实验已经完成的部分。
 
-同日后续实现：本地已接入受限补证v1，可通过Review输入`supplement_insufficient=false`关闭作对照；机制和工程验证见[反馈补证文档](../../design/audit-mechanisms/evidence-feedback.md)。新增机制的RealVuln模型效果实验尚未执行，原始结果不改写。
+同日后续实现：本地已接入受限补证v1，可通过Review输入`supplement_insufficient=false`关闭作对照；机制和工程验证见[反馈补证文档](../../design/audit-mechanisms-20261102/evidence-feedback-20261102.md)。新增机制的RealVuln模型效果实验尚未执行，原始结果不改写。
 
 ## 研究边界与当前状态
 
