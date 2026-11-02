@@ -153,7 +153,11 @@ def pool_for_resume(service):
     pool = prepare_pool(service)
     if stage.result.get("pool") and digest(pool) != digest(stage.result["pool"]):
         raise AuditError("复核候选池被修改")
-    if pool["inputs"] != service.inputs.model_dump(mode="json"):
+    expected_inputs = service.inputs.model_dump(mode="json")
+    if "supplement_insufficient" not in pool["inputs"]:
+        # Legacy prepared pools never enable the new policy on resume.
+        expected_inputs.pop("supplement_insufficient")
+    if pool["inputs"] != expected_inputs:
         raise AuditError("复核范围或预算已变化")
     return pool
 

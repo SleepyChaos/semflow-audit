@@ -18,6 +18,10 @@ class ReviewRequest(StrictModel):
     scout_candidate_ids: list[UUID] = Field(default_factory=list, max_length=200)
     batch_size: int = Field(4, ge=1, le=8)
     max_batches: int = Field(0, ge=0, le=100, description="0 schedules all candidates")
+    supplement_insufficient: bool = Field(
+        True,
+        description="Reassess named local evidence gaps within remaining batch budget",
+    )
 
 
 class DecisionRequest(StrictModel):

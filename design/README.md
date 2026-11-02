@@ -8,6 +8,7 @@
 | [product-workflow.md](product-workflow.md) | 功能链路与界面流程 |
 | [repository-layout.md](repository-layout.md) | 五个主目录与归档规则 |
 | [双引擎开发计划](dual-engine-development-plan.md) | 静态扫描与独立 Agent 发现 |
+| [审计三机制详解](audit-mechanisms/README.md) | 互补发现、前提复审与反馈补证；日志证据、收益来源及DVGA本地修复 |
 | [业务语义修复](semantic-repair-plan.md) | 修复编排与验证设计 |
 | [规则双库设计](rag-two-corpus-plan.md) | reference / rule_example 集合与索引 |
 | [规则稳定化计划](rag-stabilization-phase-plan.md) | 生成、证据、编译与验收边界 |

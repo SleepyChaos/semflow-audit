@@ -333,3 +333,50 @@ R13四例均评估，功能均通过，原联合仍1/4；原三困难样本调�
 ### 2026-10-16 全量完整报告与论文对照
 
 核对作者arXiv v1 Table 2，所有6个对照及模型/预算/时延条件单列。本机12项评分、15项oracle有效范围与100项已验证下界同时说明，不给不可评分42项补算成功。单文件HTML内嵌100项结果、校准、清单、去密钥配置和实现哈希，含筛选/CSV导出，实际浏览器零脚本错误及无页面横向溢出。91份generation计量与总账一致。报告位于artifacts/research/reports/Vul4Py全量修复测试完整报告-20261016.html。
+
+
+## 2026-11-02 代码审计历史整理与 RealVuln 离线复核
+
+- 用户要求整理最新代码审计测试。新增 reports/audit-testing-status-20261102.md，区分 10-08 OWASP48、10-13 增量、10-14 六组消融、10-29 归档与 11-02 CLI 工程回归；未新增模型调用或扫描，原实验 next_action 与冻结成绩不变。
+- experiments/verify_realvuln_snapshot.py 核验审阅包 2429 个文件哈希；展开目录缺失的 52 个上游回执从原 ZIP 读取并校验。通过冻结官方 matcher 重算六组 156 个项目行，全部与 formal-summary.json/ablation-summary.csv 一致。ablation-data.json 是 D/E 未运行、F352 的旧中间结果，未覆盖。
+- 最新完整 F：TP354/FP366/FN322，P49.17/R52.37/F150.72/F352.03。相对 CodeQL P+22.86pp/R+36.69pp，但 FP 总量+69；相对合流未复审 C，P+17.79pp/R−9.17pp。F 有 307 个 insufficient/unknown，26 阶段 completed 不代表全部候选获结论。
+- 六项作者历史输出离线重评分复现原总表，并披露缺失输出。Sonnet 缺3项目、Gemini缺2项目；共同输出子集事后核查中 F3 分别为本系统52.78对Sonnet56.34、52.62对Gemini54.84，不能用全分母主表的微小 F3 优势宣称整体领先。交集诊断不替换正式评分。
+- 核验 JSON 与对照 CSV 保存在 artifacts/research/verification/20261102-realvuln/；更新 benchmarks 入口及材料清单的 RealVuln 行。未修改生产代码、服务器服务或既有实验原始产物。脚本 Ruff、格式与 git diff --check 通过。
+
+
+### 2026-11-02 RealVuln 优势项目与创新假设分析
+
+- 用户要求完整报告、消融结果，并先对比优势项目。新增 reports/realvuln-discovery-advantages-20261102.md 和离线 analyze_realvuln_advantages.py；不新跑模型／扫描，原 next_action 与冻结成绩不变。
+- 按 F 金标与 CodeQL 独立命中逐项求差，保留102、增加252、丢失4；250/252已被独立Scout命中。新增主CWE中XSS50、硬编码凭据45，占37.70%；不能将全部优势归因于复杂业务逻辑。
+- 导出26项目六组TP、156项外部项目比较及252个新增金标案例，保留CWE/源码路径/行号/候选ID/原复审理由。外部均值与所有保存轮次命中并集分开；缺输出为unknown而非零。
+- PyGoat、VulPy、Djangoat、DSVPWA等相对CodeQL和保存Sonnet/Gemini均值均有TP优势；VulnPy/GraphQL相对CodeQL有增益，但低于相应LLM对照，列为反例。F对Sonnet项目TP胜9负14，对Gemini胜10平3负11，不能只挑优势项目宣称总体领先。
+- 机制仅列可检验假设：操作任务覆盖、框架/控制上下文补读、前提证据门与弃权、可追溯合流；现有六组未完成这些内部功能的同预算消融，未宣称已证明学术新颖性。新增产物保存在 artifacts/research/verification/20261102-realvuln/advantages/，未改生产代码及原实验收据。
+
+
+### 2026-11-02 六个RealVuln案例原始材料补充
+
+- 用户指定vampi-002、damn-vulnerable-flask-app-007/008/009/004、dvga-021，无需用户提供UUID；按正式F组评分关系解析候选、批次与阶段，补充包独立于既有汇总。
+- 从原ai-code-audit-db-1只读事务导出相关3个Review及3个Scout阶段的Evidence原文、StageRun/AuditRun等；数据库临时启动后恢复停止状态。Evidence逐项核对content摘要和快照身份，原模型调用/扫描未重跑。
+- 补包含108份Review原始响应、11份相关Scout响应、全部保存请求payload、逐批次结果/trace和hash关联；六例请求均有模型调用映射。原始冻结源码目录缺失明确标记；VAmPI users.py证据覆盖222行，Flask app.py证据覆盖211行并与原有固定提交归档副本逐行一致，DVGA views.py保存1–500行、501–525行缺失。未把拼接证据或新checkout冒充原始冻结目录。
+- 产物artifacts/exports/realvuln-six-cases-20261102.zip，1061文件，3093269字节；SHA256 645c1bed41b1e123536baad8eb5ff6f3da419d9cf24970e4b0bd106b0cde9373。
+- 此前授权的完整RealVuln目录迁移已完成，服务器路径/home/work/zdk/projects/semflow-audit/artifacts/research/realvuln/20261014-ablation，2937文件与原包一致。模型网关配置另按用户要求替换且最小请求HTTP200；不涉及任何历史结果重算或改写，密钥未写入本日志或补充包。
+
+
+### 2026-11-02 代码审计三部分机制研究：首轮离线诊断
+
+- 用户授权以静态/语义互补、成立前提复审、反馈补证研究审计优势来源，并询问DVGA是否揭示全局机制未实现。新增独立协议与audit-mechanisms-state-20261102.json，保留state.json此前修复实验历史；原始成绩、生产循环与服务器未修改。
+- 核对冻结与当前循环：有模型按需工具读取、前提门控、无效/漏答恢复；有效insufficient在save_batch后成为reviewed，未自动进入缺失前提补证。DVGA中间件/视图证据早在调用17/23出现，第31次当前批次未带入；finalize_required=false、remaining6含当前调用，随后3候选不足直接结束。不是证明模型看见正文仍忽略，也不是批内预算耗尽。
+- 核验审阅包2429文件，F组26项目1094候选，22项目有insufficient共264；220涉及输入/策略缺失、159防护、24操作，允许重叠。47个最终不足候选曾进入未评估恢复，不能当作有效insufficient闭环。独立Scout-only309，其中34附近有其他CWE静态输出、275没有；均未自动归因为语义或规则覆盖。
+- 核验补充包1060文件，3个所选Review阶段33个有效insufficient事件；13个缺失前提文本提及源码/模板，8个涉及先前已读但当前未提供的页，32个在非强制结束且还有后续调用位置时final。4个提及当前完整文件仅是待核查线索，不计作已确认推理错误。
+- 新增3个离线脚本与14项来源/时序/快照/请求身份/隔离回归，全部通过；Ruff通过。产物artifacts/research/verification/20261102-audit-mechanisms包含309互补金标、1094候选、26项目、33请求级缺口、DVGA补证计划。
+- DVGA 2x2重放输入已准备：重新核对前提与补入已有页分别开关，3目标，4次提供商请求上限、每次6000输出tokens、90秒、无自动重试；字符27884/28406/39165/39687均小于40000。保留原正文、统一压缩导航、只用第31次前证据。尚未执行新模型或扫描，未宣称减少未决；完整快照缺失及views.py501–525缺页仍在，策略事实/模型schema身份须先固定。
+
+
+### 2026-11-02 DVGA机制缺口本地修复与三份详细文档
+
+- 用户要求确认缺口后直接修复，并分别解析互补发现、前提复审、反馈补证的机制与优势来源。用户随后确认本地工作以便同学继续服务器测试；本轮未连接、修改或部署服务器。
+- 新增review_feedback与review_evidence：有效insufficient按明确的缺失源码文件触发一次候选级补证，优先复用同审计/阶段/快照且digest与实际源码一致的页，缺页才读取。保留原批次模型step和provider总预算，每次自动供给最多3页；无本地线索/策略、路径拒绝、空源码、预算/上下文不足保持原未决并记录停止原因。
+- 将批次模型/工具循环拆入review_batch，初评、复评逐次保留call_reference和assessment_history；拒收、漏答或provider失败不能抹去有效初评，取消及完整性错误直接传播。补证禁止新候选和pending倒退；重复读取不再立即强制final，但仍受重复/步数限制。ReviewRequest.supplement_insufficient默认开启，可false消融；旧准备池恢复不自动启用，新反馈提示独立v1冻结。
+- 新增design/audit-mechanisms三份详细文档：complementary-discovery、premise-review、evidence-feedback，含代码边界、作用原理、六例事实、指标解释、失败机制与因果实验。明确D组171原始候选165仍支持、原297个FP实体288所属候选仍支持，precision收益不能全部算语义排误报；F的弃权与召回损失单列。
+- 一次性本地PostgreSQL17回归85项通过，其中21项补证专项、64项原有复审/前提/展示/上下文/CLI/共享运行时；使用显式模型替身、真实持久化，0真实API调用和0新扫描。测试容器已停止删除，原业务容器未启动或改动。Ruff、相关diff空白检查及文档链接核对通过。
+- JUnit与逐文件实现SHA保存artifacts/research/verification/20261102-audit-mechanisms/feedback-regression.xml及feedback-fix-validation.json；更新独立研究状态和索引。旧RealVuln成绩及四组未执行模型重放保持原样；尚不能声称真实模型找回dvga-021或提高召回。

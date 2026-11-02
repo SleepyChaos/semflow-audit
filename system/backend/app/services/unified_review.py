@@ -1,29 +1,18 @@
 """Batched source verification of CodeQL alerts and independent scout hypotheses."""
 
-import json
-
 from app.adapters.artifacts import ArtifactStore
-from app.contracts.unified_review import (
-    FinalUnifiedReviewResponse,
-    UnifiedReviewResponse,
-)
 from app.domain.audit import AuditCancelled, AuditError
 from app.persistence.stage_repository import StageCancelled
 from app.services.context_materials import (
     digest,
-    frozen_call,
     save_json,
     verify_snapshot,
 )
-from app.services.read_tools import observe_tool, reused_read, window_observations
-from app.services.review import ReviewService
 from app.services.review_pool import (
-    batch_context,
     batches,
     fit_batches,
     pool_for_resume,
 )
-from app.services.unified_review_results import save_batch
 
 
 class UnifiedReview:
@@ -34,6 +23,9 @@ class UnifiedReview:
         self.directory = ArtifactStore().directory(self.stage_id)
 
     def prepare(self, _):
+        from app.services.review_feedback import initialize_feedback
+
+        initialize_feedback(self)
         pool = pool_for_resume(self)
         self.repository.update(
             self.stage_id, phase="verify_candidate_batches", model=self.provider.model
@@ -41,131 +33,9 @@ class UnifiedReview:
         return {"pool_hash": digest(pool)}
 
     def inspect_batch(self, batch_id, entries, call_limit=None, feedback=None):
-        context = batch_context(self, entries)
-        if feedback:
-            context["server_feedback"] = feedback
-        modern = self.stage.prompt_version in {
-            "5",
-            "6",
-            "7",
-            "8",
-            "9",
-            "10",
-            "11",
-            "12",
-        }
-        if modern:
-            from app.services.review_tools import SOURCE_TOOL_CONTRACT
+        from app.services.review_batch import inspect_batch
 
-            context["tool_contract"] = SOURCE_TOOL_CONTRACT
-        steps = call_limit or self.inputs.max_steps
-        for step in range(steps):
-            self.repository.active(self.stage_id)
-            if self.stage.prompt_version in {"8", "9", "10", "11", "12"}:
-                from app.services.discovery_context import (
-                    refresh_citation_contract,
-                    refresh_control_context,
-                )
-
-                context = refresh_citation_contract(
-                    refresh_control_context(self, context)
-                )
-            from app.adapters.context_packing import fit_navigation
-
-            context = fit_navigation(context, self.inputs.max_context_chars)
-            if (
-                len(json.dumps(context, ensure_ascii=False))
-                > self.inputs.max_context_chars
-            ):
-                raise AuditError("复核批次必要上下文超过预算", code="context_budget")
-            final_only = self.stage.prompt_version in {
-                "6",
-                "7",
-                "8",
-                "9",
-                "10",
-                "11",
-                "12",
-            } and (
-                step == steps - 1
-                or any(r.get("reused") for r in context.get("tool_trace", []))
-            )
-            context["remaining_model_calls_in_batch"] = steps - step
-            context["finalize_required"] = final_only
-            schema = FinalUnifiedReviewResponse if final_only else UnifiedReviewResponse
-            if self.stage.prompt_version in {"8", "9", "10", "11", "12"}:
-                from app.contracts.discovery_semantics import (
-                    FinalUnifiedReviewResponseV8,
-                    UnifiedReviewResponseV8,
-                )
-
-                schema = (
-                    FinalUnifiedReviewResponseV8
-                    if final_only
-                    else UnifiedReviewResponseV8
-                )
-            if self.stage.prompt_version in {"11", "12"}:
-                from app.contracts.review_presentation import (
-                    FinalPresentedReviewResponse,
-                    PresentedReviewResponse,
-                )
-
-                schema = (
-                    FinalPresentedReviewResponse
-                    if final_only
-                    else PresentedReviewResponse
-                )
-            response = frozen_call(
-                self.provider,
-                "review",
-                context,
-                schema,
-                self.directory / "batches" / batch_id / f"call-{step}",
-                limit=getattr(self.provider, "policy", {}).get("max_calls", 24),
-                ledger_directory=self.directory,
-            )
-            self.repository.active(self.stage_id)
-            if response.action == "final":
-                try:
-                    return save_batch(self, batch_id, response, context)
-                except AuditError as exc:
-                    if not modern or exc.code in {"identity_error", "integrity_error"}:
-                        raise
-                    context["server_feedback"] = {
-                        "validation_error": str(exc),
-                        "instruction": "Correct unsupported verdict/citation; preserve valid assessments and use actual evidence. Unresolved call identity is insufficient, not a supported dangerous operation.",
-                    }
-                    continue
-            call = response.tool.model_dump()
-            if modern:
-                from app.services.review_tools import gather_review_tool
-
-                context = gather_review_tool(self, context, call)
-                continue
-            previous = reused_read(context, call)
-            if previous is not None:
-                context = observe_tool(context, call, previous, reused=True)
-                continue
-            # Existing scope/knowledge/published-query validation stays in one dispatcher.
-            context = ReviewService.gather(
-                self, {"context": context, "response": response.model_dump(mode="json")}
-            )["context"]
-            data = next(
-                r
-                for r in context["evidence"]
-                if r["id"] == context["tool_trace"][-1]["evidence_id"]
-            )
-            # gather already appended the actual execution trace; add observation once.
-            context["tool_trace"] = context["tool_trace"][:-1]
-            context = observe_tool(context, call, data)
-            context["source_windows"] = window_observations(
-                self.evidence, context["evidence"]
-            )
-        raise AuditError(
-            "复核批次步数耗尽，结论仍未决: "
-            + str(context.get("server_feedback", ""))[:500],
-            code="unit_budget",
-        )
+        return inspect_batch(self, batch_id, entries, call_limit, feedback)
 
     def verify(self, state):
         pool = pool_for_resume(self)
@@ -217,6 +87,14 @@ class UnifiedReview:
                 )
                 result = self.inspect_batch(batch_id, entries, call_limit)
                 save_json(self.directory / "batches" / batch_id / "result.json", result)
+                if result.get("feedback_stop_code") in {
+                    "budget_exhausted",
+                    "timeout",
+                    "provider_error",
+                    "rate_limited",
+                }:
+                    stop_reason = result["feedback_stop_code"]
+                    break
             except StageCancelled, AuditCancelled:
                 raise
             except Exception as exc:

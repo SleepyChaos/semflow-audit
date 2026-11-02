@@ -13,7 +13,7 @@ from app.services.context_materials import digest
 from app.services.read_tools import grounded
 
 
-def save_batch(service, batch_id, response, context):
+def save_batch(service, batch_id, response, context, *, call_reference=None):
     seen = {r["id"]: r for r in context["evidence"]}
     targets = {r["candidate_id"]: r for r in context["targets"]}
 
@@ -129,7 +129,11 @@ def save_batch(service, batch_id, response, context):
         rejected_findings = []
         for finding in response.new_findings:
             try:
-                if not service.inputs.discover or finding.related_target not in targets:
+                if (
+                    context.get("feedback_revision")
+                    or not service.inputs.discover
+                    or finding.related_target not in targets
+                ):
                     raise AuditError("复核补充发现未授权或关联目标无效")
                 location = finding.primary_location.model_dump()
                 if not inspectable(location["file"], service.evidence.audit.language):
@@ -201,8 +205,14 @@ def save_batch(service, batch_id, response, context):
                 a.model_dump(mode="json") for a in response.anchor_assessments
             ],
             "trace": context["tool_trace"],
+            "call_reference": call_reference,
         }
         previous = {r["batch_id"]: r for r in stage.result.get("batches", [])}
+        from app.services.review_batch_history import merge_revision
+
+        result = merge_revision(
+            previous.get(batch_id, {}), result, context.get("feedback_revision")
+        )
         previous[batch_id] = result
         stage.result = {**stage.result, "batches": list(previous.values())}
         db.add(stage)

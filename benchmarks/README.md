@@ -2,6 +2,12 @@
 
 这里集中保存测试输入、基准论文、评测协议、实验计划与历史结果；代码审计方法研究另见 [research](../research/README.md)。
 
+漏洞发现最新结果入口：[代码审计测试现状与 RealVuln 核查（2026-11-02）](reports/audit-testing-status-20261102.md)。
+RealVuln 最新保留实验为 10-14 六组消融；11-02 为历史证据重算日期，并未新增模型测试。
+按项目分析与论文机制假设见 [RealVuln 发现优势与消融证据](reports/realvuln-discovery-advantages-20261102.md)，附26项目与252个新增命中明细。
+三部分研究的新入口：[代码审计机制诊断](reports/audit-mechanisms-diagnosis-20261102.md)与[互补发现／前提复审／反馈补证协议](experiments/audit-mechanisms-protocol-20261102.md)。已完成历史诊断和DVGA四组输入预检，尚未运行新模型实验。
+后续本地改进与原理解析见[三份机制详解](../design/audit-mechanisms/README.md)：有效不足的受限补证已接入并增加工程回归；服务器未由本轮更新，RealVuln新模型效果尚未重测。
+
 | 目录 / 文件 | 内容 |
 | --- | --- |
 | [datasets/](datasets/README.md) | 39 个可验证、可离线恢复的公开数据压缩包 |

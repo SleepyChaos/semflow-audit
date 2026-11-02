@@ -6,6 +6,8 @@ from app.services.review_classification import implicated_cwes
 
 
 def validate_assessment(service, assessment, context, targets, evidence):
+    if context.get("feedback_revision") and assessment.assessment == "pending":
+        raise AuditError("补证必须给出已校验判断或保留insufficient，不能退回未评估")
     detail = getattr(assessment, "detail", None)
     if detail is not None:
         from app.services.review_presentation import validate_detail

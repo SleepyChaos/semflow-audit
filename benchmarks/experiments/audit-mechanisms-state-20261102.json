@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "experiment_id": "audit-mechanisms-20261102-v1",
+  "status": "local_feedback_fix_and_three_mechanism_documents_complete",
+  "protocol": "audit-mechanisms-protocol-20261102.md",
+  "result_root": "artifacts/research/verification/20261102-audit-mechanisms",
+  "new_model_calls": 0,
+  "new_scans": 0,
+  "completed": [
+    "Verified frozen review package hashes and diagnosed 26 project cohorts",
+    "Verified six-case supplement hashes and inspected three stages of saved requests",
+    "Traced DVGA evidence availability and batch/recovery control flow",
+    "Prepared four paired DVGA saved-context inputs within 40000 characters",
+    "Implemented bounded candidate-level feedback v1 with immutable revision history",
+    "Added supplement_insufficient input for controlled ablation and preserved legacy resume semantics",
+    "Wrote three detailed mechanism documents with implementation, data and causal limits",
+    "Passed 85 related tests including 21 feedback cases; disposable DB removed"
+  ],
+  "next_action": {
+    "task": "adjudicate_evidence_facts_and_execute_bounded_saved_context_pilot",
+    "preflight": "artifacts/research/verification/20261102-audit-mechanisms/dvga-replay/preflight.json",
+    "prerequisites": [
+      "Resolve or explicitly retain missing mount/route and business policy facts from actual source; never use gold labels as policy",
+      "Freeze model request/response identity, schema and provider hard limits for this new experiment"
+    ],
+    "max_provider_requests": 4,
+    "production_feedback_loop_changed": true,
+    "implementation_location": "local_working_tree_not_deployed"
+  },
+  "remaining": [
+    "Human adjudication of rule, semantic, extraction and scoring contributions",
+    "Meaningful positive/negative premise oracle and held-out project selection",
+    "Run controlled live-tool comparisons and measure correctness, recall loss and cost"
+  ],
+  "limits": [
+    "Three selected request-level stages cannot estimate population reasoning-error frequency",
+    "Saved-context replay inputs are prepared, not executed or proven beneficial",
+    "Original complete source snapshots remain missing",
+    "Historical formal results and the separate repair experiment state remain intact"
+  ],
+  "server_updated": false,
+  "mechanism_documents": [
+    "design/audit-mechanisms/complementary-discovery.md",
+    "design/audit-mechanisms/premise-review.md",
+    "design/audit-mechanisms/evidence-feedback.md"
+  ],
+  "validation": {
+    "tests": 85,
+    "feedback_tests": 21,
+    "result": "passed",
+    "artifact": "artifacts/research/verification/20261102-audit-mechanisms/feedback-fix-validation.json"
+  }
+}
