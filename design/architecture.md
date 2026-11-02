@@ -62,6 +62,10 @@ frontend/src/
 
 API/jobs → workflows/services → domain/ports。adapters/persistence 提供实现，初始化模块完成装配。domain 不依赖 Web、任务或 AI 框架。
 
+CLI 与 Celery 通过 `runtime/` 共用扫描和阶段执行入口，阶段创建与人工决策约束放在 services，
+CLI 可在不启动 HTTP/Worker/Redis 的情况下执行。实验配置、收据和恢复语义见
+[实验 CLI 与共享内核](experiment-cli.md)；评分与隐藏答案继续留在 benchmarks。
+
 本项目为单工作区本地 Web 工具，无登录、注册、用户管理或令牌校验。为保留现有任务/规则/知识外键，内部工作区复用历史管理员归属 ID；新安装创建固定且不可登录的内部归属记录，API 不暴露账号接口。`FIRST_SUPERUSER` 仅为兼容旧数据的可选归属选择，管理员密码与 JWT 密钥不再是启动必填项。
 
 任务、阶段执行、证据、发现、判断、修复尝试、规则版本与知识版本分别持久化。规则 ID 不能代替漏洞实例身份。

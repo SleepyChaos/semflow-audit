@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "name": "scan-review-pilot",
+  "repetitions": 1,
+  "samples": [
+    {
+      "id": "sample-001",
+      "archive": "../../../artifacts/inputs/sample.zip",
+      "language": "python",
+      "dual_engine": false,
+      "stages": [
+        {
+          "kind": "review",
+          "prompt_version": "12",
+          "inputs": {
+            "discover": true,
+            "include_scout": false,
+            "max_batches": 2
+          },
+          "budget": {
+            "max_calls": 12,
+            "max_tokens": 50000,
+            "max_seconds": 240
+          }
+        }
+      ]
+    }
+  ]
+}

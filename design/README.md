@@ -5,6 +5,7 @@
 | 入口 | 内容 |
 | --- | --- |
 | [architecture.md](architecture.md) | 模块边界与架构 |
+| [实验 CLI 与共享内核](experiment-cli.md) | 命令行实验、配置、收据与恢复语义 |
 | [product-workflow.md](product-workflow.md) | 功能链路与界面流程 |
 | [repository-layout.md](repository-layout.md) | 五个主目录与归档规则 |
 | [双引擎开发计划](dual-engine-development-plan.md) | 静态扫描与独立 Agent 发现 |

@@ -2,16 +2,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
-from sqlalchemy import update
 from sqlmodel import select
 
 from app.api.deps import LocalWorkspace, SessionDep
 from app.api.routes.stages import dispatch_stage
 from app.contracts.stages import FixtureApproval, ProjectMatchConfirmation
 from app.domain.audit import AuditError
-from app.models import get_datetime_utc
 from app.persistence.knowledge_models import RuleVersion
-from app.persistence.stage_models import StageRun
 from app.services.rules import publish_rule
 
 router = APIRouter(prefix="/rules", tags=["rules"])
@@ -70,21 +67,12 @@ def approve(
     workspace: LocalWorkspace,
 ):
     rule = owned_rule(identifier, session, workspace)
-    stage = session.get(StageRun, rule.stage_id)
-    if rule.status != "draft" or stage.status != "awaiting_confirmation":
-        raise HTTPException(409, "当前规则不处于等待样本确认状态")
-    result = session.execute(
-        update(StageRun)
-        .where(StageRun.id == stage.id, StageRun.status == "awaiting_confirmation")
-        .values(status="queued", updated_at=get_datetime_utc())
-    )
-    if result.rowcount != 1:
-        session.rollback()
-        raise HTTPException(409, "样本确认已被其他请求处理")
-    rule.fixtures_approved, rule.fixture_approval_reason = True, body.reason
-    session.add(rule)
-    session.commit()
-    session.refresh(stage)
+    from app.services.stage_actions import approve_stage
+
+    try:
+        stage = approve_stage(session, rule.stage_id, workspace.id, body.reason)
+    except AuditError as exc:
+        raise HTTPException(409, str(exc)) from exc
     dispatch_stage(stage, session, resume=True)
     return stage
 

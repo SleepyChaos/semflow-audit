@@ -5,6 +5,7 @@
 | 职责 | 入口 |
 | --- | --- |
 | 初始化与工具准备 | `init_local.py`、`install_query_sources.py`、`install_codeql_lsp.py` |
+| 共享内核实验 CLI | `PYTHONPATH=backend .venv/bin/python -m app.cli --help`；[配置与恢复](../../design/experiment-cli.md) |
 | 生产知识采集与索引 | `seed_knowledge.py`、`curate_rule_corpus.py`、`expand_rule_corpus.py` |
 | 本地链路与真实工具验证 | `verify_live.py`、`benchmarks/run_local.py`、`system/tests/` |
 | 三方向正式评测 | `benchmarks/formal_*.py`；[实验断点与协议](../../benchmarks/experiments/README.md) |

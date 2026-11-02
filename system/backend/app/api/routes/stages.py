@@ -1,6 +1,5 @@
 """Owned stage execution, immutable histories and human evidence-based confirmation."""
 
-from datetime import timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
@@ -16,10 +15,9 @@ from app.contracts.stages import (
 )
 from app.domain.audit import AuditError
 from app.jobs.stages import execute_stage
-from app.models import get_datetime_utc
 from app.persistence.audit_models import AuditRun
 from app.persistence.stage_models import Candidate, Decision, Evidence, StageRun
-from app.services.evidence import EvidenceService, valid_evidence
+from app.services.evidence import EvidenceService
 
 router = APIRouter(tags=["stages"])
 
@@ -54,83 +52,23 @@ def create_stage(
     initial_result: dict | None = None,
     prompt_version: str | None = None,
 ):
-    owned_run(audit_id, session, workspace)
-    run = session.exec(
-        select(AuditRun).where(AuditRun.id == audit_id).with_for_update()
-    ).one()
-    if kind not in {
-        "review",
-        "repair",
-        "rule",
-        "scout",
-        "report",
-        "verification_suite",
-        "verification",
-        "candidate_translation",
-    }:
-        raise HTTPException(409, "此记录不支持后台重跑")
-    ready = (
-        (
-            kind in {"report", "verification_suite", "verification"}
-            and run.status == "failed"
-        )
-        or run.status == "completed"
-        or (
-            run.status == "failed"
-            and kind in {"review", "repair", "scout", "candidate_translation"}
-            and run.coverage.get("dual_engine", {}).get("review_ready", False)
-        )
-    )
-    if not ready:
-        raise HTTPException(409, "需要先完成静态审计")
-    active = session.exec(
-        select(StageRun).where(
-            StageRun.audit_id == audit_id,
-            StageRun.kind == kind,
-            StageRun.status.in_(["queued", "running"]),
-        )
-    ).first()
-    if active:
-        raise HTTPException(409, "该阶段已有正在执行的任务")
-    if kind == "verification":
-        from app.persistence.stage_models import RepairRecord
-        from app.services.repair_comparison import comparison_materials
+    from app.services.stage_lifecycle import create_stage_run
 
-        record = session.get(RepairRecord, UUID(inputs["repair_id"]))
-        if record is None or record.audit_id != audit_id:
-            raise HTTPException(404, "修复不存在")
-        try:
-            inputs = {
-                **inputs,
-                "identity": comparison_materials(record, inputs["suite_id"])[0],
-            }
-        except (AuditError, OSError, ValueError, KeyError) as exc:
-            raise HTTPException(409, str(exc)) from exc
-    if kind == "report":
-        from app.services.report_generation import source_fingerprint
-        from app.services.reports import build_report
-
-        inputs = {"source_fingerprint": source_fingerprint(build_report(session, run))}
-    stage = StageRun(
-        audit_id=audit_id,
-        kind=kind,
-        inputs=inputs,
-        result=initial_result or {},
-        prompt_version=prompt_version
-        or {
-            "review": "12",
-            "repair": "4",
-            "rule": "8",
-            "scout": "7",
-            "report": "5",
-            "verification_suite": "2",
-            "verification": "1",
-            "candidate_translation": "1",
-        }[kind],
-    )
-    session.add(stage)
-    session.commit()
-    session.refresh(stage)
+    try:
+        stage = create_stage_run(
+            session,
+            audit_id,
+            workspace.id,
+            kind,
+            inputs,
+            initial_result=initial_result,
+            prompt_version=prompt_version,
+        )
+    except AuditError as exc:
+        code = {"not_found": 404, "invalid_input": 422}.get(exc.code, 409)
+        raise HTTPException(code, str(exc)) from exc
+    except (OSError, ValueError, KeyError) as exc:
+        raise HTTPException(409, str(exc)) from exc
     dispatch_stage(stage, session)
     return stage
 
@@ -196,25 +134,6 @@ def continue_scout(identifier: UUID, session: SessionDep, workspace: LocalWorksp
 def repair(
     audit_id: UUID, body: RepairRequest, session: SessionDep, workspace: LocalWorkspace
 ):
-    owned_run(audit_id, session, workspace)
-    candidates = session.exec(
-        select(Candidate).where(
-            Candidate.audit_id == audit_id, Candidate.id.in_(body.candidate_ids)
-        )
-    ).all()
-    if len(candidates) != len(set(body.candidate_ids)) or any(
-        row.status != "confirmed" for row in candidates
-    ):
-        raise HTTPException(409, "请选择本次审计中人工确认的缺陷")
-    if body.verification_suite_id:
-        from app.services.verification_suites import read_suite, target_ids
-
-        try:
-            suite = read_suite(body.verification_suite_id, audit_id)[1]
-            if not set(map(str, body.candidate_ids)).issubset(target_ids(suite)):
-                raise AuditError("测试集没有覆盖所选修复目标")
-        except (AuditError, OSError, ValueError, KeyError) as exc:
-            raise HTTPException(409, str(exc)) from exc
     return create_stage(
         audit_id, "repair", body.model_dump(mode="json"), session, workspace
     )
@@ -224,16 +143,6 @@ def repair(
 def rule(
     audit_id: UUID, body: RuleRequest, session: SessionDep, workspace: LocalWorkspace
 ):
-    if body.holdout_id:
-        from app.services.rule_holdouts import dataset
-
-        try:
-            data = dataset(body.holdout_id)
-            audit = owned_run(audit_id, session, workspace)
-            if (data["language"], data["purpose"]) != (audit.language, body.purpose):
-                raise AuditError("独立样本集语言或用途不匹配")
-        except AuditError as exc:
-            raise HTTPException(422, str(exc)) from exc
     return create_stage(
         audit_id, "rule", body.model_dump(mode="json"), session, workspace
     )
@@ -252,28 +161,24 @@ def evidence(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
 
 @router.post("/stages/{identifier}/retry", status_code=201)
 def retry(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
-    previous = owned_stage(identifier, session, workspace)
-    if previous.status not in {"failed", "cancelled"}:
-        raise HTTPException(409, "仅失败或取消阶段可创建重跑记录")
-    if previous.kind == "scout" and previous.inputs.get("continuation_from_id"):
-        return continue_scout(identifier, session, workspace)
-    return create_stage(
-        previous.audit_id, previous.kind, previous.inputs, session, workspace
-    )
+    from app.services.stage_actions import retry_stage
+
+    try:
+        stage = retry_stage(session, identifier, workspace.id)
+    except AuditError as exc:
+        raise HTTPException({"not_found": 404}.get(exc.code, 409), str(exc)) from exc
+    dispatch_stage(stage, session)
+    return stage
 
 
 @router.post("/stages/{identifier}/cancel")
 def cancel(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
-    owned_stage(identifier, session, workspace)
-    stage = session.exec(
-        select(StageRun).where(StageRun.id == identifier).with_for_update()
-    ).one()
-    if stage.status not in {"queued", "running", "awaiting_confirmation"}:
-        raise HTTPException(409, "阶段当前不能取消")
-    stage.status, stage.phase = "cancelled", "cancel_requested"
-    stage.updated_at = get_datetime_utc()
-    session.add(stage)
-    session.commit()
+    from app.services.stage_actions import cancel_stage
+
+    try:
+        cancel_stage(session, identifier, workspace.id)
+    except AuditError as exc:
+        raise HTTPException({"not_found": 404}.get(exc.code, 409), str(exc)) from exc
     return {
         "status": "cancelled",
         "meaning": "当前外部调用完成后停止，原始快照不受影响",
@@ -282,23 +187,12 @@ def cancel(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
 
 @router.post("/stages/{identifier}/recover")
 def recover(identifier: UUID, session: SessionDep, workspace: LocalWorkspace):
-    owned_stage(identifier, session, workspace)
-    stage = session.exec(
-        select(StageRun).where(StageRun.id == identifier).with_for_update()
-    ).one()
-    if stage.status != "running" or stage.updated_at > get_datetime_utc() - timedelta(
-        minutes=45
-    ):
-        raise HTTPException(409, "仅超过 45 分钟无更新的运行记录可标记失联")
-    stage.status, stage.error = (
-        "cancelled",
-        "执行失联已回收；旧记录保留，可创建独立重试",
-    )
-    stage.updated_at = get_datetime_utc()
-    session.add(stage)
-    session.commit()
-    session.refresh(stage)
-    return stage
+    from app.services.stage_actions import recover_stage
+
+    try:
+        return recover_stage(session, identifier, workspace.id)
+    except AuditError as exc:
+        raise HTTPException({"not_found": 404}.get(exc.code, 409), str(exc)) from exc
 
 
 @router.get("/audits/{audit_id}/candidates")
@@ -364,36 +258,13 @@ def decide(
     session: SessionDep,
     workspace: LocalWorkspace,
 ):
-    candidate = session.get(Candidate, identifier)
-    if candidate is None:
-        raise HTTPException(404, "候选不存在")
-    owned_run(candidate.audit_id, session, workspace)
-    stage = session.get(StageRun, candidate.stage_id)
-    if stage.status in {"queued", "running"}:
-        raise HTTPException(409, "请等待复审结束后记录人工判断")
+    from app.services.candidate_decisions import record_decision
+
     try:
-        valid_evidence(
-            candidate.audit_id,
-            body.evidence_ids,
-            body.status in {"confirmed", "excluded"},
-        )
+        return record_decision(session, identifier, workspace.id, body)
     except AuditError as exc:
-        raise HTTPException(422, str(exc))
-    decision = Decision(
-        candidate_id=identifier,
-        actor_id=workspace.id,
-        status=body.status,
-        reason=body.reason,
-        evidence_ids=list(map(str, body.evidence_ids)),
-    )
-    candidate.status = body.status
-    if body.evidence_ids:
-        candidate.evidence_ids = list(map(str, body.evidence_ids))
-    session.add(candidate)
-    session.add(decision)
-    session.commit()
-    session.refresh(decision)
-    return decision
+        code = {"not_found": 404, "invalid_input": 422}.get(exc.code, 409)
+        raise HTTPException(code, str(exc)) from exc
 
 
 @router.post("/audits/{audit_id}/evidence", status_code=201)

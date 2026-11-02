@@ -30,6 +30,9 @@ dependencies = [
     "astroid==4.3.3",
 ]
 
+[project.scripts]
+semflow = "app.cli.main:main"
+
 [dependency-groups]
 dev = [
     "pytest<10.0.0,>=7.4.3",
