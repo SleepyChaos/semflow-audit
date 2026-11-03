@@ -2,6 +2,9 @@
 
 统计日期：2026-10-08。范围：三个方向材料目录、既有书目/方法登记、历史材料清单和最近竞品记录。
 
+2026-11-02 发现实验增补：[RealVuln 最新成绩核查](../reports/audit-testing-status-20261102.md)。
+下列材料总数保留 10-08 历史口径；RealVuln 行补充了后来完成的 26 项目实验，其他方向未在本次全面重盘。
+
 [论文时效与横向对照覆盖核查](freshness-and-coverage-review.md)：43项登记保持；另列3篇新文献及4个补充工具候选，未合并为已收集/已运行数量。
 
 ## 数量与口径
@@ -30,7 +33,7 @@
 | 材料 | 方向 | 当前落地与限制 |
 | --- | --- | --- |
 | [OWASP BenchmarkPython](https://github.com/OWASP-Benchmark/BenchmarkPython) | 发现/复审 | 完整源码与标签：1230例，452正/778负，14类。全量CodeQL已跑；AI全量未跑，已有冻结48例验收。 |
-| [RealVuln](https://github.com/kolega-ai/Real-Vuln-Benchmark) | 发现/复审 | 140仓库元数据；Flask/DVNA两项目源码。31个主条件+5个误报陷阱；累计29/31是开发结果。 |
+| [RealVuln](https://github.com/kolega-ai/Real-Vuln-Benchmark) | 发现/复审 | 早期 Flask/DVNA 的 31 条是开发校准。10-14 已完成固定 26 个 Python 项目、676 漏洞／120 陷阱六组消融；完整系统 TP354/FP366，P49.17%、R52.37%。11-02 离线重算一致，非新盲测。 |
 | [OpenSSF CVE Benchmark](https://github.com/ossf-cve-benchmark/ossf-cve-benchmark) | 发现/复审 | 223 CVE元数据已存；旧20项pilot已暴露。任务金标与源码需另外准备。 |
 | [6个新增JS项目配对快照](https://github.com/ossf-cve-benchmark/ossf-cve-benchmark) | 发现/复审 | 6个JS项目、12个前后快照已存；4模块oracle校准完成，尚无获准正式隐藏修复集。 |
 | [SecBench.js](https://github.com/cristianstaicu/SecBench.js) | 发现/复审 | 框架及600项索引已存；npm目标包缺失，不能直接称600项可运行。 |

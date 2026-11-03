@@ -2,6 +2,8 @@
 
 更新：2026-10-08。本目录保存实验执行状态；测试项目分类与任务边界统一见[两类测试入口](../test-programs/README.md)。历史结果保持原样。
 
+2026-11-02 用户新授权的代码审计机制研究独立入口：[实验协议](audit-mechanisms-protocol-20261102.md)、[诊断报告](../reports/audit-mechanisms-diagnosis-20261102.md)、[本研究状态](audit-mechanisms-state-20261102.json)。该研究按互补发现、前提复审、反馈补证展开；下文与 `state.json` 保留此前总体/修复任务的历史状态。
+
 ## 每次继续工作先读什么
 
 1. [状态文件](state.json)：任务状态、依赖、当前阶段和下一步。**执行状态以此文件为准。**
