@@ -158,7 +158,7 @@ def test_selected_executed_assertions_drive_real_graph_retry(
     )
     assert response.status_code == 201
     stage_id = response.json()["id"]
-    assert response.json()["prompt_version"] == "3"
+    assert response.json()["prompt_version"] == "4"
     assert StageRepository().claim(stage_id)
     service = RepairService(stage_id, InspectModel(respond))
     result = build_repair_graph(service).invoke({})

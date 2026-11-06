@@ -15,3 +15,12 @@ benchmarks/dataset-notes/*README.md -whitespace
 competition/deliverables/**/*.md -whitespace
 competition/review/*.md -whitespace
 competition/figureforge-texts/*.md -whitespace
+
+# Keep frontend formatter input identical on Windows and Linux.
+system/frontend/**/*.ts text eol=lf
+system/frontend/**/*.tsx text eol=lf
+system/frontend/**/*.js text eol=lf
+system/frontend/**/*.mjs text eol=lf
+system/frontend/**/*.css text eol=lf
+system/frontend/**/*.json text eol=lf
+system/frontend/**/*.html text eol=lf

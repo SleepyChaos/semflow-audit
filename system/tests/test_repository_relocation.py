@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import tomllib
 from pathlib import Path
 
 from app.core.audit_config import ROOT, AuditSettings
@@ -23,7 +24,7 @@ def test_runtime_keeps_original_environment_and_artifact_locations():
     )
 
 
-def test_relocation_preserves_frozen_receipts_papers_bundles_and_lockfiles():
+def test_relocation_preserves_frozen_receipts_papers_and_bundles():
     rows = json.loads((REPOSITORY / "design/repository-file-map.json").read_text())[
         "files"
     ]
@@ -31,10 +32,26 @@ def test_relocation_preserves_frozen_receipts_papers_bundles_and_lockfiles():
         row
         for row in rows
         if row["path"].startswith("benchmarks/testing/20261009-workspace-")
-        or row["path"].endswith((".pdf", ".tar.gz", "uv.lock", "package-lock.json"))
+        or row["path"].endswith((".pdf", ".tar.gz"))
     ]
     assert protected
     for row in protected:
         path = REPOSITORY / row["path"]
         actual = hashlib.sha256(path.read_bytes()).hexdigest()
         assert actual == row["original_sha256"], row["path"]
+
+
+def test_live_dependency_locks_match_their_current_manifests():
+    # The relocation map is historical; live dependencies evolve after relocation.
+    # CI additionally installs with npm ci and uv sync --locked.
+    for directory in ("system/frontend", "system/scripts/tools/codeql-lsp"):
+        manifest = json.loads((REPOSITORY / directory / "package.json").read_text())
+        lock = json.loads((REPOSITORY / directory / "package-lock.json").read_text())
+        assert lock["lockfileVersion"] >= 2
+        for group in ("dependencies", "devDependencies"):
+            assert lock["packages"][""].get(group, {}) == manifest.get(group, {})
+    manifest = tomllib.loads((REPOSITORY / "system/backend/pyproject.toml").read_text())
+    lock = tomllib.loads((REPOSITORY / "system/uv.lock").read_text())
+    application = next(package for package in lock["package"] if package["name"] == "app")
+    assert application["version"] == manifest["project"]["version"]
+    assert application["dependencies"]

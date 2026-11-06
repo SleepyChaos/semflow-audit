@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { ChevronDown, SquareTerminal } from "lucide-react"
-import { useState, type ReactNode } from "react"
+import { type ReactNode, useState } from "react"
 import { getLogs } from "@/api/audits"
 import { getStageLogs, getStages, type StageRun } from "@/api/stages"
 import { Badge } from "@/components/ui/badge"
@@ -52,10 +52,10 @@ function LogDisclosure({
         </Badge>
         <ChevronDown size={16} aria-hidden="true" />
       </summary>
-      <div
+      <section
         className="toolbar-log-body"
-        role="region"
         aria-label={title}
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users must be able to scroll this named log region.
         tabIndex={0}
       >
         {!available ? (
@@ -68,7 +68,7 @@ function LogDisclosure({
           <pre>{logs.data?.text || "当前暂无文本执行日志。"}</pre>
         )}
         {children}
-      </div>
+      </section>
     </details>
   )
 }
