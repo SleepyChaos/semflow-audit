@@ -1,0 +1,110 @@
+name: semflow-audit
+
+x-app: &app
+  image: semflow-audit-backend:local
+  build:
+    context: ./system
+    dockerfile: backend/Dockerfile
+    target: backend
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql+psycopg://audit:${POSTGRES_PASSWORD:?Run python system/scripts/init_local.py first}@db:5432/audit
+    REDIS_URL: redis://redis:6379/0
+    ARTIFACT_ROOT: /app/artifacts
+    CODEQL_PACK_PATH: /app/artifacts/packs
+    CODEQL_BIN: /opt/codeql/codeql
+    CODEQL_PYTHON_BIN: /opt/python311/bin/python3.11
+    FRONTEND_HOST: http://localhost:${UI_FRONTEND_PORT:-5174}
+  volumes:
+    - ./artifacts:/app/artifacts
+    - codeql-tools:/opt/codeql:ro
+    - python311-runtime:/opt/python311:ro
+
+services:
+  tools:
+    profiles: [tools]
+    image: semflow-audit-backend:local
+    build:
+      context: ./system
+      dockerfile: backend/Dockerfile
+      target: backend
+    command: [python, /app/system/scripts/docker_tools.py]
+    volumes:
+      - ./.tools/downloads:/downloads
+      - codeql-tools:/opt/codeql
+      - python311-runtime:/opt/python311
+      - ./artifacts/packs:/app/artifacts/packs
+  db:
+    extends:
+      file: ./system/compose.yml
+      service: db
+    restart: unless-stopped
+  redis:
+    extends:
+      file: ./system/compose.yml
+      service: redis
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  init:
+    <<: *app
+    command: [python, /app/system/scripts/docker_bootstrap.py]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: "no"
+  backend:
+    <<: *app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${UI_API_PORT:-8001}:8000"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/utils/health-check/', timeout=3)"]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+      start_period: 15s
+  worker:
+    <<: *app
+    restart: unless-stopped
+    command: [celery, -A, app.jobs.celery_app:celery_app, worker, --pool=solo, --concurrency=1, --loglevel=INFO, --hostname=worker@%h]
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD-SHELL, 'celery -A app.jobs.celery_app:celery_app inspect ping --destination "worker@$$HOSTNAME" --timeout 3 | grep -q pong']
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+  frontend:
+    image: semflow-audit-frontend:local
+    build:
+      context: ./system
+      dockerfile: backend/Dockerfile
+      target: frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${UI_FRONTEND_PORT:-5174}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, -q, --spider, http://127.0.0.1/healthz]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  audit-db:
+  audit-redis:
+  codeql-tools:
+  python311-runtime:

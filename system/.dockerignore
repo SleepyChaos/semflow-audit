@@ -1,0 +1,12 @@
+.venv
+**/__pycache__
+**/.pytest_cache
+frontend/node_modules
+frontend/test-results
+frontend/playwright-report
+backend/app/frontend
+.env
+.env.*
+**/.env
+**/.env.*
+*.log
