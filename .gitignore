@@ -36,3 +36,6 @@ codeql-dbs/
 # Office lock files
 .~*
 ~$*
+
+# Local Linux tools mounted by Docker Compose
+/.tools/

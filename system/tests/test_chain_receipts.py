@@ -27,7 +27,7 @@ class ChainReceiptsTests(unittest.TestCase):
             any(args[:3] == ["docker", "image", "inspect"] for args in calls)
         )
         self.assertTrue(snapshot["service_image_identities"])
-        self.assertEqual(snapshot["stage_defaults_from_source"]["report"], "2")
+        self.assertEqual(snapshot["stage_defaults_from_source"]["report"], "5")
         self.assertTrue(
             all(
                 row["status"] == "not_observed" and row["value"] is None

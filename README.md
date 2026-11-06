@@ -15,6 +15,10 @@
 
 API/Worker 使用 Python 3.14、FastAPI、LangGraph 和 Celery；前端使用 React、TypeScript 与 Vite，数据层使用 PostgreSQL/pgvector 与 Redis。API Python 与 CodeQL 抽取用 Python 3.11 分开准备，具体版本以锁文件及[环境清单](system/collaborator-setup.md)为准。
 
+## Docker 一键启动
+
+前端、API、Worker、PostgreSQL 和 Redis 可在仓库根目录通过 Docker Compose 启动，自动初始化数据库。启动命令、端口和完整审计依赖的边界见 [Docker 启动说明](DOCKER.md)。
+
 ## 从哪里开始
 
 - **第一次运行**：按[协作者环境与启动清单](system/collaborator-setup.md)准备 Docker、CodeQL、依赖、数据库和 API/Worker/前端三个进程。Windows 独立启动方式见 [UI 本地启动](system/LOCAL_SETUP.md)。
