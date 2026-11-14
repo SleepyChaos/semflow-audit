@@ -269,8 +269,11 @@ class CompatibleModel:
                     else "provider_error"
                 )
                 if record["error_code"] == "rate_limited":
+                    # Legacy receipt consumers expect the validated header text;
+                    # failure_details also exposes numeric retry_after_seconds.
+                    # AGENT: preserve both meanings when changing either side.
                     record["retry_after"] = (
-                        str(record["retry_after_seconds"])
+                        exc.response.headers.get("retry-after")
                         if record["retry_after_seconds"] is not None
                         else None
                     )

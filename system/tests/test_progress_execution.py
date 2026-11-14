@@ -120,12 +120,25 @@ def test_review_schedules_more_than_24_batches(pipeline_context):
     assert not result["unreviewed_candidate_ids"]
 
 
-def test_rate_limit_records_interruption_without_retrying_paid_calls(monkeypatch):
+@pytest.mark.parametrize(
+    "header,expected_seconds",
+    [
+        ("18000", 18000.0),
+        ("0.5", 0.5),
+        ("invalid", None),
+        ("-1", None),
+        ("inf", None),
+        ("86401", None),
+    ],
+)
+def test_rate_limit_records_interruption_without_retrying_paid_calls(
+    monkeypatch, header, expected_seconds
+):
     provider = configured(
         monkeypatch,
         lambda _: httpx.Response(
             429,
-            headers={"retry-after": "18000"},
+            headers={"retry-after": header},
             json={"error": {"message": "plan limit", "type": "rate_limit_error"}},
         ),
     )
@@ -135,7 +148,10 @@ def test_rate_limit_records_interruption_without_retrying_paid_calls(monkeypatch
         provider.generate("review", {}, ReviewResponse)
     assert failure.value.code == "rate_limited"
     assert provider.usage["calls"] == 1
-    assert provider.records[0]["retry_after"] == "18000"
+    assert provider.records[0]["retry_after"] == (
+        header if expected_seconds is not None else None
+    )
+    assert provider.records[0]["retry_after_seconds"] == expected_seconds
     assert provider.usage["unknown_usage_calls"] == 1
 
 

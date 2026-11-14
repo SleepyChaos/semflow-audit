@@ -19,6 +19,9 @@ def failure_details(error, base_url):
     ):
         request_id = None
     retry_after = None
+    # Peer: CompatibleModel.generate keeps legacy retry_after header text only
+    # after this numeric/range gate. AGENT: update both sides together; never
+    # persist an unvalidated arbitrary header as an interruption receipt.
     try:
         seconds = float(headers.get("retry-after", ""))
         if math.isfinite(seconds) and 0 <= seconds <= 86400:
