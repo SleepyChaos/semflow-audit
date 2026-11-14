@@ -111,29 +111,56 @@ def test_batch_keeps_failures_repeats_and_independent_evidence(
 def test_cli_zip_scan_failure_is_not_a_successful_empty_result(
     pipeline_context, monkeypatch, capsys
 ):
+    from app.core.audit_config import audit_settings
+    from app.research_bridge.models import ResearchAuditBinding
+    from app.research_bridge.requests import research_root
     from app.runtime import scans
+    from semflow_research.adapters.codeql.scanner import CodeQLScanner
+    from semflow_research.public.runs import inspect
+    from sqlmodel import select
 
     from tests.test_audit_core import document
 
     ctx = pipeline_context
     cli_context(ctx, monkeypatch)
 
-    class Scanner:
-        def version(self):
-            return "scripted-scanner-not-CodeQL"
+    # New ZIP uploads bind the public kernel, including its frozen query pack.
+    # Substitute only external scanner calls, not the graph, bridge or parser.
+    pack = ctx["root"] / "packs/codeql/python-queries/test"
+    suite = pack / "codeql-suites/python-code-scanning.qls"
+    suite.parent.mkdir(parents=True)
+    suite.write_text("- query: example.ql\n")
+    (pack / "qlpack.yml").write_text("name: codeql/python-queries\nversion: test\n")
+    monkeypatch.setattr(audit_settings, "CODEQL_PACK_PATH", ctx["root"] / "packs")
+    monkeypatch.setattr(
+        audit_settings, "PYTHON_QUERY_PACK", "codeql/python-queries@test"
+    )
+    calls = []
 
-        def create_database(self, source, database, log, plan):
-            database.mkdir()
-            (database / "marker").write_text((source / "app.py").read_text())
+    def create_database(self, source, database, log, plan):
+        calls.append("database")
+        database.mkdir()
+        (database / "marker").write_text((source / "app.py").read_text())
+        (database / "codeql-database.yml").write_text("scripted: true\n")
+        log.write_text("Explicit external scanner substitute\n")
 
-        def analyze(self, database, sarif, log, plan):
-            sarif.write_text(
-                "{}"
-                if "bad" in (database / "marker").read_text()
-                else json.dumps(document([]))
-            )
+    def analyze(self, database, sarif, log, plan):
+        calls.append("analyze")
+        sarif.write_text(
+            "{}"
+            if "bad" in (database / "marker").read_text()
+            else json.dumps(document([]))
+        )
 
-    monkeypatch.setattr(scans, "CodeQLScanner", Scanner)
+    def legacy_scanner():
+        pytest.fail("A newly bound upload must not fall back to the legacy scanner")
+
+    monkeypatch.setattr(scans, "CodeQLScanner", legacy_scanner)
+    monkeypatch.setattr(
+        CodeQLScanner, "version", lambda self: "scripted-scanner-not-CodeQL"
+    )
+    monkeypatch.setattr(CodeQLScanner, "create_database", create_database)
+    monkeypatch.setattr(CodeQLScanner, "analyze", analyze)
     for name in ["bad", "good"]:
         with ZipFile(ctx["root"] / f"{name}.zip", "w") as archive:
             archive.writestr("app.py", f"# {name}\nprint(1)\n")
@@ -150,6 +177,20 @@ def test_cli_zip_scan_failure_is_not_a_successful_empty_result(
     assert rows[0]["not_evaluated_stages"] == 1 and rows[0]["stages"] == []
     assert rows[1]["status"] == "completed" and rows[1]["scan"]["findings"] == []
     assert rows[0]["audit_id"] != rows[1]["audit_id"]
+    assert calls == ["database", "analyze", "database", "analyze"]
+    with Session(engine) as session:
+        receipts = []
+        for row in rows:
+            binding = session.exec(
+                select(ResearchAuditBinding).where(
+                    ResearchAuditBinding.audit_id == UUID(row["audit_id"])
+                )
+            ).one()
+            receipts.append(inspect(binding.execution_id, root=research_root()))
+    assert receipts[0].execution_status == "failed"
+    assert receipts[0].failure.code == "parse_failed"
+    assert receipts[1].execution_status == "completed"
+    assert receipts[1].result.baseline is not None
 
 
 def test_cli_run_selection_and_wrong_workspace(pipeline_context, monkeypatch, capsys):
