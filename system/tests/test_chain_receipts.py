@@ -8,10 +8,31 @@ from unittest.mock import patch
 
 from scripts.benchmarks.chain_summary import summarize
 from scripts.test_archive.catalog import selected_files
-from scripts.test_archive.identity import environment
+from scripts.test_archive.identity import environment, stage_defaults
 
 
 class ChainReceiptsTests(unittest.TestCase):
+    def test_defaults_use_selected_tree_and_keep_historical_layout_readable(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old = root / "system/backend/app/api/routes/stages.py"
+            current = root / "system/backend/app/contracts/stage_execution.py"
+            old.parent.mkdir(parents=True)
+            historical = {"review": "4", "repair": "3", "rule": "7", "scout": "1"}
+            old.write_text(f"versions = {historical!r}\n")
+            self.assertEqual(stage_defaults(root), historical)
+            current.parent.mkdir(parents=True)
+            latest = {**historical, "review": "12", "repair": "4"}
+            current.write_text(
+                f"raise RuntimeError('must not import application')\nversions = {latest!r}\n"
+                "schemas = {'review': ReviewRequest, 'repair': RepairRequest, "
+                "'rule': RuleRequest, 'scout': ScoutRequest}\n"
+            )
+            self.assertEqual(stage_defaults(root), latest)
+            current.write_text("versions = {}\n")
+            with self.assertRaisesRegex(ValueError, "stage-default declaration"):
+                stage_defaults(root)  # Never silently fall back to stale defaults.
+
     def test_offline_environment_does_not_contact_docker_or_inherit_image_ids(self):
         calls = []
 
