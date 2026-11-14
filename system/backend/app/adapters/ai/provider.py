@@ -132,7 +132,7 @@ class CompatibleModel:
         self.model = self.policy["model"]
         self.client.base_url = self.policy["base_url"]
         if stage.usage:
-            self.usage = dict(stage.usage)
+            self.usage = dict(stage.usage.get("native", stage.usage))
         self.records = list(stage.model_calls)
         self.prompt_version = prompt_version
         self.budget = CallBudget(self.policy, self.records)
@@ -199,6 +199,7 @@ class CompatibleModel:
                 "finish_reason": None,
                 "response_model": None,
                 "error_code": None,
+                "timeout_seconds": timeout,
             }
             start = monotonic()
             error = None
@@ -257,6 +258,9 @@ class CompatibleModel:
                         completion.choices[0].message.content or ""
                     )
             except OpenAIError as exc:
+                from app.adapters.ai.provider_failures import failure_details
+
+                record.update(failure_details(exc, self.client.base_url))
                 record["error_code"] = (
                     "timeout"
                     if type(exc).__name__ == "APITimeoutError"
@@ -265,7 +269,11 @@ class CompatibleModel:
                     else "provider_error"
                 )
                 if record["error_code"] == "rate_limited":
-                    record["retry_after"] = exc.response.headers.get("retry-after")
+                    record["retry_after"] = (
+                        str(record["retry_after_seconds"])
+                        if record["retry_after_seconds"] is not None
+                        else None
+                    )
                 error = AuditError(
                     "模型服务限流；进度已保留，额度恢复后可继续审计"
                     if record["error_code"] == "rate_limited"

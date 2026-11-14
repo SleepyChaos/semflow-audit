@@ -44,7 +44,7 @@ def test_selected_executed_assertions_drive_real_graph_retry(
     import json
 
     from app.services import repair as repair_module
-    from app.services import repair_comparison, repair_suite_checks
+    from app.services import repair_suite_checks
 
     context = comparison_context
     from app.core.audit_config import audit_settings
@@ -66,7 +66,8 @@ def test_selected_executed_assertions_drive_real_graph_retry(
     suite_id = imported.json()["id"]
     queued = []
     monkeypatch.setattr(
-        repair_comparison, "enqueue_after_repair", lambda *args: queued.append(args)
+        "app.application.stage_dispatch.celery_publisher",
+        lambda *args: queued.append(args),
     )
     if executor != "docker":
         monkeypatch.setattr(
@@ -161,6 +162,7 @@ def test_selected_executed_assertions_drive_real_graph_retry(
     assert response.json()["prompt_version"] == "4"
     assert StageRepository().claim(stage_id)
     service = RepairService(stage_id, InspectModel(respond))
+    queued.clear()  # Exclude the explicit API dispatch that created this repair.
     result = build_repair_graph(service).invoke({})
     assert result["passed"] and result["attempt"] == 2
     assert len(executed) == 6
@@ -176,6 +178,25 @@ def test_selected_executed_assertions_drive_real_graph_retry(
     assert result["checks"]["semantic_contract"]["status"] == "passed"
     assert first["selected_suite"]["status"] == "failed"
     assert proposals[1]["failure_feedback"]["category"] == "implementation"
+    assert (
+        proposals[1]["failure_feedback"]["candidate_identity"]["stage_id"] == stage_id
+    )
+    assert proposals[1]["failure_feedback"]["candidate_identity"]["attempt"] == 1
+    assert proposals[1]["failure_feedback"]["failed_cases"]
+    state_with_wrong_feedback = {
+        **result,
+        "diagnosis": {
+            "candidate_identity": {
+                **proposals[1]["failure_feedback"]["candidate_identity"],
+                "stage_id": "another-task",
+            }
+        },
+    }
+    from app.domain.audit import AuditError
+    from app.services.repair_semantics import SemanticRepair
+
+    with pytest.raises(AuditError, match="开发反馈不属于"):
+        SemanticRepair(service).context(state_with_wrong_feedback)
     if first_candidate.startswith("missing"):
         assert (
             proposals[1]["failure_feedback"]["runtime_errors"][0]["exception_type"]
@@ -187,7 +208,20 @@ def test_selected_executed_assertions_drive_real_graph_retry(
         )
     assert proposals[1]["checks"]["selected_suite"]["cases"]
     assert "with pytest.raises" not in str(proposals[1])
-    assert queued == [(result["repair_id"], service.inputs.verification_suite_id)]
+    assert queued == []  # A research graph never dispatches platform work.
+    from app.core.db import engine
+    from app.persistence.stage_models import StageFollowup
+    from sqlmodel import Session, select
+
+    with Session(engine) as session:
+        followup = session.exec(
+            select(StageFollowup).where(
+                StageFollowup.source_stage_id == service.stage.id
+            )
+        ).one()
+        assert followup.status == "pending"
+        assert str(followup.repair_id) == result["repair_id"]
+        assert followup.suite_id == service.inputs.verification_suite_id
     assert (
         service.evidence.root.joinpath("app.py").read_text()
         == "def calculate(value):\n    return eval(value)\n"

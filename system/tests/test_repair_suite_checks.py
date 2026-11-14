@@ -130,3 +130,81 @@ def test_changed_execution_receipt_is_rejected(selected):
     path.write_text(path.read_text().replace("assertion_failed", "passed"))
     with pytest.raises(AuditError, match="收据"):
         module.check_selected_suite(repair, {"attempt": 2})
+
+
+@pytest.mark.parametrize("outcome", ["missing", "skipped", "error"])
+def test_candidate_uncertain_cases_cannot_stop_as_passed(
+    selected, monkeypatch, outcome
+):
+    repair, _, _ = selected
+    original = module.run_suite
+
+    def run(workspace, tests, suite, image, output):
+        data = original(workspace, tests, suite, image, output)
+        if workspace != repair.service.evidence.root:
+            if outcome == "missing":
+                data["cases"].pop("test_security")
+            else:
+                data["cases"]["test_security"] = {"status": outcome}
+        return data
+
+    monkeypatch.setattr(module, "run_suite", run)
+    result = module.check_selected_suite(repair, {"attempt": 2})
+    assert result["status"] == "blocked"
+    diagnosis = module.suite_diagnosis({"selected_suite": result})
+    assert diagnosis["failed_cases"][0]["category"] == "security"
+    assert diagnosis["candidate_identity"]["attempt"] == 2
+    assert diagnosis["candidate_identity"]["stage_id"] == repair.service.stage_id
+
+
+def test_feedback_retains_exact_candidate_and_functional_regression(selected):
+    repair, _, _ = selected
+    result = module.check_selected_suite(
+        repair, {"attempt": 1, "proposal_hash": "candidate-one"}
+    )
+    diagnosis = module.suite_diagnosis({"selected_suite": result})
+    assert result["status"] == "failed"
+    assert diagnosis["candidate_identity"]["proposal_hash"] == "candidate-one"
+    assert {r["category"] for r in diagnosis["failed_cases"]} == {
+        "security",
+        "functional",
+    }
+    assert all(
+        r["input_description"] and r["expected_behavior"]
+        for r in diagnosis["failed_cases"]
+    )
+
+
+def test_suite_without_both_categories_cannot_qualify_even_with_passes(selected):
+    from app.services.verification_results import compare_runs
+
+    runs = [
+        {
+            "before": {"status": "completed", "cases": {}},
+            "after": {"status": "completed", "cases": {}},
+        }
+    ] * 2
+    suite = SimpleNamespace(cases=[])
+    assert not module._baseline_valid(suite, [r["before"] for r in runs])
+    assert compare_runs(suite, runs)["status"] == "inconclusive"
+
+
+@pytest.mark.parametrize(
+    "expression, failed_category",
+    [("eval(str(value))", "security"), ("int(value) + 1", "functional")],
+)
+def test_each_failed_category_drives_specific_feedback(
+    selected, expression, failed_category
+):
+    repair, _, _ = selected
+    folder = repair.directory / "attempt-3/workspace"
+    folder.mkdir(parents=True)
+    (folder / "app.py").write_text(f"def convert(value): return {expression}\n")
+    result = module.check_selected_suite(
+        repair, {"attempt": 3, "proposal_hash": "round-three"}
+    )
+    assert result["status"] == "failed"
+    diagnosis = module.suite_diagnosis({"selected_suite": result})
+    assert {row["category"] for row in diagnosis["failed_cases"]} == {failed_category}
+    assert diagnosis["candidate_identity"]["attempt"] == 3
+    assert diagnosis["candidate_identity"]["proposal_hash"] == "round-three"

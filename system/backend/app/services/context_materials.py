@@ -211,6 +211,9 @@ def semantic_policy(directory: Path):
                     "semantic_policy": policy,
                 },
             )
+    from app.adapters.ai.repair_policy import validate
+
+    validate(policy)
     if not path.exists():
         save_json(path, policy)
     return policy

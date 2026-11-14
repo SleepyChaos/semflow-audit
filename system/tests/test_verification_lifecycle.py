@@ -285,15 +285,21 @@ def test_failed_automatic_dispatch_preserves_completed_repair(
     comparison_context, monkeypatch
 ):
     context = comparison_context
-    from app.services import repair_comparison
+    from app.application.repair_followups import deliver_repair_followup
 
     def unavailable(*args):
         raise RuntimeError("queue unavailable")
 
-    monkeypatch.setattr(repair_comparison, "_enqueue_after_repair", unavailable)
-    failed = repair_comparison.enqueue_after_repair(
-        context["repair_id"], context["suite_id"]
-    )
+    with Session(engine) as session:
+        record = session.get(RepairRecord, UUID(context["repair_id"]))
+        source = session.get(StageRun, record.stage_id)
+        source.inputs = {**source.inputs, "verification_suite_id": context["suite_id"]}
+        source.result = {"repair_id": context["repair_id"]}
+        session.add(source)
+        session.commit()
+        source_id = source.id
+    StageRepository().update(str(source_id), status="completed")
+    failed = deliver_repair_followup(source_id, publisher=unavailable)
     assert failed.kind == "verification" and failed.status == "failed"
     with Session(engine) as session:
         record = session.get(RepairRecord, UUID(context["repair_id"]))

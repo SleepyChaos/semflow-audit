@@ -7,14 +7,12 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 from app.adapters.ai.policy import policy_snapshot
-from app.adapters.ai.provider import CompatibleModel
 from app.adapters.artifacts import ArtifactStore
 from app.adapters.snapshot import snapshot_digest
 from app.core.db import engine
 from app.models import User
 from app.persistence.audit_models import AuditRun
 from app.persistence.stage_models import Candidate, StageRun
-from app.persistence.stage_repository import StageRepository
 from sqlmodel import Session, select
 
 from scripts.benchmarks.formal_freeze import OUTPUT, save
@@ -112,25 +110,17 @@ def new_stage(audit_id, kind, version, inputs, experiment=None):
 
 
 def run_stage(stage_id, service_type, graph_builder):
-    repository = StageRepository()
-    if not repository.claim(stage_id):
-        return stage_record(stage_id, 0)
-    provider = CompatibleModel()
-    provider.bind_stage(stage_id, repository.get(stage_id).prompt_version)
+    from app.runtime.stages import run_stage as execute
+
     began = time.perf_counter()
-    try:
-        service = service_type(stage_id, provider)
-        graph_builder(service).invoke({"stage_id": stage_id}, {"recursion_limit": 60})
-    except Exception as exc:  # noqa: BLE001 - persist failure at benchmark boundary
-        repository.update(
-            stage_id,
-            status="failed",
-            error=str(exc)[:1000],
-            usage=provider.usage,
-            result={
-                **repository.get(stage_id).result,
-                "benchmark_error_type": type(exc).__name__,
-            },
+    stage = execute(stage_id, service_type=service_type, graph_builder=graph_builder)
+    error_type = stage.result.get("failure", {}).get("type")
+    if stage.status == "failed" and error_type:
+        from app.persistence.stage_repository import StageRepository
+
+        # Existing recovery scripts consume this research-specific compatibility key.
+        StageRepository().update(
+            stage_id, result={**stage.result, "benchmark_error_type": error_type}
         )
     return stage_record(stage_id, time.perf_counter() - began)
 

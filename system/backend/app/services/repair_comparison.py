@@ -164,7 +164,19 @@ def acceptance_ready(record, comparison):
     if comparison.get("status") != "passed":
         return False
     checks = record.validation
-    if checks.get("isolated_tests", {}).get("status") != "passed":
+    if checks.get("research_manifest"):
+        # Peers: RepairValidationPlan / repair_projection.validation_view.
+        # AGENT: syntax and project tests stay distinct. A passing independent
+        # before/after comparison is required above for either selected profile.
+        profile = (
+            StageRepository()
+            .get(str(record.stage_id))
+            .inputs.get("validation_profile", "syntax")
+        )
+        selected = "syntax" if profile == "syntax" else "isolated_tests"
+        if checks.get(selected, {}).get("status") != "passed":
+            return False
+    elif checks.get("isolated_tests", {}).get("status") != "passed":
         return False
     rescan = checks.get("rescan", {})
     return (
@@ -181,52 +193,3 @@ def acceptance_ready(record, comparison):
             and rescan.get("remaining_target_rules") == []
         )
     )
-
-
-def _enqueue_after_repair(record_id, suite_id):
-    if not suite_id:
-        return
-    from app.api.routes.stages import create_stage
-    from app.persistence.workspace import Workspace
-
-    with Session(engine) as session:
-        record = session.get(RepairRecord, UUID(str(record_id)))
-        audit = AuditRepository().get(str(record.audit_id))
-        identity = comparison_materials(record, suite_id)[0]
-        return create_stage(
-            record.audit_id,
-            "verification",
-            {
-                "repair_id": str(record.id),
-                "suite_id": str(suite_id),
-                "identity": identity,
-            },
-            session,
-            Workspace(audit.owner_id),
-        )
-
-
-def enqueue_after_repair(record_id, suite_id):
-    if not suite_id:
-        return
-    # Patch generation is already complete. A failed comparison dispatch must
-    # not rewrite that completed history or discard the delivered patch.
-    try:
-        return _enqueue_after_repair(record_id, suite_id)
-    except Exception:
-        with Session(engine) as session:
-            record = session.get(RepairRecord, UUID(str(record_id)))
-            if record is None:
-                return
-            failed = StageRun(
-                audit_id=record.audit_id,
-                kind="verification",
-                status="failed",
-                phase="verification_not_started",
-                inputs={"repair_id": str(record.id), "suite_id": str(suite_id)},
-                error="自动前后对比未启动，请查看测试目标与任务队列后重新运行；已生成补丁保留。",
-            )
-            session.add(failed)
-            session.commit()
-            session.refresh(failed)
-            return failed

@@ -26,6 +26,10 @@ def validate_application(directory, state, inputs):
 
 
 def verify_acceptance(record, audit):
+    from app.research_bridge.repair_integrity import verify_if_bound
+
+    if verify_if_bound(record, audit):
+        return
     scope = record.validation.get("semantic_scope")
     if not scope:
         return  # Historical v1 records keep their original contract.

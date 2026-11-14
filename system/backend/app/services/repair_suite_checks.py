@@ -30,7 +30,11 @@ def _execute(directory, identity, workspace, tests, suite, image, repository, st
 
 
 def _baseline_valid(suite, runs):
-    if any(row.get("status") != "completed" for row in runs):
+    if (
+        len(runs) != 2
+        or {case.category for case in suite.cases} != {"security", "functional"}
+        or any(row.get("status") != "completed" for row in runs)
+    ):
         return False
     return all(
         [
@@ -79,10 +83,10 @@ def check_selected_suite(repair, state):
     latest, _, _ = read_suite(
         service.inputs.verification_suite_id, service.stage.audit_id
     )
-    if (
-        latest.result["suite_hash"] != identity["suite_hash"]
-        or snapshot_digest(service.evidence.root) != identity["source_snapshot"]
-    ):
+    if (latest.result["suite_hash"], latest.result["test_files_hash"]) != (
+        identity["suite_hash"],
+        identity["test_files_hash"],
+    ) or snapshot_digest(service.evidence.root) != identity["source_snapshot"]:
         raise AuditError("原始验收执行期间测试或源码变化", code="integrity_error")
     if not _baseline_valid(suite, before):
         return {
@@ -120,7 +124,8 @@ def check_selected_suite(repair, state):
         service.inputs.verification_suite_id, service.stage.audit_id
     )
     if (
-        latest.result["suite_hash"] != identity["suite_hash"]
+        (latest.result["suite_hash"], latest.result["test_files_hash"])
+        != (identity["suite_hash"], identity["test_files_hash"])
         or snapshot_digest(service.evidence.root) != identity["source_snapshot"]
         or snapshot_digest(workspace) != candidate_hash
     ):
@@ -151,6 +156,13 @@ def check_selected_suite(repair, state):
         "output": result["summary"],
         "cases": result["cases"],
         "identity": {**identity, "patched_snapshot": candidate_hash},
+        "candidate_identity": {
+            "audit_id": str(service.stage.audit_id),
+            "stage_id": str(service.stage_id),
+            "attempt": state["attempt"],
+            "patched_snapshot": candidate_hash,
+            "proposal_hash": state.get("proposal_hash"),
+        },
         "runtime_errors": runtime_errors,
         "meaning": result["meaning"],
         "baseline_reused_across_candidates": True,
@@ -164,6 +176,25 @@ def suite_diagnosis(checks):
     return {
         "category": result["category"],
         "summary": result["output"],
+        "candidate_identity": result.get("candidate_identity"),
+        "failed_cases": [
+            {
+                key: case.get(key)
+                for key in (
+                    "name",
+                    "category",
+                    "candidate_ids",
+                    "input_description",
+                    "expected_behavior",
+                    "before",
+                    "after",
+                    "stable",
+                    "reason",
+                )
+            }
+            for case in result.get("cases", [])
+            if case["after"] != "passed"
+        ],
         "runtime_errors": result.get("runtime_errors", []),
         "violated_constraints": [
             case["name"] + ": " + case["reason"]

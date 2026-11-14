@@ -109,3 +109,25 @@ class RepairRecord(SQLModel, table=True):
     status: str = "draft"
     accepted_by: UUID | None = Field(default=None, foreign_key="user.id")
     acceptance_reason: str | None = None
+
+
+class StageFollowup(SQLModel, table=True):
+    """A platform follow-up intent committed with repair completion."""
+
+    __tablename__ = "stage_followup"
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    source_stage_id: UUID = Field(
+        foreign_key="stage_run.id", ondelete="CASCADE", unique=True, index=True
+    )
+    repair_id: UUID
+    suite_id: UUID
+    target_stage_id: UUID | None = Field(
+        default=None, foreign_key="stage_run.id", ondelete="SET NULL"
+    )
+    status: str = Field(default="pending", index=True)
+    attempts: int = 0
+    lease_until: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    error: str | None = None
+    updated_at: datetime = Field(
+        default_factory=get_datetime_utc, sa_type=DateTime(timezone=True)
+    )

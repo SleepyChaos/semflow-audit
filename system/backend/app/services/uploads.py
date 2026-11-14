@@ -55,6 +55,12 @@ def create_run(
             custom_rule_ids=custom_rule_ids or [],
         )
         session.add(run)
+        from app.research_bridge.models import ResearchAuditBinding
+        from app.research_bridge.requests import freeze_policy
+
+        session.add(
+            ResearchAuditBinding(audit_id=run.id, policy=freeze_policy("scout", "7"))
+        )
         session.commit()
         session.refresh(run)
         return run

@@ -132,7 +132,7 @@ class SemanticRepair:
         )
         return {"context_hash": digest(bundle), "attempt": 0, "allowed_paths": paths}
 
-    def context(self, state):
+    def context(self, state, *, proposing=False):
         bundle = json.loads((self.directory / "repair-context.json").read_text())
         if digest(bundle) != state["context_hash"]:
             raise AuditError("修复语义上下文被修改")
@@ -187,6 +187,20 @@ class SemanticRepair:
         payload["inspection"] = inspection
         payload.pop("materials")
         if state.get("attempt"):
+            feedback_identity = (state.get("diagnosis") or {}).get("candidate_identity")
+            if feedback_identity and (
+                feedback_identity["stage_id"] != str(self.service.stage_id)
+                or feedback_identity["audit_id"] != str(self.service.stage.audit_id)
+                or (
+                    proposing
+                    and (
+                        feedback_identity["attempt"] != state["attempt"]
+                        or feedback_identity.get("proposal_hash")
+                        != state.get("proposal_hash")
+                    )
+                )
+            ):
+                raise AuditError("开发反馈不属于当前任务候选", code="identity_error")
             payload["previous_candidate"] = json.loads(
                 (
                     self.directory / f"attempt-{state['attempt']}/candidate.json"
@@ -203,7 +217,7 @@ class SemanticRepair:
         attempt = state["attempt"] + 1
         if attempt > self.policy["repair_attempts"]:
             raise AuditError("修复候选预算耗尽", code="budget_exhausted")
-        payload = self.context(state)
+        payload = self.context(state, proposing=True)
         response = frozen_call(
             s.provider,
             "repair",
@@ -425,8 +439,4 @@ class SemanticRepair:
                 )["inspection"]["view"],
             },
         )
-        if s.inputs.verification_suite_id and workspace.exists():
-            from app.services.repair_comparison import enqueue_after_repair
-
-            enqueue_after_repair(identifier, s.inputs.verification_suite_id)
         return {"saved": True, "repair_id": identifier}

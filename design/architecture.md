@@ -62,6 +62,9 @@ frontend/src/
 
 API/jobs → workflows/services → domain/ports。adapters/persistence 提供实现，初始化模块完成装配。domain 不依赖 Web、任务或 AI 框架。
 
+独立科研 CLI 通过 `semflow_research.public` 调用三个内核，Web/Celery 经 `research_bridge` 调用同一 public；平台保留阶段编排与人工事务。
+旧 `semflow` 命令依赖平台 runtime，仅作历史兼容；其说明见[历史平台命令](experiment-cli.md)。当前入口与契约版本见[交付摘要](development/backend-decoupling-delivery-20261113.md)，评分与隐藏答案继续留在 benchmarks。
+
 本项目为单工作区本地 Web 工具，无登录、注册、用户管理或令牌校验。为保留现有任务/规则/知识外键，内部工作区复用历史管理员归属 ID；新安装创建固定且不可登录的内部归属记录，API 不暴露账号接口。`FIRST_SUPERUSER` 仅为兼容旧数据的可选归属选择，管理员密码与 JWT 密钥不再是启动必填项。
 
 任务、阶段执行、证据、发现、判断、修复尝试、规则版本与知识版本分别持久化。规则 ID 不能代替漏洞实例身份。

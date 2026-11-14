@@ -106,3 +106,11 @@ def pipeline_context(monkeypatch, tmp_path, request):
                         ).bindparams(identifier=str(identifier))
                     )
         session.commit()
+
+
+# Shared disposable-SQLite bridge fixtures; no real platform connection.
+pytest_plugins = ["tests.research_bridge_cases"]
+
+from research.tests.native_cases import repair_model, syntax  # noqa: F401, E402
+
+from research.tests.suite_cases import suite_model, suite_runner  # noqa: F401
