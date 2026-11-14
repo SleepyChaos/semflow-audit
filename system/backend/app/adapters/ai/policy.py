@@ -54,6 +54,9 @@ class CallBudget:
             "tokens": (used + output + input_bound, self.policy["max_tokens"]),
             "seconds": (elapsed, self.policy["max_seconds"]),
         }
+        repair_limit = self.policy.get("semantic_policy", {}).get("repair_call_limit")
+        if repair_limit is not None:
+            limits["repair_calls"] = (len(self.records) + 1, repair_limit)
         exceeded = [
             name
             for name, (requested, limit) in limits.items()

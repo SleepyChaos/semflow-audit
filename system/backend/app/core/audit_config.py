@@ -43,7 +43,14 @@ class AuditSettings(BaseSettings):
     SEMANTIC_CONTEXT_CHARS: int = 40000
     SEMANTIC_REPAIR_MAX_CONTEXT_CHARS: int = 80000
     SEMANTIC_TOOL_LIMIT: int = 8
+    REPAIR_SOURCE_TOOL_LIMIT: int = 24
+    REPAIR_INITIAL_SOURCE_TOOL_LIMIT: int = 12
+    REPAIR_MODEL_CALL_LIMIT: int = 36
     REPAIR_ATTEMPTS: int = 3
+    OPENHANDS_PYTHON: str = ""
+    OPENHANDS_IMAGE: str = ""
+    OPENHANDS_RUNNER: Path | None = None
+    OPENHANDS_MAX_STEPS: int = 100
     VALIDATOR_PYTHON_IMAGE: str = "ai-code-audit-validator:local"
     VALIDATOR_JS_IMAGE: str = "node:22-bookworm-slim"
     VALIDATOR_TIMEOUT: int = 120

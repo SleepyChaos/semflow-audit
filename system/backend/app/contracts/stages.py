@@ -31,8 +31,19 @@ class DecisionRequest(StrictModel):
 
 
 class RepairRequest(StrictModel):
+    # Interface peers: frontend RepairPanel.start -> research_bridge.repair_requests.
+    # AGENT: retain the caller's engine selection; unavailable OpenHands is an
+    # explicit failure, never permission to substitute the native algorithm.
+    engine: Literal["native", "openhands"] = "native"
     candidate_ids: list[UUID] = Field(min_length=1, max_length=20)
     allowed_paths: list[str] = Field(default_factory=list, max_length=30)
+    # Peer: research_bridge.repair_requests -> contracts.PatchScope / EvidenceService.allowed.
+    # AGENT: empty readable scope means writable files only; update both mapping
+    # and receiving scope enforcement if changing this JSON meaning.
+    readable_paths: list[str] = Field(default_factory=list, max_length=60)
+    # Peer: repair_requests -> PatchScope. AGENT: the old API authorized up to
+    # 30 explicit files; omitting this new field must not impose a one-file method.
+    max_changed_files: int = Field(default=30, ge=1, le=30)
     validation_profile: Literal["syntax", "python_pytest", "javascript_test"] = "syntax"
     rescan: bool = True
     verification_suite_id: UUID | None = None

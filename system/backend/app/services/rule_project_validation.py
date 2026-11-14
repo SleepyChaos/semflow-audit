@@ -145,6 +145,10 @@ def replay_project(service, pack):
 def confirm_project_match(
     rule, finding_id, actor_id, reason, baseline_exclusion_reason=None
 ):
+    # Peer: research_bridge.rule_views.project_replay.
+    # AGENT: finding_id selects the saved replay's opaque SARIF identity, not an
+    # ORM UUID. Preserve that namespace and both identity/hash formats when
+    # changing the bridge; human confirmation cannot rewrite scientific receipts.
     result = rule.validation.get("project_replay") or {}
     if result.get("status") not in {
         "candidate_match_needs_confirmation",

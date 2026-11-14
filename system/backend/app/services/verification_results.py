@@ -11,6 +11,8 @@ LABELS = {
 
 def compare_runs(suite, runs):
     rows, failures, uncertain = [], [], []
+    if {case.category for case in suite.cases} != {"security", "functional"}:
+        uncertain.append("缺少安全或正常功能验收用例")
     if len(runs) != 2 or any(
         run[side].get("status") != "completed"
         for run in runs

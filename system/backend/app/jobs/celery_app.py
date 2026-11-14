@@ -16,4 +16,7 @@ celery_app.conf.update(
     task_annotations={
         "audit.knowledge_index": {"time_limit": audit_settings.SCAN_TIMEOUT * 8 + 120},
     },
+    beat_schedule={
+        "pending-stage-followups": {"task": "audit.stage_followups", "schedule": 60.0},
+    },
 )

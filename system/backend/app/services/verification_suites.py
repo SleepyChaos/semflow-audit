@@ -112,7 +112,16 @@ def read_suite(identifier, audit_id):
         or snapshot_digest(directory / "tests") != saved["test_files_hash"]
     ):
         raise AuditError("测试内容或运行环境记录变化，请创建新的测试集")
-    suite = VerificationSuite.model_validate(saved["suite"])
+    if saved.get("research_suite_ref"):
+        # Generated scientific assertions have no narrative-language constraint;
+        # UI localization remains presentation and never changes executable bytes.
+        from semflow_contracts.modelio.verification import (
+            VerificationSuite as ResearchSuite,
+        )
+
+        suite = ResearchSuite.model_validate(saved["suite"])
+    else:
+        suite = VerificationSuite.model_validate(saved["suite"])
     return stage, suite, directory / "tests"
 
 

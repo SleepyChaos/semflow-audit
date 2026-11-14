@@ -10,7 +10,7 @@ github-actions = [
 ]
 
 [tool.uv.workspace]
-members = ["backend"]
+members = ["backend", "contracts", "research", "research_cli"]
 
 [tool.typos.files]
 extend-exclude = [
@@ -36,6 +36,6 @@ extend-ignore-re = [
 alls = "alls"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = [".", "..", "backend"]
+testpaths = ["tests", "contracts/tests", "research/tests", "research_cli/tests"]
+pythonpath = [".", "..", "backend", "contracts/src", "research/src", "research_cli/src", "contracts/tests"]
 markers = ["integration: requires actual CodeQL and Docker; enable AUDIT_RUN_REAL_TOOLS=1"]

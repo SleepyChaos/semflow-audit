@@ -97,6 +97,33 @@ def configuration(root):
     }
 
 
+def stage_defaults(root):
+    """Read the selected tree without importing app or borrowing live defaults."""
+    current = root / "system/backend/app/contracts/stage_execution.py"
+    source = (
+        current
+        if current.is_file()
+        else root / "system/backend/app/api/routes/stages.py"
+    )
+    tree = ast.parse(source.read_text())
+    matches = [
+        ast.literal_eval(node)
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Dict)
+        and {"review", "repair", "rule", "scout"}
+        <= {k.value for k in node.keys if isinstance(k, ast.Constant)}
+        and all(
+            isinstance(value, ast.Constant)
+            and isinstance(value.value, str)
+            and re.fullmatch(r"[1-9][0-9]*", value.value)
+            for value in node.values
+        )
+    ]
+    if len(matches) != 1:
+        raise ValueError(f"Expected one stage-default declaration in {source}")
+    return matches[0]
+
+
 def environment(root, *, inspect_images=True):
     config = configuration(root)
     locks = [
@@ -118,14 +145,7 @@ def environment(root, *, inspect_images=True):
         observed_npm[name] = (
             json.loads(path.read_text())["version"] if path.is_file() else None
         )
-    stage_tree = ast.parse((root / "system/backend/app/api/routes/stages.py").read_text())
-    defaults = next(
-        ast.literal_eval(node)
-        for node in ast.walk(stage_tree)
-        if isinstance(node, ast.Dict)
-        and {"review", "repair", "rule", "scout"}
-        <= {k.value for k in node.keys if isinstance(k, ast.Constant)}
-    )
+    defaults = stage_defaults(root)
     commands = {
         "git": ["git", "--version"],
         "uv": ["uv", "--version"],

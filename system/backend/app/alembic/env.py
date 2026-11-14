@@ -22,6 +22,7 @@ fileConfig(config.config_file_name)
 from app.persistence import knowledge_models, stage_models  # noqa: F401
 from app.persistence import audit_models  # noqa
 from app.models import SQLModel  # noqa
+from app.research_bridge import models as research_models  # noqa: F401
 from app.core.config import settings # noqa
 
 target_metadata = SQLModel.metadata

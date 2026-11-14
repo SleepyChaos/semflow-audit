@@ -5,6 +5,9 @@
 | 入口 | 内容 |
 | --- | --- |
 | [architecture.md](architecture.md) | 模块边界与架构 |
+| [历史平台 CLI](experiment-cli.md) | legacy 命令、平台配置和历史恢复语义 |
+| [解耦交付摘要](development/backend-decoupling-delivery-20261113.md) | 当前 CLI/Web 入口、契约版本与后置清单 |
+| [科研内核与平台解耦 TODO](development/backend-decoupling-todo-20261110.md) | 已交付的独立科研 CLI、三内核契约/边界、逐阶段历史及后置维护清单 |
 | [product-workflow.md](product-workflow.md) | 功能链路与界面流程 |
 | [repository-layout.md](repository-layout.md) | 五个主目录与归档规则 |
 | [目录现状与精简候选](project-directory-index-20261102.md) | 实际目录、文件数、空间占用、可再生成项与结构简化建议 |

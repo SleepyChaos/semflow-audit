@@ -1,0 +1,20 @@
+[project]
+name = "semflow-research-cli"
+version = "0.1.0"
+description = "Independent research CLI, without SemFlow Web/backend dependencies"
+requires-python = ">=3.14,<4.0"
+dependencies = ["semflow-contracts==0.1.0", "semflow-research==0.1.0"]
+
+[project.scripts]
+semflow-research = "semflow_cli.main:main"
+
+[tool.uv.sources]
+semflow-contracts = { workspace = true }
+semflow-research = { workspace = true }
+
+[build-system]
+requires = ["hatchling==1.33.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/semflow_cli"]

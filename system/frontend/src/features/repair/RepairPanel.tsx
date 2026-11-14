@@ -31,6 +31,7 @@ export function RepairPanel({
   const [selected, setSelected] = useState<string[]>([])
   const [focused, setFocused] = useState("")
   const [recordId, setRecordId] = useState("")
+  const [engine, setEngine] = useState<"native" | "openhands">("native")
   const cache = useQueryClient()
   const busy = stages.some((stage) =>
     ["queued", "running"].includes(stage.status),
@@ -90,6 +91,10 @@ export function RepairPanel({
   const start = useMutation({
     mutationFn: () =>
       startStage(run.id, "repair", {
+        // Interface peer: RepairRequest.engine -> research_bridge.repair_requests.
+        // AGENT: preserve the explicit algorithm choice across both send/receive
+        // boundaries; an unavailable OpenHands worker must never fall back to native.
+        engine,
         candidate_ids: targets,
         allowed_paths: [],
         validation_profile: "syntax",
@@ -113,6 +118,20 @@ export function RepairPanel({
           </p>
         </div>
         <div className="stage-row">
+          <label>
+            修复引擎{" "}
+            <select
+              aria-label="修复引擎"
+              value={engine}
+              disabled={busy || start.isPending}
+              onChange={(event) =>
+                setEngine(event.target.value as "native" | "openhands")
+              }
+            >
+              <option value="native">Native</option>
+              <option value="openhands">OpenHands</option>
+            </select>
+          </label>
           <Button
             disabled={!modelReady || !targets.length || busy || start.isPending}
             onClick={() => start.mutate()}

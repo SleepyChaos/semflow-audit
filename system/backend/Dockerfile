@@ -14,6 +14,9 @@ COPY --from=uv /uv /uvx /bin/
 # Preserve the repository layout: configuration locates its root via parents[4].
 WORKDIR /app/system
 COPY pyproject.toml uv.lock ./
+COPY contracts ./contracts
+COPY research ./research
+COPY research_cli ./research_cli
 COPY backend/pyproject.toml backend/alembic.ini ./backend/
 COPY backend/app ./backend/app
 COPY backend/scripts ./backend/scripts

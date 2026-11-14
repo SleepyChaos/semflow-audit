@@ -88,6 +88,17 @@ def accept(
     ]
     if any(row is None or row.status != "confirmed" for row in candidates):
         raise HTTPException(409, "修复目标确认状态已变化，请重新评估补丁")
+    if record.validation.get("research_manifest"):
+        from app.persistence.stage_models import Decision
+
+        for candidate in candidates:
+            latest = session.exec(
+                select(Decision)
+                .where(Decision.candidate_id == candidate.id)
+                .order_by(Decision.created_at.desc(), Decision.id.desc())
+            ).first()
+            if latest is None or latest.status != "confirmed":
+                raise HTTPException(409, "修复目标的最新人工确认已变化")
     from app.services.repair_integrity import verify_acceptance
 
     try:

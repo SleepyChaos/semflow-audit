@@ -7,6 +7,7 @@ from app.persistence import (  # noqa: F401
     stage_models,
 )
 from app.persistence.workspace import resolve_workspace
+from app.research_bridge import models as research_models  # noqa: F401
 
 engine = create_engine(str(settings.DATABASE_URL), pool_pre_ping=True)
 

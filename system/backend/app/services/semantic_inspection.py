@@ -58,6 +58,12 @@ class SemanticInspection:
         collected = merge(
             [*materials, *[row for row in inventory["documents"] if "id" in row]]
         )
+        from app.services import repair_source_tools
+
+        allocated = self.purpose == "repair" and repair_source_tools.enabled(
+            self.policy
+        )
+        quota_notice = False
         traces = []
         citation_repair = False
         source_clarification = False
@@ -74,7 +80,7 @@ class SemanticInspection:
         starting_budget = json.loads(baseline.read_text())[
             "tools_used_before_namespace"
         ]
-        for step in range(self.policy["tool_limit"] + 1):
+        for step in range(self.policy["tool_limit"] + (4 if allocated else 1)):
             self.repository.active(str(self.evidence.stage_id))
             verify_snapshot(self.evidence)
             payload = {
@@ -92,7 +98,11 @@ class SemanticInspection:
                 "feedback": progress_feedback(feedback, traces)
                 if self.progressive
                 else feedback,
-                "remaining_tools": max(
+                "remaining_tools": repair_source_tools.remaining(
+                    self.directory, self.policy, namespace
+                )
+                if allocated
+                else max(
                     0,
                     self.policy["tool_limit"]
                     - starting_budget
@@ -169,7 +179,14 @@ class SemanticInspection:
                     and self.purpose == "repair"
                     and response.action in {"ready", "insufficient"}
                     and not source_clarification
-                    and len(budget) < self.policy["tool_limit"]
+                    and (
+                        repair_source_tools.remaining(
+                            self.directory, self.policy, namespace
+                        )
+                        > 0
+                        if allocated
+                        else len(budget) < self.policy["tool_limit"]
+                    )
                     and any(
                         f.critical
                         and f.state == "unknown"
@@ -234,78 +251,110 @@ class SemanticInspection:
                 save_json(directory / "result.json", result)
                 return result
             call = response.tool.model_dump()
-            previous = next(
-                (
-                    b
-                    for b in budget
-                    if b["call"] == call
-                    and b["namespace"] == namespace
-                    and b["step"] == step
-                ),
-                None,
-            )
-            reused = (
-                existing_read(
-                    call,
-                    collected,
-                    traces,
-                    file_lengths={
-                        row["file"]: row["total_lines"]
-                        for row in payload.get("source_windows", [])
-                    },
-                )
-                if self.progressive
-                else None
-            )
-            if reused:
-                if sum(t.get("reused", False) for t in traces) >= 2:
-                    raise AuditError(
-                        "语义取证重复停滞，纠正反馈后仍未推进", code="budget_exhausted"
-                    )
-                data = reused
-            elif previous:
-                data = previous["result"]
-                if previous.get("result_hash") != digest(data):
-                    raise AuditError("读取工具恢复产物已变化")
-            else:
-                if len(budget) >= self.policy["tool_limit"]:
-                    raise AuditError("源码补证预算耗尽", code="budget_exhausted")
-                if any(
-                    t["name"] == call["name"] and t["arguments"] == call["arguments"]
-                    for t in traces
-                ):
-                    raise AuditError("语义取证重复停滞，需明确缺失事实")
+            if allocated:
                 try:
-                    data = self.read_tool(call)
+                    data, was_reused = repair_source_tools.read(
+                        self, call, collected, namespace=namespace, step=step
+                    )
+                    reused = data if was_reused else None
+                    last_tool_error = None
                 except AuditError as error:
-                    if not (
-                        self.progressive and self.purpose == "repair"
-                    ) or error.code in {"integrity_error", "identity_error"}:
+                    if error.code == "budget_exhausted" and not quota_notice:
+                        quota_notice = True
+                    elif (
+                        error.code
+                        in {
+                            "integrity_error",
+                            "identity_error",
+                            "budget_exhausted",
+                            "source_stalled",
+                        }
+                        or call in rejected_tools
+                    ):
                         raise
-                    if call in rejected_tools:
-                        raise AuditError(
-                            "修复取证重复无效请求，需更正参数或范围",
-                            code="invalid_tool_request",
-                        ) from error
                     rejected_tools.append(call)
                     last_tool_error = {
                         "requested": call,
                         "status": "not_read",
                         "reason": str(error),
-                        "instruction": "No evidence was read. Correct the tool arguments using tool_contract; do not cite an absent body or retry the same rejected request.",
+                        "instruction": "No new evidence was read. Use already grounded facts to finalize, or return insufficient. Reserved later-stage budget does not authorize more initial reads.",
                     }
                     continue
-                last_tool_error = None
-                budget.append(
-                    {
-                        "namespace": namespace,
-                        "step": step,
-                        "call": call,
-                        "result": data,
-                        "result_hash": digest(data),
-                    }
+            else:
+                previous = next(
+                    (
+                        b
+                        for b in budget
+                        if b["call"] == call
+                        and b["namespace"] == namespace
+                        and b["step"] == step
+                    ),
+                    None,
                 )
-                save_json(budget_path, budget)
+                reused = (
+                    existing_read(
+                        call,
+                        collected,
+                        traces,
+                        file_lengths={
+                            row["file"]: row["total_lines"]
+                            for row in payload.get("source_windows", [])
+                        },
+                    )
+                    if self.progressive
+                    else None
+                )
+                if reused:
+                    if sum(t.get("reused", False) for t in traces) >= 2:
+                        raise AuditError(
+                            "语义取证重复停滞，纠正反馈后仍未推进",
+                            code="budget_exhausted",
+                        )
+                    data = reused
+                elif previous:
+                    data = previous["result"]
+                    if previous.get("result_hash") != digest(data):
+                        raise AuditError("读取工具恢复产物已变化")
+                else:
+                    if len(budget) >= self.policy["tool_limit"]:
+                        raise AuditError("源码补证预算耗尽", code="budget_exhausted")
+                    if any(
+                        t["name"] == call["name"]
+                        and t["arguments"] == call["arguments"]
+                        for t in traces
+                    ):
+                        raise AuditError("语义取证重复停滞，需明确缺失事实")
+                    try:
+                        data = self.read_tool(call)
+                    except AuditError as error:
+                        if not (
+                            self.progressive and self.purpose == "repair"
+                        ) or error.code in {"integrity_error", "identity_error"}:
+                            raise
+                        if call in rejected_tools:
+                            raise AuditError(
+                                "修复取证重复无效请求，需更正参数或范围",
+                                code="invalid_tool_request",
+                            ) from error
+                        rejected_tools.append(call)
+                        last_tool_error = {
+                            "requested": call,
+                            "status": "not_read",
+                            "reason": str(error),
+                            "instruction": "No evidence was read. Correct the tool arguments using tool_contract; do not cite an absent body or retry the same rejected request.",
+                        }
+                        continue
+                    last_tool_error = None
+                    budget.append(
+                        {
+                            "namespace": namespace,
+                            "step": step,
+                            "call": call,
+                            "result": data,
+                            "result_hash": digest(data),
+                        }
+                    )
+                    save_json(budget_path, budget)
             traces.append(
                 {
                     "name": call["name"],

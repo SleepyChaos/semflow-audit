@@ -181,7 +181,9 @@ function verificationStep(
       detail:
         syntax === "failed"
           ? "补丁语法检查未通过"
-          : "CodeQL 复扫仍有待处理告警",
+          : rescan === "needs_review"
+            ? "CodeQL 复扫结论仍需人工复核"
+            : "CodeQL 复扫仍有待处理告警",
       status: "attention",
     }
   if (comparison?.status === "passed")

@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 from app.core.db import engine
 from app.domain.audit import AuditError
 from app.models import get_datetime_utc
-from app.persistence.stage_models import StageRun
+from app.persistence.stage_models import StageFollowup, StageRun
 
 
 class StageCancelled(AuditError):
@@ -45,8 +45,30 @@ class StageRepository:
                 setattr(stage, key, value)
             stage.updated_at = get_datetime_utc()
             session.add(stage)
+            record_followup(session, stage)
             session.commit()
 
     def active(self, identifier: str) -> None:
         if self.get(identifier).status == "cancelled":
             raise StageCancelled("阶段已取消")
+
+
+def record_followup(session, stage):
+    """Persist the existing platform intent in the same completion transaction."""
+    if (
+        stage.status == "completed"
+        and stage.kind == "repair"
+        and stage.inputs.get("verification_suite_id")
+        and stage.result.get("repair_id")
+    ):
+        existing = session.exec(
+            select(StageFollowup).where(StageFollowup.source_stage_id == stage.id)
+        ).first()
+        if existing is None:
+            session.add(
+                StageFollowup(
+                    source_stage_id=stage.id,
+                    repair_id=UUID(str(stage.result["repair_id"])),
+                    suite_id=UUID(str(stage.inputs["verification_suite_id"])),
+                )
+            )

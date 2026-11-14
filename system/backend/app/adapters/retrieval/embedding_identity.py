@@ -6,7 +6,7 @@ import json
 from app.core.audit_config import audit_settings as settings
 
 
-def embedding_identity() -> str:
+def embedding_identity(settings=settings) -> str:
     configuration = {
         "endpoint": settings.AI_BASE_URL.rstrip("/"),
         "model": settings.EMBEDDING_MODEL,
