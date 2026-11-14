@@ -27,3 +27,17 @@
 在独立工作树检查最终提交内容，避免依赖原工作区未提交文件。Ruff（平台、三个独立包及独立包测试）、锁文件离线校验、修改页面的 Biome、仓库内部导入目标检查和凭据形态扫描通过。
 
 本地 Docker daemon 未运行，未启动实际平台服务。数据库回归由 PR 中既有隔离 PostgreSQL CI 执行；本地独立包/SQLite 桥接回归 **183 passed / 4 deselected**（排除 integration；JUnit 为 `/private/tmp/semflow-decoupling-pr-tests-20261115.xml`），GitHub CI 状态记录于 PR。不得用历史测试数或 implemented 字段代替本次未完成的运行验收。
+
+## PR 完整回归阻断记录
+
+DEC-PR-001 | 2026-11-15T00:28:54+08:00 | blocked。PR #4 已提交推送；源码提交 `c27f10d` 的 push/PR 两次 CI 均为前端通过、后端失败。遵照用户“遇到问题不修复、阻塞直接汇报”的要求，不修改实现或测试来消除失败，暂不合并 main。
+
+[分支 CI](https://github.com/SleepyChaos/semflow-audit/actions/runs/43615347112) / [PR CI](https://github.com/SleepyChaos/semflow-audit/actions/runs/43615393209)：3 failed、726 passed、6 skipped、12 deselected，另 4 subtests passed。依赖安装、数据库迁移、Ruff 和前端检查/构建均已通过。
+
+| 失败用例 | 已观察事实 | 未决事项 |
+| --- | --- | --- |
+| `tests/test_chain_receipts.py::ChainReceiptsTests::test_offline_environment_does_not_contact_docker_or_inherit_image_ids` | `scripts/test_archive/identity.py:122` 从旧 stages 路由 AST 查找默认版本字典，提取不到并抛出 StopIteration。 | 离线环境收据读取与新的代码边界不匹配。 |
+| `tests/test_experiment_cli.py::test_cli_zip_scan_failure_is_not_a_successful_empty_result` | bad 输入按预期失败；good 输入预期 completed，实际 failed。测试仍替换 `app.runtime.scans.CodeQLScanner`。 | 旧 CLI 测试/新路由依赖关系需排查，不能仅凭该断言判为测试过时或真实扫描错误。 |
+| `tests/test_progress_execution.py::test_rate_limit_records_interruption_without_retrying_paid_calls` | 单次调用和 rate_limited 断言已通过；retry_after 实际为字符串 `18000.0`，预期 `18000`。 | 历史字段格式兼容性未解决。 |
+
+这三项是完整回归新增暴露的问题，不以本地 183 项通过掩盖。原始日志保留在本地忽略目录 `artifacts/decoupling/pr-20261115/`，远程 CI 日志可按上述链接复核。
