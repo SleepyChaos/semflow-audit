@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "scan-review-example",
+  "repetitions": 1,
+  "samples": [
+    {
+      "id": "sample-001",
+      "archive": "../../../artifacts/inputs/sample.zip",
+      "language": "python",
+      "dual_engine": true,
+      "stages": [
+        {
+          "kind": "review"
+        }
+      ]
+    }
+  ]
+}

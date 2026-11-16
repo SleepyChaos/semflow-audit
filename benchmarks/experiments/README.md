@@ -6,7 +6,7 @@
 
 ## 每次继续工作先读什么
 
-1. [状态文件](state.json)：任务状态、依赖、当前阶段和下一步。**执行状态以此文件为准。**
+1. [状态文件](state.json)：历史总体实验状态、依赖和下一步。它只管理该实验系列，不能替代后续专项状态。
 2. [两类测试计划](../test-programs/README.md)：通用基准与专项同任务；[原总计划](plan.md)保留研究问题及正式门槛。
 3. [首批项目与选样规则](first-batch.md)：本轮具体材料、用途、排除规则。
 4. [执行与断点恢复规程](runbook.md)：输入隔离、产物契约、预算和中断处理。
@@ -16,7 +16,7 @@
 
 ## 现在的位置
 
-三个方向的首轮检索/接入校准、发现链路整改及OWASP48循环/冻结验收已完成。最新实跑对照是CodeQL、Bandit和阿里Open Code Review；[冻结结果](owasp48-final-comparison.md)保留同批评分与成本。RAG规则与修复已有开发测试，正式隐藏任务仍未完成准入。
+三个方向的首轮检索/接入校准、发现链路整改及OWASP48循环/冻结验收已完成。当前专项入口另见 [Agent 协作开发顺序](../../design/development/agent-collaboration-implementation-20261116.md) 与 [BenchmarkPython TODO](benchmarkpython-improvement-todo-20261109.md)。最新实跑对照是CodeQL、Bandit和阿里Open Code Review；[冻结结果](owasp48-final-comparison.md)保留同批评分与成本。RAG规则与修复已有开发测试，正式隐藏任务仍未完成准入。
 
 最新整理：[当前材料和竞品统计](../test-programs/inventory.md)、[文献登记](../catalog/current-papers.md)、[ABSENTIA专项](../test-programs/specialized-comparisons/absentia.md)。本次分类整理未追加付费调用。
 
@@ -31,7 +31,7 @@
 - [输入与检查覆盖整改结果](discovery-coverage-results.md)：81/81本轮业务窗口、124/124候选有结论；严格主条件暂定支持24/31，输入与完整覆盖预算扩大，不能归因于同预算提示增益。
 - [下一阶段语义判断与流程可靠性方案](../../design/discovery-semantic-improvement-plan.md)：同池复审没有根因净增，先处理候选失败隔离、实际操作定位、必要前提取证与矛盾结论。
 
-下一项是 **两类任务的输入准备与门槛补齐**：通用发现采用新预留样本；专项先冻结BAC-Bench索引、上游源码与根因裁决。ABSENTIA检测器未发布，不标成已实跑竞品。规则/修复的暴露审计、参考QL可解性和联合oracle仍待补齐；具体执行从状态文件`next_action`开始。
+历史总体状态中的下一项仍是 **两类任务的输入准备与门槛补齐**；当前 Agent 协作阶段以其固定 TODO 和专项开发顺序为准：通用发现采用新预留样本；专项先冻结BAC-Bench索引、上游源码与根因裁决。ABSENTIA检测器未发布，不标成已实跑竞品。规则/修复的暴露审计、参考QL可解性和联合oracle仍待补齐；具体执行从状态文件`next_action`开始。
 
 ## 决策优先级
 

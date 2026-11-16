@@ -12,15 +12,8 @@
 ## 查询入口
 
 - [仓库论文库](../../research/papers/README.md)、[测试数据包与恢复](../datasets/README.md)、[测试集原始说明](../dataset-notes/README.md)：此前桌面资料与本地研究材料的仓库入口；研究数据发布副本的过滤不改变历史测试成绩。
-- [项目测试方案说明·Word 当前版](项目测试方案说明_v2.2.docx)：说明版2.2，对应测试方案v7；恢复说明版2.0的详细正文，竞品功能范围表和模块对照表沿用说明版2.1的内容、列宽与排版。共11页，全部采用相同的A4纵向尺寸和页边距。核对记录见[当前文档收据](project-test-plan-explanation-v2.2.receipt.json)；不是测试完成记录。
-- [Word说明版2.1](项目测试方案说明_v2.1.docx)与[原文档收据](project-test-plan-explanation-v2.1.receipt.json)保留；其原始正文见[v6归档副本](simple-three-module-test-plan-v6.md)。
-- [Word说明版2.0](项目测试方案说明_v2.0.docx)与[原文档收据](project-test-plan-explanation-v2.0.receipt.json)保留；其原始正文见[v5归档副本](simple-three-module-test-plan-v5.md)。
-- [Word说明版1.2](项目测试方案说明_v1.2.docx)与[原文档收据](project-test-plan-explanation-v1.2.receipt.json)保留；其依据的原始内容见[v4.2归档副本](simple-three-module-test-plan-v4.2.md)。
-- [Word说明版1.1](项目测试方案说明_v1.1.docx)与[原文档收据](project-test-plan-explanation-v1.1.receipt.json)保留；其依据的原始内容见[v4.1归档副本](simple-three-module-test-plan-v4.1.md)。
-- [Word说明版1.0](项目测试方案说明_v1.0.docx)与[原文档收据](project-test-plan-explanation-v1.receipt.json)保留；其依据方案的原始内容见[v4归档副本](simple-three-module-test-plan-v4.md)，保持原文件哈希。
-- [项目完整测试方案·静态页面](project-test-plan.html)：可离线打开的HTML展示，含三个模块完整正文、目录导航及打印布局。
-- [项目完整测试方案](simple-three-module-test-plan.md)：与Word当前版一致的方案正文；明确RealVuln 26项目、OWASP 1230例、PatchEval 1000任务/230动态任务，以及QLCoder完整176项Java CVE配对任务的范围、评价目标、论文对照和竞品功能范围。
-- [测试方案资料索引](test-plan-reference-index.md)：正式基准论文、测试集与竞品官方材料的来源编号；桌面资料包按用途收录对应论文和文档。
+- [项目完整测试方案](simple-three-module-test-plan.md)：当前唯一维护的 Markdown 正文；范围补充和执行状态分别链接到 `benchmarks/experiments/` 的计划与报告。
+- [2026-11-16 测试方案导出归档](archive/20261116-document-consistency/README.md)：旧 Word/HTML 导出和历史 v4–v6 方案，保留原始版本与收据，不作为当前入口。
 - [项目测试历史结果附录](project-test-status-appendix.md)：原合并方案中的历史成绩及其局限；小样本结果不替代完整方案验收。
 - [本轮真实链路补测归档](20261009-workspace-v3/improvements/VALIDATION-10-CHAIN-COMPLETION.md)：已完成、失败和未评估分列。
 - [前一批新样本补测归档](20261009-workspace-v3/improvements/VALIDATION-10-SUPPLEMENT.md)：成功、失败、unknown、未评估和全部先前尝试。
@@ -119,19 +112,19 @@ IMPROVE 编号是本次按 `docs/` 功能改进边界建立的内部归档名，
 
 归档脚本仅执行版本查询和已有镜像的只读检查，不启动数据库/目标服务、不运行扫描或模型请求。关键身份只从明确字段提取，模型输入、上传源码、金标、密钥及报告全文不写入可提交登记册。公开文档和 JSON 是整理后的元数据，完整原始收据留在忽略目录。
 
-在项目根目录检查本次归档与原结果是否一致：
+在 `system/` 目录检查本次归档与原结果是否一致：
 
 ```sh
 .venv/bin/python scripts/archive_test_results.py verify 20261009-workspace-v2
 ```
 
-如原结果已按后续工作更新，只检查冻结副本：
+如原结果已按后续工作更新，只检查冻结副本（仍在 `system/` 目录）：
 
 ```sh
 .venv/bin/python scripts/archive_test_results.py verify 20261009-workspace-v2 --archive-only
 ```
 
-后续归档必须使用新 ID；禁止修改旧目录或删除已有结果后重用旧 ID：
+后续归档必须使用新 ID；禁止修改旧目录或删除已有结果后重用旧 ID（仍在 `system/` 目录）：
 
 ```sh
 .venv/bin/python scripts/archive_test_results.py create YYYYMMDD-workspace-v2

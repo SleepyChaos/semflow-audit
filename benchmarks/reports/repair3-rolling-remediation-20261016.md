@@ -55,7 +55,7 @@ R15的46.32秒是失败，不能把最新75.47秒与它相比称时延下降；�
 7. 复审读到的调用点经审计所属、摘要和原文重验证后进入下一次理解；仅在已授权文件内补全实际已读可写窗口，解决“复审看到了但生成器没看到”的衔接问题。
 8. 未能成功应用候选记为修复失败；不因保存了 needs_review 记录或阶段 completed 就算安全通过。
 
-生产设计与限制：[repair3-progress.md](../../design/repair3-progress.md)。repair_semantics.py 约432行，已按职责把窗口、需求、取证、预算和调用影响拆至模块；留下同一图节点的编排与历史保存，未机械拆散。
+生产设计与限制：[repair3-progress.md](../../design/archive/20261116-document-consistency/repair3-progress.md)。repair_semantics.py 约432行，已按职责把窗口、需求、取证、预算和调用影响拆至模块；留下同一图节点的编排与历史保存，未机械拆散。
 
 ## 平台回归
 

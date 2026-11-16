@@ -5,12 +5,12 @@
 ## 1. 本地目录与输入隔离
 
 ```text
-benchmark-data/experiments/              # 本计划、状态、决策日志
-benchmark-data/evaluator-only/experiments/<experiment_id>/
+benchmarks/experiments/                  # 公开计划、状态、决策日志
+artifacts/research/evaluator-only/experiments/<experiment_id>/
   tasks.json                            # 冻结任务、组分配、根因与答案
   relevance.json                        # 知识/范例相关性与复核状态
   oracles/                              # 隐藏安全/业务测试
-benchmark-data/model-inputs/<input_id>/  # 白名单输入、去标签源码
+artifacts/research/model-inputs/<input_id>/ # 白名单输入、去标签源码
 artifacts/research/formal/<experiment_id>/
   config.json                           # 不含密钥；身份与预算
   input-receipts.json                   # 版本、转换差异和摘要

@@ -13,7 +13,7 @@
 ## 当前入口
 
 - [仓库论文全文与阅读包](../../research/papers/README.md)、[可恢复测试数据包](../datasets/README.md)、[作者说明](../dataset-notes/README.md)：2026-10-11 资料归档入口。
-- [项目完整测试方案·静态页面](../testing/project-test-plan.html)：可离线查看、导航和打印的HTML页面，完整展示统一方案。
+- [项目完整测试方案·静态页面](../testing/archive/20261116-document-consistency/project-test-plan.html)：可离线查看、导航和打印的HTML页面，完整展示统一方案。
 - [项目完整测试方案](../testing/simple-three-module-test-plan.md)：三个模块的统一全量方案；RealVuln 26项目、OWASP 1230例、PatchEval 1000任务/230动态任务、QLCoder完整176项Java CVE配对任务，分别定义对照、指标和完成条件。
 - [项目测试历史结果附录](../testing/project-test-status-appendix.md)：已收集成绩及其局限，与完整测试目标分开维护。
 - [已收集测试项目：三级功能分类 v2](classification-draft-v2.md)：当前分类，32项材料逐项关联功能/意图/类型，内部工程测试落位到三个功能。
