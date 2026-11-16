@@ -1,0 +1,98 @@
+{
+  "id": "BP-CHECKPOINT-20261110",
+  "timestamp": "2026-11-10T13:55:00+08:00",
+  "server_root": "/home/work/zdk/experiments/benchmarkpython-mechanisms-20261103",
+  "local_archive": "output/benchmarkpython-checkpoint-20261110",
+  "validated_code": "c5ea14bd5a2b771add796b9baad2fb1e5fd01896",
+  "feedback_development": "9f28785833d44b93f196e1def34e8923b2670be2",
+  "scope": "Provenance index only; raw responses, audit artifacts, datasets and credentials are not committed.",
+  "identity_validation": {
+    "epoch-20261110-coverage-cwe-min40-f6dc761": {
+      "tracked_files_checked": 429,
+      "mismatches": 0
+    },
+    "epoch-20261110-coverage-medium120-c5ea14b": {
+      "tracked_files_checked": 429,
+      "mismatches": 0
+    }
+  },
+  "server_files": [
+    {
+      "path": "candidate-retention-control/active.json",
+      "sha256": "30892b5fad570383ef4e4733af5d00c6b228343a42ecc4939c4d9fbe2f3868b6",
+      "bytes": 480
+    },
+    {
+      "path": "coverage-treatment-control/active.json",
+      "sha256": "2361936358793480b8e058ab2fa31fe3e9c199a61268e68ec50c0cefd6d5ec3e",
+      "bytes": 477
+    },
+    {
+      "path": "epoch-20261110-coverage-cwe-min40-f6dc761/acceptance.json",
+      "sha256": "ec0451d6178cd9264a536b2d389e9a870d4730e758e377c638a66e4fe3d0b1c7",
+      "bytes": 542
+    },
+    {
+      "path": "epoch-20261110-coverage-cwe-min40-f6dc761/case-results.csv",
+      "sha256": "957cdf94daa30e1c4f8c236c716d15b2ffb6d4296deee2f6b72c6a62d6783340",
+      "bytes": 62792
+    },
+    {
+      "path": "epoch-20261110-coverage-cwe-min40-f6dc761/completed.json",
+      "sha256": "919b254e95a7e2b0c3048a324b7e20501fef4c9945a96c3eddee9baa54674787",
+      "bytes": 156
+    },
+    {
+      "path": "epoch-20261110-coverage-cwe-min40-f6dc761/identity.json",
+      "sha256": "1dc6d1f6e8fe95867e775758d8d9ed7ed1e08a6e1c12742cc59bd3d286d9b323",
+      "bytes": 53759
+    },
+    {
+      "path": "epoch-20261110-coverage-cwe-min40-f6dc761/summary.json",
+      "sha256": "3132c5c745b46d0b26b0d155dfb0168db839d9533bae87e00a661937bbe4d308",
+      "bytes": 3925
+    },
+    {
+      "path": "epoch-20261110-coverage-medium120-c5ea14b/acceptance.json",
+      "sha256": "e6cf91bee14aa9bdb7d43e1aa063c2d2b2cf85b03296af3747adb779a6d4a4e1",
+      "bytes": 542
+    },
+    {
+      "path": "epoch-20261110-coverage-medium120-c5ea14b/case-results.csv",
+      "sha256": "4e38cea8626b2023250d8a4a0fa99a9a1428f0152402aae084eb31ff438945cb",
+      "bytes": 232778
+    },
+    {
+      "path": "epoch-20261110-coverage-medium120-c5ea14b/completed.json",
+      "sha256": "4c166c9cdac52c1203cd98a1dd118533932f8b5aa898515a4c21245e111b8681",
+      "bytes": 157
+    },
+    {
+      "path": "epoch-20261110-coverage-medium120-c5ea14b/identity.json",
+      "sha256": "1e40ddd8ae57bcaa37a83499af2e9d3f90b7f6138807bcc97959398142b101fb",
+      "bytes": 53759
+    },
+    {
+      "path": "epoch-20261110-coverage-medium120-c5ea14b/summary.json",
+      "sha256": "2f8baf1e2e373ca44005309ad84ec7dcdce359fe8d3a60695c84765559cdddde",
+      "bytes": 4150
+    },
+    {
+      "path": "epoch-20261110-retention-medium120-d4dced3/completed.json",
+      "sha256": "62d75041807899401dd587977529cb1ecaff7b4f4321d0c1bc9126001f7f876b",
+      "bytes": 90
+    },
+    {
+      "path": "epoch-20261110-retention-medium120-d4dced3/summary.json",
+      "sha256": "18d8d14da9e6066dbae834dc62408cfe0d181afb12b14987e20e5f225cf6e7b1",
+      "bytes": 690
+    }
+  ],
+  "integration_validation": {
+    "passed": 149,
+    "subtests_passed": 10,
+    "provider_calls": 0,
+    "test_log_sha256": "43a36ce326cebebc3015a61bb120fc6aa4a71634f66bc9d2e2c4b2d647063d86",
+    "compatibility_fix": "Dedicated crypto tasks restricted to semantic V6+ profile; V4/V5 task sets retained."
+  }
+}
