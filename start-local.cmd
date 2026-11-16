@@ -1,2 +1,3 @@
 @echo off
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0system\scripts\start_ui_local.ps1"
+call "%~dp0一键启动-Docker.cmd"
+exit /b %errorlevel%

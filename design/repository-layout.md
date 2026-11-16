@@ -30,7 +30,7 @@ semflow-audit/
 
 ## 运行路径
 
-开发命令默认从 `system/` 执行，uv工作区环境位于 `system/.venv`。API和Worker仍读取仓库根目录 `.env`，`ARTIFACT_ROOT` 默认仍为仓库根目录 `artifacts/`，既有数据库卷及本地执行历史继续使用。Compose从system目录执行时显式指定 `--env-file ../.env -p semflow-audit`，避免目录名称改变后启动新的卷。
+完整服务从仓库根目录通过 `compose.yml` 启动；macOS/Linux 使用 `一键启动-Docker.sh`，Windows 使用 `一键启动-Docker.cmd`。开发命令默认从 `system/` 执行，uv 工作区环境位于 `system/.venv`。API 和 Worker 读取仓库根目录 `.env`，`ARTIFACT_ROOT` 默认仍为仓库根目录 `artifacts/`。`system/compose.yml` 仅提供数据库和 Redis，不是完整应用部署配置。
 
 `.env`、本地环境、展开的基准输入、真实上传项目和审计产物由 Git 忽略。竞赛临时渲染缓存保留在 `.local-workspace/`，最终作品和校对材料进入 competition。
 

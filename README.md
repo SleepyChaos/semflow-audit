@@ -17,16 +17,16 @@ API/Worker 使用 Python 3.14、FastAPI、LangGraph 和 Celery；前端使用 Re
 
 ## Docker 一键启动
 
-前端、API、Worker、PostgreSQL 和 Redis 可在仓库根目录通过 Docker Compose 启动，自动初始化数据库。启动命令、端口和完整审计依赖的边界见 [Docker 启动说明](DOCKER.md)。
+前端、API、Worker、PostgreSQL 和 Redis 可在仓库根目录通过 Docker Compose 启动，自动初始化数据库。macOS 可双击 `一键启动-Docker.command`，Windows 可双击 `一键启动-Docker.cmd`；macOS/Linux 命令行可运行 `./一键启动-Docker.sh`；端口和完整审计依赖的边界见 [Docker 启动说明](DOCKER.md)。
 
 ## 从哪里开始
 
-- **第一次运行**：按[协作者环境与启动清单](system/collaborator-setup.md)准备 Docker、CodeQL、依赖、数据库和 API/Worker/前端三个进程。Windows 独立启动方式见 [UI 本地启动](system/LOCAL_SETUP.md)。
+- **第一次运行或更新服务**：使用 [Docker 启动说明](DOCKER.md)，在仓库根目录启动完整服务。需要调试源码时，参阅[主机开发环境补充](system/collaborator-setup.md)。
 - **了解能力与限制**：读[系统说明](system/README.md)，再看[工作台说明](design/UI_WORKBENCH_DELIVERY.md)。没有模型配置时可进入界面，但无法完成 AI 阶段；完整规则链路还需要知识材料与索引。
 - **查看实验依据**：从[实验索引](benchmarks/experiments/README.md)选择具体协议和对应结果。流程测试、真实工具集成测试与模型效果实验分别记录，不互相替代。
 - **修改系统**：从 `system/` 下对应模块开始，先读[架构边界](design/architecture.md)和[编码约束](AGENTS.md)。
 
-当前 CodeQL 扫描仍在主机执行，修复验证使用 Docker；本地工作台不提供账号登录。该运行方式不适合作为直接接收不可信上传的公共审计服务。
+CodeQL 在主机开发模式使用主机工具，在完整 Docker 模式需要另行准备容器工具卷；隔离修复验证的容器支持边界见 [Docker 启动说明](DOCKER.md)。本地工作台不提供账号登录，不适合作为直接接收不可信上传的公共审计服务。
 
 ## 仓库索引
 
@@ -38,9 +38,7 @@ API/Worker 使用 Python 3.14、FastAPI、LangGraph 和 Celery；前端使用 Re
 | `design/` | 开发过程中的架构、模块边界、设计和实施计划 | [设计文档索引](design/README.md) |
 | `competition/` | 竞赛作品报告、模板、测试章节、校对材料和配图 | [竞赛资料索引](competition/README.md) |
 
-首次运行见[协作者环境与启动清单](system/collaborator-setup.md)。开发命令默认在 `system/` 执行；`.env` 与运行产物 `artifacts/` 保持在仓库根目录并由 Git 忽略。
-
-当前系统已同步多页面 UI 工作台、AI 中文报告和项目级修复前后验证。新版 Windows 独立运行方式见 [UI 本地启动](system/LOCAL_SETUP.md)，页面与演示说明见 [工作台交付文档](design/UI_WORKBENCH_DELIVERY.md)。
+Docker 命令在仓库根目录执行，主机开发命令以补充说明标注的目录为准；`.env` 与运行产物 `artifacts/` 保持在仓库根目录并由 Git 忽略。页面与演示说明见[工作台交付文档](design/UI_WORKBENCH_DELIVERY.md)。
 
 ## 研究资料与实验记录
 
