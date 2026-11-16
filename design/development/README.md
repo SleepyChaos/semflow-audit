@@ -2,6 +2,7 @@
 
 | 主题 | 入口 |
 | --- | --- |
+| Agent 协作开发 | [下一阶段开发顺序](agent-collaboration-implementation-20261116.md)、[任务状态主入口](../../benchmarks/experiments/benchmarkpython-improvement-todo-20261109.md) |
 | 全文与书目 | [仓库论文库](../../research/papers/README.md)、[既有文献登记](../../benchmarks/catalog/current-papers.md)、[贡献建议](../../research/notes/papers-and-innovations.md) |
 | 竞品与对照 | [竞品材料](../../research/notes/competitors-and-materials.md)、[方法阅读](../../research/notes/rule-generation-paper-review.md)、[SemTaint / IRIS 阅读指南](../../competition/reading-guide.md) |
 | CodeQL 与 LLM 协同 | [方案索引](../../research/notes/codeql-llm-proposals-index.md)、[中段介入设计](codeql-intermediate-llm-design.md) |

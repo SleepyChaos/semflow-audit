@@ -8,6 +8,7 @@
 | [历史平台 CLI](experiment-cli.md) | legacy 命令、平台配置和历史恢复语义 |
 | [解耦交付摘要](development/backend-decoupling-delivery-20261113.md) | 当前 CLI/Web 入口、契约版本与后置清单 |
 | [Agent 协作改进 TODO](../benchmarks/experiments/benchmarkpython-improvement-todo-20261109.md) | 当前阶段：前置核对、discovery 单 Agent 循环与两 Agent 协作、小样本验收；有进展后确定 CodeQL 共同能力缺口和两类漏洞 |
+| [Agent 协作开发顺序](development/agent-collaboration-implementation-20261116.md) | discovery 现有入口、契约/身份约束、分批开发顺序和每批验证要求 |
 | [科研内核与平台解耦 TODO](development/backend-decoupling-todo-20261110.md) | 已交付的独立科研 CLI、三内核契约/边界、逐阶段历史及后置维护清单 |
 | [product-workflow.md](product-workflow.md) | 功能链路与界面流程 |
 | [repository-layout.md](repository-layout.md) | 五个主目录与归档规则 |
