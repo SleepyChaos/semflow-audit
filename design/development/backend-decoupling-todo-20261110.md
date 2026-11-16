@@ -1,5 +1,21 @@
 # 科研内核与平台后端解耦：评估与 TODO
 
+## 改进归属索引（2026-11-16T15:48:54+08:00）
+
+本文件追踪解耦交付与后置维护；Agent 算法协作改进使用[独立主 TODO](../../benchmarks/experiments/benchmarkpython-improvement-todo-20261109.md)。此表补充归属，不修改历史完成/验收结论。
+
+| 范围 | 改进归属 | 实验内核模块／其他部位 | 提交分区 |
+| --- | --- | --- | --- |
+| 三内核提取与 public | 实验内核 | discovery / repair / rules；真正通用科研支撑为 core-shared | 三内核与 core-shared 分别提交 |
+| 运行/证据/结果声明 | 共享契约 | 非算法：contracts 类型与 Schema | contracts |
+| CLI、平台桥接、API/任务和前端 | 实验 CLI／平台 | 命令装配、请求转换、应用调度、展示 | experiment-cli / platform-bridge / platform-backend / platform-frontend |
+| DEC-POST-001（DEC-013） | 按旧副本实际职责拆分 | 历史内核副本、CLI/平台入口清理；历史恢复保留 | 按被清理责任分别提交 |
+| DEC-POST-002 | 部署设施／平台运维 | 非科研算法：实例迁移、备份、切换和回退 | infra；平台实现另提交 |
+| DEC-POST-003（DEC-010） | 独立评测／实验 CLI | 非内核算法：批次、旧脚本迁移和效果评测 | benchmarks / experiment-cli |
+| DEC-POST-004 | 部署与工具设施 | 非内核算法：CI、构建/发行物与环境指纹 | infra |
+
+多分区条目是历史工作包索引，新增实现须拆成单分区任务与提交。
+
 记录时间：2026-11-10T14:08:02+08:00。范围：当前工作区（包括未提交实现），并非仅 Git HEAD。
 当前状态：S1～S5 的限定解耦交付已验收，S6 仅统一状态与后置清单。S6 已完成，23 项轻量检查通过。各任务的原阶段内容保留在历史折叠区。
 本文是本次解耦任务的主 TODO；[数据契约](backend-decoupling-contracts-20261110.md)和[代码边界](backend-decoupling-boundaries-20261110.md)是实施规格。

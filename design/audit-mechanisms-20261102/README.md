@@ -11,3 +11,5 @@
 三份文档都将事实、机制解释和待检验假设分开。本文可核验的最新完整RealVuln归档为**2026-10-14冻结六组实验**；2026-11-02为归档核对、机制诊断及本地修复回归日期，不包含同学正在服务器开展的新增测试。新回归使用显式模型替身，不冒充RealVuln新成绩，也不代表服务器版本已更新。
 
 关联材料：[机制实验协议](../../benchmarks/experiments/audit-mechanisms-protocol-20261102.md)、[历史诊断](../../benchmarks/reports/audit-mechanisms-diagnosis-20261102.md)、[六组完整报告](../../benchmarks/reports/realvuln-ablation-20261014-results.md)。
+
+当前执行计划（2026-11-16）：[Agent 协作主 TODO](../../benchmarks/experiments/benchmarkpython-improvement-todo-20261109.md) 与 [改进树](../../benchmarks/experiments/benchmarkpython-improvement-tree-20261110.md)。前置核对和固定小样本先行，通过进展门后确定 CodeQL 专项能力范围。
