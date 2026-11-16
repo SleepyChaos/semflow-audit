@@ -1,22 +1,8 @@
 # 独立工作台 V2：运行与演示说明
 
-2026-10-12 已与协作者五目录整理合并：下文 `frontend/`、`backend/`、`scripts/` 的源码路径现在均位于 `system/` 下，说明与设计位于 `design/`。根目录 `start-local.cmd` 与 `stop-local.cmd` 已适配新布局；配置和运行产物保留在根目录。
+当前完整服务的启动、停止与端口统一见 [Docker 启动说明](../DOCKER.md)，主机调试见[开发环境补充](../system/collaborator-setup.md)。本文件只维护界面、演示说明与历史验收证据。
 
-目录：`D:\semflow-audit-ui`，分支：`codex/workbench-redesign`。
-原版 `D:\semflow-audit` 保持原样。
-
-## 启动与停止
-
-在 VS Code 打开新目录，在 PowerShell 终端执行：
-
-```powershell
-cd D:\semflow-audit-ui
-.\start-local.cmd
-```
-
-访问 http://127.0.0.1:5174 。API 使用 8001，数据库 15440，Redis 16380。
-先启动 Docker Desktop；脚本只管理新副本的 API、worker、Vite 和显式 Compose 项目。
-停止新版使用 `.\stop-local.cmd`，数据卷会保留。
+2026-10-12 已迁入五目录布局：下文 `frontend/`、`backend/`、`scripts/` 的源码路径均位于 `system/` 下；配置和产物保留在仓库根目录。后文的独立副本路径、分支和检查命令属于 2026-10-11 的历史验证记录。
 
 ## 页面和实现位置
 

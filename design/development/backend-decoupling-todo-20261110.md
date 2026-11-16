@@ -23,7 +23,7 @@
 
 ## 用户追加的最终操作验收（2026-11-13T11:36:00+08:00）
 
-DEC-ACC-000 | 2026-11-13T11:36:00+08:00 | completed：已制定[操作验收清单](backend-decoupling-acceptance-checklist-20261113.md)，实际执行项 DEC-ACC-001～010 均为 planned。按用户要求，下一轮隔离启动真实 GUI 和现有 CLI（不新增 TUI），以固定小样本验证双入口契约及迁移前后兼容；不部署实际平台实例，不新增重构阶段。
+DEC-ACC-000 | 2026-11-13T11:36:00+08:00 | completed：已制定[操作验收清单](archive/20261116-document-consistency/backend-decoupling-acceptance-checklist-20261113.md)，实际执行项 DEC-ACC-001～010 均为 planned。按用户要求，下一轮隔离启动真实 GUI 和现有 CLI（不新增 TUI），以固定小样本验证双入口契约及迁移前后兼容；不部署实际平台实例，不新增重构阶段。
 
 [操作验收前代码复核](backend-decoupling-code-review-20261113.md)发现独立 discovery 的仓库路径依赖、Docker workspace 缺失和规则 CLI 顺序说明冲突，需最小复现/修复。原 S1～S6 状态保留其既有限定证据；不能据此将本次实际运行验收提前记为通过。最终只关闭影响“三内核、同一 core、CLI/Web 完整正常使用”的阻断，不进入后置清理/实验扩展。
 

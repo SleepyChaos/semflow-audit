@@ -13,7 +13,7 @@
 
 ## 既有运行证据及限制
 
-完整过程见[操作验收清单](backend-decoupling-acceptance-checklist-20261113.md)。本地证据运行 ID 为 `20261113T133759-26ecb8`；产物留在忽略目录 `artifacts/decoupling/`，不作为源码提交。
+完整过程见[操作验收清单](archive/20261116-document-consistency/backend-decoupling-acceptance-checklist-20261113.md)。本地证据运行 ID 为 `20261113T133759-26ecb8`；产物留在忽略目录 `artifacts/decoupling/`，不作为源码提交。
 
 - 仓库外 wheel CLI 与实际 GUI/HTTP/Celery 已完成固定合成样本流程。CodeQL、Docker 和 OpenHands SDK 为真实工具，确定性对照中的模型为显式 HTTP 替身。
 - CLI/Web 55 项对照中 53 项原始相等，另两项为契约定义的等价 readable_paths 编码，无未解释差异。

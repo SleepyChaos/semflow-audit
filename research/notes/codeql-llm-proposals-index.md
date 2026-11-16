@@ -32,7 +32,7 @@
 - 当前开发仓库：`/Users/chaos/Documents/GitHub/semflow-audit/`
 - 当前会话工作区入口：`/Users/chaos/Documents/Codex/2026-09-29/xin-j/`；旧项目路径保留兼容链接。
 - 研究与方案：仓库中的 `docs/research/`
-- 基准材料与实验管理：仓库中的 `benchmark-data/`
+- 基准材料与实验管理：仓库中的 `benchmarks/`（历史归档中的旧 `benchmark-data/` 路径仅保留在冻结登记册）
 - 审计及实验产物：仓库中的 `artifacts/`
 - 外部工具与临时研究依赖：仓库中的 `.local-workspace/work/`（仅本地）
 - 会话输出目录：仓库中的 `.local-workspace/outputs/`（仅本地）

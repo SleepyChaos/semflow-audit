@@ -1,8 +1,8 @@
 # Backend
 
-启动、数据库迁移与测试请参阅根目录 README.md。
+完整服务启动与自动迁移见 [Docker 启动说明](../../DOCKER.md)；主机调试和手动迁移见[主机开发环境补充](../collaborator-setup.md)，测试见[系统说明](../README.md#代码与-cli-验证)。
 
-API、调度、LangGraph、业务用例、CodeQL 适配器和持久化分别维护。Dockerfile 仅为应用镜像定义，本阶段验收使用本地 API 与 Worker；镜像不包含 CodeQL 或任务隔离执行器。
+API、调度、LangGraph、业务用例、CodeQL 适配器和持久化分别维护。根目录 Compose 使用 Dockerfile 的 backend 目标运行 API/Worker、frontend 目标运行 Nginx；CodeQL 运行时通过可选工具服务另行准备，隔离修复验证仍有 Docker 引擎访问与路径映射限制。
 
 历史平台兼容命令见[旧 CLI 说明](../../design/experiment-cli.md)；独立科研入口见[科研 CLI](../research_cli/README.md)。
 从 `system/` 运行 `PYTHONPATH=backend .venv/bin/python -m app.cli --help`；

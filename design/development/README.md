@@ -14,4 +14,4 @@
 | 测试版本与材料准入 | [版本结果归档](../../benchmarks/testing/README.md)、[测试分类](../../benchmarks/test-programs/README.md) |
 | 历史演进 | [早期记录](../../research/notes/history-review.md)、[第一阶段实现](phase-one-implementation.md)、[第二阶段交接](phase-two-handoff.md) |
 
-本目录的报告按原批次保留。新归档的全文、数据和 SHA-256 见 `benchmark-data/`；原始调用收据、运行日志和上传快照继续保存在本地忽略目录。
+本目录的报告按原批次保留。公开协议和结果索引位于 `benchmarks/`；原始调用收据、运行日志、隐藏评分和上传快照继续保存在本地忽略目录 `artifacts/`，不进入生成上下文或生产知识库。

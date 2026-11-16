@@ -2,7 +2,7 @@
 
 DEC-REV-000 | 2026-11-13T11:36:00+08:00 | completed
 
-状态仅表示本次静态审查已完成。未运行测试、构建容器或启动 GUI/CLI 业务。本轮只新增验收文档并链接主 TODO，没有修改实现、AGENTS.md 或真实平台实例。运行验收见[操作清单](backend-decoupling-acceptance-checklist-20261113.md)。
+状态仅表示本次静态审查已完成。未运行测试、构建容器或启动 GUI/CLI 业务。本轮只新增验收文档并链接主 TODO，没有修改实现、AGENTS.md 或真实平台实例。运行验收见[操作清单](archive/20261116-document-consistency/backend-decoupling-acceptance-checklist-20261113.md)。
 
 ## 结论
 

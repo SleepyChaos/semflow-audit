@@ -1,6 +1,6 @@
 # CodeQL 规则生成可靠性：论文阅读记录
 
-调研日期：2026-10-03。优先2026年，补充2025年；本文记录实际读取范围，区分论文证据与本项目推断。关联[改进方案](../../design/development/rule-generation-redesign-plan.md)、[现有结果](../../benchmarks/reports/phase-one-test-results.md)。
+调研日期：2026-10-03。优先2026年，补充2025年；本文记录实际读取范围，区分论文证据与本项目推断。关联[改进方案](../../design/development/archive/20261116-document-consistency/rule-generation-redesign-plan.md)、[现有结果](../../benchmarks/reports/phase-one-test-results.md)。
 
 ## 1. 重点论文及阅读范围
 

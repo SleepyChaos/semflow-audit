@@ -268,7 +268,7 @@ Docker 使用本机已有 sha256:90744cff8f32887f075c47d747a173ff333e9e98801667a
 
 ## 2026-11-13T18:12:59+08:00 最终操作验收（DEC-ACC-001～009）
 
-现场证据与边界见 `design/development/backend-decoupling-acceptance-checklist-20261113.md` 和 `artifacts/decoupling/acceptance-20261113T133759-26ecb8/final-operational-report.json`。独立 CLI、真实 GUI、迁移前归档对照、CLI/Web 语义对照和用户指定真实模型连通性已执行。ACC-007 仍 blocked（没有形成运行中取消收据）；ACC-008 为 partial-fail（真实模型 discovery 成功，repair 因预算、rules 因超时）；ACC-010 保留 supervisor review。不能据此宣布全部操作验收完成，也不改写前三内核的科研结果语义。
+现场证据与边界见 `design/development/archive/20261116-document-consistency/backend-decoupling-acceptance-checklist-20261113.md` 和 `artifacts/decoupling/acceptance-20261113T133759-26ecb8/final-operational-report.json`。独立 CLI、真实 GUI、迁移前归档对照、CLI/Web 语义对照和用户指定真实模型连通性已执行。ACC-007 仍 blocked（没有形成运行中取消收据）；ACC-008 为 partial-fail（真实模型 discovery 成功，repair 因预算、rules 因超时）；ACC-010 保留 supervisor review。不能据此宣布全部操作验收完成，也不改写前三内核的科研结果语义。
 
 
 ## 2026-11-13T18:25:31+08:00 realvuln 现场联通

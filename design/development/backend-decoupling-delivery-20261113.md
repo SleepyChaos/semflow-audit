@@ -1,6 +1,6 @@
 # 后端解耦交付摘要与后置清单
 
-后续现场验收及真实项目联通结果见[操作验收清单](backend-decoupling-acceptance-checklist-20261113.md)，合并范围和未通过事项见[PR 交付记录](backend-decoupling-pr-20261115.md)。以下 S6 completed 只表示当时的代码边界验收，不代表全部运行验收通过。
+后续现场验收及真实项目联通结果见[操作验收清单](archive/20261116-document-consistency/backend-decoupling-acceptance-checklist-20261113.md)，合并范围和未通过事项见[PR 交付记录](backend-decoupling-pr-20261115.md)。以下 S6 completed 只表示当时的代码边界验收，不代表全部运行验收通过。
 
 S6 | 2026-11-13T11:22:31+08:00 | completed。本次代码交付和 S1～S5 限定验收 completed；S6 的状态/边界固化已完成，轻量检查 23 passed。`implemented` 表示双端边界已验收，未宣称模型效果提升；实际平台实例未部署、数据库未迁移。
 

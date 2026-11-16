@@ -132,4 +132,4 @@
 
 ## 后续研究交付
 
-针对仍不稳定的规则生成，2026-10-03完成[论文阅读记录](../../research/notes/rule-generation-paper-review.md)及[下一轮改进方案](rule-generation-redesign-plan.md)。新方案尚未实现，优先补齐证据/诊断与受限模型生成，再验证LSP/组合式合成。
+针对仍不稳定的规则生成，2026-10-03完成[论文阅读记录](../../research/notes/rule-generation-paper-review.md)及[下一轮改进方案](archive/20261116-document-consistency/rule-generation-redesign-plan.md)。新方案尚未实现，优先补齐证据/诊断与受限模型生成，再验证LSP/组合式合成。

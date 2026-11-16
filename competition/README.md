@@ -5,13 +5,13 @@
 | 入口 | 内容 |
 | --- | --- |
 | [作品报告原稿](source/作品报告原稿.docx) | 原始作品文档 |
-| [作品报告](deliverables/report-rewrite-v1/作品报告.docx) / [修订稿](deliverables/report-rewrite-v1/作品报告修订稿.docx) | 已有报告交付版本 |
+| [修订稿](deliverables/report-rewrite-v1/作品报告修订稿.docx) / [早期稿归档](deliverables/archive/20261116-document-consistency/作品报告.docx) | 已有报告交付版本 |
 | [作品报告重写稿](deliverables/report-rewrite-v1/作品报告重写稿.md) | 可编辑文本 |
-| [阅读与实现对照](deliverables/report-rewrite-v1/阅读与实现对照.md) | 文献与实现联系 |
+| [阅读与实现对照](deliverables/archive/20261116-document-consistency/阅读与实现对照.md) | 文献与实现联系 |
 | [测试章节交付说明](deliverables/testing-chapter-v1/README.md) | 第三章正文和配图 |
 | [测试章节正文](deliverables/testing-chapter-v1/第三章作品测试与分析.md) / [Word](deliverables/testing-chapter-v1/第三章作品测试与分析.docx) | 已有测试章节版本 |
-| [报告校对意见](review/作品报告校对意见.md) | 内容校对 |
-| [测试章节框架](review/测试章节内容框架.md) / [数据补充清单](review/测试数据补充清单.md) | 待补数据与写作建议 |
+| [报告校对意见](review/archive/20261116-document-consistency/作品报告校对意见.md) | 内容校对 |
+| [测试章节框架](review/测试章节内容框架.md) / [数据补充清单](review/archive/20261116-document-consistency/测试数据补充清单.md) | 待补数据与写作建议 |
 | `figureforge-texts/` | 9份制图文案 |
 | `references/` | 竞赛报告及申报模板 |
 | [竞赛阅读指南](reading-guide.md) | 论文阅读层级与写作用途 |

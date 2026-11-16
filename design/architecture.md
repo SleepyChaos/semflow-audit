@@ -1,5 +1,7 @@
 # 技术栈与模块边界
 
+当前实现以 `system/research` 三内核和 `system/backend/app/research_bridge` 平台兼容层为边界。本文中的平台目录图保留历史兼容职责；新发现、修复和规则算法以科研 public 为准，不能在平台 services/workflows 中复制一套算法。
+
 ## 技术选择
 
 | 部分 | 选择 | 职责 |
@@ -24,9 +26,12 @@
 flowchart TD
     A[源码快照与扫描计划] --> B[CodeQL 建库]
     B --> C[CodeQL 扫描]
-    C --> D[解析告警与证据]
-    D --> E[AI 复审与主动取证子图]
-    E --> F[候选确认]
+    A --> S[独立 Scout 粗筛]
+    C --> D[静态告警与证据]
+    S --> E[Scout 候选与覆盖]
+    D --> R[统一 Review 与主动取证]
+    E --> R
+    R --> F[模型建议与人工确认]
     F --> G[汇总审计结果]
     G --> H[修复与验证子图]
     H --> I[Diff 与报告]
@@ -60,7 +65,7 @@ frontend/src/
   api/             # API 客户端
 ```
 
-API/jobs → workflows/services → domain/ports。adapters/persistence 提供实现，初始化模块完成装配。domain 不依赖 Web、任务或 AI 框架。
+历史平台入口的 API/jobs → workflows/services → domain/ports 关系仍用于兼容任务。当前科研执行使用 `research_cli` → `research.public`，平台通过 `research_bridge` 做输入冻结、ID/产物引用转换和结果投影；算法实现位于 `system/research` 的 discovery、repair、rules，不能由 bridge 或平台 services 复制。
 
 独立科研 CLI 通过 `semflow_research.public` 调用三个内核，Web/Celery 经 `research_bridge` 调用同一 public；平台保留阶段编排与人工事务。
 旧 `semflow` 命令依赖平台 runtime，仅作历史兼容；其说明见[历史平台命令](experiment-cli.md)。当前入口与契约版本见[交付摘要](development/backend-decoupling-delivery-20261113.md)，评分与隐藏答案继续留在 benchmarks。
@@ -69,7 +74,7 @@ API/jobs → workflows/services → domain/ports。adapters/persistence 提供�
 
 任务、阶段执行、证据、发现、判断、修复尝试、规则版本与知识版本分别持久化。规则 ID 不能代替漏洞实例身份。
 
-API 处理短请求，后台运行图。分析构建环境不获得模型或数据库凭据；每次执行拥有独立工作区与资源限制。CodeQL 当前仍在主机运行，仅用于可信本地代码；修复验证在无网络、只读挂载、非 root 的 Docker 容器中运行。
+API 处理短请求，后台运行图。分析构建环境不获得模型或数据库凭据；每次执行拥有独立工作区与资源限制。CodeQL 可在主机开发模式运行，也可由根目录 Compose 的可选工具卷提供；修复验证在无网络、只读挂载、非 root 的 Docker 容器中运行，但完整隔离修复仍受 Docker 引擎访问和宿主机路径映射限制。
 
 ## 官方参考
 

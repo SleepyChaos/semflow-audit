@@ -18,7 +18,7 @@
 
 ## 参考依据
 
-方法沿用已审阅的 [论文评述](../research/notes/rule-generation-paper-review.md)、[生成重设计](development/rule-generation-redesign-plan.md) 与本项目的 [原集对照](../benchmarks/reports/legacy-rag-matched-results.md)。本轮首先修正已观测工程失败，然后用消融检验各部分贡献。
+方法沿用已审阅的 [论文评述](../research/notes/rule-generation-paper-review.md)、[生成重设计](development/archive/20261116-document-consistency/rule-generation-redesign-plan.md) 与本项目的 [原集对照](../benchmarks/reports/legacy-rag-matched-results.md)。本轮首先修正已观测工程失败，然后用消融检验各部分贡献。
 
 
 ## 执行记录与第二轮修正
