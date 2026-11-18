@@ -282,6 +282,16 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     assessments = AssessmentBundle.model_validate_json(
         context.artifacts.read(result.result.assessments.artifact)
     ).records
+    from semflow_research.public.discovery_results import read_result
+
+    view = read_result(result.execution_id, root=case.ledger.root)
+    (handoff,) = view.trace.state["candidate_handoffs"]
+    assert handoff["candidate_id"] == str(assessments[0].candidate_ref.entity_id)
+    assert handoff["state"] == "unresolved"
+    assert handoff["reason_code"] == "insufficient_evidence"
+    assert handoff["evidence_ids"] == [
+        str(ref.entity_id) for ref in assessments[0].evidence_refs
+    ]
     assert assessments[0].conclusion == "insufficient"
     assert assessments[0].unknown_premises == (
         "Caller trust boundary has not been verified",

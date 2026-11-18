@@ -71,6 +71,9 @@ class UnifiedReview:
                 "schedule": {
                     "candidate_count": len(pool["entries"]),
                     "scheduled_candidates": sum(map(len, schedule)),
+                    "candidate_ids": [
+                        entry["candidate_id"] for batch in schedule for entry in batch
+                    ],
                     "batch_limit": self.inputs.max_batches,
                     "scheduled_batches": len(schedule),
                     "remaining_reason": "explicit scope, provider interruption or lack of progress; unprocessed candidates are unknown",
@@ -216,6 +219,10 @@ class UnifiedReview:
             "coverage_status": "partial" if uncovered else "completed",
             "snapshot_hash": self.evidence.source_context.snapshot_hash,
         }
+        from semflow_research.discovery.review_handoff import candidate_handoffs
+
+        # Peer: discovery_outputs exports this diagnostic field through DiscoveryTrace.
+        final["candidate_handoffs"] = candidate_handoffs(pool["entries"], final)
         save_json(self.directory / "unified-review-result.json", final)
         self.repository.update(
             self.execution_id,
