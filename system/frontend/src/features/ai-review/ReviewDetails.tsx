@@ -3,6 +3,7 @@ import type { AuditRun } from "@/api/audits"
 import type { Candidate, StageRun } from "@/api/stages"
 import { StageHistory } from "@/features/stages/StageHistory"
 import { DiscoveryCoverage } from "./DiscoveryCoverage"
+import { ReviewHandoff } from "./ReviewHandoff"
 
 export function ReviewDetails({
   run,
@@ -61,6 +62,7 @@ export function ReviewDetails({
           初步审计仍有范围未检查，当前复核结果仅覆盖已提交的候选。可在审计发现页继续补审。
         </p>
       ) : null}
+      <ReviewHandoff records={result.candidate_handoffs} />
       {latest ? <StageHistory stages={[latest]} title="最近执行" /> : null}
       {older.length ? (
         <details className="review-footer-disclosure">
