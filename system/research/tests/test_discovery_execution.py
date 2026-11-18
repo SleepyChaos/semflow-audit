@@ -292,6 +292,28 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     assert handoff["evidence_ids"] == [
         str(ref.entity_id) for ref in assessments[0].evidence_refs
     ]
+    from semflow_research.public.review_continuation import capture
+
+    seed = capture(
+        result.execution_id,
+        assessments[0].candidate_ref.entity_id,
+        source=spec.source,
+        root=case.ledger.root,
+    )
+    assert seed.assessment == assessments[0]
+    assert {row.evidence_id for row in seed.code_evidence} == {
+        ref.entity_id for ref in assessments[0].evidence_refs
+    }
+
+    from semflow_contracts.errors import ResearchError
+
+    with pytest.raises(ResearchError, match="snapshot changed"):
+        capture(
+            result.execution_id,
+            seed.candidate.candidate_id,
+            source=spec.source.model_copy(update={"snapshot_id": uuid4()}),
+            root=case.ledger.root,
+        )
     assert assessments[0].conclusion == "insufficient"
     assert assessments[0].unknown_premises == (
         "Caller trust boundary has not been verified",
