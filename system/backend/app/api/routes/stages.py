@@ -78,8 +78,40 @@ def stages(audit_id: UUID, session: SessionDep, workspace: LocalWorkspace):
 def review(
     audit_id: UUID, body: ReviewRequest, session: SessionDep, workspace: LocalWorkspace
 ):
+    if body.continuation_candidate_id:
+        raise HTTPException(422, "Use the selected candidate continuation endpoint")
     return create_stage(
         audit_id, "review", body.model_dump(mode="json"), session, workspace
+    )
+
+
+@router.post("/candidates/{candidate_id}/continue-review", status_code=201)
+def continue_review(candidate_id: UUID, session: SessionDep, workspace: LocalWorkspace):
+    candidate = session.get(Candidate, candidate_id)
+    if candidate is None:
+        raise HTTPException(404, "Candidate not found")
+    previous = owned_stage(candidate.stage_id, session, workspace)
+    audit = owned_run(previous.audit_id, session, workspace)
+    from app.research_bridge.requests import research_root
+    from app.research_bridge.review_continuation import validate_selection
+
+    try:
+        validate_selection(session, audit, candidate_id, root=research_root())
+    except AuditError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    return create_stage(
+        audit.id,
+        "review",
+        {
+            **previous.inputs,
+            "continuation_candidate_id": str(candidate_id),
+            "batch_size": 1,
+            "max_batches": 1,
+            "discover": False,
+        },
+        session,
+        workspace,
+        prompt_version=previous.prompt_version,
     )
 
 

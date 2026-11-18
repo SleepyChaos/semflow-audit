@@ -9,6 +9,7 @@ class StrictModel(BaseModel):
 
 
 class ReviewRequest(StrictModel):
+    continuation_candidate_id: UUID | None = None
     finding_ids: list[str] = Field(default_factory=list, max_length=50)
     paths: list[str] = Field(default_factory=list, max_length=50)
     discover: bool = True

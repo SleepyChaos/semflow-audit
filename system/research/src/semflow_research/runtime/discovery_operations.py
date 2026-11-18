@@ -166,7 +166,7 @@ def review(context):
     if context.spec.inputs.policy.version != "1":
         raise ResearchError("unsupported_version", "Unknown review policy version")
 
-    context, _ = import_targets(
+    context, selected = import_targets(
         context,
         context.spec.inputs.targets,
         context.spec.inputs.evidence,
@@ -181,6 +181,11 @@ def review(context):
     from semflow_research.graphs.unified_review import build_unified_review_graph
 
     service = ReviewService(str(context.execution_id), context.model, _kernel=context)
+    previous = context.spec.lineage.retry_of
+    if previous is not None and context.spec.inputs.source_execution_ids == (previous,):
+        from semflow_research.runtime.review_continuation import attach
+
+        attach(context, service, previous, selected)
     graph = build_unified_review_graph(service, context.checkpoints, _kernel=context)
     graph.invoke(
         {"execution_id": str(context.execution_id)},

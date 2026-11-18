@@ -186,7 +186,10 @@ def augment_context(service, context):
         context["targets"] = [
             {
                 **target,
-                "security_property": property_for(target),
+                "security_property": (
+                    context.get("prior_review", {}).get("security_property")
+                    or property_for(target)
+                ),
                 "required_premises": [
                     "operation",
                     "input_or_policy",

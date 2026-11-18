@@ -1,5 +1,8 @@
 import { apiJson } from "./backend"
-import type { Evidence } from "./stages"
+import type { Evidence, StageRun } from "./stages"
+
+export const continueReview = (id: string) =>
+  apiJson<StageRun>(`/candidates/${id}/continue-review`, { method: "POST" })
 
 export interface ReviewDetail {
   title: string

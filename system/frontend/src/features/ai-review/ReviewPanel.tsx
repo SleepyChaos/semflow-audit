@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import type { AuditRun } from "@/api/audits"
+import { continueReview } from "@/api/review"
 import { getCandidates, type StageRun, startStage } from "@/api/stages"
 import { Button } from "@/components/ui/button"
 import { CandidateWorkspace } from "./CandidateWorkspace"
@@ -39,6 +40,11 @@ export function ReviewPanel({
         include_scout: true,
         max_steps: 8,
       }),
+    onSuccess: () => cache.invalidateQueries(),
+    onError: (error: Error) => toast.error(error.message),
+  })
+  const followup = useMutation({
+    mutationFn: continueReview,
     onSuccess: () => cache.invalidateQueries(),
     onError: (error: Error) => toast.error(error.message),
   })
@@ -90,6 +96,10 @@ export function ReviewPanel({
         run={run}
         stages={stages}
         candidates={candidates.data ?? []}
+        onContinue={(id) => followup.mutate(id)}
+        continuationDisabled={
+          !modelReady || !ready || busy || start.isPending || followup.isPending
+        }
       />
     </section>
   )

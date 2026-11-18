@@ -200,11 +200,13 @@ def scanner(bridge_case, monkeypatch, tmp_path):
     return calls
 
 
-def upload(case, *, dual=False):
+def upload(case, *, dual=False, extra_sources=None):
     db, owner, _, source = case
     archive = source.parent / "new-upload.zip"
     with ZipFile(archive, "w") as stream:
         stream.write(source / "app.py", "app.py")
+        for name, content in (extra_sources or {}).items():
+            stream.writestr(name, content)
     with Session(db) as session:
         return create_run(
             session,

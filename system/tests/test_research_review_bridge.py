@@ -1,5 +1,6 @@
 """Platform review calls the same unified research graph with frozen real evidence."""
 
+import pytest
 from app.main import app
 from app.persistence.stage_models import Candidate
 from app.research_bridge.models import ResearchBinding
@@ -88,13 +89,35 @@ def test_new_review_runs_kernel_and_preserves_static_identity_and_human_gate(
         assert result.json()[0]["status"] == "pending"
 
 
-def test_current_review_method_keeps_uncertain_verdict_and_materials_api(
-    bridge_case, scanner
+@pytest.mark.parametrize(
+    ("have_local_evidence", "same_round_first"),
+    [(True, False), (False, False), (True, True)],
+)
+def test_current_review_method_continues_one_unresolved_candidate_via_api(
+    bridge_case, scanner, monkeypatch, have_local_evidence, same_round_first
 ):
     from semflow_contracts.modelio.unified_review import UnifiedReviewResponse
 
+    missing = (
+        "调用方的信任边界需要核对 helper.py 的定义"
+        if have_local_evidence
+        else "调用方的信任边界需要运行环境提供"
+    )
+
     class CurrentReviewModel(ReviewModel):
         def generate(self, purpose, payload, schema):
+            if payload.get("prior_review") and not self.contexts:
+                self.contexts.append(payload)
+                self.usage["calls"] += 1
+                return schema.model_validate(
+                    {
+                        "action": "tool",
+                        "tool": {
+                            "name": "search_source",
+                            "arguments": {"text": "eval"},
+                        },
+                    }
+                )
             body = (
                 super()
                 .generate(purpose, payload, UnifiedReviewResponse)
@@ -103,7 +126,10 @@ def test_current_review_method_keeps_uncertain_verdict_and_materials_api(
             for row in body["candidate_assessments"]:
                 row.update(
                     reason="源码存在动态执行，但调用方输入的信任边界尚未核实。",
-                    missing_premises=["调用方的信任边界尚未核实"],
+                    missing_premises=[missing],
+                    runtime_unknowns=[]
+                    if have_local_evidence
+                    else ["调用环境说明缺失"],
                     security_property=next(
                         target["security_property"]
                         for target in payload["targets"]
@@ -133,7 +159,12 @@ def test_current_review_method_keeps_uncertain_verdict_and_materials_api(
             return schema.model_validate(body)
 
     db, owner, _, _ = bridge_case
-    audit = upload(bridge_case)
+    audit = upload(
+        bridge_case,
+        extra_sources={"helper.py": "def caller_is_trusted():\n    return False\n"}
+        if have_local_evidence
+        else None,
+    )
     assert run_scan(str(audit.id)).status == "completed"
     with Session(db) as session:
         stage = create_stage_run(
@@ -141,7 +172,7 @@ def test_current_review_method_keeps_uncertain_verdict_and_materials_api(
             audit.id,
             owner,
             "review",
-            {"max_steps": 1, "supplement_insufficient": False},
+            {"max_steps": 2, "supplement_insufficient": same_round_first},
         )
         assert stage.prompt_version == "12"
     model = CurrentReviewModel()
@@ -160,6 +191,65 @@ def test_current_review_method_keeps_uncertain_verdict_and_materials_api(
             client.get(f"/api/v1/audits/{audit.id}/candidates").json()[0]["status"]
             == "pending"
         )
+
+    item = result.result["candidate_handoffs"][0]
+    observed_files = {window["file"] for window in item["observed_source_windows"]}
+    if same_round_first:
+        assert len(model.contexts) == 2
+        assert item["next_action"]["kind"] == "manual_triage"
+        assert observed_files == {"app.py", "helper.py"}
+    else:
+        assert item["next_action"]["kind"] == (
+            "gather_source" if have_local_evidence else "collect_material"
+        )
+        assert observed_files == {"app.py"}
+
+    queued = []
+    monkeypatch.setattr(
+        "app.api.routes.stages.dispatch_stage",
+        lambda stage, session: queued.append(stage.id),
+    )
+    with TestClient(app) as client:
+        response = client.post(f"/api/v1/candidates/{row.id}/continue-review")
+        if not have_local_evidence or same_round_first:
+            assert response.status_code == 409, response.text
+            assert not queued
+            return
+        assert response.status_code == 201, response.text
+        assert response.json()["id"] == str(queued[0])
+    second_model = CurrentReviewModel()
+    second = run_stage(str(queued[0]), kernel_model_factory=lambda: second_model)
+    assert second.status == "completed", second.error
+    assert second.id != result.id
+    assert len(second_model.contexts) == 2
+    assert len(second_model.contexts[0]["targets"]) == 1
+    assert any(
+        page["kind"] == "search" for page in second_model.contexts[1]["evidence"]
+    )
+    assert second_model.contexts[0]["prior_review"]["missing_premises"] == [missing]
+    assert {page["digest"] for page in model.contexts[0]["evidence"]} < {
+        page["digest"] for page in second_model.contexts[0]["evidence"]
+    }
+    assert any(
+        page["reference"].get("file") == "helper.py"
+        for page in second_model.contexts[0]["evidence"]
+    )
+    trace = second.result["review_continuation"]
+    assert trace["previous_candidate_id"] == str(row.id)
+    assert trace["purpose"] == "gather_source"
+    assert [item["file"] for item in trace["new_source_evidence"]] == ["helper.py"]
+    assert (
+        second.result["candidate_handoffs"][0]["next_action"]["kind"] == "manual_triage"
+    )
+    assert len(trace["reused_evidence"]) == 1
+    assert trace["reused_evidence"][0]["previous_evidence_id"] in row.evidence_ids
+    with Session(db) as session:
+        retry_candidate = session.exec(
+            select(Candidate).where(Candidate.stage_id == second.id)
+        ).one()
+        assert retry_candidate.related_target == str(row.id)
+        assert retry_candidate.model_assessment == "insufficient"
+        assert session.get(Candidate, row.id).model_assessment == "insufficient"
 
 
 def test_dual_discovery_and_platform_review_preserve_both_inputs_and_scout_provenance(

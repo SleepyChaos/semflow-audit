@@ -29,6 +29,7 @@ def prepare_pool(service, *, _kernel):
         return saved
     audit, inputs = (service.evidence.source_context, service.inputs)
     entries = []
+    continuation = getattr(service, "continuation", None)
     with _kernel.records.transaction() as db:
         findings = audit.findings
         if inputs.finding_ids:
@@ -38,10 +39,14 @@ def prepare_pool(service, *, _kernel):
         for finding in findings:
             location = finding["locations"][0]
             try:
-                source = service.evidence.read(
-                    location["file"],
-                    max(1, location["line"] - 8),
-                    location["line"] + 12,
+                source = (
+                    continuation["anchor"]
+                    if continuation
+                    else service.evidence.read(
+                        location["file"],
+                        max(1, location["line"] - 8),
+                        location["line"] + 12,
+                    )
                 )
             except AuditError:
                 if inputs.paths and (not inputs.finding_ids):
@@ -95,8 +100,10 @@ def prepare_pool(service, *, _kernel):
                 if inputs.paths and (not inputs.scout_candidate_ids):
                     continue
                 raise
-            materials = candidate_materials(
-                service.evidence, [original], _kernel=_kernel
+            materials = (
+                continuation["pages"]
+                if continuation
+                else candidate_materials(service.evidence, [original], _kernel=_kernel)
             )
             scout_stage = db.get(ExecutionRecord, original.execution_id)
             metadata = next(
@@ -227,8 +234,12 @@ def batch_context(service, entries, *, _kernel):
     ids = [UUID(r["candidate_id"]) for r in entries]
     with _kernel.records.transaction() as db:
         candidates = db.list(Candidate, execution_id=service.execution.id, id__in=ids)
-    materials = candidate_materials(service.evidence, candidates, _kernel=_kernel)
-    materials.extend(project_documents(service.evidence))
+    continuation = getattr(service, "continuation", None)
+    if continuation:
+        materials = list(continuation["pages"])
+    else:
+        materials = candidate_materials(service.evidence, candidates, _kernel=_kernel)
+        materials.extend(project_documents(service.evidence))
     materials = list({r["id"]: r for r in materials}.values())
     bindings = []
     if service.execution.method_version in {"5", "6", "7", "8", "9", "10", "11", "12"}:
@@ -238,13 +249,14 @@ def batch_context(service, entries, *, _kernel):
     if service.execution.method_version in {"6", "7", "8", "9", "10", "11", "12"}:
         from semflow_research.discovery.review_tools import prime_source_pages
 
-        materials = prime_source_pages(
-            service.evidence,
-            materials,
-            entries,
-            include_related=service.execution.method_version
-            in {"7", "8", "9", "10", "11", "12"},
-        )
+        if not continuation:
+            materials = prime_source_pages(
+                service.evidence,
+                materials,
+                entries,
+                include_related=service.execution.method_version
+                in {"7", "8", "9", "10", "11", "12"},
+            )
         entries = [
             {
                 **r,
@@ -318,6 +330,7 @@ def batch_context(service, entries, *, _kernel):
             if service.execution.method_version in {"7", "8", "9", "10", "11", "12"}
             else {}
         ),
+        **({"prior_review": continuation["summary"]} if continuation else {}),
         "snapshot": service.evidence.source_context.snapshot_hash,
         "language": service.evidence.source_context.language,
         "paths": service.inputs.paths,

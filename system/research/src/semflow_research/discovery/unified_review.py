@@ -25,6 +25,7 @@ class UnifiedReview:
         self.execution_id, self.execution = (service.execution_id, service.execution)
         self.repository, self.provider = (service.repository, service.provider)
         self.evidence, self.inputs = (service.evidence, service.inputs)
+        self.continuation = getattr(service, "continuation", None)
         self.directory = ArtifactStore(_kernel=_kernel).directory(self.execution_id)
 
     def prepare(self, _):
@@ -71,6 +72,9 @@ class UnifiedReview:
                 "schedule": {
                     "candidate_count": len(pool["entries"]),
                     "scheduled_candidates": sum(map(len, schedule)),
+                    "candidate_ids": [
+                        entry["candidate_id"] for batch in schedule for entry in batch
+                    ],
                     "batch_limit": self.inputs.max_batches,
                     "scheduled_batches": len(schedule),
                     "remaining_reason": "explicit scope, provider interruption or lack of progress; unprocessed candidates are unknown",
@@ -216,6 +220,19 @@ class UnifiedReview:
             "coverage_status": "partial" if uncovered else "completed",
             "snapshot_hash": self.evidence.source_context.snapshot_hash,
         }
+        from semflow_research.discovery.review_handoff import candidate_handoffs
+
+        # Peer: discovery_outputs exports this diagnostic field through DiscoveryTrace.
+        # Modern review has structured premise roles. Older executors keep their
+        # original handoff behavior and can still read historical trace records.
+        guidance = (
+            {"directory": self.directory, "evidence": self.evidence}
+            if int(self.execution.method_version) >= 8
+            else {}
+        )
+        final["candidate_handoffs"] = candidate_handoffs(
+            pool["entries"], final, **guidance
+        )
         save_json(self.directory / "unified-review-result.json", final)
         self.repository.update(
             self.execution_id,
