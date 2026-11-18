@@ -64,7 +64,6 @@ def gather(service, context, response, *, _kernel):
     context = ReviewService.gather(
         service,
         {"context": context, "response": response.model_dump(mode="json")},
-        _kernel=_kernel,
     )["context"]
     data = next(
         r

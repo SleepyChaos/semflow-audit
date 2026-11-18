@@ -120,7 +120,7 @@ def gather_review_tool(service, context, call, *, _kernel):
         context = observe_tool(context, call, previous, reused=True)
     else:
         context = ReviewService.gather(
-            service, {"context": context, "response": {"tool": call}}, _kernel=_kernel
+            service, {"context": context, "response": {"tool": call}}
         )["context"]
         data = next(
             r

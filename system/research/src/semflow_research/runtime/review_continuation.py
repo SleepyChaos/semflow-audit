@@ -59,7 +59,12 @@ def attach(context, service, previous, candidates):
         "previous_conclusion": assessment.conclusion if assessment else None,
         "checked_premises": list(assessment.checked_premises) if assessment else [],
         "missing_premises": list(assessment.unknown_premises) if assessment else [],
-        "instruction": "Keep the same security property. Reuse supplied source pages and investigate only missing premises. Prior opinions are context, not proof. Preserve uncertainty when evidence is still missing.",
+        "conclusion_contract": {
+            "supported": "Verified evidence establishes the reported defect.",
+            "excluded": "Verified counterevidence rules out the reported defect within scope.",
+            "insufficient": "A premise necessary to decide the reported defect remains unresolved.",
+        },
+        "instruction": "Assess whether the reported defect exists, not whether the code satisfies the security property. Keep the same security property. Reuse supplied source pages and investigate only missing premises. Prior opinions are context, not proof. Preserve uncertainty when evidence is still missing.",
     }
     service.continuation = {"anchor": anchor, "pages": pages, "summary": summary}
     current = service.repository.get(service.execution_id).result

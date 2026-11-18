@@ -341,6 +341,9 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     retry = assemble(
         result.execution_id, seed.candidate.candidate_id, root=case.ledger.root
     )
+    retry_value = retry.model_dump(mode="json")
+    retry_value["inputs"]["policy"]["max_steps"] = 2
+    retry = validate_spec(retry_value)
     retry_context = prepare(retry, root=case.ledger.root, settings=settings)
     second_inputs = []
 
@@ -356,10 +359,20 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
         assert payload["prior_review"]["missing_premises"] == list(
             assessments[0].unknown_premises
         )
-        assert {page["digest"] for page in payload["evidence"]} == {
-            item.digest for item in seed.code_evidence
-        }
-        return response(conclusion="supported", **kwargs)
+        completion = response(conclusion="supported", **kwargs)
+        if len(second_inputs) == 1:
+            assert {page["digest"] for page in payload["evidence"]} == {
+                item.digest for item in seed.code_evidence
+            }
+            completion.choices[0].message.content = json.dumps(
+                {
+                    "action": "tool",
+                    "tool": {"name": "search_source", "arguments": {"text": "eval"}},
+                }
+            )
+        else:
+            assert any(page["kind"] == "search" for page in payload["evidence"])
+        return completion
 
     monkeypatch.setattr(
         retry_context.model.client.chat.completions, "create", second_response
@@ -367,7 +380,7 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     second = execute(retry, retry_context)
     assert second.execution_status == "completed", second.failure
     assert second.execution_id != result.execution_id
-    assert len(second_inputs) == 1
+    assert len(second_inputs) == 2
     second_view = read_result(second.execution_id, root=case.ledger.root)
     (reused,) = second_view.trace.state["review_continuation"]["reused_evidence"]
     assert reused["previous_evidence_id"] == str(seed.code_evidence[0].evidence_id)
