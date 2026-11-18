@@ -20,6 +20,7 @@ from semflow_contracts.events import ExecutionEvent
 from semflow_contracts.openhands import OpenHandsReceipt
 from semflow_contracts.repair import OpenHandsPolicy, RepairAttempts
 from semflow_contracts.results import ResultEnvelope
+from semflow_contracts.review_handoff import CandidateReviewReport
 from semflow_contracts.rules import RuleDiagnostics
 from semflow_contracts.runs import RUN_ADAPTER
 from semflow_contracts.scout_continuation import ScoutContinuation
@@ -44,6 +45,7 @@ SCHEMAS = MappingProxyType(
                 "rule_toolchain": RuleToolchain,
                 "static_baseline": StaticBaseline,
                 "discovery_trace": DiscoveryTrace,
+                "candidate_review_report": CandidateReviewReport,
                 "scout_continuation": ScoutContinuation,
                 "approval_request": ApprovalRequest,
                 "approval_decision": ApprovalDecision,

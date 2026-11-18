@@ -139,6 +139,8 @@ class DiscoveryResult(Contract):
     # from trace labels. Presentation ID/hash conversion belongs to the platform.
     analysis_trace: ArtifactRef | None = None
     project_map: ArtifactRef | None = None
+    # Peer: CandidateReviewReport in review_handoff; optional for historical manifests.
+    candidate_reviews: ArtifactRef | None = None
 
 
 class ResultManifest(Contract):
