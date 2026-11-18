@@ -25,6 +25,7 @@ class UnifiedReview:
         self.execution_id, self.execution = (service.execution_id, service.execution)
         self.repository, self.provider = (service.repository, service.provider)
         self.evidence, self.inputs = (service.evidence, service.inputs)
+        self.continuation = getattr(service, "continuation", None)
         self.directory = ArtifactStore(_kernel=_kernel).directory(self.execution_id)
 
     def prepare(self, _):

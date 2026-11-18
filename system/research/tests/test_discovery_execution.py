@@ -238,7 +238,7 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     import_targets(imported, spec.inputs.targets, spec.inputs.evidence)
     assert len(imported.source_records.get(spec.source.snapshot_id).findings) == 1
 
-    def response(**kwargs):
+    def response(*, conclusion="insufficient", **kwargs):
         payload = json.loads(kwargs["messages"][-1]["content"])[
             "untrusted_analysis_material"
         ]
@@ -249,11 +249,20 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
             "candidate_assessments": [
                 {
                     "candidate_id": target["candidate_id"],
-                    "assessment": "insufficient",
+                    "assessment": conclusion,
                     "weakness": "CWE-95",
-                    "reason": "Caller trust boundary is not established by these source lines",
+                    "reason": (
+                        "Direct input flows to evaluation"
+                        if conclusion == "supported"
+                        else "Caller trust boundary is not established by these source lines"
+                    ),
                     "evidence_ids": target["evidence_ids"],
-                    "missing_premises": ["Caller trust boundary has not been verified"],
+                    "missing_premises": []
+                    if conclusion == "supported"
+                    else ["Caller trust boundary has not been verified"],
+                    "checked_premises": ["Direct input flows to evaluation"]
+                    if conclusion == "supported"
+                    else [],
                 }
             ],
             "new_findings": [],
@@ -292,7 +301,7 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     assert handoff["evidence_ids"] == [
         str(ref.entity_id) for ref in assessments[0].evidence_refs
     ]
-    from semflow_research.public.review_continuation import capture
+    from semflow_research.public.review_continuation import assemble, capture
 
     seed = capture(
         result.execution_id,
@@ -327,6 +336,50 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     )
     assert (
         context.records.get(Candidate, candidates[0].candidate_id).status == "pending"
+    )
+
+    retry = assemble(
+        result.execution_id, seed.candidate.candidate_id, root=case.ledger.root
+    )
+    retry_context = prepare(retry, root=case.ledger.root, settings=settings)
+    second_inputs = []
+
+    def second_response(**kwargs):
+        payload = json.loads(kwargs["messages"][-1]["content"])[
+            "untrusted_analysis_material"
+        ]
+        second_inputs.append(payload)
+        assert len(payload["targets"]) == 1
+        assert payload["prior_review"]["previous_candidate_id"] == str(
+            seed.candidate.candidate_id
+        )
+        assert payload["prior_review"]["missing_premises"] == list(
+            assessments[0].unknown_premises
+        )
+        assert {page["digest"] for page in payload["evidence"]} == {
+            item.digest for item in seed.code_evidence
+        }
+        return response(conclusion="supported", **kwargs)
+
+    monkeypatch.setattr(
+        retry_context.model.client.chat.completions, "create", second_response
+    )
+    second = execute(retry, retry_context)
+    assert second.execution_status == "completed", second.failure
+    assert second.execution_id != result.execution_id
+    assert len(second_inputs) == 1
+    second_view = read_result(second.execution_id, root=case.ledger.root)
+    (reused,) = second_view.trace.state["review_continuation"]["reused_evidence"]
+    assert reused["previous_evidence_id"] == str(seed.code_evidence[0].evidence_id)
+    assert reused["evidence_id"] != reused["previous_evidence_id"]
+    assert second_view.assessments[0].conclusion == "supported"
+    assert second_view.assessments[0].unknown_premises == ()
+    assert (
+        second_view.candidates[0].derived_from.entity_id == seed.candidate.candidate_id
+    )
+    assert (
+        read_result(result.execution_id, root=case.ledger.root).assessments
+        == assessments
     )
 
 
