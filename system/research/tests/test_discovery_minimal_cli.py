@@ -6,10 +6,9 @@ from pathlib import Path
 from uuid import UUID
 
 import pytest
+from research.tests.discovery_cli_cases import make_files, run
 from semflow_research.public.baselines import for_execution
 from semflow_research.public.runs import specification
-
-from research.tests.discovery_cli_cases import make_files, run
 
 
 @pytest.mark.parametrize(
@@ -113,6 +112,53 @@ def test_discovery_review_cli_consumes_frozen_upstream_bundle(
     payload = json.loads(review.stdout)
     assert payload["execution_status"] == "completed"
     assert payload["result"]["assessments"] is not None
+    report = run(
+        env,
+        [
+            "discovery-review-report",
+            "--root",
+            str(research_case.ledger.root),
+            "--execution-id",
+            payload["execution_id"],
+        ],
+        tmp_path,
+    )
+    assert report.returncode == 0, report.stderr + report.stdout
+    rows = json.loads(report.stdout)
+    assert rows["report"]["records"]
+    assert rows["cache"] is None
+    if upstream_command == "discovery-scan":
+        candidate = rows["report"]["records"][0]["candidate_ref"]["entity_id"]
+        for mode in ([], ["--without-cache"]):
+            continued = run(
+                env,
+                [
+                    "discovery-review-continue",
+                    "--root",
+                    str(research_case.ledger.root),
+                    "--upstream-execution-id",
+                    payload["execution_id"],
+                    "--candidate-id",
+                    candidate,
+                    "--resources",
+                    str(resources),
+                    "--dependency-lock",
+                    str(system / "uv.lock"),
+                    *mode,
+                ],
+                tmp_path,
+            )
+            assert continued.returncode == 0, continued.stderr + continued.stdout
+            receipt = json.loads(continued.stdout)
+            assert receipt["execution_status"] == "completed", receipt["failure"]
+            from semflow_research.public.discovery_results import read_result
+
+            current = read_result(
+                UUID(receipt["execution_id"]), root=research_case.ledger.root
+            )
+            assert current.review_cache.mode == ("reread" if mode else "reuse")
+            assert current.assessments[0].conclusion == "insufficient"
+
     # A review produces assessments, not a new scan; downstream replay/rescan
     # must still select its original immutable baseline without caller-written refs.
     selected = for_execution(

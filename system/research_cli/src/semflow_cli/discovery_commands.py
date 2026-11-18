@@ -1,5 +1,6 @@
 """Minimal discovery CLI assembly; only research public APIs are imported."""
 
+from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import UUID
@@ -12,7 +13,7 @@ from semflow_research.public.discovery_requests import (
 )
 from semflow_research.public.runs import execute
 
-COMMANDS = {
+DISCOVERY_OPERATIONS = {
     "discovery-scan",
     "discovery-scout",
     "discovery-review",
@@ -20,8 +21,26 @@ COMMANDS = {
 }
 
 
+COMMANDS = DISCOVERY_OPERATIONS | {
+    "discovery-review-continue",
+    "discovery-review-report",
+}
+
+
 def add_parsers(commands):
-    for name in sorted(COMMANDS):
+    continuation = commands.add_parser("discovery-review-continue")
+    continuation.add_argument("--root", type=Path, required=True)
+    continuation.add_argument("--upstream-execution-id", type=UUID, required=True)
+    continuation.add_argument("--candidate-id", type=UUID, required=True)
+    continuation.add_argument("--resources", type=Path, required=True)
+    continuation.add_argument("--dependency-lock", type=Path, required=True)
+    continuation.add_argument("--without-cache", action="store_true")
+
+    report = commands.add_parser("discovery-review-report")
+    report.add_argument("--root", type=Path, required=True)
+    report.add_argument("--execution-id", type=UUID, required=True)
+    report.add_argument("--candidate-id", type=UUID)
+    for name in sorted(DISCOVERY_OPERATIONS):
         parser = commands.add_parser(name, help="Run a discovery kernel directly")
         parser.add_argument("--root", type=Path, required=True)
         source = parser.add_mutually_exclusive_group(
@@ -35,6 +54,39 @@ def add_parsers(commands):
 
 
 def dispatch(args):
+    if args.command == "discovery-review-continue":
+        from semflow_research.public.review_continuation import assemble
+
+        spec = assemble(
+            args.upstream_execution_id,
+            args.candidate_id,
+            root=args.root,
+            reuse_cache=not args.without_cache,
+            dependency_lock_digest=sha256(
+                args.dependency_lock.read_bytes()
+            ).hexdigest(),
+        )
+        resources = load_resources(args.resources, spec, root=args.root)
+        return execute(spec, root=args.root, settings=resources).model_dump(mode="json")
+    if args.command == "discovery-review-report":
+        from semflow_research.public.discovery_results import read_result
+        from semflow_research.public.review_continuation import history
+
+        view = read_result(args.execution_id, root=args.root)
+        rows = (
+            history(args.execution_id, args.candidate_id, root=args.root)
+            if args.candidate_id
+            else ()
+        )
+        return {
+            "report": view.review_report.model_dump(mode="json")
+            if view.review_report
+            else None,
+            "cache": view.review_cache.model_dump(mode="json")
+            if view.review_cache
+            else None,
+            "history": [row.model_dump(mode="json") for row in rows],
+        }
     options = DiscoveryOptions.model_validate_json(
         args.options.read_bytes()
     ).model_copy(update={"operation": args.command.removeprefix("discovery-")})
