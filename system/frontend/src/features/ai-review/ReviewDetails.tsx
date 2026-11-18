@@ -46,6 +46,13 @@ export function ReviewDetails({
     typeof continuation === "object" &&
     "purpose" in continuation &&
     continuation.purpose === "retry_execution"
+  const sourceFacts =
+    continuation &&
+    typeof continuation === "object" &&
+    "prior_source_grounded_premises" in continuation &&
+    Array.isArray(continuation.prior_source_grounded_premises)
+      ? continuation.prior_source_grounded_premises.length
+      : 0
   const total = Array.isArray(result.candidate_ids)
     ? result.candidate_ids.length
     : null
@@ -82,6 +89,7 @@ export function ReviewDetails({
             {retry ? "未完成任务重跑" : "定向复审"} · 已复用上轮 {reused}{" "}
             条源码证据
             {added ? ` · 开始前新增 ${added} 条源码证据` : ""}
+            {sourceFacts ? ` · 带入 ${sourceFacts} 项已核对源码引用的前提` : ""}
           </span>
         ) : null}
         {latest?.status === "failed" ? (
