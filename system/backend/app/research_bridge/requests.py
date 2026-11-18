@@ -104,8 +104,15 @@ def freeze_stage(binding, stage, audit, *, session=None):
         ARTIFACT_ROOT=root, AI_BASE_URL=policy["base_url"], AI_MODEL=policy["model"]
     )
     resources = ToolSettings(**settings_values)
-    review_inputs = None
-    if stage.kind == "review":
+    review_inputs, lineage = None, {}
+    if stage.kind == "review" and inputs.get("continuation_candidate_id"):
+        from app.research_bridge.review_continuation import freeze_continuation
+
+        retry = freeze_continuation(session, binding, stage, audit, root)
+        snapshot = retry.source
+        lineage = retry.lineage.model_dump(mode="json")
+        review_inputs = retry.inputs.model_dump(mode="json")
+    elif stage.kind == "review":
         from app.research_bridge.review_inputs import freeze_targets
 
         review_inputs = freeze_targets(session, binding, stage, audit, snapshot)
@@ -117,7 +124,7 @@ def freeze_stage(binding, stage, audit, *, session=None):
             "execution_id": str(binding.execution_id),
             "module": "discovery",
             "operation": stage.kind,
-            "lineage": {},
+            "lineage": lineage,
             "source": snapshot.model_dump(mode="json"),
             "language": audit.language,
             "implementation": {
