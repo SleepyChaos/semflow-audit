@@ -192,6 +192,15 @@ def test_current_review_method_continues_one_unresolved_candidate_via_api(
             == "pending"
         )
 
+    (public_attempt,) = result.result["candidate_review_attempts"]
+    assert public_attempt["candidate_ref"]["entity_id"] == str(row.id)
+    assert public_attempt["execution_state"] == "completed"
+    assert public_attempt["assessment"]["conclusion"] == "insufficient"
+    assert public_attempt["evidence_state"] == "unresolved"
+    assert any(
+        premise["verification"] == "unresolved"
+        for premise in public_attempt["premises"]
+    )
     item = result.result["candidate_handoffs"][0]
     observed_files = {window["file"] for window in item["observed_source_windows"]}
     if same_round_first:
