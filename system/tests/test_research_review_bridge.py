@@ -90,11 +90,21 @@ def test_new_review_runs_kernel_and_preserves_static_identity_and_human_gate(
 
 
 @pytest.mark.parametrize(
-    ("have_local_evidence", "same_round_first"),
-    [(True, False), (False, False), (True, True)],
+    ("have_local_evidence", "same_round_first", "change_model"),
+    [
+        (True, False, False),
+        (False, False, False),
+        (True, True, False),
+        (True, False, True),
+    ],
 )
 def test_current_review_method_continues_one_unresolved_candidate_via_api(
-    bridge_case, scanner, monkeypatch, have_local_evidence, same_round_first
+    bridge_case,
+    scanner,
+    monkeypatch,
+    have_local_evidence,
+    same_round_first,
+    change_model,
 ):
     from semflow_contracts.modelio.unified_review import UnifiedReviewResponse
 
@@ -139,9 +149,14 @@ def test_current_review_method_continues_one_unresolved_candidate_via_api(
                 row["premises"] = [
                     {
                         "premise": name,
-                        "status": "missing",
-                        "reason": "当前源码证据不足以建立此项必要前提。",
-                        "evidence_ids": [],
+                        "status": "established" if name == "operation" else "missing",
+                        "reason": "目标源码显示存在动态执行操作。"
+                        if name == "operation"
+                        else "当前源码证据不足以建立此项必要前提。",
+                        "evidence_ids": row["evidence_ids"]
+                        if name == "operation"
+                        else [],
+                        "quote": "eval(input())" if name == "operation" else "",
                     }
                     for name in ("operation", "input_or_policy", "unsafe_protection")
                 ]
@@ -213,6 +228,11 @@ def test_current_review_method_continues_one_unresolved_candidate_via_api(
         )
         assert observed_files == {"app.py"}
 
+    if change_model:
+        from app.core.audit_config import audit_settings
+
+        monkeypatch.setattr(audit_settings, "AI_MODEL", "explicitly-changed-test-model")
+
     queued = []
     monkeypatch.setattr(
         "app.api.routes.stages.dispatch_stage",
@@ -246,6 +266,28 @@ def test_current_review_method_continues_one_unresolved_candidate_via_api(
     trace = second.result["review_continuation"]
     assert trace["previous_candidate_id"] == str(row.id)
     assert trace["purpose"] == "gather_source"
+    facts = second_model.contexts[0]["prior_review"]["prior_source_grounded_premises"]
+    assert trace["cache"]["source_hits"] == 1
+    if change_model:
+        assert trace["cache"]["fact_hits"] == 0
+        assert trace["cache"]["fact_misses"] == 1
+        assert trace["cache"]["invalidation_reasons"] == ["analysis_digest"]
+        assert facts == []
+    else:
+        assert trace["cache"]["fact_hits"] == 1
+        assert trace["cache"]["invalidation_reasons"] == []
+        (fact,) = facts
+        assert fact["role"] == "operation" and fact["quote"] == "eval(input())"
+        (page,) = [
+            item
+            for item in second_model.contexts[0]["evidence"]
+            if item["reference"].get("file") == "app.py"
+        ]
+        assert fact["evidence_ids"] == [page["id"]]
+        (projected_fact,) = trace["prior_source_grounded_premises"]
+        assert projected_fact["evidence_ids"] == [
+            trace["reused_evidence"][0]["evidence_id"]
+        ]
     assert [item["file"] for item in trace["new_source_evidence"]] == ["helper.py"]
     assert (
         second.result["candidate_handoffs"][0]["next_action"]["kind"] == "manual_triage"
