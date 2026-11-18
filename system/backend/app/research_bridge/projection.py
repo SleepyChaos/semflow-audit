@@ -138,6 +138,15 @@ def project(session, binding, result, *, root):
                 from app.presentation.discovery import save_review_materials
 
                 save_review_materials(stage, raw["pool"])
+        if view.review_report is not None:
+            # Peer: public.discovery_results. Preserve the scientific report ID
+            # and map displayed candidate/evidence IDs like the existing trace.
+            raw["candidate_review_attempts"] = translate_view(
+                [row.model_dump(mode="json") for row in view.review_report.records],
+                simple_ids,
+                view.review_report.source_digest,
+                binding.legacy_source_digest,
+            )
         if stage.kind == "scout" and view.project_map is not None:
             from app.presentation.discovery import save_scout_materials
 
