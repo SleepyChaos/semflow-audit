@@ -3,7 +3,7 @@
 from uuid import UUID
 
 from semflow_contracts.errors import ResearchError
-from semflow_research.public.review_continuation import assemble
+from semflow_research.public.review_continuation import assemble, validate_continuation
 from sqlmodel import select
 
 from app.domain.audit import AuditError
@@ -44,6 +44,14 @@ def prior_target(session, audit, candidate_id):
     if len(source_ids) != 1:
         raise AuditError("Prior review candidate identity is unavailable")
     return binding, source_ids[0]
+
+
+def validate_selection(session, audit, candidate_id, *, root):
+    binding, source_id = prior_target(session, audit, candidate_id)
+    try:
+        validate_continuation(binding.execution_id, source_id, root=root)
+    except ResearchError as exc:
+        raise AuditError(str(exc), code=exc.code) from exc
 
 
 def freeze_continuation(session, binding, stage, audit, root):
