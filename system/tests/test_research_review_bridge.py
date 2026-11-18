@@ -88,8 +88,8 @@ def test_new_review_runs_kernel_and_preserves_static_identity_and_human_gate(
         assert result.json()[0]["status"] == "pending"
 
 
-def test_current_review_method_keeps_uncertain_verdict_and_materials_api(
-    bridge_case, scanner
+def test_current_review_method_continues_one_unresolved_candidate_via_api(
+    bridge_case, scanner, monkeypatch
 ):
     from semflow_contracts.modelio.unified_review import UnifiedReviewResponse
 
@@ -160,6 +160,39 @@ def test_current_review_method_keeps_uncertain_verdict_and_materials_api(
             client.get(f"/api/v1/audits/{audit.id}/candidates").json()[0]["status"]
             == "pending"
         )
+
+    queued = []
+    monkeypatch.setattr(
+        "app.api.routes.stages.dispatch_stage",
+        lambda stage, session: queued.append(stage.id),
+    )
+    with TestClient(app) as client:
+        response = client.post(f"/api/v1/candidates/{row.id}/continue-review")
+        assert response.status_code == 201, response.text
+        assert response.json()["id"] == str(queued[0])
+    second_model = CurrentReviewModel()
+    second = run_stage(str(queued[0]), kernel_model_factory=lambda: second_model)
+    assert second.status == "completed", second.error
+    assert second.id != result.id
+    assert len(second_model.contexts) == 1
+    assert len(second_model.contexts[0]["targets"]) == 1
+    assert second_model.contexts[0]["prior_review"]["missing_premises"] == [
+        "调用方的信任边界尚未核实"
+    ]
+    assert {page["digest"] for page in second_model.contexts[0]["evidence"]} == {
+        page["digest"] for page in model.contexts[0]["evidence"]
+    }
+    trace = second.result["review_continuation"]
+    assert trace["previous_candidate_id"] == str(row.id)
+    assert len(trace["reused_evidence"]) == 1
+    assert trace["reused_evidence"][0]["previous_evidence_id"] in row.evidence_ids
+    with Session(db) as session:
+        retry_candidate = session.exec(
+            select(Candidate).where(Candidate.stage_id == second.id)
+        ).one()
+        assert retry_candidate.related_target == str(row.id)
+        assert retry_candidate.model_assessment == "insufficient"
+        assert session.get(Candidate, row.id).model_assessment == "insufficient"
 
 
 def test_dual_discovery_and_platform_review_preserve_both_inputs_and_scout_provenance(
