@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { Button } from "@/components/ui/button"
 
 const handoff = z.object({
   candidate_id: z.string(),
@@ -30,7 +31,15 @@ const reasons: Record<string, string> = {
   verification_failed: "复核执行失败",
 }
 
-export function ReviewHandoff({ records }: { records: unknown }) {
+export function ReviewHandoff({
+  records,
+  disabled,
+  onContinue,
+}: {
+  records: unknown
+  disabled?: boolean
+  onContinue?: (id: string) => void
+}) {
   // Peer: research discovery/review_handoff.py via the projected discovery trace.
   // Older stages have no handoff field.
   const parsed = z.array(handoff).safeParse(records)
@@ -65,6 +74,16 @@ export function ReviewHandoff({ records }: { records: unknown }) {
                 {row.location.file}:{row.location.line} ·{" "}
                 {reasons[code] ?? code}
               </strong>
+              {onContinue ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={disabled}
+                  onClick={() => onContinue(row.candidate_id)}
+                >
+                  继续复审此候选
+                </Button>
+              ) : null}
               {row.reason ? <p>{row.reason}</p> : null}
               {notes.map(([label, values]) =>
                 values.length ? (

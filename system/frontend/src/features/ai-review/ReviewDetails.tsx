@@ -9,10 +9,14 @@ export function ReviewDetails({
   run,
   stages,
   candidates,
+  onContinue,
+  continuationDisabled,
 }: {
   run: AuditRun
   stages: StageRun[]
   candidates: Candidate[]
+  onContinue?: (id: string) => void
+  continuationDisabled?: boolean
 }) {
   const [diagnosticsOpened, setDiagnosticsOpened] = useState(false)
   const ordered = [...stages].sort((a, b) =>
@@ -22,6 +26,14 @@ export function ReviewDetails({
   const latest = reviews[0]
   const older = ordered.filter((item) => item.id !== latest?.id)
   const result = latest?.result ?? {}
+  const continuation = result.review_continuation
+  const reused =
+    continuation &&
+    typeof continuation === "object" &&
+    "reused_evidence" in continuation &&
+    Array.isArray(continuation.reused_evidence)
+      ? continuation.reused_evidence.length
+      : null
   const total = Array.isArray(result.candidate_ids)
     ? result.candidate_ids.length
     : null
@@ -53,6 +65,9 @@ export function ReviewDetails({
             {remaining ? `${remaining} 项尚未复核` : "本轮候选无遗漏"}
           </span>
         ) : null}
+        {reused !== null ? (
+          <span>定向复审 · 已复用上轮 {reused} 条源码证据</span>
+        ) : null}
         {latest?.status === "failed" ? (
           <span>可在下方重试，已有结果保留。</span>
         ) : null}
@@ -62,7 +77,11 @@ export function ReviewDetails({
           初步审计仍有范围未检查，当前复核结果仅覆盖已提交的候选。可在审计发现页继续补审。
         </p>
       ) : null}
-      <ReviewHandoff records={result.candidate_handoffs} />
+      <ReviewHandoff
+        records={result.candidate_handoffs}
+        disabled={continuationDisabled}
+        onContinue={onContinue}
+      />
       {latest ? <StageHistory stages={[latest]} title="最近执行" /> : null}
       {older.length ? (
         <details className="review-footer-disclosure">
