@@ -34,6 +34,18 @@ export function ReviewDetails({
     Array.isArray(continuation.reused_evidence)
       ? continuation.reused_evidence.length
       : null
+  const added =
+    continuation &&
+    typeof continuation === "object" &&
+    "new_source_evidence" in continuation &&
+    Array.isArray(continuation.new_source_evidence)
+      ? continuation.new_source_evidence.length
+      : null
+  const retry =
+    continuation &&
+    typeof continuation === "object" &&
+    "purpose" in continuation &&
+    continuation.purpose === "retry_execution"
   const total = Array.isArray(result.candidate_ids)
     ? result.candidate_ids.length
     : null
@@ -66,7 +78,11 @@ export function ReviewDetails({
           </span>
         ) : null}
         {reused !== null ? (
-          <span>定向复审 · 已复用上轮 {reused} 条源码证据</span>
+          <span>
+            {retry ? "未完成任务重跑" : "定向复审"} · 已复用上轮 {reused}{" "}
+            条源码证据
+            {added ? ` · 开始前新增 ${added} 条源码证据` : ""}
+          </span>
         ) : null}
         {latest?.status === "failed" ? (
           <span>可在下方重试，已有结果保留。</span>

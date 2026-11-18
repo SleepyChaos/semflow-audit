@@ -12,6 +12,24 @@ const handoff = z.object({
   missing_checks: z.array(z.object({ reason: z.string() })),
   runtime_unknowns: z.array(z.string()),
   rejected_reasons: z.array(z.string()),
+  next_action: z
+    .object({
+      kind: z.enum([
+        "gather_source",
+        "retry_execution",
+        "collect_material",
+        "manual_triage",
+        "none",
+      ]),
+      source_windows: z.array(
+        z.object({
+          file: z.string(),
+          start_line: z.number(),
+          end_line: z.number(),
+        }),
+      ),
+    })
+    .optional(),
 })
 
 const reasons: Record<string, string> = {
@@ -68,21 +86,46 @@ export function ReviewHandoff({
             ["校验反馈", row.rejected_reasons],
           ] as const
           const code = row.reason_code ?? ""
+          const action = row.next_action
+          const canContinue =
+            !action ||
+            action.kind === "gather_source" ||
+            action.kind === "retry_execution"
+          const retry =
+            action?.kind === "retry_execution" ||
+            (!action && row.state === "unreviewed")
           return (
             <li key={row.candidate_id}>
               <strong>
                 {row.location.file}:{row.location.line} ·{" "}
                 {reasons[code] ?? code}
               </strong>
-              {onContinue ? (
+              {onContinue && canContinue ? (
                 <Button
                   type="button"
                   variant="outline"
                   disabled={disabled}
                   onClick={() => onContinue(row.candidate_id)}
                 >
-                  继续复审此候选
+                  {retry ? "重新执行此候选" : "补证并复审此候选"}
                 </Button>
+              ) : null}
+              {action?.kind === "gather_source" ? (
+                <p>
+                  将读取尚未核查的源码：
+                  {action.source_windows
+                    .map(
+                      (window) =>
+                        `${window.file}:${window.start_line}–${window.end_line}`,
+                    )
+                    .join("、")}
+                </p>
+              ) : null}
+              {action?.kind === "collect_material" ? (
+                <p>请补充项目要求或运行信息，再复审此候选。</p>
+              ) : null}
+              {action?.kind === "manual_triage" ? (
+                <p>请先定位能够回答待补证项的源码或材料。</p>
               ) : null}
               {row.reason ? <p>{row.reason}</p> : null}
               {notes.map(([label, values]) =>
