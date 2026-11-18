@@ -13,7 +13,7 @@ from semflow_research.domain.errors import AuditError
 from semflow_research.state.models import Evidence
 
 SOURCE_PATH = re.compile(
-    "(?<![A-Za-z0-9_./-])(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+\\.(?:py|js|ts|jsx|tsx|json|yaml|yml|toml|ini|cfg|html|htm|ejs|vue|svelte|graphql|gql)(?![A-Za-z0-9_./-])"
+    "(?<![A-Za-z0-9_./-])(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+\\.(?:py|js|ts|jsx|tsx|json|yaml|yml|toml|ini|cfg|md|txt|html|htm|ejs|vue|svelte|graphql|gql)(?![A-Za-z0-9_./-])"
 )
 
 

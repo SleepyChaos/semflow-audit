@@ -3,7 +3,7 @@
 from semflow_contracts.errors import ResearchError
 
 from semflow_research.evidence.read_tools import grounded
-from semflow_research.public.review_continuation import capture
+from semflow_research.public.review_continuation import capture, require_continuable
 
 
 def attach(context, service, previous, candidates):
@@ -13,6 +13,7 @@ def attach(context, service, previous, candidates):
     seed = capture(
         previous, candidate.candidate_id, source=context.spec.source, root=context.root
     )
+    require_continuable(seed)
     if candidate != seed.candidate:
         raise ResearchError(
             "identity_mismatch", "Continuation changed original candidate"
@@ -51,12 +52,29 @@ def attach(context, service, previous, candidates):
         raise ResearchError(
             "evidence_invalid", "Prior evidence does not cover the target"
         )
+    added = []
+    if seed.next_action is not None:
+        for window in seed.next_action.source_windows:
+            page = service.evidence.read(**window.model_dump())
+            if page["id"] not in {existing["id"] for existing in pages}:
+                pages.append(page)
+                added.append({"evidence_id": page["id"], **page["reference"]})
+    if (
+        seed.next_action is not None
+        and seed.next_action.kind == "gather_source"
+        and not added
+    ):
+        raise ResearchError(
+            "evidence_invalid", "Planned continuation did not produce new evidence"
+        )
     assessment = seed.assessment
     summary = {
         "previous_execution_id": str(previous),
         "previous_candidate_id": str(candidate.candidate_id),
         "security_property": seed.security_property,
         "previous_conclusion": assessment.conclusion if assessment else None,
+        "purpose": seed.next_action.kind if seed.next_action else "legacy_continuation",
+        "new_source_evidence": added,
         "checked_premises": list(assessment.checked_premises) if assessment else [],
         "missing_premises": list(assessment.unknown_premises) if assessment else [],
         "conclusion_contract": {
@@ -72,6 +90,12 @@ def attach(context, service, previous, candidates):
         service.execution_id,
         result={
             **current,
-            "review_continuation": {**summary, "reused_evidence": citations},
+            "review_continuation": {
+                **summary,
+                "reused_evidence": citations,
+                "previous_source_windows": [
+                    row.model_dump(mode="json") for row in seed.observed_windows
+                ],
+            },
         },
     )

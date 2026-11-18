@@ -223,7 +223,16 @@ class UnifiedReview:
         from semflow_research.discovery.review_handoff import candidate_handoffs
 
         # Peer: discovery_outputs exports this diagnostic field through DiscoveryTrace.
-        final["candidate_handoffs"] = candidate_handoffs(pool["entries"], final)
+        # Modern review has structured premise roles. Older executors keep their
+        # original handoff behavior and can still read historical trace records.
+        guidance = (
+            {"directory": self.directory, "evidence": self.evidence}
+            if int(self.execution.method_version) >= 8
+            else {}
+        )
+        final["candidate_handoffs"] = candidate_handoffs(
+            pool["entries"], final, **guidance
+        )
         save_json(self.directory / "unified-review-result.json", final)
         self.repository.update(
             self.execution_id,

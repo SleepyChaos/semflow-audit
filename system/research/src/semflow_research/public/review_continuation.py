@@ -8,6 +8,7 @@ from semflow_contracts.common import BundleRef
 from semflow_contracts.discovery import AssessmentRecord, CandidateRecord
 from semflow_contracts.errors import ResearchError
 from semflow_contracts.evidence import EvidenceRecord
+from semflow_contracts.review_handoff import ReviewNextAction, ReviewSourceWindow
 from semflow_contracts.runs import validate_spec
 
 from semflow_research.public.discovery_results import read_result
@@ -22,6 +23,8 @@ class ReviewSeed:
     code_evidence: tuple[EvidenceRecord, ...]
     evidence_ids: tuple[UUID, ...]
     security_property: str | None
+    next_action: ReviewNextAction | None
+    observed_windows: tuple[ReviewSourceWindow, ...]
 
 
 def capture(execution_id, candidate_id, *, source, root):
@@ -103,7 +106,36 @@ def capture(execution_id, candidate_id, *, source, root):
         tuple(code.values()),
         tuple(dict.fromkeys(ref.entity_id for ref in references)),
         handoff.get("security_property"),
+        ReviewNextAction.model_validate(handoff["next_action"])
+        if "next_action" in handoff
+        else None,
+        tuple(
+            ReviewSourceWindow.model_validate(row)
+            for row in handoff.get("observed_source_windows", ())
+        ),
     )
+
+
+def require_continuable(seed):
+    if not seed.code_evidence:
+        raise ResearchError(
+            "evidence_invalid", "Selected candidate has no source evidence"
+        )
+    if seed.next_action is not None and seed.next_action.kind not in {
+        "gather_source",
+        "retry_execution",
+    }:
+        raise ResearchError(
+            "invalid_contract",
+            "当前候选需要补充材料或人工定位证据，已有快照没有可执行的补证目标。",
+        )
+
+
+def validate_continuation(execution_id, candidate_id, *, root):
+    previous = specification(execution_id, root=root)
+    seed = capture(execution_id, candidate_id, source=previous.source, root=root)
+    require_continuable(seed)
+    return seed
 
 
 def assemble(execution_id, candidate_id, *, root, execution_id_override=None):
@@ -114,10 +146,7 @@ def assemble(execution_id, candidate_id, *, root, execution_id_override=None):
     """
     previous = specification(execution_id, root=root)
     seed = capture(execution_id, candidate_id, source=previous.source, root=root)
-    if not seed.code_evidence:
-        raise ResearchError(
-            "evidence_invalid", "Selected candidate has no source evidence"
-        )
+    require_continuable(seed)
     result = inspect(execution_id, root=root).result
     value = previous.model_dump(mode="json")
     value["execution_id"] = str(execution_id_override or uuid4())

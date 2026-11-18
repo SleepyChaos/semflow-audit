@@ -81,3 +81,38 @@ def test_handoff_keeps_candidate_evidence_and_feedback_separate():
     assert two["state"] == "assessed"
     assert two["evidence_ids"] == ["two-page"]
     assert two["feedback_attempts"] == []
+
+
+def test_next_action_uses_remaining_source_ranges_before_asking_for_policy(tmp_path):
+    from types import SimpleNamespace
+
+    from semflow_contracts.review_handoff import ReviewSourceWindow
+    from semflow_research.discovery.review_next_action import merge_windows, next_action
+
+    path = tmp_path / "policy.md"
+    path.write_text("first\nsecond\nthird\n", encoding="utf-8")
+    evidence = SimpleNamespace(allowed=lambda _: path)
+    assessment = {
+        "security_property": "authentication",
+        "missing_premises": ["Check policy.md for a project requirement"],
+        "premises": [
+            {
+                "premise": "input_or_policy",
+                "status": "missing",
+                "policy_basis": "unknown",
+                "reason": "The project requirement is unknown.",
+            }
+        ],
+    }
+    seen = merge_windows(
+        [ReviewSourceWindow(file="policy.md", start_line=1, end_line=2)]
+    )
+    action = next_action("unresolved", assessment, seen, evidence)
+    assert action.kind == "gather_source"
+    assert action.source_windows[0].start_line == action.source_windows[0].end_line == 3
+    exhausted = merge_windows([*seen, *action.source_windows])
+    assert (
+        next_action("unresolved", assessment, exhausted, evidence).kind
+        == "collect_material"
+    )
+    assert next_action("unreviewed", {}, (), evidence).kind == "retry_execution"

@@ -6,8 +6,16 @@ These records describe execution and evidence; assessments remain authoritative.
 
 from collections import defaultdict
 
+from semflow_contracts.review_handoff import ReviewSourceWindow
 
-def candidate_handoffs(entries, result):
+from semflow_research.discovery.review_next_action import (
+    merge_windows,
+    next_action,
+    source_windows_seen,
+)
+
+
+def candidate_handoffs(entries, result, *, directory=None, evidence=None):
     """Keep one record per frozen target, including targets with no model output."""
     batches = defaultdict(list)
     attempts = defaultdict(list)
@@ -27,12 +35,17 @@ def candidate_handoffs(entries, result):
             attempts[entry["candidate_id"]],
             scheduled,
             result.get("stop_reason"),
+            directory=directory,
+            evidence=evidence,
+            previous=result.get("review_continuation", {}),
         )
         for entry in entries
     ]
 
 
-def _handoff(entry, batches, attempts, scheduled, stop_reason):
+def _handoff(
+    entry, batches, attempts, scheduled, stop_reason, *, directory, evidence, previous
+):
     candidate_id = entry["candidate_id"]
     assessments = [
         row
@@ -60,7 +73,28 @@ def _handoff(entry, batches, attempts, scheduled, stop_reason):
     state, cause = _disposition(
         conclusion, rejected, batches, scheduled, candidate_id, stop_reason
     )
+    guidance = {}
+    if directory is not None and evidence is not None:
+        seen = [
+            window
+            for batch in batches
+            for window in source_windows_seen(directory, batch, candidate_id)
+        ]
+        seen.extend(
+            ReviewSourceWindow.model_validate(window)
+            for window in previous.get("previous_source_windows", [])
+        )
+        seen = merge_windows(seen)
+        guidance = {
+            "next_action": next_action(state, assessment, seen, evidence).model_dump(
+                mode="json"
+            ),
+            "observed_source_windows": [
+                window.model_dump(mode="json") for window in seen
+            ],
+        }
     return {
+        **guidance,
         "candidate_id": candidate_id,
         "origin": entry["origin"],
         "location": entry["location"],
