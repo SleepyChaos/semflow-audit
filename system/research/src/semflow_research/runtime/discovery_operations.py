@@ -163,7 +163,12 @@ def review(context):
 
         context = receive(context, context.spec.inputs.baseline)
 
-    if context.spec.inputs.policy.version != "1":
+    previous = context.spec.lineage.retry_of
+    continuing = previous is not None and context.spec.inputs.source_execution_ids == (
+        previous,
+    )
+    version = context.spec.inputs.policy.version
+    if version != "1" and not (version == "1-no-cache" and continuing):
         raise ResearchError("unsupported_version", "Unknown review policy version")
 
     context, selected = import_targets(
@@ -181,8 +186,7 @@ def review(context):
     from semflow_research.graphs.unified_review import build_unified_review_graph
 
     service = ReviewService(str(context.execution_id), context.model, _kernel=context)
-    previous = context.spec.lineage.retry_of
-    if previous is not None and context.spec.inputs.source_execution_ids == (previous,):
+    if continuing:
         from semflow_research.runtime.review_continuation import attach
 
         attach(context, service, previous, selected)

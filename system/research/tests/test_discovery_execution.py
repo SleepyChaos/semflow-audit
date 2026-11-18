@@ -307,7 +307,10 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     assert handoff["evidence_ids"] == [
         str(ref.entity_id) for ref in assessments[0].evidence_refs
     ]
-    from semflow_research.public.review_continuation import assemble, capture
+    from dataclasses import replace
+
+    from semflow_research.public.review_continuation import assemble, capture, history
+    from semflow_research.runtime.review_memory import identity
 
     seed = capture(
         result.execution_id,
@@ -316,6 +319,26 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
         root=case.ledger.root,
     )
     assert seed.assessment == assessments[0]
+    other = replace(
+        seed,
+        candidate=seed.candidate.model_copy(
+            update={"identity_key": "other-value-at-same-location"}
+        ),
+    )
+    assert identity(spec, seed).subject_digest != identity(spec, other).subject_digest
+    assert (
+        identity(spec, seed).analysis_digest
+        != identity(
+            spec.model_copy(
+                update={
+                    "implementation": spec.implementation.model_copy(
+                        update={"code_digest": "1" * 64}
+                    )
+                }
+            ),
+            seed,
+        ).analysis_digest
+    )
     assert {row.evidence_id for row in seed.code_evidence} == {
         ref.entity_id for ref in assessments[0].evidence_refs
     }
@@ -391,6 +414,12 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     (reused,) = second_view.trace.state["review_continuation"]["reused_evidence"]
     assert reused["previous_evidence_id"] == str(seed.code_evidence[0].evidence_id)
     assert reused["evidence_id"] != reused["previous_evidence_id"]
+    assert second_view.review_cache.source_hits == 1
+    assert second_view.review_cache.source_misses == 0
+    assert "analysis_digest" in second_view.review_cache.invalidation_reasons
+    again = execute(retry, retry_context)
+    assert again.manifest == second.manifest
+    assert len(second_inputs) == 2
     assert second_view.assessments[0].conclusion == "supported"
     assert second_view.assessments[0].unknown_premises == ()
     assert second_view.review_report.records[0].evidence_state == "validated_references"
@@ -402,6 +431,39 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
         read_result(result.execution_id, root=case.ledger.root).assessments
         == assessments
     )
+
+    trail = history(
+        second.execution_id,
+        second_view.candidates[0].candidate_id,
+        root=case.ledger.root,
+    )
+    assert [a.assessment.conclusion for a in trail] == ["supported", "insufficient"]
+    cold = assemble(
+        result.execution_id,
+        seed.candidate.candidate_id,
+        root=case.ledger.root,
+        reuse_cache=False,
+    )
+    cold_context = prepare(cold, root=case.ledger.root, settings=settings)
+    monkeypatch.setattr(
+        cold_context.model.client.chat.completions,
+        "create",
+        lambda **kwargs: response(conclusion="supported", **kwargs),
+    )
+    cold_receipt = execute(cold, cold_context)
+    assert cold_receipt.execution_status == "completed", cold_receipt.failure
+    cold_view = read_result(cold.execution_id, root=case.ledger.root)
+    assert cold_view.review_cache.mode == "reread"
+    assert (
+        cold_view.review_cache.source_hits,
+        cold_view.review_cache.source_misses,
+    ) == (0, 1)
+    assert cold_view.review_cache.fact_hits == 0
+    assert (
+        cold_view.review_cache.source[0].content_digest
+        == second_view.review_cache.source[0].content_digest
+    )
+    assert cold_view.assessments[0].conclusion == "supported"
 
 
 def test_cancellation_before_first_step_publishes_stopped_receipt(

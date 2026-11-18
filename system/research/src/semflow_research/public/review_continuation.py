@@ -8,10 +8,15 @@ from semflow_contracts.common import BundleRef
 from semflow_contracts.discovery import AssessmentRecord, CandidateRecord
 from semflow_contracts.errors import ResearchError
 from semflow_contracts.evidence import EvidenceRecord
-from semflow_contracts.review_handoff import ReviewNextAction, ReviewSourceWindow
+from semflow_contracts.review_handoff import (
+    CandidateReviewAttempt,
+    ReviewNextAction,
+    ReviewSourceWindow,
+)
 from semflow_contracts.runs import validate_spec
 
 from semflow_research.public.discovery_results import read_result
+from semflow_research.public.implementation import code_digest
 from semflow_research.public.runs import inspect, specification
 
 
@@ -25,6 +30,7 @@ class ReviewSeed:
     security_property: str | None
     next_action: ReviewNextAction | None
     observed_windows: tuple[ReviewSourceWindow, ...]
+    attempt: CandidateReviewAttempt | None
 
 
 def capture(execution_id, candidate_id, *, source, root):
@@ -99,6 +105,18 @@ def capture(execution_id, candidate_id, *, source, root):
         ),
         {},
     )
+    attempt = (
+        next(
+            (
+                record
+                for record in view.review_report.records
+                if record.candidate_ref.entity_id == candidate_id
+            ),
+            None,
+        )
+        if view.review_report is not None
+        else None
+    )
     return ReviewSeed(
         execution_id,
         candidate,
@@ -113,6 +131,7 @@ def capture(execution_id, candidate_id, *, source, root):
             ReviewSourceWindow.model_validate(row)
             for row in handoff.get("observed_source_windows", ())
         ),
+        attempt,
     )
 
 
@@ -138,7 +157,15 @@ def validate_continuation(execution_id, candidate_id, *, root):
     return seed
 
 
-def assemble(execution_id, candidate_id, *, root, execution_id_override=None):
+def assemble(
+    execution_id,
+    candidate_id,
+    *,
+    root,
+    execution_id_override=None,
+    reuse_cache=True,
+    dependency_lock_digest=None,
+):
     """Freeze a new review of one unresolved candidate from a published review.
 
     The receiver in runtime.discovery_operations binds retry_of to the exact
@@ -151,6 +178,9 @@ def assemble(execution_id, candidate_id, *, root, execution_id_override=None):
     value = previous.model_dump(mode="json")
     value["execution_id"] = str(execution_id_override or uuid4())
     value["lineage"] = {"retry_of": str(execution_id)}
+    value["implementation"]["code_digest"] = code_digest()
+    if dependency_lock_digest is not None:
+        value["implementation"]["dependency_lock_digest"] = dependency_lock_digest
     value["inputs"]["targets"] = BundleRef(
         artifact=result.candidates.artifact, entity_ids=(candidate_id,)
     ).model_dump(mode="json")
@@ -158,5 +188,43 @@ def assemble(execution_id, candidate_id, *, root, execution_id_override=None):
         artifact=result.evidence.artifact, entity_ids=seed.evidence_ids
     ).model_dump(mode="json")
     value["inputs"]["source_execution_ids"] = [str(execution_id)]
-    value["inputs"]["policy"].update(batch_size=1, max_batches=1)
+    value["inputs"]["policy"].update(
+        version="1" if reuse_cache else "1-no-cache", batch_size=1, max_batches=1
+    )
     return validate_spec(value)
+
+
+def history(execution_id, candidate_id, *, root):
+    """Newest first, following explicit continuation lineage only."""
+    records, visited = [], set()
+    while execution_id not in visited:
+        visited.add(execution_id)
+        view = read_result(execution_id, root=root)
+        report = view.review_report
+        if report is None:
+            break
+        attempt = next(
+            (
+                row
+                for row in report.records
+                if row.candidate_ref.entity_id == candidate_id
+            ),
+            None,
+        )
+        if attempt is None:
+            raise ResearchError(
+                "identity_mismatch", "Review history candidate was not found"
+            )
+        records.append(attempt)
+        prior = specification(execution_id, root=root).lineage.retry_of
+        if prior is None:
+            break
+        parent = attempt.previous_candidate_ref
+        if parent is None or parent.execution_id != prior:
+            raise ResearchError(
+                "identity_mismatch", "Review continuation history changed owner"
+            )
+        execution_id, candidate_id = prior, parent.entity_id
+    else:
+        raise ResearchError("integrity_error", "Review continuation history is cyclic")
+    return tuple(records)

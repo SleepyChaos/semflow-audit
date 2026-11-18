@@ -12,6 +12,7 @@ from semflow_contracts.common import BundleRef
 from semflow_contracts.discovery_trace import DiscoveryTrace
 from semflow_contracts.errors import ResearchError
 from semflow_contracts.review_handoff import CandidateReviewReport
+from semflow_contracts.review_memory import ReviewCacheReceipt
 
 from semflow_research.runtime.bundle_reader import read_bundle
 from semflow_research.runtime.ledger import LocalLedger
@@ -27,6 +28,7 @@ class DiscoveryView:
     content: dict
     project_map: dict | None
     review_report: CandidateReviewReport | None = None
+    review_cache: ReviewCacheReceipt | None = None
 
 
 def read_result(execution_id, *, root):
@@ -95,8 +97,30 @@ def read_result(execution_id, *, root):
                 "Discovery trace belongs to another method or source",
             )
     report = read_review_report(result, spec, store, values, memberships)
+    raw_cache = (
+        trace.state.get("review_continuation", {}).get("cache") if trace else None
+    )
+    cache = ReviewCacheReceipt.model_validate(raw_cache) if raw_cache else None
+    if cache is not None:
+        code = {
+            item.evidence_id: item for item in values["evidence"] if item.kind == "code"
+        }
+        if (cache.current.snapshot_id, cache.current.source_digest) != (
+            spec.source.snapshot_id,
+            spec.source.tree_sha256,
+        ) or any(
+            record.evidence_id not in code
+            or (record.location, record.content_digest)
+            != (code[record.evidence_id].location, code[record.evidence_id].digest)
+            for record in cache.source
+        ):
+            raise ResearchError(
+                "evidence_invalid",
+                "Review cache receipt does not match output evidence",
+            )
     return DiscoveryView(
         review_report=report,
+        review_cache=cache,
         **values,
         trace=trace,
         project_map=json.loads(store.read(payload.project_map))
