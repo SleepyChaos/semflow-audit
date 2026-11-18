@@ -92,10 +92,11 @@ def continue_review(candidate_id: UUID, session: SessionDep, workspace: LocalWor
         raise HTTPException(404, "Candidate not found")
     previous = owned_stage(candidate.stage_id, session, workspace)
     audit = owned_run(previous.audit_id, session, workspace)
-    from app.research_bridge.review_continuation import prior_target
+    from app.research_bridge.requests import research_root
+    from app.research_bridge.review_continuation import validate_selection
 
     try:
-        prior_target(session, audit, candidate_id)
+        validate_selection(session, audit, candidate_id, root=research_root())
     except AuditError as exc:
         raise HTTPException(409, str(exc)) from exc
     return create_stage(
