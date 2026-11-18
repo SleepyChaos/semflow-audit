@@ -95,6 +95,18 @@ def test_current_review_method_continues_one_unresolved_candidate_via_api(
 
     class CurrentReviewModel(ReviewModel):
         def generate(self, purpose, payload, schema):
+            if payload.get("prior_review") and not self.contexts:
+                self.contexts.append(payload)
+                self.usage["calls"] += 1
+                return schema.model_validate(
+                    {
+                        "action": "tool",
+                        "tool": {
+                            "name": "search_source",
+                            "arguments": {"text": "eval"},
+                        },
+                    }
+                )
             body = (
                 super()
                 .generate(purpose, payload, UnifiedReviewResponse)
@@ -141,7 +153,7 @@ def test_current_review_method_continues_one_unresolved_candidate_via_api(
             audit.id,
             owner,
             "review",
-            {"max_steps": 1, "supplement_insufficient": False},
+            {"max_steps": 2, "supplement_insufficient": False},
         )
         assert stage.prompt_version == "12"
     model = CurrentReviewModel()
@@ -174,8 +186,11 @@ def test_current_review_method_continues_one_unresolved_candidate_via_api(
     second = run_stage(str(queued[0]), kernel_model_factory=lambda: second_model)
     assert second.status == "completed", second.error
     assert second.id != result.id
-    assert len(second_model.contexts) == 1
+    assert len(second_model.contexts) == 2
     assert len(second_model.contexts[0]["targets"]) == 1
+    assert any(
+        page["kind"] == "search" for page in second_model.contexts[1]["evidence"]
+    )
     assert second_model.contexts[0]["prior_review"]["missing_premises"] == [
         "调用方的信任边界尚未核实"
     ]
