@@ -11,6 +11,7 @@ from semflow_contracts.bundles import (
 from semflow_contracts.common import BundleRef
 from semflow_contracts.discovery_trace import DiscoveryTrace
 from semflow_contracts.errors import ResearchError
+from semflow_contracts.review_handoff import CandidateReviewReport
 
 from semflow_research.runtime.bundle_reader import read_bundle
 from semflow_research.runtime.ledger import LocalLedger
@@ -25,6 +26,7 @@ class DiscoveryView:
     trace: DiscoveryTrace | None
     content: dict
     project_map: dict | None
+    review_report: CandidateReviewReport | None = None
 
 
 def read_result(execution_id, *, root):
@@ -41,7 +43,7 @@ def read_result(execution_id, *, root):
 
         spec = validate_spec(json.loads(row["spec"]))
     payload = result.result
-    values = {}
+    values, memberships = {}, {}
     for name, reference, schema in (
         ("candidates", payload.candidates, CandidateBundle),
         ("evidence", payload.evidence, EvidenceBundle),
@@ -53,6 +55,7 @@ def read_result(execution_id, *, root):
                 store, spec.source.snapshot_id, reference, schema
             )
             values[name] = loaded.records
+            memberships[name] = loaded.membership
         else:
             values[name] = ()
     trace = None
@@ -91,7 +94,9 @@ def read_result(execution_id, *, root):
                 "identity_mismatch",
                 "Discovery trace belongs to another method or source",
             )
+    report = read_review_report(result, spec, store, values, memberships)
     return DiscoveryView(
+        review_report=report,
         **values,
         trace=trace,
         project_map=json.loads(store.read(payload.project_map))
@@ -102,3 +107,68 @@ def read_result(execution_id, *, root):
             for row in values["evidence"]
         },
     )
+
+
+def read_review_report(result, spec, store, values, memberships):
+    ref = result.result.candidate_reviews
+    if ref is None:
+        return None
+    owner = (
+        result.execution_id
+        if result.operation == "review"
+        else next(
+            (
+                branch.execution_id
+                for branch in result.result.branches
+                if branch.branch == "review"
+            ),
+            None,
+        )
+    )
+    if (
+        ref.owner_execution_id != owner
+        or ref.schema_version != "semflow.candidate-review-report/1"
+    ):
+        raise ResearchError(
+            "identity_mismatch", "Unexpected candidate-review report producer"
+        )
+    report = CandidateReviewReport.model_validate_json(store.read(ref))
+    if (report.execution_id, report.snapshot_id, report.source_digest) != (
+        owner,
+        spec.source.snapshot_id,
+        spec.source.tree_sha256,
+    ):
+        raise ResearchError(
+            "identity_mismatch", "Review report belongs to another source"
+        )
+    candidates = {row.candidate_id: row for row in values["candidates"]}
+    evidence = {row.evidence_id: row for row in values["evidence"]}
+    assessments = {row.candidate_ref.entity_id: row for row in values["assessments"]}
+    for row in report.records:
+        candidate_id = row.candidate_ref.entity_id
+        candidate = candidates.get(candidate_id)
+        if (
+            candidate is None
+            or candidate.execution_id != owner
+            or row.location != candidate.primary_location
+            or row.previous_candidate_ref != candidate.derived_from
+            or row.candidate_ref.bundle != memberships["candidates"].get(candidate_id)
+            or row.assessment != assessments.get(candidate_id)
+        ):
+            raise ResearchError(
+                "identity_mismatch", "Candidate review row does not match its bundles"
+            )
+        for fact in row.premises:
+            for citation in fact.evidence_refs:
+                record = evidence.get(citation.entity_id)
+                if (
+                    record is None
+                    or citation.execution_id != record.execution_id
+                    or citation.bundle
+                    != memberships["evidence"].get(citation.entity_id)
+                ):
+                    raise ResearchError(
+                        "evidence_invalid",
+                        "Review premise cites another evidence bundle",
+                    )
+    return report

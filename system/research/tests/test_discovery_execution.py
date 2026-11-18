@@ -297,6 +297,12 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     (handoff,) = view.trace.state["candidate_handoffs"]
     assert handoff["candidate_id"] == str(assessments[0].candidate_ref.entity_id)
     assert handoff["state"] == "unresolved"
+    (review_attempt,) = view.review_report.records
+    assert review_attempt.execution_state == "completed"
+    assert review_attempt.evidence_state == "unresolved"
+    assert review_attempt.assessment == assessments[0]
+    assert review_attempt.previous_candidate_ref is not None
+    assert review_attempt.location.snapshot_id == spec.source.snapshot_id
     assert handoff["reason_code"] == "insufficient_evidence"
     assert handoff["evidence_ids"] == [
         str(ref.entity_id) for ref in assessments[0].evidence_refs
@@ -387,6 +393,8 @@ def test_review_imports_exact_static_bundle_and_preserves_unknown_verdict(
     assert reused["evidence_id"] != reused["previous_evidence_id"]
     assert second_view.assessments[0].conclusion == "supported"
     assert second_view.assessments[0].unknown_premises == ()
+    assert second_view.review_report.records[0].evidence_state == "validated_references"
+    assert second_view.review_report.records[0].assessment == second_view.assessments[0]
     assert (
         second_view.candidates[0].derived_from.entity_id == seed.candidate.candidate_id
     )

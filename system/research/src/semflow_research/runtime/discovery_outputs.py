@@ -219,6 +219,15 @@ def export(context, *, static_ref=None):
         if assessments
         else None
     )
+    candidate_reviews = None
+    if execution.kind == "review" and "candidate_handoffs" in raw:
+        from semflow_research.runtime.review_report import build_report
+
+        candidate_reviews = commit_bundle(
+            context,
+            build_report(context, raw, candidates, assessments, entity, evidence),
+            "materials",
+        )
     coverage = raw.get("coverage", {})
     unknown = set(raw.get("unreviewed_candidate_ids", []))
     inspected = [row for row in raw.get("units", []) if row["status"] == "inspected"]
@@ -269,6 +278,7 @@ def export(context, *, static_ref=None):
         if execution.kind == "scout"
         and (context.workspace / "scout-map.json").is_file()
         else None,
+        candidate_reviews=candidate_reviews,
         analysis_trace=commit_json(
             context,
             DiscoveryTrace(

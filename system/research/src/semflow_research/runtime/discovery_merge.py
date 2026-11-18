@@ -75,7 +75,7 @@ def merge(
     }
     evidence_members = [source_evidence]
     candidate_members = [source_candidates]
-    assessments = None
+    assessments, candidate_reviews = None, None
     reviewed, unreviewed = [], list(original_refs.values())
     root_relations = None
     if review_result and review_result.result:
@@ -98,6 +98,7 @@ def merge(
         ]
         evidence_members.append(output.evidence)
         assessments = output.assessments
+        candidate_reviews = output.candidate_reviews
         reviewed = list(output.coverage.reviewed_candidate_refs)
         unreviewed = [*output.coverage.unreviewed_candidate_refs, *remaining.values()]
         root_relations = output.root_relations
@@ -179,6 +180,7 @@ def merge(
         candidates=index(context, "candidate", candidate_members),
         evidence=index(context, "evidence", evidence_members),
         assessments=assessments,
+        candidate_reviews=candidate_reviews,
         static_findings=scan.static_findings if scan else None,
         coverage=coverage,
         branches=tuple(branches),
