@@ -4,6 +4,8 @@ import ast
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 
+from semflow_research.adapters.source_text import read_source_text
+
 from semflow_research.adapters.operation_evidence import normalize
 from semflow_research.domain.errors import AuditError
 
@@ -128,7 +130,7 @@ def _parse(evidence, file):
         p = evidence.allowed(file)
         if not p.is_file() or p.stat().st_size > 200000:
             return None
-        text = p.read_text(encoding="utf-8-sig")
+        text = read_source_text(p)
         return text, ast.parse(text)
     except (OSError, UnicodeError, SyntaxError, ValueError, RecursionError):
         return None

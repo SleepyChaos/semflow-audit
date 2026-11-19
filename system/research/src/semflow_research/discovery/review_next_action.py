@@ -7,6 +7,8 @@ from semflow_contracts.review_handoff import ReviewNextAction, ReviewSourceWindo
 from semflow_research.adapters.review_evidence import missing_source_paths
 from semflow_research.domain.errors import AuditError
 
+from semflow_research.adapters.source_text import read_source_text
+
 
 def source_windows_seen(directory, batch, candidate_id):
     """Use matching accepted call payloads, including any successful feedback revision."""
@@ -102,7 +104,7 @@ def _unread_window(evidence, file, seen):
         path = evidence.allowed(file)
         if not path.is_file() or path.stat().st_size > 1024 * 1024:
             return None
-        lines = path.read_text(encoding="utf-8").splitlines()
+        lines = read_source_text(path).splitlines()
     except (OSError, UnicodeError):
         return None
     except AuditError as error:

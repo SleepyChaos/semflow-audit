@@ -12,6 +12,8 @@ from semflow_research.adapters.repository_locator import RepositoryLocator
 from semflow_research.adapters.review_evidence import missing_source_paths
 from semflow_research.domain.errors import AuditError
 
+from semflow_research.adapters.source_text import read_source_text
+
 _SYMBOL = re.compile(r"\b([A-Za-z_$][A-Za-z0-9_$]{1,79})\s*\(")
 _MAX_REQUESTS = 5
 _MAX_WINDOWS = 3
@@ -235,7 +237,7 @@ def _unread(evidence, filename, match_start, match_end, seen, kind):
         path = evidence.allowed(filename)
         if path.stat().st_size > 1024 * 1024:
             return None
-        lines = path.read_text(encoding="utf-8-sig").splitlines()
+        lines = read_source_text(path).splitlines()
     except (OSError, UnicodeError):
         return None
     except AuditError as exc:

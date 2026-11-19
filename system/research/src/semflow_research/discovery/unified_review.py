@@ -54,6 +54,8 @@ class UnifiedReview:
         pool = pool_for_resume(self, _kernel=_kernel)
         if digest(pool) != state["pool_hash"]:
             raise AuditError("复核候选池身份已变化")
+        scheduler = _kernel.spec.inputs.policy.scheduler
+        source_balanced = scheduler == "source_balanced_v1"
         schedule = batches(
             pool,
             self.inputs.batch_size,
@@ -61,10 +63,43 @@ class UnifiedReview:
             in {"5", "6", "7", "8", "9", "10", "11", "12"},
             coherent_conditions=self.execution.method_version
             in {"9", "10", "11", "12"},
+            source_balanced=source_balanced,
         )
-        schedule = fit_batches(self, schedule, _kernel=_kernel)
+        ranked = [entry for batch in schedule for entry in batch]
+        schedule = fit_batches(
+            self,
+            schedule,
+            _kernel=_kernel,
+            limit=self.inputs.max_batches if source_balanced else 0,
+        )
         if self.inputs.max_batches:
             schedule = schedule[: self.inputs.max_batches]
+        selected = {entry["candidate_id"] for batch in schedule for entry in batch}
+        decisions = []
+        if source_balanced:
+            from semflow_research.discovery.review_scheduling import (
+                cross_source_peers,
+                score_entry,
+            )
+
+            peers = cross_source_peers(ranked)
+            for rank, entry in enumerate(ranked, 1):
+                identifier = entry["candidate_id"]
+                related = sorted(peers.get(identifier, ()))
+                priority, reason = score_entry(entry, bool(related))
+                decisions.append(
+                    {
+                        "candidate_id": identifier,
+                        "origin": entry["origin"],
+                        "rank": rank,
+                        "priority": priority,
+                        "priority_reason": reason,
+                        "cross_source_peers": related,
+                        "disposition": "scheduled"
+                        if identifier in selected
+                        else "outside_batch_limit",
+                    }
+                )
         self.repository.update(
             self.execution_id,
             result={
@@ -77,6 +112,11 @@ class UnifiedReview:
                     ],
                     "batch_limit": self.inputs.max_batches,
                     "scheduled_batches": len(schedule),
+                    **(
+                        {"scheduler": scheduler, "decisions": decisions}
+                        if source_balanced
+                        else {}
+                    ),
                     "remaining_reason": "explicit scope, provider interruption or lack of progress; unprocessed candidates are unknown",
                 },
             },
@@ -233,6 +273,24 @@ class UnifiedReview:
         final["candidate_handoffs"] = candidate_handoffs(
             pool["entries"], final, **guidance
         )
+        if _kernel.spec.inputs.policy.scheduler:
+            from collections import Counter
+
+            states = Counter(row["reason_code"] for row in final["candidate_handoffs"])
+            final["coverage"] = {
+                "status": "partial" if uncovered else "completed",
+                "scheduled_candidates": result.get("schedule", {}).get(
+                    "scheduled_candidates", 0
+                ),
+                "accepted_assessments": len(reviewed),
+                "reason_codes": sorted(
+                    reason
+                    for reason, count in states.items()
+                    if reason and reason != "assessment_accepted" and count
+                ),
+                "candidate_states": dict(states),
+                "stop_reason": result.get("stop_reason"),
+            }
         save_json(self.directory / "unified-review-result.json", final)
         self.repository.update(
             self.execution_id,

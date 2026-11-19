@@ -234,8 +234,11 @@ def export(context, *, static_ref=None):
     partial = (
         coverage.get("status") == "partial" or raw.get("coverage_status") == "partial"
     )
+    coverage_status = (
+        "none" if coverage.get("status") == "none" else "partial" if partial else "full"
+    )
     report = CoverageReport(
-        status="partial" if partial else "full",
+        status=coverage_status,
         scope_manifest=commit_json(
             context,
             coverage or {"candidate_ids": [str(row.id) for row in rows]},
@@ -253,7 +256,8 @@ def export(context, *, static_ref=None):
             else sorted(unknown),
             "coverage",
         ),
-        reasons=(
+        reasons=tuple(coverage.get("reason_codes", ()))
+        or (
             str(
                 raw.get("stop_reason")
                 or coverage.get("stop_reason")

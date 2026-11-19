@@ -7,6 +7,8 @@ Changes to JSON require checking the corresponding semflow_contracts/wire peer.
 """V4 bounded security tasks, actual source pages and coverage-aware call allocation."""
 import json
 
+from semflow_research.adapters.source_text import read_source_text
+
 from semflow_contracts.modelio.discovery_semantics import (
     FinalScoutResponseV6,
     ScoutResponseV6,
@@ -137,7 +139,7 @@ def inspect_unit(service, project, unit, call_limit, *, _kernel):
         "assessment_boundary": "Source-level conditions. External deployment assumptions are separate unknowns, not invented guards. Task completion does not prove a module safe.",
     }
     path = service.evidence.allowed(unit["file"])
-    lines = path.read_text().splitlines()
+    lines = read_source_text(path).splitlines()
     if path.stat().st_size <= 10000 and len(lines) <= 300:
         for start in range(1, len(lines) + 1, 150):
             end = min(start + 149, len(lines))
@@ -171,6 +173,8 @@ def inspect_unit(service, project, unit, call_limit, *, _kernel):
     context = attach_guidance(service, source, context, directory)
     fallback = None
     localization_attempted = False
+    schema_retry = False
+    risk_aware = _kernel.spec.inputs.window_policy.version == "2"
     for step in range(call_limit):
         service.active()
         context["source_windows"] = window_observations(
@@ -205,6 +209,7 @@ def inspect_unit(service, project, unit, call_limit, *, _kernel):
             raise AuditError(
                 "粗筛必要上下文超过预算；未截断证据", code="context_budget"
             )
+        calls_before = service.provider.usage.get("calls", 0)
         try:
             response = frozen_call(
                 service.provider,
@@ -225,6 +230,19 @@ def inspect_unit(service, project, unit, call_limit, *, _kernel):
         except (ExecutionCancelled, AuditCancelled):
             raise
         except AuditError as exc:
+            if (
+                risk_aware
+                and exc.code == "schema_invalid"
+                and not schema_retry
+                and step + 1 < call_limit
+            ):
+                schema_retry = True
+                context["server_feedback"] = {
+                    "code": "schema_invalid",
+                    "instruction": "Repair the structure using the supplied sources and retain unknown premises.",
+                    "diagnostics": getattr(exc, "validation_feedback", ()),
+                }
+                continue
             if fallback is None or exc.code in {"integrity_error", "identity_error"}:
                 raise
             save_json(
@@ -232,6 +250,26 @@ def inspect_unit(service, project, unit, call_limit, *, _kernel):
                 {"code": exc.code, "reason": str(exc)},
             )
             return fallback
+        finally:
+            if risk_aware and service.provider.usage.get("calls", 0) > calls_before:
+                save_json(
+                    directory / f"call-{step}" / "source-input.json",
+                    {
+                        "unit_id": unit["id"],
+                        "ranges": [
+                            {
+                                key: row[key]
+                                for key in (
+                                    "file",
+                                    "start_line",
+                                    "end_line",
+                                    "evidence_id",
+                                )
+                            }
+                            for row in context["source_windows"]
+                        ],
+                    },
+                )
         service.active()
         if response.action == "final":
             try:
@@ -298,6 +336,10 @@ def inspect_unit(service, project, unit, call_limit, *, _kernel):
                         and (step + 1 < call_limit)
                     ):
                         fallback = response
+                        save_json(
+                            directory / "evidence-coverage.json",
+                            context["source_windows"],
+                        )
                         localization_attempted = True
                         context["server_feedback"] = feedback
                         continue

@@ -6,6 +6,8 @@ from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
+
+from semflow_research.adapters.source_text import read_source_text
 from time import monotonic
 
 from semflow_research.adapters.source_inventory import (
@@ -179,7 +181,7 @@ class RepositoryLocator:
                     limited = True
                     continue
                 size += count_bytes
-                source = path.read_text(encoding="utf-8-sig")
+                source = read_source_text(path)
             except (OSError, UnicodeError):
                 limited = True
                 continue

@@ -8,6 +8,8 @@ Changes to JSON require checking the corresponding semflow_contracts/wire peer.
 import ast
 import builtins
 
+from semflow_research.adapters.source_text import read_source_text
+
 
 def names_in_scope(nodes):
     names = set()
@@ -103,7 +105,7 @@ def location_bindings(evidence, locations):
             )
             continue
         result.append(
-            {"file": file, **binding_clues(path.read_text(), location["line"])}
+            {"file": file, **binding_clues(read_source_text(path), location["line"])}
         )
     return result
 
@@ -114,7 +116,7 @@ def window_bindings(evidence, reference):
     path = evidence.allowed(reference["file"])
     if path.stat().st_size > 200000:
         return []
-    source = path.read_text()
+    source = read_source_text(path)
     try:
         lines = sorted(
             {

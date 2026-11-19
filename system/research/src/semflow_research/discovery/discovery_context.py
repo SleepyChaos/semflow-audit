@@ -9,6 +9,8 @@ import json
 import re
 from pathlib import Path
 
+from semflow_research.adapters.source_text import read_source_text
+
 from semflow_research.adapters.source_inventory import inspectable
 from semflow_research.discovery.scout_inspection import compact_pages
 
@@ -124,9 +126,18 @@ def augment_context(service, context):
             and service.execution.method_version in {"9", "10", "11", "12"}
         )
     )
+    from semflow_research.adapters.project_navigation import navigation_index
+
+    source_issues = navigation_index(service.evidence)["unreadable"]
     for file in bootstrap_files(service.evidence, materials, modern=modern):
         path = service.evidence.allowed(file)
-        lines = path.read_text().splitlines()
+        try:
+            lines = read_source_text(path).splitlines()
+        except (UnicodeError, OSError) as exc:
+            gaps.append(
+                {"file": file, "code": "source_unreadable", "reason": str(exc)[:200]}
+            )
+            continue
         if len(lines) > 350 or path.stat().st_size > 16000:
             gaps.append({"file": file, "reason": "module_requires_targeted_pages"})
             continue
@@ -168,6 +179,8 @@ def augment_context(service, context):
         "local_control_context": {
             "provided_complete_modules": completed,
             "missing_modules": gaps,
+            "unreadable_repository_files": source_issues[:20],
+            "unreadable_repository_file_count": len(source_issues),
             "meaning": "Actual bootstrap/import source. Dynamic imports and middleware mounts still need verification. Source inside this snapshot is LOCAL, not a deployment unknown.",
         },
         "security_property_contract": {
@@ -296,7 +309,7 @@ def refresh_control_context(service, context):
     remaining = []
     for gap in control["missing_modules"]:
         file = gap["file"]
-        total = len(service.evidence.allowed(file).read_text().splitlines())
+        total = len(read_source_text(service.evidence.allowed(file)).splitlines())
         ranges = [
             r["reference"]
             for r in context["evidence"]

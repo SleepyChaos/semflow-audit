@@ -30,7 +30,9 @@ def guard_operation_scope(evidence, target: dict, assessment, cited) -> None:
         path = evidence.allowed(file)
         if path.stat().st_size > 1024 * 1024:
             return
-        body = path.read_text(encoding="utf-8-sig")
+        from semflow_research.adapters.source_text import read_source_text
+
+        body = read_source_text(path)
         tree = ast.parse(body)
     except (SyntaxError, ValueError, OSError, UnicodeError, RecursionError):
         return

@@ -10,6 +10,8 @@ import re
 from uuid import UUID
 
 from semflow_research.domain.errors import AuditError
+
+from semflow_research.adapters.source_text import read_source_text
 from semflow_research.state.models import Evidence
 
 SOURCE_PATH = re.compile(
@@ -34,7 +36,7 @@ def missing_source_paths(assessment):
 def retained_pages(evidence, file, *, _kernel):
     """A DB record alone cannot establish that its body still matches this snapshot."""
     path = evidence.allowed(file)
-    lines = path.read_text().splitlines()
+    lines = read_source_text(path).splitlines()
     with _kernel.records.transaction() as db:
         rows = db.list(
             Evidence,
@@ -83,7 +85,7 @@ def source_pages(evidence, file, current, *, _kernel):
     path = evidence.allowed(file)
     if not path.is_file() or path.stat().st_size > 1024 * 1024:
         raise AuditError("补证目标不是可读取的小型源码")
-    total = len(path.read_text().splitlines())
+    total = len(read_source_text(path).splitlines())
     covered = set()
     for page in current:
         ref = page["reference"]

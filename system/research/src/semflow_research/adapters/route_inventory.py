@@ -8,6 +8,8 @@ Changes to JSON require checking the corresponding semflow_contracts/wire peer.
 import ast
 import hashlib
 
+from semflow_research.adapters.source_text import read_source_text
+
 METHODS = {"get", "post", "put", "delete", "patch", "head", "options", "all", "route"}
 
 
@@ -110,7 +112,7 @@ def route_inventory(evidence, file, start=1, end=1000000):
             "routes": [],
             "limit": "No bounded route parser for this file; not proof of no routes",
         }
-    text = path.read_text()
+    text = read_source_text(path)
     rows = python_routes(text) if path.suffix == ".py" else javascript_routes(text)
     selected = [
         {

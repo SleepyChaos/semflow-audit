@@ -6,6 +6,8 @@ Changes to JSON require checking the corresponding semflow_contracts/wire peer.
 
 """Small read-only tool dispatcher shared by discovery and review."""
 from semflow_research.domain.errors import AuditError
+
+from semflow_research.adapters.source_text import read_source_text
 from semflow_research.evidence.inspection_progress import existing_read
 
 
@@ -39,7 +41,7 @@ def window_observations(evidence, rows):
         if row["kind"] != "code":
             continue
         reference = row["reference"]
-        total = len(evidence.allowed(reference["file"]).read_text().splitlines())
+        total = len(read_source_text(evidence.allowed(reference["file"])).splitlines())
         result.append(
             {
                 "evidence_id": row["id"],

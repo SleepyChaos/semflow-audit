@@ -92,7 +92,14 @@ def prepare_pool(service, *, _kernel):
             if not set(inputs.scout_candidate_ids).issubset({r.id for r in scouts}):
                 raise AuditError("粗筛候选不属于本次审计或未开启粗筛输入")
             scouts = [r for r in scouts if r.id in inputs.scout_candidate_ids]
-        unique = {r.identity_key: r for r in scouts}
+        # New schedules keep all source identities. A matching hypothesis key
+        # can still point to different evidence from different Scout attempts.
+        key = (
+            (lambda row: row.id)
+            if _kernel.spec.inputs.policy.scheduler
+            else (lambda row: row.identity_key)
+        )
+        unique = {key(row): row for row in scouts}
         for original in unique.values():
             try:
                 service.evidence.allowed(original.location["file"])
@@ -174,7 +181,18 @@ def pool_for_resume(service, *, _kernel):
     return pool
 
 
-def batches(pool, size, prioritize_scout=False, coherent_conditions=False):
+def batches(
+    pool,
+    size,
+    prioritize_scout=False,
+    coherent_conditions=False,
+    *,
+    source_balanced=False,
+):
+    if source_balanced:
+        from semflow_research.discovery.review_scheduling import source_balanced_batches
+
+        return source_balanced_batches(pool["entries"], size)
     from semflow_research.discovery.discovery_context import property_for
 
     entries = sorted(
@@ -207,7 +225,7 @@ def batches(pool, size, prioritize_scout=False, coherent_conditions=False):
     return groups
 
 
-def fit_batches(service, schedule, *, _kernel):
+def fit_batches(service, schedule, *, _kernel, limit=0):
     """Split oversized cohorts before model calls; never discard target evidence."""
     from semflow_research.adapters.context_packing import context_size, fit_navigation
 
@@ -222,12 +240,19 @@ def fit_batches(service, schedule, *, _kernel):
                 middle = len(entries) // 2
                 fitted.extend(
                     fit_batches(
-                        service, [entries[:middle], entries[middle:]], _kernel=_kernel
+                        service,
+                        [entries[:middle], entries[middle:]],
+                        _kernel=_kernel,
+                        limit=max(1, limit - len(fitted)) if limit else 0,
                     )
                 )
+                if limit and len(fitted) >= limit:
+                    break
                 continue
         fitted.append(entries)
-    return fitted
+        if limit and len(fitted) == limit:
+            break
+    return fitted[:limit] if limit else fitted
 
 
 def batch_context(service, entries, *, _kernel):
@@ -266,6 +291,11 @@ def batch_context(service, entries, *, _kernel):
                 entries,
                 include_related=service.execution.method_version
                 in {"7", "8", "9", "10", "11", "12"},
+                max_evidence_chars=(
+                    min(23000, service.inputs.max_context_chars // 2)
+                    if _kernel.spec.inputs.policy.scheduler and len(entries) > 1
+                    else 23000
+                ),
             )
         entries = [
             {

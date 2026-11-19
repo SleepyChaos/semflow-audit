@@ -2,6 +2,8 @@
 
 import hashlib
 from pathlib import Path
+
+from semflow_research.adapters.source_text import decode_source
 from uuid import UUID, uuid4
 
 from semflow_contracts.common import (
@@ -90,10 +92,10 @@ class SnapshotReader:
                 "evidence_invalid", "Source file exceeds the evidence read limit"
             )
         try:
-            lines = content.decode("utf-8").splitlines()
+            lines = decode_source(self.root / name, content).splitlines()
         except UnicodeError as exc:
             raise ResearchError(
-                "evidence_invalid", "Source evidence is not UTF-8"
+                "evidence_invalid", "Source evidence has no reliable decoding"
             ) from exc
         if end > len(lines):
             raise ResearchError(
@@ -117,7 +119,8 @@ class SnapshotReader:
             media_type="text/plain",
         )
         # WIRE-SEND:research.evidence — peer: validate / target materialization.
-        # Content is actual snapshot bytes, not a model quote. AGENT: update both ends and wire.py together.
+        # The slice uses UTF-8 logical lines; SourceLocation binds the original file bytes.
+        # AGENT: keep this projection and the verifier aligned with wire.py.
         return EvidenceRecord(
             evidence_id=uuid4(),
             execution_id=self.execution_id,

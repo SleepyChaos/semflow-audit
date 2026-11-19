@@ -177,7 +177,9 @@ class CompatibleModel:
                     )
                     if content is not None:
                         name = f"model-call-{record['call_index']}.response.txt"
-                        (self.response_directory / name).write_text(content[:200000])
+                        (self.response_directory / name).write_text(
+                            content[:200000], encoding="utf-8"
+                        )
                         record["response_artifact"] = name
                         record["response_artifact_truncated"] = len(content) > 200000
                 record["response_model"] = completion.model
@@ -252,8 +254,32 @@ class CompatibleModel:
                     }
                     for row in exc.errors(include_input=False, include_url=False)[:12]
                 ]
-                record["error_code"] = "schema_invalid"
-                error = AuditError("模型输出不符合结构契约；未确认任何漏洞")
+                record["validation_feedback"] = validation_feedback
+                if (
+                    completion
+                    and completion.choices
+                    and purpose == "scout"
+                    and getattr(
+                        getattr(_kernel.spec.inputs, "window_policy", None),
+                        "version",
+                        None,
+                    )
+                    == "2"
+                ):
+                    from semflow_research.adapters.ai.scout_response import (
+                        recover_display_fields,
+                    )
+
+                    result = recover_display_fields(
+                        completion.choices[0].message.content or "", schema, exc
+                    )
+                if result is not None:
+                    record["recovery_class"] = "revalidated_display_fields"
+                else:
+                    record["error_code"] = "schema_invalid"
+                    record["recovery_class"] = "bounded_schema_retry"
+                    error = AuditError("模型输出不符合结构契约；未确认任何漏洞")
+                    error.validation_feedback = validation_feedback
             finally:
                 if record["input_tokens"] is None or record["output_tokens"] is None:
                     self.usage["unknown_usage_calls"] = (

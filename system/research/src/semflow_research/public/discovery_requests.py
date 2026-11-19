@@ -52,6 +52,8 @@ class DiscoveryOptions(Contract):
     max_windows: int = Field(default=1, ge=0)
     max_steps_per_window: int = Field(default=1, ge=1)
     max_branch_calls: int | None = Field(default=1, ge=1)
+    risk_window_selection: bool = True
+    source_balanced_review: bool = True
     batch_size: int = Field(default=2, ge=1)
     max_batches: int = Field(default=1, ge=0)
     supplement_insufficient: bool = False
@@ -145,7 +147,7 @@ def _scout_inputs(options):
         include_third_party=options.include_third_party,
         window_lines=options.window_lines,
         window_policy=WindowPolicy(
-            version="1",
+            version="2" if options.risk_window_selection else "1",
             max_windows=options.max_windows,
             max_steps_per_window=options.max_steps_per_window,
             max_calls=options.max_branch_calls,
@@ -162,6 +164,7 @@ def _review_policy(options):
         )
     return ReviewPolicy(
         version=("4" if options.strict_refutations else "3") if navigated else "1",
+        scheduler="source_balanced_v1" if options.source_balanced_review else None,
         batch_size=options.batch_size,
         max_batches=options.max_batches,
         supplement_insufficient=options.supplement_insufficient,

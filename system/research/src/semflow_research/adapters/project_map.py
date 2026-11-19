@@ -10,6 +10,8 @@ import hashlib
 from collections import defaultdict, deque
 from pathlib import Path
 
+from semflow_research.adapters.source_functions import index_source, prioritize_windows
+from semflow_research.adapters.source_text import read_source_text
 from semflow_research.adapters.source_inventory import (
     category,
     inspection_tasks,
@@ -22,13 +24,19 @@ def module_name(file: str) -> str:
     return "/".join(parts[:-1][:2]) or "(root)"
 
 
-def symbols(text: str, language: str) -> dict:
+def symbols(text: str, language: str, *, risk_aware=False) -> dict:
     if language != "python":
         return {"symbols": [], "imports": [], "limit": "No resolved JS call graph"}
     try:
         tree = ast.parse(text)
-    except SyntaxError:
-        return {"symbols": [], "imports": [], "limit": "Python parse failed"}
+    except (SyntaxError, ValueError, RecursionError):
+        return {
+            "symbols": [],
+            "imports": [],
+            "limit": "Python parse failed",
+            **({"parse_status": "failed"} if risk_aware else {}),
+        }
+    functions, operations = index_source(tree) if risk_aware else ([], [])
     return {
         "symbols": [
             {"name": n.name, "line": n.lineno}
@@ -41,6 +49,15 @@ def symbols(text: str, language: str) -> dict:
             if isinstance(n, (ast.Import, ast.ImportFrom))
         ][:40],
         "limit": "Syntactic declarations, not resolved dispatch or business facts",
+        **(
+            {
+                "functions": functions,
+                "operations": operations,
+                "parse_status": "indexed",
+            }
+            if risk_aware
+            else {}
+        ),
     }
 
 
@@ -50,26 +67,46 @@ def build_project_map(
     strategy: str = "balanced",
     *,
     scheduling_profile="full",
+    risk_aware=False,
 ) -> dict:
     rows, queues, skipped = ([], defaultdict(deque), [])
+    operations = {}
     for path in evidence.files():
         file = path.relative_to(evidence.root).as_posix()
         try:
             evidence.allowed(file)
             if path.stat().st_size > 1024 * 1024:
                 raise ValueError("file_too_large")
-            text = path.read_text()
-        except (ValueError, UnicodeError) as exc:
-            skipped.append({"file": file, "reason": str(exc)[:200]})
+            text = read_source_text(path)
+        except (OSError, UnicodeError, ValueError) as exc:
+            skipped.append(
+                {
+                    "file": file,
+                    "code": "source_unreadable"
+                    if isinstance(exc, (OSError, UnicodeError))
+                    else "source_limit",
+                    "reason": str(exc)[:200],
+                }
+            )
             continue
         lines = text.splitlines()
         module = module_name(file)
+        language = evidence.source_context.language
+        if (
+            risk_aware
+            and language == "python"
+            and path.suffix.lower() not in {".py", ".pyi", ".pyw"}
+        ):
+            # Retain template/configuration text windows without a Python index.
+            language = "text"
+        parsed = symbols(text, language, risk_aware=risk_aware)
+        operations[file] = parsed.pop("operations", [])
         rows.append(
             {
                 "file": file,
                 "module": module,
                 "lines": len(lines),
-                **symbols(text, evidence.source_context.language),
+                **parsed,
                 "role_hint": category(file),
             }
         )
@@ -130,6 +167,8 @@ def build_project_map(
             depth[unit["id"]] = counts[unit["file"]]
             counts[unit["file"]] += 1
         units.sort(key=lambda u: (priority(u["file"]), depth[u["id"]], u["file"]))
+    if risk_aware:
+        units = prioritize_windows(units, operations)
     documents = []
     for name in ("README.md", "pyproject.toml", "package.json", "requirements.txt"):
         path = evidence.root / name
@@ -171,7 +210,11 @@ def map_context(project: dict, unit: dict) -> dict:
         "file_count": len(project["files"]),
         "modules": sorted({r["module"] for r in project["files"]})[:25],
         "nearby_files": [
-            {**r, "symbols": r["symbols"][:6], "imports": r["imports"][:4]}
+            {
+                **{k: v for k, v in r.items() if k != "functions"},
+                "symbols": r["symbols"][:6],
+                "imports": r["imports"][:4],
+            }
             for r in related[:4]
         ],
         "map_limit": "Partial inventory view; search tools can find other related source",

@@ -95,6 +95,7 @@ class ScoutService:
                     if self.execution.method_version in {"4", "5", "6", "7", "8"}
                     else "balanced",
                     scheduling_profile=self.inputs.scheduling_profile,
+                    risk_aware=_kernel.spec.inputs.window_policy.version == "2",
                 )
             save_json(path, project)
         identity = digest({"project": project, "inputs": self.execution.inputs})
@@ -485,6 +486,21 @@ class ScoutService:
                 business_coverage_status="completed" if eligible <= done else "partial",
                 task_coverage=task_coverage(result, project),
             )
+        if self._kernel.spec.inputs.window_policy.version == "2":
+            from semflow_research.discovery.coverage import scout_coverage
+            from semflow_research.discovery.scout_inspection import selected_units
+
+            coverage.update(
+                scout_coverage(
+                    project,
+                    result.get("units", ()),
+                    selected_units(self, project),
+                    self.directory,
+                    state.get("stop_reason"),
+                )
+            )
+            if not done:
+                coverage["status"] = "none"
         result = {**result, "coverage": coverage, "snapshot_hash": project["snapshot"]}
         save_json(
             self.directory / "scout-progress.json",
@@ -500,7 +516,9 @@ class ScoutService:
         self.repository.update(
             self.execution_id,
             status="completed",
-            phase="hypotheses_ready",
+            phase="coverage_failed"
+            if coverage["status"] == "none"
+            else "hypotheses_ready",
             result=result,
             usage=self.provider.usage,
         )

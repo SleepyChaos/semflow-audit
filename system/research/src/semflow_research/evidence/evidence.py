@@ -4,6 +4,8 @@
 import ast
 import hashlib
 from pathlib import Path
+
+from semflow_research.adapters.source_text import read_source_text
 from uuid import UUID, uuid4
 
 from semflow_research.adapters.artifacts import ArtifactStore
@@ -140,9 +142,11 @@ class EvidenceService:
         if start_line < 1 or end_line < start_line or end_line - start_line > 150:
             raise AuditError("源码取证窗口无效或超过 151 行")
         try:
-            lines = path.read_text().splitlines()
+            lines = read_source_text(path).splitlines()
         except UnicodeError as exc:
-            raise AuditError("源码非 UTF-8 文本") from exc
+            raise AuditError(
+                "无法按可靠的编码读取源码", code="source_unreadable"
+            ) from exc
         if start_line > len(lines):
             raise AuditError("源码引用行超出文件范围")
         end_line = min(end_line, len(lines))
@@ -185,7 +189,7 @@ class EvidenceService:
             if path.stat().st_size > 1024 * 1024:
                 continue
             try:
-                for number, line in enumerate(path.read_text().splitlines(), 1):
+                for number, line in enumerate(read_source_text(path).splitlines(), 1):
                     if text in line:
                         matches.append(
                             {
@@ -241,7 +245,7 @@ class EvidenceService:
         matches = []
         for path in self.files():
             try:
-                tree = ast.parse(path.read_text())
+                tree = ast.parse(read_source_text(path))
             except (SyntaxError, UnicodeError):
                 continue
             for node in ast.walk(tree):
@@ -282,7 +286,7 @@ class EvidenceService:
             if path.stat().st_size > 1024 * 1024:
                 continue
             try:
-                lines = path.read_text().splitlines()
+                lines = read_source_text(path).splitlines()
             except UnicodeError:
                 continue
             for number, line in enumerate(lines, 1):

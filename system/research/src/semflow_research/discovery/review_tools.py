@@ -7,6 +7,8 @@ Changes to JSON require checking the corresponding semflow_contracts/wire peer.
 """Scope-checked paged source reads and recoverable tool observations."""
 import json
 
+from semflow_research.adapters.source_text import read_source_text
+
 from semflow_research.discovery.review import ReviewService
 from semflow_research.domain.errors import AuditError
 from semflow_research.evidence.read_tools import (
@@ -25,7 +27,9 @@ SOURCE_TOOL_CONTRACT = {
 }
 
 
-def prime_source_pages(evidence, materials, entries, include_related=False):
+def prime_source_pages(
+    evidence, materials, entries, include_related=False, *, max_evidence_chars=23000
+):
     """Read small target modules once; no whole-project completeness claim."""
     collected = list(materials)
     from semflow_research.adapters.source_inventory import inspectable
@@ -44,7 +48,7 @@ def prime_source_pages(evidence, materials, entries, include_related=False):
         path = evidence.allowed(file)
         if path.stat().st_size > 16000:
             continue
-        lines = path.read_text().splitlines()
+        lines = read_source_text(path).splitlines()
         if len(lines) > 350 or any(len(line) > 10000 for line in lines):
             continue
         pages, start = ([], 1)
@@ -59,7 +63,7 @@ def prime_source_pages(evidence, materials, entries, include_related=False):
             for r in collected
             if not (r["kind"] == "code" and r["reference"].get("file") == file)
         ] + pages
-        if len(json.dumps(candidate, ensure_ascii=False)) <= 23000:
+        if len(json.dumps(candidate, ensure_ascii=False)) <= max_evidence_chars:
             collected = candidate
     return list({r["id"]: r for r in collected}.values())
 
@@ -98,7 +102,7 @@ def gather_review_tool(service, context, call, *, _kernel):
                 and path.stat().st_size > 1024 * 1024
             ):
                 raise AuditError("文件超过源码读取上限", code="source_size")
-            lines = path.read_text().splitlines()
+            lines = read_source_text(path).splitlines()
         except (AuditError, OSError, UnicodeError, TypeError) as error:
             if not service.evidence.repository_navigation or getattr(
                 error, "code", None

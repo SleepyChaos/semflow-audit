@@ -134,7 +134,7 @@ def scout(context):
         raise ResearchError(
             "unsupported_version", "Unknown independent scout method version"
         )
-    if context.spec.inputs.window_policy.version != "1":
+    if context.spec.inputs.window_policy.version not in {"1", "2"}:
         raise ResearchError(
             "unsupported_version", "Unknown scout window policy version"
         )
@@ -152,6 +152,13 @@ def scout(context):
         from semflow_research.runtime.scout_continuation import merge
 
         output = merge(context, continuation, output)
+    if (
+        context.spec.inputs.window_policy.version == "2"
+        and output.coverage.status == "none"
+    ):
+        from semflow_research.discovery.coverage import empty_scout_outcome
+
+        return empty_scout_outcome(context, output)
     return output
 
 
