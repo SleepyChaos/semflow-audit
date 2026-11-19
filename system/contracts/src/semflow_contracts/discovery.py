@@ -38,6 +38,7 @@ class ScanInput(Contract):
 
 
 class WindowPolicy(Contract):
+    # Version 2 uses source-local function/risk ordering, with the same caps.
     version: str = Field(min_length=1)
     max_windows: int = Field(
         ge=0,
@@ -67,6 +68,11 @@ class ReviewPolicy(Contract):
     # Policy 1 preserves legacy navigation. Policy 2 enables repository gaps.
     # '-no-cache' is a continuation-only ablation for either policy.
     version: str = Field(min_length=1)
+    # Peer: runtime.discovery_operations / discovery.unified_review. Absence
+    # preserves the original planner and the digest of existing review inputs.
+    scheduler: Literal["source_balanced_v1"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     batch_size: int = Field(ge=1)
     max_batches: int = Field(ge=0)
     supplement_insufficient: bool
