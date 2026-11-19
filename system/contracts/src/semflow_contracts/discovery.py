@@ -16,6 +16,7 @@ from semflow_contracts.common import (
     SourceLocation,
 )
 from semflow_contracts.rule_values import RuleRef
+from semflow_contracts.security_specifications import SecuritySpecificationPolicy
 
 
 class QueryPack(Contract):
@@ -57,6 +58,9 @@ class ScoutInput(Contract):
     window_lines: int = Field(default=100, ge=20, le=150)
     window_policy: WindowPolicy
     continuation: ArtifactRef | None = None
+    security_specifications: SecuritySpecificationPolicy | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
 
 class ReviewPolicy(Contract):
