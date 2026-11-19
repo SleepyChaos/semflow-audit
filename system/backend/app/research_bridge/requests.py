@@ -171,6 +171,7 @@ def freeze_stage(binding, stage, audit, *, session=None):
                 if continuation
                 else None,
                 "inspection_paths": inputs["inspection_paths"],
+                "security_specifications": inputs.get("security_specifications"),
                 "scheduling_profile": inputs["scheduling_profile"],
                 "include_third_party": inputs["include_third_party"],
                 "window_lines": inputs["window_lines"],
