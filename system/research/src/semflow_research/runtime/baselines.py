@@ -1,6 +1,7 @@
 """Capture/receive the actual CodeQL DB for downstream algorithms and old views."""
 
 import io
+import os
 import shutil
 import stat
 from pathlib import Path
@@ -16,12 +17,27 @@ from semflow_research.adapters.codeql.scanner import CodeQLScanner
 MAX_DATABASE_BYTES = 2 * 1024**3
 
 
+def _archive_path(path: Path) -> Path:
+    if os.name != "nt":
+        return path
+    name = str(path.absolute())
+    local_prefix = "\\\\?\\"
+    if name.startswith(local_prefix):
+        return Path(name)
+    # Keep same-volume atomic staging and normal logical paths in the receipt.
+    # Windows otherwise applies MAX_PATH when a cache member gains the staging prefix.
+    if name.startswith("\\\\"):
+        return Path(local_prefix + "UNC\\" + name[2:])
+    return Path(local_prefix + name)
+
+
 def capture(context, sarif):
     source = context.source_records.get(context.spec.source.snapshot_id)
     stream = io.BytesIO()
+    root = _archive_path(context.baseline_directory / "database")
     with ZipFile(stream, "w", ZIP_DEFLATED) as archive:
         size = 0
-        for path in sorted((context.baseline_directory / "database").rglob("*")):
+        for path in sorted(root.rglob("*")):
             if path.is_symlink():
                 raise ResearchError(
                     "integrity_error", "Database contains an external symlink"
@@ -35,9 +51,7 @@ def capture(context, sarif):
                     )
                 archive.write(
                     path,
-                    path.relative_to(
-                        context.baseline_directory / "database"
-                    ).as_posix(),
+                    path.relative_to(root).as_posix(),
                 )
     if not size:
         raise ResearchError("tool_failed", "CodeQL produced an empty database")
@@ -70,14 +84,15 @@ def materialize(baseline, *, artifacts, target: Path):
     # AGENT: archive byte hash, bounded paths and duplicate/symlink rejection
     # must remain paired with the producer; never read a producer's mutable DB.
     artifacts.read(baseline.sarif)
-    if target.exists():
+    io_target = _archive_path(target)
+    if io_target.exists():
         raise ResearchError(
             "execution_conflict", "Baseline target must be a fresh working copy"
         )
-    target.parent.mkdir(parents=True, exist_ok=True)
+    io_target.parent.mkdir(parents=True, exist_ok=True)
     try:
         with (
-            TemporaryDirectory(dir=target.parent) as temporary,
+            TemporaryDirectory(dir=io_target.parent) as temporary,
             ZipFile(io.BytesIO(artifacts.read(baseline.database))) as archive,
         ):
             root = Path(temporary) / "database"
@@ -105,7 +120,7 @@ def materialize(baseline, *, artifacts, target: Path):
                 raise ResearchError(
                     "tool_failed", "CodeQL database metadata is missing"
                 )
-            shutil.move(root, target)
+            shutil.move(root, io_target)
     except (BadZipFile, OSError, ValueError) as exc:
         raise ResearchError(
             "integrity_error", "Cannot materialize frozen CodeQL database"
