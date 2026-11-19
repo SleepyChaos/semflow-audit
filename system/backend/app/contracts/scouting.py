@@ -4,6 +4,7 @@ from typing import Literal
 from uuid import UUID
 
 from pydantic import Field, model_validator
+from semflow_contracts.security_specifications import SecuritySpecificationPolicy
 
 from app.contracts.review import PrimaryLocation
 from app.contracts.stages import StrictModel, ToolCall
@@ -12,6 +13,7 @@ from app.contracts.stages import StrictModel, ToolCall
 class ScoutRequest(StrictModel):
     scheduling_profile: Literal["full", "runtime_first"] = "full"
     continuation_from_id: UUID | None = None
+    security_specifications: SecuritySpecificationPolicy | None = None
     paths: list[str] = Field(default_factory=list, max_length=50)
     inspection_paths: list[str] = Field(default_factory=list, max_length=50)
     max_units: int = Field(
