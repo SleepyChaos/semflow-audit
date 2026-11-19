@@ -176,7 +176,7 @@ def freeze_stage(binding, stage, audit, *, session=None):
                 "include_third_party": inputs["include_third_party"],
                 "window_lines": inputs["window_lines"],
                 "window_policy": {
-                    "version": "1",
+                    "version": "2",
                     "max_windows": inputs["max_units"],
                     "max_steps_per_window": inputs["steps_per_unit"],
                     "max_calls": policy["max_calls"] or None,

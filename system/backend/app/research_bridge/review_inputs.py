@@ -294,6 +294,7 @@ def freeze_targets(session, binding, stage, audit, snapshot):
                 if stage.prompt_version == "12"
                 else "1"
             ),
+            "scheduler": "source_balanced_v1",
             "scope_paths": inputs["paths"],
             "max_steps": inputs["max_steps"],
             "max_context_chars": inputs["max_context_chars"],
