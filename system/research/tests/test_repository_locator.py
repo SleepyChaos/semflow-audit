@@ -229,3 +229,56 @@ def test_template_confirmation_with_unread_handler_is_resumed_as_insufficient():
         "missing",
         "established",
     ]
+
+
+def test_prioritizes_production_handler_and_middleware_in_pinned_django_snapshot():
+    import os
+    from types import SimpleNamespace
+    from uuid import uuid4
+
+    from semflow_research.discovery.review_gap_planner import plan_gaps
+
+    source = os.environ.get("SEMFLOW_DJANGOAT_SOURCE")
+    if not source:
+        pytest.skip("Pinned DjanGoat snapshot unavailable")
+    root = Path(source)
+    evidence = SimpleNamespace(
+        root=root,
+        allowed=lambda name: root / name,
+        source_context=SimpleNamespace(snapshot_hash="review-planner-fixture"),
+    )
+    plan = plan_gaps(
+        {
+            "candidate_id": str(uuid4()),
+            "assessment": "insufficient",
+            "evidence_gaps": [
+                {
+                    "gap_type": "repository",
+                    "description": "Find the actual handler",
+                    "target_symbol": "update_user",
+                    "suggested_action": "find_symbol",
+                    "priority": "high",
+                },
+                {
+                    "gap_type": "repository",
+                    "description": "Verify middleware definition",
+                    "target_symbol": "MIDDLEWARE",
+                    "suggested_action": "find_symbol",
+                },
+            ],
+        },
+        evidence,
+        (),
+    )
+    windows = {w.file: w for _, w in plan.windows}
+    assert (
+        windows["app/views/admin/views.py"].start_line
+        <= 53
+        <= windows["app/views/admin/views.py"].end_line
+    )
+    assert (
+        windows["pygoat/settings.py"].start_line
+        <= 46
+        <= windows["pygoat/settings.py"].end_line
+    )
+    assert all(not w.startswith("app/tests/") for w in windows)

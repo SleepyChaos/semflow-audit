@@ -67,13 +67,14 @@ def plan_gaps(assessment: dict, evidence, seen, prior=()) -> GapPlan:
             continue
         result = _locate(locator, request)
         new = []
+        covered = (*seen, *(window for _, window in windows))
         for hit in result.matches:
             window = _unread(
-                evidence, hit.file, hit.start_line, hit.end_line, seen, hit.kind
+                evidence, hit.file, hit.start_line, hit.end_line, covered, hit.kind
             )
-            if window and window not in new and all(window != w for _, w in windows):
+            if window:
+                # Keep a window available for each independent local request.
                 new.append(window)
-            if len(new) >= _MAX_WINDOWS - len(windows):
                 break
         if new:
             windows.extend((gap.gap_id, w) for w in new)

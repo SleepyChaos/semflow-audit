@@ -76,7 +76,10 @@ class RepositoryLocator:
         self.allowed = allowed
 
     def _files(self, scope: tuple[str, ...], extensions: tuple[str, ...]) -> Iterator:
-        for path in sorted(self.root.rglob("*")):
+        for path in sorted(
+            self.root.rglob("*"),
+            key=lambda item: (_test_path(item.relative_to(self.root)), item),
+        ):
             if path.is_symlink() or not path.is_file():
                 continue
             relative = path.relative_to(self.root).as_posix()
@@ -198,6 +201,15 @@ class RepositoryLocator:
             if mode != "definition" and len(matches) > limit:
                 break
         found = matches if matches or mode != "definition" else lexical
+        if mode == "definition":
+            found.sort(
+                key=lambda hit: (
+                    _test_path(PurePosixPath(hit.file)),
+                    hit.kind == "related_definition",
+                    hit.file,
+                    hit.start_line,
+                )
+            )
         return RepositorySearch(tuple(found[:limit]), limited or len(found) > limit)
 
 
@@ -210,23 +222,7 @@ def _locations(query, mode, language, source, lines):
                 yield number, number, "text_match"
         return
     if mode == "definition" and language == "python":
-        try:
-            tree = ast.parse(source)
-        except (SyntaxError, ValueError, RecursionError):
-            tree = None
-        if tree is not None:
-            for node in ast.walk(tree):
-                if (
-                    isinstance(
-                        node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)
-                    )
-                    and node.name == query
-                ):
-                    yield (
-                        node.lineno,
-                        node.end_lineno or node.lineno,
-                        "syntax_definition",
-                    )
+        yield from _python_definitions(query, source)
     js_def = re.compile(
         rf"(?:\bfunction\s*\*?\s*{symbol}\s*\(|"
         rf"\b(?:const|let|var)\s+{symbol}(?:\s*:\s*[^=]+)?\s*=\s*"
@@ -247,3 +243,34 @@ def _locations(query, mode, language, source, lines):
             or not line.lstrip().startswith("//")
         ):
             yield number, number, "text_reference"
+
+
+def _test_path(path: Path) -> bool:
+    return (
+        bool({"test", "tests", "__tests__"} & set(path.parts))
+        or path.stem.startswith("test_")
+        or path.stem.endswith("_test")
+    )
+
+
+def _python_definitions(query: str, source: str):
+    try:
+        tree = ast.parse(source)
+    except (SyntaxError, ValueError, RecursionError):
+        return
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+            if node.name == query:
+                yield node.lineno, node.end_lineno or node.lineno, "syntax_definition"
+            elif node.name.endswith("_" + query):
+                # A route may name a decorated handler differently. A suffix
+                # match is a navigation candidate, never proof of dispatch.
+                yield node.lineno, node.end_lineno or node.lineno, "related_definition"
+    for node in tree.body:
+        names = (
+            node.targets
+            if isinstance(node, ast.Assign)
+            else ([node.target] if isinstance(node, ast.AnnAssign) else [])
+        )
+        if any(isinstance(name, ast.Name) and name.id == query for name in names):
+            yield node.lineno, node.end_lineno or node.lineno, "syntax_definition"
