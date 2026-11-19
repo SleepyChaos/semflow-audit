@@ -129,3 +129,14 @@ def validate_assessment(service, assessment, context, targets, evidence):
         )
     ):
         raise AuditError("排除需要实际源码或查询反证")
+    if getattr(service.evidence, "repository_obligations", False) is True:
+        from semflow_research.discovery.review_obligations import verify_obligations
+
+        return verify_obligations(
+            service,
+            assessment,
+            targets[identifier],
+            context["evidence"],
+            control=context.get("local_control_context", {}),
+        )
+    return None

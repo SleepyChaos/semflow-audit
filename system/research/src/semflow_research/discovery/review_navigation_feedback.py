@@ -56,7 +56,13 @@ def next_navigation(service, batch_id, result, base, context, remaining, policy)
             )
             for w in existing
         )
-        plan = plan_gaps(assessment, service.evidence, seen, gap_history(previous))
+        plan = plan_gaps(
+            assessment,
+            service.evidence,
+            seen,
+            gap_history(previous),
+            host_navigation=service.evidence.repository_obligations,
+        )
         if not plan.gaps or (not plan.windows and previous):
             continue
         identifier = _begin_attempt(

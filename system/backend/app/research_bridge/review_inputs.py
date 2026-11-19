@@ -289,7 +289,7 @@ def freeze_targets(session, binding, stage, audit, snapshot):
         "source_execution_ids": [str(producer)],
         "baseline": baseline.model_dump(mode="json"),
         "policy": {
-            "version": "2" if stage.prompt_version == "12" else "1",
+            "version": "3" if stage.prompt_version == "12" else "1",
             "scope_paths": inputs["paths"],
             "max_steps": inputs["max_steps"],
             "max_context_chars": inputs["max_context_chars"],

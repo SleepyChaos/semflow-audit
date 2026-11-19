@@ -193,8 +193,24 @@ def read_review_report(result, spec, store, values, memberships):
                     "evidence_invalid",
                     "Review gap cites source from another candidate or execution",
                 )
-        for fact in row.premises:
-            for citation in fact.evidence_refs:
+        for obligation in row.obligations:
+            for ref in (*obligation.evidence_refs, *obligation.counterevidence_refs):
+                source = evidence.get(ref.entity_id)
+                if (
+                    source is None
+                    or source.execution_id != owner
+                    or source.snapshot_id != report.snapshot_id
+                    or source.kind != "code"
+                ):
+                    raise ResearchError(
+                        "evidence_invalid", "Behavior witness cites foreign evidence"
+                    )
+        for fact in (*row.premises, *row.obligations):
+            citations = (
+                *fact.evidence_refs,
+                *getattr(fact, "counterevidence_refs", ()),
+            )
+            for citation in citations:
                 record = evidence.get(citation.entity_id)
                 if (
                     record is None

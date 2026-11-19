@@ -151,7 +151,7 @@ def _scout_inputs(options):
 
 def _review_policy(options):
     return ReviewPolicy(
-        version="2"
+        version="3"
         if options.evidence_navigation and options.review_method_version == "12"
         else "1",
         batch_size=options.batch_size,

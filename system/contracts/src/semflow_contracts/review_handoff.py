@@ -13,7 +13,7 @@ from semflow_contracts.common import (
     SourceLocation,
 )
 from semflow_contracts.discovery import AssessmentRecord
-from semflow_contracts.review_gaps import ReviewEvidenceGap
+from semflow_contracts.review_gaps import EvidenceGapRequest, ReviewEvidenceGap
 
 
 class ReviewSourceWindow(Contract):
@@ -69,6 +69,29 @@ class ReviewPremise(Contract):
         return self
 
 
+class ReviewObligation(Contract):
+    role: str = Field(min_length=1)
+    security_property: str = Field(min_length=1)
+    required_fact: str = Field(min_length=1)
+    status: Literal[
+        "supported", "refuted", "unverified", "not_automatically_verifiable"
+    ]
+    context: SourceLocation
+    evidence_refs: tuple[EntityRef, ...] = ()
+    counterevidence_refs: tuple[EntityRef, ...] = ()
+    verifier: str
+    detail: str
+    next_action: EvidenceGapRequest | None = None
+
+    @model_validator(mode="after")
+    def require_witness(self):
+        if self.status == "supported" and not self.evidence_refs:
+            raise ValueError("A supported obligation needs a verified witness")
+        if self.status == "refuted" and not self.counterevidence_refs:
+            raise ValueError("A refuted obligation needs verified counterevidence")
+        return self
+
+
 class CandidateReviewAttempt(Contract):
     candidate_ref: EntityRef
     previous_candidate_ref: EntityRef | None = None
@@ -87,6 +110,7 @@ class CandidateReviewAttempt(Contract):
     stop_code: str | None = None
     stop_detail: str | None = None
     premises: tuple[ReviewPremise, ...] = ()
+    obligations: tuple[ReviewObligation, ...] = ()
     evidence_gaps: tuple[ReviewEvidenceGap, ...] = ()
     runtime_unknowns: tuple[str, ...] = ()
     validation_errors: tuple[str, ...] = ()
@@ -96,6 +120,8 @@ class CandidateReviewAttempt(Contract):
 
     @model_validator(mode="after")
     def assessment_identity(self):
+        if any(fact.context != self.location for fact in self.obligations):
+            raise ValueError("Obligation context differs from the candidate")
         if self.assessment and self.assessment.candidate_ref != self.candidate_ref:
             raise ValueError("Assessment identifies another candidate")
         if self.execution_state == "completed" and self.assessment is None:

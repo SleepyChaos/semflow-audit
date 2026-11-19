@@ -29,6 +29,7 @@ def save_batch(service, batch_id, response, context, *, call_reference=None, _ke
     checked, recommendations = (set(), [])
     accepted_assessments, rejected_assessments = ([], [])
     classifications = []
+    obligations_by_candidate = {}
     with _kernel.records.transaction() as db:
         stage = db.one(ExecutionRecord, id=service.execution.id)
         if stage.status == "cancelled":
@@ -59,7 +60,9 @@ def save_batch(service, batch_id, response, context, *, call_reference=None, _ke
             )
 
             try:
-                validate_assessment(service, assessment, context, targets, evidence)
+                obligations = validate_assessment(
+                    service, assessment, context, targets, evidence
+                )
             except AuditError as exc:
                 if stage.method_version not in {"8", "9", "10", "11", "12"}:
                     raise
@@ -74,6 +77,8 @@ def save_batch(service, batch_id, response, context, *, call_reference=None, _ke
                 checked.discard(identifier)
                 continue
             accepted_assessments.append(assessment)
+            if obligations is not None:
+                obligations_by_candidate[identifier] = obligations
             row = db.get(Candidate, assessment.candidate_id)
             if (
                 row is None
@@ -185,7 +190,21 @@ def save_batch(service, batch_id, response, context, *, call_reference=None, _ke
             else "completed",
             "summary": response.summary,
             "candidate_ids": list(targets),
-            "assessments": [r.model_dump(mode="json") for r in accepted_assessments],
+            "assessments": [
+                {
+                    **r.model_dump(mode="json"),
+                    **(
+                        {
+                            "host_obligations": obligations_by_candidate[
+                                str(r.candidate_id)
+                            ]
+                        }
+                        if str(r.candidate_id) in obligations_by_candidate
+                        else {}
+                    ),
+                }
+                for r in accepted_assessments
+            ],
             "classifications": classifications,
             "rejected_assessments": rejected_assessments,
             "recommendations": recommendations,

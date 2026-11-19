@@ -91,6 +91,11 @@ def capture(execution_id, candidate_id, *, source, root):
         else None
     )
     if attempt:
+        references += tuple(
+            citation
+            for fact in attempt.obligations
+            for citation in (*fact.evidence_refs, *fact.counterevidence_refs)
+        )
         # The prior acquisition may have succeeded even when its model call failed.
         references += tuple(
             EntityRef(

@@ -22,8 +22,16 @@ def navigation_enabled(kernel) -> bool:
     return (
         getattr(spec, "operation", None) == "review"
         and spec.implementation.method_version == "12"
-        and getattr(spec.inputs.policy, "version", None) in {"2", "2-no-cache"}
+        and getattr(spec.inputs.policy, "version", None)
+        in {"2", "2-no-cache", "3", "3-no-cache"}
     )
+
+
+def obligations_enabled(kernel) -> bool:
+    return navigation_enabled(kernel) and kernel.spec.inputs.policy.version in {
+        "3",
+        "3-no-cache",
+    }
 
 
 @dataclass(frozen=True)
@@ -32,7 +40,9 @@ class GapPlan:
     windows: tuple[tuple[str, ReviewSourceWindow], ...]
 
 
-def plan_gaps(assessment: dict, evidence, seen, prior=()) -> GapPlan:
+def plan_gaps(
+    assessment: dict, evidence, seen, prior=(), *, host_navigation=False
+) -> GapPlan:
     candidate_id = assessment.get("candidate_id")
     if not candidate_id or assessment.get("assessment") not in {
         "insufficient",
@@ -42,7 +52,7 @@ def plan_gaps(assessment: dict, evidence, seen, prior=()) -> GapPlan:
     locator = RepositoryLocator(evidence.root, evidence.allowed)
     previous = {gap.gap_id: gap for gap in prior}
     records, windows = {}, []
-    requests = _requests(assessment)
+    requests = _requests(assessment, host_navigation)
     for request in requests:
         gap = _record(
             UUID(candidate_id), request, evidence.source_context.snapshot_hash
@@ -100,6 +110,13 @@ def plan_gaps(assessment: dict, evidence, seen, prior=()) -> GapPlan:
                     "failure_reason": why,
                 }
             )
+    if host_navigation and windows:
+        records = {
+            key: gap.model_copy(update={"status": "pending", "failure_reason": None})
+            if gap.gap_type in {"runtime", "external"}
+            else gap
+            for key, gap in records.items()
+        }
     return GapPlan(tuple(records.values()), tuple(windows))
 
 
@@ -128,7 +145,7 @@ def _record(candidate_id, request, snapshot) -> ReviewEvidenceGap:
     )
 
 
-def _requests(assessment) -> tuple[EvidenceGapRequest, ...]:
+def _requests(assessment, host_navigation) -> tuple[EvidenceGapRequest, ...]:
     # Structured requests take precedence. Older or incomplete output gets a
     # bounded fallback using only the accepted candidate's unresolved premises.
     typed = [
@@ -180,6 +197,19 @@ def _requests(assessment) -> tuple[EvidenceGapRequest, ...]:
         for req in [*typed, *fallback]
         if req.gap_type == "repository" and (req.target_symbol or req.target_path)
     ]
+    if host_navigation:
+        from semflow_research.discovery.review_local_probes import local_probes
+
+        repository = [
+            *local_probes(typed, (*missing, *assessment.get("runtime_unknowns", ()))),
+            *repository,
+        ]
+        repository = list(
+            {
+                (row.target_path, row.target_symbol, row.suggested_action): row
+                for row in reversed(repository)
+            }.values()
+        )[::-1]
     repository.sort(key=lambda request: request.priority != "high")
     other = [req for req in [*typed, *runtime] if req.gap_type != "repository"]
     if not repository and not other and missing:

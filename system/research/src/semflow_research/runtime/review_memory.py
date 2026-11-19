@@ -83,6 +83,7 @@ def restore(context, service, seed):
     mapping = {
         item.previous_evidence_id: str(item.evidence_id) for item in source_receipts
     }
+    strict = context.spec.inputs.policy.version.removesuffix("-no-cache") == "3"
     valid = [
         fact
         for fact in (seed.attempt.premises if seed.attempt else ())
@@ -101,6 +102,26 @@ def restore(context, service, seed):
         for fact in valid
         if not causes and all(ref.entity_id in mapping for ref in fact.evidence_refs)
     ]
+    if strict:
+        valid = (
+            [fact for fact in seed.attempt.obligations if fact.status == "supported"]
+            if seed.attempt
+            else []
+        )
+        facts = [
+            {
+                "role": fact.role,
+                "prior_status": fact.status,
+                "required_fact": fact.required_fact,
+                "verifier": fact.verifier,
+                "explanation": fact.detail,
+                "evidence_ids": [mapping[ref.entity_id] for ref in fact.evidence_refs],
+                "validation": "host_verified",
+            }
+            for fact in valid
+            if not causes
+            and all(ref.entity_id in mapping for ref in fact.evidence_refs)
+        ]
     if not causes and len(facts) < len(valid):
         causes.append("fact_source_not_reusable")
     receipt = ReviewCacheReceipt(

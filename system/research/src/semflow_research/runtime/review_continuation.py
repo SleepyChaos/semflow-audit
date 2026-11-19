@@ -65,7 +65,18 @@ def attach(context, service, previous, candidates):
         "previous_conclusion": assessment.conclusion if assessment else None,
         "purpose": seed.next_action.kind if seed.next_action else "legacy_continuation",
         "new_source_evidence": added,
-        "prior_source_grounded_premises": facts,
+        "prior_source_grounded_premises": [
+            fact for fact in facts if fact["validation"] == "source_grounded"
+        ],
+        **(
+            {
+                "prior_verified_obligations": [
+                    fact for fact in facts if fact["validation"] == "host_verified"
+                ]
+            }
+            if context.spec.inputs.policy.version.removesuffix("-no-cache") == "3"
+            else {}
+        ),
         "checked_premises": list(assessment.checked_premises) if assessment else [],
         "missing_premises": list(assessment.unknown_premises) if assessment else [],
         "conclusion_contract": {

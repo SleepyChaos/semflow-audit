@@ -268,26 +268,14 @@ def test_current_review_method_continues_one_unresolved_candidate_via_api(
     assert trace["purpose"] == "gather_source"
     facts = second_model.contexts[0]["prior_review"]["prior_source_grounded_premises"]
     assert trace["cache"]["source_hits"] == 1
-    if change_model:
-        assert trace["cache"]["fact_hits"] == 0
-        assert trace["cache"]["fact_misses"] == 1
-        assert trace["cache"]["invalidation_reasons"] == ["analysis_digest"]
-        assert facts == []
-    else:
-        assert trace["cache"]["fact_hits"] == 1
-        assert trace["cache"]["invalidation_reasons"] == []
-        (fact,) = facts
-        assert fact["role"] == "operation" and fact["quote"] == "eval(input())"
-        (page,) = [
-            item
-            for item in second_model.contexts[0]["evidence"]
-            if item["reference"].get("file") == "app.py"
-        ]
-        assert fact["evidence_ids"] == [page["id"]]
-        (projected_fact,) = trace["prior_source_grounded_premises"]
-        assert projected_fact["evidence_ids"] == [
-            trace["reused_evidence"][0]["evidence_id"]
-        ]
+    assert trace["cache"]["fact_hits"] == trace["cache"]["fact_misses"] == 0
+    assert trace["cache"]["invalidation_reasons"] == (
+        ["analysis_digest"] if change_model else []
+    )
+    assert facts == []
+    assert trace["prior_verified_obligations"] == []
+    assert public_attempt["obligations"]
+    assert all(fact["status"] != "supported" for fact in public_attempt["obligations"])
     assert [item["file"] for item in trace["new_source_evidence"]] == ["helper.py"]
     assert (
         second.result["candidate_handoffs"][0]["next_action"]["kind"] == "manual_triage"

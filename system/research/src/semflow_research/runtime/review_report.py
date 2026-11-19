@@ -5,6 +5,7 @@ from uuid import UUID
 from semflow_contracts.review_handoff import (
     CandidateReviewAttempt,
     CandidateReviewReport,
+    ReviewObligation,
     ReviewPremise,
 )
 
@@ -63,6 +64,23 @@ def _premises(raw, evidence_ref):
         )
 
 
+def _obligations(raw, location, evidence_ref):
+    for fact in raw.get("host_obligations", ()):
+        fields = {
+            k: v
+            for k, v in fact.items()
+            if k not in {"evidence_ids", "counterevidence_ids"}
+        }
+        yield ReviewObligation(
+            **fields,
+            context=location,
+            evidence_refs=tuple(evidence_ref(i) for i in fact["evidence_ids"]),
+            counterevidence_refs=tuple(
+                evidence_ref(i) for i in fact["counterevidence_ids"]
+            ),
+        )
+
+
 def build_report(context, raw, candidates, assessments, candidate_ref, evidence_ref):
     by_id = {str(row.candidate_id): row for row in candidates}
     accepted = {str(a.candidate_ref.entity_id): a for a in assessments}
@@ -94,6 +112,9 @@ def build_report(context, raw, candidates, assessments, candidate_ref, evidence_
                     (b.get("reason") for b in reversed(batches) if b.get("code")), None
                 ),
                 premises=tuple(_premises(details, evidence_ref)),
+                obligations=tuple(
+                    _obligations(details, candidate.primary_location, evidence_ref)
+                ),
                 evidence_gaps=tuple(handoff.get("evidence_gaps", ())),
                 runtime_unknowns=tuple(handoff["runtime_unknowns"]),
                 validation_errors=tuple(handoff["rejected_reasons"]),

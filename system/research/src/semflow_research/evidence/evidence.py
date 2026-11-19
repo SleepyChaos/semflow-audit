@@ -165,6 +165,12 @@ class EvidenceService:
 
         return navigation_enabled(self._kernel)
 
+    @property
+    def repository_obligations(self):
+        from semflow_research.discovery.review_gap_planner import obligations_enabled
+
+        return obligations_enabled(self._kernel)
+
     def search(self, text: str, file_pattern: str | None = None) -> dict:
         if not isinstance(text, str) or not text or len(text) > 200:
             raise AuditError("搜索词长度无效", code="invalid_arguments")

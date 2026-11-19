@@ -103,7 +103,12 @@ def _handoff(
                 and event.get("status") == "supplied"
             )
             plan = plan_gaps(
-                assessment, evidence, merge_windows([*seen, *acquired]), previous_gaps
+                assessment,
+                evidence,
+                merge_windows([*seen, *acquired]),
+                previous_gaps,
+                host_navigation=getattr(evidence, "repository_obligations", False)
+                is True,
             )
             rows = {gap.gap_id: gap for gap in [*previous_gaps, *plan.gaps]}
             guidance["evidence_gaps"] = [
