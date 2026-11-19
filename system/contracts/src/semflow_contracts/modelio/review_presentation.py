@@ -8,13 +8,14 @@ Changes to JSON require checking the corresponding semflow_contracts/wire peer.
 from typing import Literal
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, ValidationError, field_validator
 
 from semflow_contracts.modelio.discovery_semantics import (
     SemanticAssessment,
     UnifiedReviewResponseV8,
 )
 from semflow_contracts.modelio.stages import StrictModel
+from semflow_contracts.review_gaps import EvidenceGapRequest
 
 
 class ExploitationExample(StrictModel):
@@ -48,5 +49,34 @@ class PresentedReviewResponse(UnifiedReviewResponseV8):
 
 
 class FinalPresentedReviewResponse(PresentedReviewResponse):
+    action: Literal["final"] = "final"
+    tool: None = None
+
+
+class NavigatedAssessment(PresentedAssessment):
+    # One invalid optional search request must not discard an accepted assessment.
+    evidence_gaps: list[EvidenceGapRequest] = Field(default_factory=list, max_length=5)
+
+    @field_validator("evidence_gaps", mode="before")
+    @classmethod
+    def valid_requests(cls, value):
+        if not isinstance(value, list):
+            return []
+        requests = []
+        for item in value[:5]:
+            try:
+                requests.append(EvidenceGapRequest.model_validate(item))
+            except ValidationError:
+                continue
+        return requests
+
+
+class NavigatedReviewResponse(PresentedReviewResponse):
+    candidate_assessments: list[NavigatedAssessment] = Field(
+        default_factory=list, max_length=50
+    )
+
+
+class FinalNavigatedReviewResponse(NavigatedReviewResponse):
     action: Literal["final"] = "final"
     tool: None = None

@@ -60,8 +60,8 @@ class ScoutInput(Contract):
 
 
 class ReviewPolicy(Contract):
-    # "1" is normal review. "1-no-cache" is a continuation-only ablation
-    # consumed by discovery_operations.review / review_continuation.attach.
+    # Policy 1 preserves legacy navigation. Policy 2 enables repository gaps.
+    # '-no-cache' is a continuation-only ablation for either policy.
     version: str = Field(min_length=1)
     batch_size: int = Field(ge=1)
     max_batches: int = Field(ge=0)

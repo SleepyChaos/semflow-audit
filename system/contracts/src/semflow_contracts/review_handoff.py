@@ -13,6 +13,7 @@ from semflow_contracts.common import (
     SourceLocation,
 )
 from semflow_contracts.discovery import AssessmentRecord
+from semflow_contracts.review_gaps import ReviewEvidenceGap
 
 
 class ReviewSourceWindow(Contract):
@@ -86,6 +87,7 @@ class CandidateReviewAttempt(Contract):
     stop_code: str | None = None
     stop_detail: str | None = None
     premises: tuple[ReviewPremise, ...] = ()
+    evidence_gaps: tuple[ReviewEvidenceGap, ...] = ()
     runtime_unknowns: tuple[str, ...] = ()
     validation_errors: tuple[str, ...] = ()
     batch_ids: tuple[str, ...] = ()
