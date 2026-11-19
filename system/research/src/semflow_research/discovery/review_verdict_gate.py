@@ -138,5 +138,9 @@ def validate_assessment(service, assessment, context, targets, evidence):
             targets[identifier],
             context["evidence"],
             control=context.get("local_control_context", {}),
+            require_refutation=service._kernel.spec.inputs.policy.version.removesuffix(
+                "-no-cache"
+            )
+            == "4",
         )
     return None

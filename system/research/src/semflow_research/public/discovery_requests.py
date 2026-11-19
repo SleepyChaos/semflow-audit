@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 
 from pydantic import Field
 from semflow_contracts.bundles import CandidateBundle, EvidenceBundle
-from semflow_contracts.common import Contract
+from semflow_contracts.common import Contract, SourceSnapshot
 from semflow_contracts.discovery import (
     DiscoverInput,
     QueryPack,
@@ -20,6 +20,7 @@ from semflow_contracts.discovery import (
 )
 from semflow_contracts.errors import ResearchError
 from semflow_contracts.runs import ExecutionPolicy, ModelProfile, validate_spec
+from semflow_contracts.security_specifications import SecuritySpecificationPolicy
 
 from semflow_research.adapters.snapshot import snapshot_digest
 from semflow_research.public.baselines import for_execution as baseline_for
@@ -55,10 +56,12 @@ class DiscoveryOptions(Contract):
     max_batches: int = Field(default=1, ge=0)
     supplement_insufficient: bool = False
     evidence_navigation: bool = True
+    strict_refutations: bool = False
     max_steps: int = Field(default=1, ge=1)
     max_context_chars: int = Field(default=40000, ge=1)
     required_branches: tuple[Literal["scan", "scout"], ...] = ("scan", "scout")
     scout_method_version: str = "8"
+    security_specifications: SecuritySpecificationPolicy | None = None
     review_method_version: str = "12"
     scout_prompt_version: int = 8
     review_prompt_version: int = 12
@@ -136,6 +139,7 @@ def _scan_inputs(options, resources):
 def _scout_inputs(options):
     return ScoutInput(
         scope_paths=options.scope_paths,
+        security_specifications=options.security_specifications,
         inspection_paths=options.inspection_paths,
         scheduling_profile=options.scheduling_profile,
         include_third_party=options.include_third_party,
@@ -150,10 +154,14 @@ def _scout_inputs(options):
 
 
 def _review_policy(options):
+    navigated = options.evidence_navigation and options.review_method_version == "12"
+    if options.strict_refutations and not navigated:
+        raise ResearchError(
+            "invalid_contract",
+            "Independent refutations require navigated review method 12",
+        )
     return ReviewPolicy(
-        version="3"
-        if options.evidence_navigation and options.review_method_version == "12"
-        else "1",
+        version=("4" if options.strict_refutations else "3") if navigated else "1",
         batch_size=options.batch_size,
         max_batches=options.max_batches,
         supplement_insufficient=options.supplement_insufficient,
@@ -170,11 +178,18 @@ def assemble_discovery(
     resources,
     dependency_lock: Path,
     source_directory: Path | None = None,
+    source_snapshot: SourceSnapshot | None = None,
     upstream_execution_id: UUID | None = None,
     execution_id: UUID | None = None,
 ):
     execution_id = execution_id or uuid4()
-    source = _source(
+    if source_snapshot is not None and (
+        source_directory is not None or upstream_execution_id is not None
+    ):
+        raise ResearchError(
+            "invalid_contract", "Choose exactly one source snapshot input"
+        )
+    source = source_snapshot or _source(
         root, options, execution_id, source_directory, upstream_execution_id
     )
     scan = (

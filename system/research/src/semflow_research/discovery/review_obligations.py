@@ -92,7 +92,9 @@ def _roles(property_name, weakness):
     return _CONFIG if property_name == "secrets_config" else _OTHER
 
 
-def verify_obligations(service, assessment, target, pages, *, control=None):
+def verify_obligations(
+    service, assessment, target, pages, *, control=None, require_refutation=False
+):
     location = target["location"]
     claimed = target.get("weakness") or assessment.weakness or ""
     if not claimed.startswith("CWE-") or claimed in {"CWE-0", "CWE-unknown"}:
@@ -135,7 +137,7 @@ def verify_obligations(service, assessment, target, pages, *, control=None):
     )
     host_probes = (
         _host_paths(target, control or {})
-        if assessment.assessment in {"insufficient", "supported"}
+        if assessment.assessment in {"insufficient", "supported"} or require_refutation
         else ()
     )
     if action or host_probes:
@@ -210,12 +212,20 @@ def verify_obligations(service, assessment, target, pages, *, control=None):
                 else None,
             }
         )
-    if assessment.assessment == "supported" and any(
+    unsupported = assessment.assessment == "supported" and any(
         o["status"] != "supported" for o in obligations
-    ):
+    )
+    unrefuted = (
+        require_refutation
+        and assessment.assessment == "excluded"
+        and not any(o["status"] == "refuted" for o in obligations)
+    )
+    if unsupported or unrefuted:
         assessment.assessment = "insufficient"
         assessment.reason = (
-            "宿主确认被调用函数的已核验实现没有所称效果，其他必要条件仍待验证。"
+            "现有源码尚未独立反驳候选的必要触发条件。"
+            if unrefuted
+            else "宿主确认被调用函数的已核验实现没有所称效果，其他必要条件仍待验证。"
             if any(o["status"] == "refuted" for o in obligations)
             else "源码引用已核对，当前证据仍无法独立证明报告中的关键程序行为。"
         )

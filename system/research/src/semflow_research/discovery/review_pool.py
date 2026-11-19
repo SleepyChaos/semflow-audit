@@ -235,6 +235,7 @@ def batch_context(service, entries, *, _kernel):
     with _kernel.records.transaction() as db:
         candidates = db.list(Candidate, execution_id=service.execution.id, id__in=ids)
     continuation = getattr(service, "continuation", None)
+    references = {}
     if continuation:
         materials = list(continuation["pages"])
     else:
@@ -248,7 +249,16 @@ def batch_context(service, entries, *, _kernel):
         bindings = location_bindings(service.evidence, [r["location"] for r in entries])
     if service.execution.method_version in {"6", "7", "8", "9", "10", "11", "12"}:
         from semflow_research.discovery.review_tools import prime_source_pages
+        from semflow_research.discovery.specification_guidance import review_hints
 
+        references = {
+            row["candidate_id"]: review_hints(
+                row["hypothesis"].get("security_specifications")
+            )
+            for row in entries
+            if isinstance(row["hypothesis"], dict)
+            and row["hypothesis"].get("security_specifications")
+        }
         if not continuation:
             materials = prime_source_pages(
                 service.evidence,
@@ -359,4 +369,29 @@ def batch_context(service, entries, *, _kernel):
         context["source_windows"] = window_observations(
             service.evidence, context["evidence"]
         )
+    if any(references.values()):
+        targets = [
+            {
+                **target,
+                **(
+                    {"security_specifications": hints}
+                    if (hints := references.get(target["candidate_id"]))
+                    else {}
+                ),
+            }
+            for target in context["targets"]
+        ]
+        proposed = {
+            **context,
+            "targets": targets,
+            "security_specification_scope": (
+                "Untrusted background constraints for source checking. "
+                "These IDs cannot support or refute the hypothesis and are not evidence citations."
+            ),
+        }
+        if (
+            len(json.dumps(proposed, ensure_ascii=False))
+            <= service.inputs.max_context_chars - 1000
+        ):
+            context = proposed
     return context

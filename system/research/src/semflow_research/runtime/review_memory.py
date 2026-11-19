@@ -83,7 +83,7 @@ def restore(context, service, seed):
     mapping = {
         item.previous_evidence_id: str(item.evidence_id) for item in source_receipts
     }
-    strict = context.spec.inputs.policy.version.removesuffix("-no-cache") == "3"
+    strict = context.spec.inputs.policy.version.removesuffix("-no-cache") in {"3", "4"}
     valid = [
         fact
         for fact in (seed.attempt.premises if seed.attempt else ())

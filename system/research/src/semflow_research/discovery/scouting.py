@@ -42,6 +42,9 @@ class ScoutService:
         self.repository = _kernel.execution_records
         self.execution = self.repository.get(self.execution_id)
         self.inputs = ScoutRequest.model_validate(self.execution.inputs)
+        from semflow_research.discovery.specification_guidance import prepare_guidance
+
+        self.guidance = prepare_guidance(_kernel)
         self.directory = ArtifactStore(_kernel=_kernel).directory(self.execution_id)
         self.evidence = EvidenceService(
             str(self.execution.snapshot_id),
@@ -212,7 +215,10 @@ class ScoutService:
     def save_unit(self, unit, response):
         _kernel = self._kernel
         self.active()
+        from semflow_research.discovery.specification_guidance import guidance_receipt
+
         metadata = []
+        guidance = guidance_receipt(self, unit)
         with _kernel.records.transaction() as db:
             stage = db.one(ExecutionRecord, id=self.execution.id)
             if stage.status == "cancelled":
@@ -268,7 +274,18 @@ class ScoutService:
                     )
                     db.save(candidate)
                 metadata.append(
-                    {"candidate_id": str(candidate.id), **row.model_dump(mode="json")}
+                    {
+                        "candidate_id": str(candidate.id),
+                        **row.model_dump(mode="json"),
+                        **(
+                            {
+                                "discovery_mode": "specification_guided",
+                                "security_specifications": guidance["supplied"],
+                            }
+                            if guidance.get("supplied")
+                            else {}
+                        ),
+                    }
                 )
             result = dict(stage.result)
             results = {r["unit_id"]: r for r in result.get("units", [])}
@@ -278,6 +295,7 @@ class ScoutService:
                 "scope_summary": response.scope_summary,
                 "hypotheses": metadata,
                 "binding_unresolved_observations": rejected,
+                **({"specification_lookup": guidance} if guidance else {}),
                 "route_checks": [
                     r.model_dump(mode="json")
                     for r in getattr(response, "route_checks", [])
@@ -372,6 +390,13 @@ class ScoutService:
                     "reason": str(exc)[:500],
                     "code": code,
                 }
+                from semflow_research.discovery.specification_guidance import (
+                    guidance_receipt,
+                )
+
+                guidance = guidance_receipt(self, unit)
+                if guidance:
+                    failed["specification_lookup"] = guidance
                 current = self.repository.get(self.execution_id).result
                 self.repository.update(
                     self.execution_id,

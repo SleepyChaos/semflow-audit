@@ -165,6 +165,10 @@ def inspect_unit(service, project, unit, call_limit, *, _kernel):
         context["route_obligation"] = (
             "Return one route_check for every listed route_id. A missing_authentication check needs its own authentication finding for THIS endpoint; never bundle another endpoint into its description. Public login/register routes may be public_expected; infer sensitivity from actual business code, not names alone."
         )
+    from semflow_research.discovery.specification_guidance import attach_guidance
+
+    directory = service.directory / "units" / unit["id"]
+    context = attach_guidance(service, source, context, directory)
     fallback = None
     localization_attempted = False
     for step in range(call_limit):
@@ -201,7 +205,6 @@ def inspect_unit(service, project, unit, call_limit, *, _kernel):
             raise AuditError(
                 "粗筛必要上下文超过预算；未截断证据", code="context_budget"
             )
-        directory = service.directory / "units" / unit["id"]
         try:
             response = frozen_call(
                 service.provider,

@@ -74,7 +74,8 @@ def attach(context, service, previous, candidates):
                     fact for fact in facts if fact["validation"] == "host_verified"
                 ]
             }
-            if context.spec.inputs.policy.version.removesuffix("-no-cache") == "3"
+            if context.spec.inputs.policy.version.removesuffix("-no-cache")
+            in {"3", "4"}
             else {}
         ),
         "checked_premises": list(assessment.checked_premises) if assessment else [],

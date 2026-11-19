@@ -23,7 +23,7 @@ def navigation_enabled(kernel) -> bool:
         getattr(spec, "operation", None) == "review"
         and spec.implementation.method_version == "12"
         and getattr(spec.inputs.policy, "version", None)
-        in {"2", "2-no-cache", "3", "3-no-cache"}
+        in {"2", "2-no-cache", "3", "3-no-cache", "4", "4-no-cache"}
     )
 
 
@@ -31,6 +31,8 @@ def obligations_enabled(kernel) -> bool:
     return navigation_enabled(kernel) and kernel.spec.inputs.policy.version in {
         "3",
         "3-no-cache",
+        "4",
+        "4-no-cache",
     }
 
 
