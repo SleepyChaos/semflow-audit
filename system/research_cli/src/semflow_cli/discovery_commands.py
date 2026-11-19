@@ -3,7 +3,7 @@
 from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from semflow_contracts.errors import ResearchError
 from semflow_research.public.configuration import load_resources
@@ -24,10 +24,14 @@ DISCOVERY_OPERATIONS = {
 COMMANDS = DISCOVERY_OPERATIONS | {
     "discovery-review-continue",
     "discovery-review-report",
+    "discovery-freeze-specifications",
 }
 
 
 def add_parsers(commands):
+    corpus = commands.add_parser("discovery-freeze-specifications")
+    corpus.add_argument("--root", type=Path, required=True)
+    corpus.add_argument("--documents", type=Path, required=True)
     continuation = commands.add_parser("discovery-review-continue")
     continuation.add_argument("--root", type=Path, required=True)
     continuation.add_argument("--upstream-execution-id", type=UUID, required=True)
@@ -54,6 +58,36 @@ def add_parsers(commands):
 
 
 def dispatch(args):
+    if args.command == "discovery-freeze-specifications":
+        from pydantic import TypeAdapter
+        from semflow_contracts.corpus import CorpusDocument
+        from semflow_research.public.corpus import freeze
+
+        adapter = TypeAdapter(tuple[CorpusDocument, ...])
+        documents = adapter.validate_json(args.documents.read_bytes())
+        if (
+            not documents
+            or len(documents) > 1000
+            or any(
+                row.provenance.get("source_scope") != "vulinstruct_train"
+                or row.collection != "reference"
+                or len(row.chunks) != 1
+                for row in documents
+            )
+        ):
+            raise ResearchError(
+                "invalid_contract",
+                "Expected 1–1000 single-statement training references",
+            )
+        versions = {row.version for row in documents}
+        if len(versions) != 1:
+            raise ResearchError(
+                "invalid_contract", "Freeze one source revision at a time"
+            )
+        (revision,) = versions
+        return freeze(
+            documents, root=args.root, owner_execution_id=uuid4(), version=revision
+        ).model_dump(mode="json")
     if args.command == "discovery-review-continue":
         from semflow_research.public.review_continuation import assemble
 
