@@ -89,3 +89,52 @@ def guard_operation_scope(evidence, target: dict, assessment, cited) -> None:
 
 def _start(node):
     return min((d.lineno for d in node.decorator_list), default=node.lineno)
+
+
+def guard_template_state_integrity(
+    assessment, target: dict, language: str, cited
+) -> None:
+    """A template defect alone does not establish an unprotected state change."""
+    from pathlib import PurePosixPath
+
+    from semflow_research.adapters.source_inventory import TEMPLATES
+
+    if (
+        assessment.assessment != "supported"
+        or assessment.security_property != "state_integrity"
+        or PurePosixPath(target["location"]["file"]).suffix.lower() not in TEMPLATES
+    ):
+        return
+    backend_extensions = (
+        {".py"} if language == "python" else {".js", ".mjs", ".cjs", ".ts"}
+    )
+    citations = [
+        identifier
+        for premise in assessment.premises
+        for identifier in premise.evidence_ids
+    ]
+    has_handler_source = any(
+        row["kind"] == "code"
+        and PurePosixPath(row["reference"].get("file", "")).suffix.lower()
+        in backend_extensions
+        for row in cited(citations)
+    )
+    if has_handler_source and not assessment.runtime_unknowns:
+        return
+    missing = "核对表单实际提交的处理器及服务端状态变更保护。"
+    assessment.assessment = "insufficient"
+    assessment.reason = "模板异常已经定位，实际提交路径与服务端保护仍需验证。"
+    assessment.missing_premises = [*assessment.runtime_unknowns[:11], missing]
+    assessment.premises = [
+        premise.model_copy(
+            update={
+                "status": "missing",
+                "reason": missing,
+                "quote": "",
+                "evidence_ids": [],
+            }
+        )
+        if premise.premise in {"operation", "unsafe_protection"}
+        else premise
+        for premise in assessment.premises
+    ]

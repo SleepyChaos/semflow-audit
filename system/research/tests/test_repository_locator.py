@@ -188,3 +188,44 @@ def test_navigation_does_not_validate_confirmation_with_an_unclosed_premise(
             {"language": "python", "evidence_gap_contract": "enabled"},
             lambda ids: [cited],
         )
+
+
+def test_template_confirmation_with_unread_handler_is_resumed_as_insufficient():
+    from types import SimpleNamespace
+
+    from semflow_contracts.modelio.discovery_semantics import PremiseCheck
+    from semflow_research.discovery.review_target_scope import (
+        guard_template_state_integrity,
+    )
+
+    assessment = SimpleNamespace(
+        assessment="supported",
+        security_property="state_integrity",
+        reason="model overclaim",
+        runtime_unknowns=["submitForm() may add a token before the request"],
+        missing_premises=[],
+        premises=[
+            PremiseCheck(
+                premise=role,
+                status="established",
+                reason="Template has a form",
+                quote='method="post"',
+            )
+            for role in ("operation", "unsafe_protection", "input_or_policy")
+        ],
+    )
+    guard_template_state_integrity(
+        assessment,
+        {"location": {"file": "templates/controls.html", "line": 3}},
+        "python",
+        lambda refs: [
+            {"kind": "code", "reference": {"file": "templates/controls.html"}}
+        ],
+    )
+    assert assessment.assessment == "insufficient"
+    assert "submitForm()" in assessment.missing_premises[0]
+    assert [p.status for p in assessment.premises] == [
+        "missing",
+        "missing",
+        "established",
+    ]

@@ -11,6 +11,15 @@ from semflow_research.domain.errors import AuditError
 
 
 def validate_assessment(service, assessment, context, targets, evidence):
+    identifier = str(assessment.candidate_id)
+    if context.get("evidence_gap_contract"):
+        from semflow_research.discovery.review_target_scope import (
+            guard_template_state_integrity,
+        )
+
+        guard_template_state_integrity(
+            assessment, targets[identifier], context["language"], evidence
+        )
     if context.get("feedback_revision") and assessment.assessment == "pending":
         raise AuditError("补证必须给出已校验判断或保留insufficient，不能退回未评估")
     detail = getattr(assessment, "detail", None)
@@ -18,7 +27,6 @@ def validate_assessment(service, assessment, context, targets, evidence):
         from semflow_research.discovery.review_presentation import validate_detail
 
         validate_detail(assessment, evidence, require_chinese=False)
-    identifier = str(assessment.candidate_id)
     if service.execution.method_version in {"8", "9", "10", "11", "12"}:
         from semflow_research.discovery.discovery_context import validate_premises
 
