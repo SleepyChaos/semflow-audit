@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 from uuid import UUID, uuid4
 
-from semflow_contracts.common import BundleRef
+from semflow_contracts.common import BundleRef, EntityRef
 from semflow_contracts.discovery import AssessmentRecord, CandidateRecord
 from semflow_contracts.errors import ResearchError
 from semflow_contracts.evidence import EvidenceRecord
@@ -78,6 +78,29 @@ def capture(execution_id, candidate_id, *, source, root):
     references = candidate.evidence_refs
     if assessment:
         references += assessment.evidence_refs + assessment.counter_evidence_refs
+    attempt = (
+        next(
+            (
+                row
+                for row in view.review_report.records
+                if row.candidate_ref.entity_id == candidate_id
+            ),
+            None,
+        )
+        if view.review_report
+        else None
+    )
+    if attempt:
+        # The prior acquisition may have succeeded even when its model call failed.
+        references += tuple(
+            EntityRef(
+                execution_id=execution_id,
+                entity_id=ref,
+                bundle=receipt.result.evidence.artifact,
+            )
+            for gap in attempt.evidence_gaps
+            for ref in gap.evidence_refs
+        )
     indexed = {row.evidence_id: row for row in view.evidence}
     code = {}
     for ref in references:
@@ -104,18 +127,6 @@ def capture(execution_id, candidate_id, *, source, root):
             if row["candidate_id"] == str(candidate_id)
         ),
         {},
-    )
-    attempt = (
-        next(
-            (
-                record
-                for record in view.review_report.records
-                if record.candidate_ref.entity_id == candidate_id
-            ),
-            None,
-        )
-        if view.review_report is not None
-        else None
     )
     return ReviewSeed(
         execution_id,
@@ -188,8 +199,11 @@ def assemble(
         artifact=result.evidence.artifact, entity_ids=seed.evidence_ids
     ).model_dump(mode="json")
     value["inputs"]["source_execution_ids"] = [str(execution_id)]
+    version = previous.inputs.policy.version.removesuffix("-no-cache")
     value["inputs"]["policy"].update(
-        version="1" if reuse_cache else "1-no-cache", batch_size=1, max_batches=1
+        version=version if reuse_cache else f"{version}-no-cache",
+        batch_size=1,
+        max_batches=1,
     )
     return validate_spec(value)
 

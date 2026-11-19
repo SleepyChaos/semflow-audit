@@ -168,7 +168,9 @@ def review(context):
         previous,
     )
     version = context.spec.inputs.policy.version
-    if version != "1" and not (version == "1-no-cache" and continuing):
+    if version not in {"1", "2"} and not (
+        version in {"1-no-cache", "2-no-cache"} and continuing
+    ):
         raise ResearchError("unsupported_version", "Unknown review policy version")
 
     context, selected = import_targets(

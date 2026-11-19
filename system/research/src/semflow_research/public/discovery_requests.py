@@ -54,6 +54,7 @@ class DiscoveryOptions(Contract):
     batch_size: int = Field(default=2, ge=1)
     max_batches: int = Field(default=1, ge=0)
     supplement_insufficient: bool = False
+    evidence_navigation: bool = True
     max_steps: int = Field(default=1, ge=1)
     max_context_chars: int = Field(default=40000, ge=1)
     required_branches: tuple[Literal["scan", "scout"], ...] = ("scan", "scout")
@@ -150,7 +151,9 @@ def _scout_inputs(options):
 
 def _review_policy(options):
     return ReviewPolicy(
-        version="1",
+        version="2"
+        if options.evidence_navigation and options.review_method_version == "12"
+        else "1",
         batch_size=options.batch_size,
         max_batches=options.max_batches,
         supplement_insufficient=options.supplement_insufficient,

@@ -94,6 +94,7 @@ def build_report(context, raw, candidates, assessments, candidate_ref, evidence_
                     (b.get("reason") for b in reversed(batches) if b.get("code")), None
                 ),
                 premises=tuple(_premises(details, evidence_ref)),
+                evidence_gaps=tuple(handoff.get("evidence_gaps", ())),
                 runtime_unknowns=tuple(handoff["runtime_unknowns"]),
                 validation_errors=tuple(handoff["rejected_reasons"]),
                 batch_ids=tuple(handoff["batch_ids"]),

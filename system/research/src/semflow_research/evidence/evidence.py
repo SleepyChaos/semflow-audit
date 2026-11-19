@@ -159,9 +159,21 @@ class EvidenceService:
             },
         )
 
-    def search(self, text: str) -> dict:
-        if not text or len(text) > 200:
-            raise AuditError("搜索词长度无效")
+    @property
+    def repository_navigation(self) -> bool:
+        from semflow_research.discovery.review_gap_planner import navigation_enabled
+
+        return navigation_enabled(self._kernel)
+
+    def search(self, text: str, file_pattern: str | None = None) -> dict:
+        if not isinstance(text, str) or not text or len(text) > 200:
+            raise AuditError("搜索词长度无效", code="invalid_arguments")
+        if self.repository_navigation:
+            if file_pattern is not None and (
+                not isinstance(file_pattern, str) or len(file_pattern) > 200
+            ):
+                raise AuditError("文件过滤参数无效", code="invalid_arguments")
+            return self._repository_search(text, file_pattern)
         matches = []
         for path in self.files():
             if path.stat().st_size > 1024 * 1024:
@@ -188,6 +200,31 @@ class EvidenceService:
             "search",
             json.dumps(matches, ensure_ascii=False),
             {"term": text, "limit": 40},
+        )
+
+    def _repository_search(self, text: str, file_pattern: str | None) -> dict:
+        import json
+        from dataclasses import asdict
+
+        from semflow_research.adapters.repository_locator import RepositoryLocator
+
+        result = RepositoryLocator(self.root, self.allowed).search_code(
+            text, limit=40, file_pattern=file_pattern
+        )
+        matches = [
+            dict(asdict(hit), line=hit.start_line, text=hit.content)
+            for hit in result.matches
+        ]
+        return self.record(
+            "search",
+            json.dumps(matches, ensure_ascii=False),
+            {
+                "term": text,
+                "limit": 40,
+                "truncated": result.truncated,
+                "file_pattern": file_pattern,
+                "snapshot": self.source_context.snapshot_hash,
+            },
         )
 
     def callers(self, symbol: str) -> dict:

@@ -34,7 +34,14 @@ SEMANTIC_VERSIONS = frozenset({"8", "9", "10", "11", "12"})
 MODERN_VERSIONS = SEMANTIC_VERSIONS | {"5", "6", "7"}
 
 
-def response_schema(version, final_only):
+def response_schema(version, final_only, navigation=False):
+    if navigation:
+        from semflow_contracts.modelio.review_presentation import (
+            FinalNavigatedReviewResponse,
+            NavigatedReviewResponse,
+        )
+
+        return FinalNavigatedReviewResponse if final_only else NavigatedReviewResponse
     if version in {"11", "12"}:
         from semflow_contracts.modelio.review_presentation import (
             FinalPresentedReviewResponse,
@@ -93,7 +100,12 @@ def call_context(service, context, step, steps):
     context = fit_navigation(context, service.inputs.max_context_chars)
     if len(json.dumps(context, ensure_ascii=False)) > service.inputs.max_context_chars:
         raise AuditError("复核批次必要上下文超过预算", code="context_budget")
-    return (context, response_schema(version, final_only))
+    from semflow_research.discovery.review_gap_planner import navigation_enabled
+
+    return (
+        context,
+        response_schema(version, final_only, navigation_enabled(service._kernel)),
+    )
 
 
 def inspect_batch(
@@ -106,6 +118,15 @@ def inspect_batch(
         from semflow_research.discovery.review_tools import SOURCE_TOOL_CONTRACT
 
         context["tool_contract"] = SOURCE_TOOL_CONTRACT
+    from semflow_research.discovery.review_gap_planner import navigation_enabled
+
+    if navigation_enabled(_kernel):
+        context["evidence_gap_contract"] = (
+            "For insufficient candidates list evidence_gaps. "
+            "Use repository for local paths and named symbols, and runtime or external "
+            "for material unavailable from source. Prefer specific symbols. "
+            "Keep local and external tasks separate. search_source accepts text and an optional file_pattern."
+        )
     steps = call_limit or service.inputs.max_steps
     saved, base, attempt = (None, None, None)
     for step in range(steps):
@@ -166,7 +187,13 @@ def inspect_batch(
             if base is None:
                 base = deepcopy(context)
             followup = next_feedback(
-                service, batch_id, result, base, steps - step - 1, _kernel=_kernel
+                service,
+                batch_id,
+                result,
+                base,
+                steps - step - 1,
+                _kernel=_kernel,
+                context=context,
             )
             if followup is None:
                 return result

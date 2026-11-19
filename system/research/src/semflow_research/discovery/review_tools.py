@@ -8,6 +8,7 @@ Changes to JSON require checking the corresponding semflow_contracts/wire peer.
 import json
 
 from semflow_research.discovery.review import ReviewService
+from semflow_research.domain.errors import AuditError
 from semflow_research.evidence.read_tools import (
     observe_tool,
     reused_read,
@@ -66,11 +67,48 @@ def prime_source_pages(evidence, materials, entries, include_related=False):
 def gather_review_tool(service, context, call, *, _kernel):
     requested = call
     pagination = None
+    if service.evidence.repository_navigation and call["name"] == "search_source":
+        args = call["arguments"]
+        text = args.get("text")
+        file_pattern = args.get("file_pattern")
+        if (
+            not isinstance(text, str)
+            or not text
+            or len(text) > 200
+            or (
+                file_pattern is not None
+                and (not isinstance(file_pattern, str) or len(file_pattern) > 200)
+            )
+            or set(args) - {"text", "file_pattern"}
+        ):
+            return {
+                **context,
+                "latest_tool_observation": {
+                    "status": "invalid_arguments",
+                    "requested": requested,
+                    "instruction": "Use search_source with text and optional file_pattern.",
+                },
+            }
     if call["name"] == "read_source":
         args = dict(call["arguments"])
-        path = service.evidence.allowed(args.get("file", ""))
+        try:
+            path = service.evidence.allowed(args.get("file", ""))
+            if (
+                service.evidence.repository_navigation
+                and path.stat().st_size > 1024 * 1024
+            ):
+                raise AuditError("文件超过源码读取上限", code="source_size")
+            lines = path.read_text().splitlines()
+        except (AuditError, OSError, UnicodeError, TypeError) as error:
+            if not service.evidence.repository_navigation or getattr(
+                error, "code", None
+            ) in {"identity_error", "integrity_error"}:
+                raise
+            return _unavailable_source(
+                service, context, requested, args.get("file"), error
+            )
         start, end = (args.get("start_line", 1), args.get("end_line", 60))
-        total = len(path.read_text().splitlines())
+        total = len(lines)
         if (
             type(start) is not int
             or type(end) is not int
@@ -90,7 +128,6 @@ def gather_review_tool(service, context, call, *, _kernel):
                 "server_feedback": "Read parameter error is recoverable; request a legal window or return insufficient",
             }
         actual_end = min(end, start + 150, total)
-        lines = path.read_text().splitlines()
         while (
             actual_end >= start
             and len("\n".join(lines[start - 1 : actual_end])) > 10000
@@ -106,7 +143,11 @@ def gather_review_tool(service, context, call, *, _kernel):
                     "instruction": "This line cannot fit the source tool; retain an explicit evidence gap, do not infer safe behavior",
                 },
             }
-        args.update(start_line=start, end_line=actual_end)
+        args = (
+            {"file": args["file"], "start_line": start, "end_line": actual_end}
+            if service.evidence.repository_navigation
+            else {**args, "start_line": start, "end_line": actual_end}
+        )
         call = {"name": "read_source", "arguments": args}
         pagination = {
             "requested": requested["arguments"],
@@ -135,3 +176,23 @@ def gather_review_tool(service, context, call, *, _kernel):
         service.evidence, context["evidence"]
     )
     return context
+
+
+def _unavailable_source(service, context, requested, file, error):
+    from semflow_research.adapters.repository_locator import RepositoryLocator
+
+    locator = RepositoryLocator(service.evidence.root, service.evidence.allowed)
+    paths = locator.find_paths(file, limit=3).matches if isinstance(file, str) else ()
+    return {
+        **context,
+        "latest_tool_observation": {
+            "requested": requested,
+            "status": "unavailable",
+            "reason": getattr(error, "code", "source_unavailable"),
+            "relative_path_matches": [match.file for match in paths],
+            "instruction": (
+                "No source was read. Use a checked relative path, search for the symbol, "
+                "or return an evidence gap naming its symbol."
+            ),
+        },
+    }

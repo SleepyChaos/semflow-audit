@@ -23,6 +23,14 @@ def validate_assessment(service, assessment, context, targets, evidence):
         from semflow_research.discovery.discovery_context import validate_premises
 
         validate_premises(assessment, targets[identifier], context, evidence)
+        if context.get("evidence_gap_contract"):
+            from semflow_research.discovery.review_target_scope import (
+                guard_operation_scope,
+            )
+
+            guard_operation_scope(
+                service.evidence, targets[identifier], assessment, evidence
+            )
         cited = list(
             dict.fromkeys(
                 [

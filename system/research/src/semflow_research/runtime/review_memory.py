@@ -21,6 +21,7 @@ def identity(spec, seed):
     }
     analysis = {
         "implementation": spec.implementation.model_dump(mode="json"),
+        "navigation_policy": spec.inputs.policy.version.removesuffix("-no-cache"),
         "prompts": [(p.role, p.version, p.sha256) for p in spec.prompts],
         "model": spec.model.model_dump(mode="json") if spec.model else None,
     }
@@ -35,7 +36,7 @@ def identity(spec, seed):
 def restore(context, service, seed):
     old = specification(seed.previous_execution_id, root=context.root)
     prior_key, current_key = identity(old, seed), identity(context.spec, seed)
-    enabled = context.spec.inputs.policy.version != "1-no-cache"
+    enabled = not context.spec.inputs.policy.version.endswith("-no-cache")
     causes = [
         key
         for key in (

@@ -182,6 +182,17 @@ def read_review_report(result, spec, store, values, memberships):
             raise ResearchError(
                 "identity_mismatch", "Candidate review row does not match its bundles"
             )
+        for gap in row.evidence_gaps:
+            if gap.candidate_id != candidate_id or any(
+                ref not in evidence
+                or evidence[ref].execution_id != owner
+                or evidence[ref].kind != "code"
+                for ref in gap.evidence_refs
+            ):
+                raise ResearchError(
+                    "evidence_invalid",
+                    "Review gap cites source from another candidate or execution",
+                )
         for fact in row.premises:
             for citation in fact.evidence_refs:
                 record = evidence.get(citation.entity_id)

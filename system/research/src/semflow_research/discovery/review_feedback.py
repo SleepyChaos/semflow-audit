@@ -33,12 +33,17 @@ def initialize_feedback(service):
     prompt = (
         Path(__file__).resolve().parents[1] / "prompts/review-feedback.v1.txt"
     ).read_text()
+    from semflow_research.discovery.review_gap_planner import navigation_enabled
+
+    navigation = navigation_enabled(service._kernel)
+    if navigation:
+        prompt += "\nUse evidence_gaps to name remaining local symbols and separate runtime and external needs."
     policy = {
-        "version": "1",
+        "version": "2" if navigation else "1",
         "enabled": not current.get("pool")
         and service.execution.method_version in {"8", "9", "10", "11", "12"}
         and service.inputs.supplement_insufficient,
-        "max_rounds_per_candidate": 1,
+        "max_rounds_per_candidate": 3 if navigation else 1,
         "max_source_pages": 3,
         "model_allowance": "remaining_original_batch_steps_and_shared_provider_budget",
         "prompt": prompt,
@@ -62,9 +67,12 @@ def update_attempt(service, identifier, **values):
     save_json(service.directory / "feedback" / identifier / "attempt.json", row)
 
 
-def _begin_attempt(service, batch_id, assessment, remaining):
+def _begin_attempt(service, batch_id, assessment, remaining, round_number=None):
     current = service.repository.get(service.execution_id).result
-    identifier = digest([batch_id, assessment["candidate_id"], "feedback-v1"])[:24]
+    identity = [batch_id, assessment["candidate_id"], "feedback-v1"]
+    if round_number is not None:
+        identity = [batch_id, assessment["candidate_id"], "feedback-v2", round_number]
+    identifier = digest(identity)[:24]
     row = {
         "id": identifier,
         "batch_id": batch_id,
@@ -79,6 +87,8 @@ def _begin_attempt(service, batch_id, assessment, remaining):
         ],
         "source_events": [],
     }
+    if round_number is not None:
+        row.update(round=round_number, snapshot_id=str(service.execution.snapshot_id))
     service.repository.update(
         service.execution_id,
         result={
@@ -190,13 +200,21 @@ def _supply_pages(service, context, files, policy, *, _kernel):
     return (_pack(context, maximum), events)
 
 
-def next_feedback(service, batch_id, result, base, remaining, *, _kernel):
+def next_feedback(service, batch_id, result, base, remaining, *, _kernel, context=None):
     current = service.repository.get(service.execution_id).result
     policy = current.get("review_feedback_policy", {})
     if not policy.get("enabled") or remaining < 1:
         return None
     if hashlib.sha256(policy["prompt"].encode()).hexdigest() != policy["prompt_hash"]:
         raise AuditError("补证提示冻结身份不一致", code="integrity_error")
+    if policy["version"] == "2":
+        from semflow_research.discovery.review_navigation_feedback import (
+            next_navigation,
+        )
+
+        return next_navigation(
+            service, batch_id, result, base, context or base, remaining, policy
+        )
     attempted = {
         i
         for r in current.get("review_feedback_attempts", [])

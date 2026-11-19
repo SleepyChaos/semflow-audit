@@ -56,13 +56,17 @@ def merge_windows(windows):
     return tuple(merged)
 
 
-def next_action(state, assessment, seen, evidence):
+def next_action(state, assessment, seen, evidence, plan=None):
     if state == "assessed":
         return ReviewNextAction(kind="none")
     if state == "unreviewed":
         return ReviewNextAction(kind="retry_execution")
     windows = []
-    for file in missing_source_paths(assessment):
+    if plan is not None and plan.windows:
+        return ReviewNextAction(
+            kind="gather_source", source_windows=tuple(w for _, w in plan.windows)
+        )
+    for file in missing_source_paths(assessment) if plan is None else ():
         if len(windows) >= 3:
             break
         window = _unread_window(evidence, file, seen)
@@ -83,7 +87,12 @@ def next_action(state, assessment, seen, evidence):
         "rate_limiting",
         "security_logging",
     }
-    if (missing_policy and policy_property) or assessment.get("runtime_unknowns"):
+    material = plan and any(g.gap_type in {"runtime", "external"} for g in plan.gaps)
+    if (
+        (missing_policy and policy_property)
+        or assessment.get("runtime_unknowns")
+        or material
+    ):
         return ReviewNextAction(kind="collect_material")
     return ReviewNextAction(kind="manual_triage")
 

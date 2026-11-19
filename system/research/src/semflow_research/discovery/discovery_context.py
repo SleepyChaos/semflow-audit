@@ -221,6 +221,7 @@ def augment_context(service, context):
 
 def validate_premises(assessment, target, context, evidence):
     from semflow_research.adapters.operation_evidence import normalize
+    from semflow_research.adapters.repository_locator import repository_text
     from semflow_research.domain.errors import AuditError
 
     if assessment.security_property != target["security_property"]:
@@ -242,7 +243,13 @@ def validate_premises(assessment, target, context, evidence):
                 r
                 for r in rows
                 if r["kind"] == "code"
-                and inspectable(r["reference"].get("file", ""), context["language"])
+                and (
+                    inspectable(r["reference"].get("file", ""), context["language"])
+                    or (
+                        context.get("evidence_gap_contract")
+                        and repository_text(r["reference"].get("file", ""))
+                    )
+                )
             ]
             if not premise.quote or not any(
                 normalize(premise.quote) in normalize(r["content"]) for r in code

@@ -6,7 +6,7 @@ These records describe execution and evidence; assessments remain authoritative.
 
 from collections import defaultdict
 
-from semflow_contracts.review_handoff import ReviewSourceWindow
+from semflow_contracts.review_handoff import ReviewNextAction, ReviewSourceWindow
 
 from semflow_research.discovery.review_next_action import (
     merge_windows,
@@ -85,14 +85,59 @@ def _handoff(
             for window in previous.get("previous_source_windows", [])
         )
         seen = merge_windows(seen)
-        guidance = {
-            "next_action": next_action(state, assessment, seen, evidence).model_dump(
-                mode="json"
-            ),
-            "observed_source_windows": [
-                window.model_dump(mode="json") for window in seen
-            ],
-        }
+        plan = None
+        if getattr(evidence, "repository_navigation", False) is True:
+            from semflow_research.discovery.review_gap_planner import plan_gaps
+            from semflow_research.discovery.review_navigation_feedback import (
+                gap_history,
+            )
+
+            previous_gaps = gap_history(attempts)
+            acquired = tuple(
+                ReviewSourceWindow(
+                    **{k: event[k] for k in ("file", "start_line", "end_line")}
+                )
+                for attempt in attempts
+                for event in attempt.get("source_events", ())
+                if event.get("origin") == "repository_locator"
+                and event.get("status") == "supplied"
+            )
+            plan = plan_gaps(
+                assessment, evidence, merge_windows([*seen, *acquired]), previous_gaps
+            )
+            rows = {gap.gap_id: gap for gap in [*previous_gaps, *plan.gaps]}
+            guidance["evidence_gaps"] = [
+                gap.model_dump(mode="json") for gap in rows.values()
+            ]
+        action = next_action(state, assessment, seen, evidence, plan)
+        if (
+            plan is not None
+            and state == "unresolved"
+            and action.kind != "gather_source"
+            and attempts
+            and attempts[-1]["status"] == "incomplete"
+            and attempts[-1].get("code")
+            in {
+                "provider_error",
+                "timeout",
+                "rate_limited",
+                "budget_exhausted",
+                "unit_budget",
+            }
+            and any(
+                event.get("status") == "supplied"
+                for event in attempts[-1].get("source_events", ())
+            )
+        ):
+            action = ReviewNextAction(kind="retry_execution")
+        guidance.update(
+            {
+                "next_action": action.model_dump(mode="json"),
+                "observed_source_windows": [
+                    window.model_dump(mode="json") for window in seen
+                ],
+            }
+        )
     return {
         **guidance,
         "candidate_id": candidate_id,

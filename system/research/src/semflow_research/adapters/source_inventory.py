@@ -5,7 +5,7 @@ Changes to JSON require checking the corresponding semflow_contracts/wire peer.
 """
 
 """Source categories and scheduling hints; filenames never prove business contracts."""
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 TEMPLATES = {
     ".ejs",
@@ -32,7 +32,7 @@ LOCKFILES = {
 
 
 def readable_name(file: str) -> bool:
-    parts = Path(file).parts
+    parts = PurePosixPath(file.replace("\\", "/").casefold()).parts
     return not any(
         p.startswith(".env") or ".env" in Path(p).suffixes or p in BLOCKED_PARTS
         for p in parts
