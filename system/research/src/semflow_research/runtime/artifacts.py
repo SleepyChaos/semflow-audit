@@ -9,13 +9,17 @@ from uuid import UUID, uuid4
 from semflow_contracts.common import ArtifactKind, ArtifactRef
 from semflow_contracts.errors import ResearchError
 
+from semflow_research.adapters.snapshot import is_link
+
 
 class LocalArtifacts:
     def __init__(
         self, root: Path, execution_id: UUID, *, upstream: tuple[ArtifactRef, ...] = ()
     ):
-        if root.is_symlink():
-            raise ResearchError("integrity_error", "Artifact root cannot be a symlink")
+        if is_link(root):
+            raise ResearchError(
+                "integrity_error", "Artifact root cannot be a symlink or junction"
+            )
         self.root = root.resolve()
         self.execution_id = execution_id
         self.upstream = frozenset(ref.model_dump_json() for ref in upstream)
@@ -32,12 +36,18 @@ class LocalArtifacts:
             )
         base = self.root / str(ref.owner_execution_id)
         path = base / ref.path
-        for part in (base, *path.parents):
+        if is_link(self.root):
+            raise ResearchError(
+                "integrity_error", "Artifact root became a symlink or junction"
+            )
+        for part in path.parents:
             if part == self.root:
                 break
-            if part.is_symlink():
-                raise ResearchError("integrity_error", "Symlink in artifact path")
-        if path.is_symlink() or not path.resolve().is_relative_to(base.resolve()):
+            if is_link(part):
+                raise ResearchError(
+                    "integrity_error", "Symlink or junction in artifact path"
+                )
+        if is_link(path) or not path.resolve().is_relative_to(base):
             raise ResearchError("integrity_error", "Artifact escaped its execution")
         return path
 

@@ -3,6 +3,7 @@
 import hashlib
 from pathlib import Path
 
+from semflow_research.adapters.snapshot import is_link
 from semflow_research.adapters.source_text import decode_source
 from uuid import UUID, uuid4
 
@@ -27,10 +28,10 @@ class SnapshotReader:
         execution_id: UUID,
         artifacts: ArtifactStore,
     ):
-        if root.is_symlink() or not root.is_dir():
+        if is_link(root) or not root.is_dir():
             raise ResearchError(
                 "integrity_error",
-                "Source root must be an existing directory without symlinks",
+                "Source root must be an existing directory without symlinks or junctions",
             )
         self.root = root.resolve()
         self.snapshot, self.execution_id, self.artifacts = (
@@ -51,11 +52,15 @@ class SnapshotReader:
         self.verify_snapshot()
 
     def verify_snapshot(self) -> None:
+        if is_link(self.root):
+            raise ResearchError(
+                "integrity_error", "Source root became a symlink or junction"
+            )
         actual = set()
         for path in self.root.rglob("*"):
-            if path.is_symlink():
+            if is_link(path):
                 raise ResearchError(
-                    "integrity_error", "Source snapshot contains a symlink"
+                    "integrity_error", "Source snapshot contains a symlink or junction"
                 )
             if path.is_file():
                 name = path.relative_to(self.root).as_posix()

@@ -19,6 +19,7 @@ from semflow_contracts.common import (
 )
 from semflow_contracts.errors import ResearchError
 
+from semflow_research.adapters.snapshot import is_link
 from semflow_research.runtime.evidence import SnapshotReader
 
 MAX_SOURCE_BYTES = 256 * 1024 * 1024
@@ -28,9 +29,10 @@ MAX_SOURCE_FILES = 20000
 def capture(
     root: Path, *, artifacts, languages, origin=None, archive_kind="source_archive"
 ) -> SourceSnapshot:
-    if root.is_symlink() or not root.is_dir():
+    if is_link(root) or not root.is_dir():
         raise ResearchError(
-            "invalid_contract", "Source capture requires a directory without symlinks"
+            "invalid_contract",
+            "Source capture requires a directory without symlinks or junctions",
         )
     files, total = [], 0
     stream = io.BytesIO()
@@ -38,9 +40,9 @@ def capture(
         for path in sorted(
             root.rglob("*"), key=lambda path: path.relative_to(root).as_posix()
         ):
-            if path.is_symlink():
+            if is_link(path):
                 raise ResearchError(
-                    "integrity_error", "Source capture refuses symlinks"
+                    "integrity_error", "Source capture refuses symlinks and junctions"
                 )
             if not path.is_file():
                 continue

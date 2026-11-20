@@ -1,3 +1,4 @@
+import sys
 from uuid import uuid4
 
 import pytest
@@ -79,9 +80,55 @@ def test_symlink_source_and_artifact_escape_are_rejected(research_case, tmp_path
     outside = tmp_path / "outside"
     outside.write_bytes(b"original")
     path.unlink()
-    path.symlink_to(outside)
+    try:
+        path.symlink_to(outside)
+    except OSError as error:
+        if getattr(error, "winerror", None) == 1314:
+            pytest.skip("Windows principal cannot create symbolic links")
+        raise
     with pytest.raises(ResearchError, match="escaped"):
         case.artifacts.read(ref)
     (case.source / "link.py").symlink_to(case.source / "app.py")
     with pytest.raises(ResearchError, match="symlink"):
         case.reader.read("app.py", 1, 1)
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows directory junction")
+def test_unprivileged_directory_junction_cannot_enter_snapshot_or_artifacts(
+    research_case, tmp_path
+):
+    from _winapi import CreateJunction
+
+    from semflow_research.adapters.snapshot import snapshot_digest
+    from semflow_research.domain.errors import AuditError
+    from semflow_research.evidence.evidence import EvidenceService
+    from semflow_research.runtime.sources import capture
+
+    case = research_case
+    empty = tmp_path / "disposable-empty"
+    empty.mkdir()
+    junction = case.source / "junction"
+    CreateJunction(str(empty), str(junction))
+    assert junction.is_junction()
+    try:
+        with pytest.raises(ResearchError, match="junction"):
+            capture(case.source, artifacts=case.artifacts, languages=("python",))
+        with pytest.raises(ResearchError, match="junction"):
+            case.reader.verify_snapshot()
+        with pytest.raises(AuditError, match="链接"):
+            snapshot_digest(case.source)
+        source = object.__new__(EvidenceService)
+        source.root = case.source.resolve()
+        with pytest.raises(AuditError, match="链接"):
+            source.target("junction")
+    finally:
+        junction.rmdir()
+
+    alias = tmp_path / "artifact-root-junction"
+    CreateJunction(str(empty), str(alias))
+    assert alias.is_junction()
+    try:
+        with pytest.raises(ResearchError, match="junction"):
+            LocalArtifacts(alias, uuid4())
+    finally:
+        alias.rmdir()

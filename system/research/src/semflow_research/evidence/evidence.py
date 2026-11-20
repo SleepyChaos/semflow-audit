@@ -1,15 +1,13 @@
-"""Actual source evidence and scientific records, without platform persistence."""
+"""Source evidence and scientific records checked against the scoped snapshot."""
 
-"Only real, scope checked snapshot evidence can be cited by a candidate."
 import ast
 import hashlib
 from pathlib import Path
-
-from semflow_research.adapters.source_text import read_source_text
 from uuid import UUID, uuid4
 
 from semflow_research.adapters.artifacts import ArtifactStore
-from semflow_research.adapters.snapshot import snapshot_digest
+from semflow_research.adapters.snapshot import is_link, snapshot_digest
+from semflow_research.adapters.source_text import read_source_text
 from semflow_research.domain.errors import AuditError
 from semflow_research.state.models import Evidence
 
@@ -21,15 +19,14 @@ class EvidenceService:
         self._kernel = _kernel
         self.source_context = _kernel.source_records.get(snapshot_id)
         self.execution_id = UUID(execution_id)
-        self.root = (
-            ArtifactStore(_kernel=_kernel)
-            .source(str(self.source_context.snapshot_id))
-            .resolve()
+        root = ArtifactStore(_kernel=_kernel).source(
+            str(self.source_context.snapshot_id)
         )
-        if snapshot_digest(self.root) != self.source_context.snapshot_hash:
+        if snapshot_digest(root) != self.source_context.snapshot_hash:
             raise AuditError(
                 "源码快照完整性检查失败；不能引用被改动的代码", code="integrity_error"
             )
+        self.root = root.resolve()
         from semflow_research.state.models import ExecutionRecord
 
         with _kernel.records.transaction() as session:
@@ -47,12 +44,16 @@ class EvidenceService:
 
         if not readable_name(name):
             raise AuditError("不能读取凭据或依赖工作目录")
-        path = (self.root / name).resolve()
-        if (
-            not path.is_relative_to(self.root)
-            or path.is_symlink()
-            or (not path.exists())
-        ):
+        if ".." in Path(name).parts:
+            raise AuditError("源码路径无效")
+        candidate = self.root / name
+        for part in (candidate, *candidate.parents):
+            if is_link(part):
+                raise AuditError("源码路径包含链接", code="integrity_error")
+            if part == self.root:
+                break
+        path = candidate.resolve()
+        if not path.is_relative_to(self.root) or not path.exists():
             raise AuditError("源码位置不在本次快照中")
         return path
 
@@ -84,7 +85,7 @@ class EvidenceService:
             path
             for path in self.root.rglob("*")
             if path.is_file()
-            and (not path.is_symlink())
+            and (not is_link(path))
             and inspectable(
                 path.relative_to(self.root).as_posix(),
                 self.source_context.language,
