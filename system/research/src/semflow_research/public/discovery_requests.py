@@ -164,7 +164,7 @@ def _review_policy(options):
         )
     return ReviewPolicy(
         version=("4" if options.strict_refutations else "3") if navigated else "1",
-        scheduler="source_balanced_v1" if options.source_balanced_review else None,
+        scheduler="clustered_v2" if options.source_balanced_review else None,
         batch_size=options.batch_size,
         max_batches=options.max_batches,
         supplement_insufficient=options.supplement_insufficient,

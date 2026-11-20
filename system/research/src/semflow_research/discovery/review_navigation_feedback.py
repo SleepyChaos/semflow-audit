@@ -49,6 +49,17 @@ def next_navigation(service, batch_id, result, base, context, remaining, policy)
             else base
         )
         source = _target_context(active, assessment, batch_id, policy)
+        if (
+            service._kernel.spec.inputs.policy.scheduler == "clustered_v2"
+            and active is base
+        ):
+            # Keep target and cited material. Drop other members' unrelated pages
+            # before giving newly acquired evidence its share of this context.
+            _retain_candidate_pages(source, assessment, candidate)
+            source["source_windows"] = window_observations(
+                service.evidence, source["evidence"]
+            )
+            source = refresh_citation_contract(source)
         existing = window_observations(service.evidence, source["evidence"])
         seen = tuple(
             ReviewSourceWindow(
@@ -79,6 +90,38 @@ def next_navigation(service, batch_id, result, base, context, remaining, policy)
         if events:
             return source, identifier
     return None
+
+
+def _retain_candidate_pages(source, assessment, candidate):
+    selected = source["targets"][0]
+    seeds = [
+        seed
+        for seed in source.get("source_path_seeds", ())
+        if seed["candidate_id"] == candidate
+    ]
+    chosen = set(selected.get("evidence_ids", ())) | {
+        seed["evidence_id"] for seed in seeds
+    }
+    # The accepted assessment can cite independent evidence for and against
+    # the candidate even when the final verdict still needs another fact.
+    chosen.update(
+        str(identifier)
+        for field in ("evidence_ids", "counterevidence_ids")
+        for identifier in assessment.get(field, ())
+    )
+    chosen.update(
+        str(identifier)
+        for premise in assessment.get("premises", ())
+        for identifier in premise.get("evidence_ids", ())
+    )
+    chosen.update(
+        str(identifier)
+        for obligation in assessment.get("host_obligations", ())
+        for field in ("evidence_ids", "counterevidence_ids")
+        for identifier in obligation.get(field, ())
+    )
+    source["evidence"] = [row for row in source["evidence"] if row["id"] in chosen]
+    source["source_path_seeds"] = seeds
 
 
 def _acquire(service, context, plan):

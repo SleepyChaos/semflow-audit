@@ -1,7 +1,9 @@
 """Source-balanced priority over immutable candidates; model truth is never a feature."""
 
+import json
 import re
 from collections import defaultdict, deque
+from dataclasses import dataclass
 from math import isfinite
 
 
@@ -17,7 +19,7 @@ def cross_source_peers(entries):
         cwes = {
             int(m.group(1))
             for tag in values
-            for m in re.finditer(r"cwe-(\d+)", tag, re.I)
+            for m in re.finditer(r"cwe-(\d+)", tag, re.IGNORECASE)
         }
         if cwes:
             by_file[entry["location"]["file"]][lane].append(
@@ -106,3 +108,87 @@ def source_balanced_batches(entries, size, *, peers=None):
         if lane:
             order.append(lane)
     return batches
+
+
+def _point_identity(point):
+    # Preserve any path annotations supplied by a producer. Matching
+    # coordinates alone cannot establish identical branch evidence.
+    return json.dumps(point, sort_keys=True, separators=(",", ":"))
+
+
+def _exact_alert_key(entry):
+    alert = entry.get("static_alert") or {}
+    paths = alert.get("code_flows", ())
+    locations = alert.get("locations", ())
+    # Missing path detail cannot establish duplicate path identity.
+    if (
+        not alert.get("rule")
+        or not locations
+        or not paths
+        or any(len(p) < 2 for p in paths)
+    ):
+        return ("unclustered", entry["candidate_id"])
+    return (
+        alert["rule"],
+        alert.get("message"),
+        tuple(_point_identity(p) for p in locations),
+        tuple(sorted({tuple(map(_point_identity, path)) for path in paths})),
+        tuple(sorted(alert.get("tags") or ())),
+        alert.get("rule_version"),
+        alert.get("security_severity"),
+    )
+
+
+def cluster_alerts(entries):
+    groups = {}
+    for entry in entries:
+        groups.setdefault(_exact_alert_key(entry), []).append(entry)
+    return tuple(tuple(group) for group in groups.values())
+
+
+@dataclass(frozen=True)
+class ReviewFrontier:
+    ranked: tuple[dict, ...]
+    previous_ranks: dict[str, int]
+    clusters: dict[str, tuple[str, ...]]
+
+
+def _risk_family(entry):
+    alert = entry.get("static_alert") or {}
+    return alert.get("rule") or entry.get("weakness") or "unclassified"
+
+
+def cluster_frontier(entries):
+    original = [e for batch in source_balanced_batches(entries, 1) for e in batch]
+    original_ranks = {e["candidate_id"]: i for i, e in enumerate(original, 1)}
+    groups = cluster_alerts(original)
+    representatives = [g[0] for g in groups]
+    lanes = defaultdict(list)
+    for row in representatives:
+        lanes[row["origin"]].append(row)
+    by_origin = deque()
+    for lane in lanes.values():
+        # One diversity reservation per origin, then resume severity order.
+        # Repeated lower-priority families must not consume the high-risk lane.
+        reserve = next(
+            (
+                i
+                for i, row in enumerate(lane)
+                if _risk_family(row) != _risk_family(lane[0])
+            ),
+            None,
+        )
+        if reserve is not None and reserve > 1:
+            lane.insert(1, lane.pop(reserve))
+        by_origin.append(deque(lane))
+    ranked = []
+    while by_origin:
+        lane = by_origin.popleft()
+        ranked.append(lane.popleft())
+        if lane:
+            by_origin.append(lane)
+    return ReviewFrontier(
+        tuple(ranked),
+        original_ranks,
+        {g[0]["candidate_id"]: tuple(e["candidate_id"] for e in g) for g in groups},
+    )

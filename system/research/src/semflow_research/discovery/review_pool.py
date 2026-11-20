@@ -267,6 +267,19 @@ def batch_context(service, entries, *, _kernel):
         materials = candidate_materials(service.evidence, candidates, _kernel=_kernel)
         materials.extend(project_documents(service.evidence))
     materials = list({r["id"]: r for r in materials}.values())
+    path_seeds = []
+    linked = _kernel.spec.inputs.policy.scheduler == "clustered_v2" and any(
+        (row.get("static_alert") or {}).get("code_flows") for row in entries
+    )
+    if linked and not continuation:
+        from semflow_research.discovery.review_path_evidence import prime_linked_pages
+
+        materials, path_seeds = prime_linked_pages(
+            service.evidence,
+            entries,
+            materials,
+            max_chars=min(23000, service.inputs.max_context_chars // 2),
+        )
     bindings = []
     if service.execution.method_version in {"5", "6", "7", "8", "9", "10", "11", "12"}:
         from semflow_research.adapters.python_bindings import location_bindings
@@ -284,7 +297,7 @@ def batch_context(service, entries, *, _kernel):
             if isinstance(row["hypothesis"], dict)
             and row["hypothesis"].get("security_specifications")
         }
-        if not continuation:
+        if not continuation and not linked:
             materials = prime_source_pages(
                 service.evidence,
                 materials,
@@ -378,6 +391,14 @@ def batch_context(service, entries, *, _kernel):
         "anchors": [],
         "evidence": materials,
         "source_windows": window_observations(service.evidence, materials),
+        **(
+            {
+                "source_path_seeds": path_seeds,
+                "source_path_seeds_scope": "Detector-linked source windows are navigation support. Independently verify guards and path feasibility.",
+            }
+            if linked
+            else {}
+        ),
         "symbol_bindings": bindings,
         "allow_supplementary_findings": service.inputs.discover,
         "source_inventory": {

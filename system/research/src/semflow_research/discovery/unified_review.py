@@ -55,15 +55,27 @@ class UnifiedReview:
         if digest(pool) != state["pool_hash"]:
             raise AuditError("复核候选池身份已变化")
         scheduler = _kernel.spec.inputs.policy.scheduler
-        source_balanced = scheduler == "source_balanced_v1"
-        schedule = batches(
-            pool,
-            self.inputs.batch_size,
-            self.execution.method_version
-            in {"5", "6", "7", "8", "9", "10", "11", "12"},
-            coherent_conditions=self.execution.method_version
-            in {"9", "10", "11", "12"},
-            source_balanced=source_balanced,
+        source_balanced = scheduler in {"source_balanced_v1", "clustered_v2"}
+        frontier = None
+        if scheduler == "clustered_v2":
+            from semflow_research.discovery.review_scheduling import cluster_frontier
+
+            frontier = cluster_frontier(pool["entries"])
+        schedule = (
+            [
+                list(frontier.ranked[i : i + self.inputs.batch_size])
+                for i in range(0, len(frontier.ranked), self.inputs.batch_size)
+            ]
+            if frontier
+            else batches(
+                pool,
+                self.inputs.batch_size,
+                self.execution.method_version
+                in {"5", "6", "7", "8", "9", "10", "11", "12"},
+                coherent_conditions=self.execution.method_version
+                in {"9", "10", "11", "12"},
+                source_balanced=source_balanced,
+            )
         )
         ranked = [entry for batch in schedule for entry in batch]
         schedule = fit_batches(
@@ -82,7 +94,7 @@ class UnifiedReview:
                 score_entry,
             )
 
-            peers = cross_source_peers(ranked)
+            peers = cross_source_peers(pool["entries"])
             for rank, entry in enumerate(ranked, 1):
                 identifier = entry["candidate_id"]
                 related = sorted(peers.get(identifier, ()))
@@ -95,11 +107,31 @@ class UnifiedReview:
                         "priority": priority,
                         "priority_reason": reason,
                         "cross_source_peers": related,
+                        **(
+                            {
+                                "original_rank": frontier.previous_ranks[identifier],
+                                "cluster_members": list(frontier.clusters[identifier]),
+                            }
+                            if frontier
+                            else {}
+                        ),
                         "disposition": "scheduled"
                         if identifier in selected
                         else "outside_batch_limit",
                     }
                 )
+        if frontier:
+            for representative, members in frontier.clusters.items():
+                for identifier in members[1:]:
+                    decisions.append(
+                        {
+                            "candidate_id": identifier,
+                            "original_rank": frontier.previous_ranks[identifier],
+                            "rank": None,
+                            "representation": representative,
+                            "disposition": "exact_static_duplicate",
+                        }
+                    )
         self.repository.update(
             self.execution_id,
             result={
