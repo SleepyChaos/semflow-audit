@@ -311,6 +311,28 @@ def evidence_intake(policy):
     }.get(policy.scheduler, "legacy")
 
 
+def compact_static_target(entry):
+    alert = entry["static_alert"]
+    diagnostic = alert.get("message") or ""
+    metadata = {
+        key: alert[key]
+        for key in ("id", "rule", "security_severity", "tags")
+        if key in alert
+    }
+    if len(diagnostic) <= 2000:
+        metadata["message"] = diagnostic
+    else:
+        metadata.update(
+            message_omitted=True,
+            message_characters=len(diagnostic),
+        )
+    return {
+        **entry,
+        "static_alert": metadata,
+        "hypothesis": "Verify the detector hypothesis against supplied source, including any relevant protections.",
+    }
+
+
 def batch_context(service, entries, *, _kernel):
     ids = [UUID(r["candidate_id"]) for r in entries]
     with _kernel.records.transaction() as db:
@@ -408,16 +430,7 @@ def batch_context(service, entries, *, _kernel):
         # The immutable pool holds the full SARIF. Model context retains the
         # alert's identity and source pages without retransmitting raw paths.
         entries = [
-            {
-                **entry,
-                "static_alert": {
-                    key: alert[key]
-                    for key in ("id", "rule", "message", "security_severity", "tags")
-                    if key in alert
-                },
-            }
-            if (alert := entry.get("static_alert")) and linked
-            else entry
+            compact_static_target(entry) if entry.get("static_alert") else entry
             for entry in entries
         ]
     files = [

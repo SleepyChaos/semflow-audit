@@ -183,6 +183,21 @@ def test_scout_window_prefix_values_new_regions_over_repeating_one_function():
     ]
 
 
+def test_long_detector_message_stays_in_pool_without_overwhelming_source_context():
+    from semflow_research.discovery.review_pool import compact_static_target
+
+    entry = static_entry("id", "src", "risk")
+    diagnostic = "Deterministic detector metadata. " * 900
+    entry["static_alert"]["message"] = diagnostic
+    entry["hypothesis"] = diagnostic
+    packed = compact_static_target(entry)
+    assert len(json.dumps(packed)) < 2500
+    assert packed["static_alert"]["rule"] == "risk"
+    assert packed["static_alert"]["message_characters"] == len(diagnostic)
+    assert entry["static_alert"]["message"] == entry["hypothesis"] == diagnostic
+    assert packed["location"] == entry["location"]
+
+
 def test_repository_navigation_and_scout_agree_on_decorator_range():
     from semflow_research.adapters.project_map import symbols
     from semflow_research.adapters.repository_locator import _python_definitions
