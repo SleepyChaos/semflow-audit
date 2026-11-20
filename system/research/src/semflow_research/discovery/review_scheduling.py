@@ -4,6 +4,7 @@ import json
 import re
 from collections import defaultdict, deque
 from dataclasses import dataclass
+from itertools import islice
 from math import isfinite
 from pathlib import PurePosixPath
 
@@ -207,6 +208,33 @@ def evidence_frontier(entries):
 
 def _module(entry):
     return str(PurePosixPath(entry["location"]["file"]).parent)
+
+
+def shared_source_batches(ranked, size):
+    """Pair adjacent source spans in a bounded frontier; keep each hypothesis."""
+    remaining = deque(ranked)
+    batches = []
+    while remaining:
+        first = remaining.popleft()
+        group = [first]
+        location = first["location"]
+        if size > 1 and first["origin"] == "static":
+            companion = next(
+                (
+                    row
+                    for row in islice(remaining, 16)
+                    if row["origin"] == "static"
+                    and row["location"]["file"] == location["file"]
+                    and abs(row["location"]["line"] - location["line"]) <= 20
+                    and _risk_family(row) == _risk_family(first)
+                ),
+                None,
+            )
+            if companion is not None:
+                group.append(companion)
+                remaining.remove(companion)
+        batches.append(group)
+    return batches
 
 
 def cluster_frontier(entries):

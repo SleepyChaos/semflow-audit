@@ -116,7 +116,11 @@ def call_context(service, context, step, steps):
             final_only,
             navigation_enabled(service._kernel),
             source_review=getattr(service._kernel.spec.inputs.policy, "scheduler", None)
-            == "evidence_v3",
+            == "evidence_v3"
+            or any(
+                prompt.role == "review" and prompt.version == "13"
+                for prompt in getattr(service._kernel.spec, "prompts", ())
+            ),
         ),
     )
 

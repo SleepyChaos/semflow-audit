@@ -59,6 +59,7 @@ class DiscoveryOptions(Contract):
     isolate_scout_findings: bool | None = None
     source_balanced_review: bool = True
     review_scheduler: Literal["evidence_v3"] | None = None
+    review_batch_packing: Literal["shared_source"] | None = None
     review_evidence_intake: Literal["legacy", "linked"] | None = None
     batch_size: int = Field(default=2, ge=1)
     max_batches: int = Field(default=1, ge=0)
@@ -174,11 +175,16 @@ def _review_policy(options):
             "invalid_contract",
             "Independent refutations require navigated review method 12",
         )
+    if options.review_batch_packing and options.review_scheduler != "evidence_v3":
+        raise ResearchError(
+            "invalid_contract", "Shared source batches require the evidence scheduler"
+        )
     return ReviewPolicy(
         version=("4" if options.strict_refutations else "3") if navigated else "1",
         scheduler=options.review_scheduler
         or ("clustered_v2" if options.source_balanced_review else None),
         evidence_intake=options.review_evidence_intake,
+        batch_packing=options.review_batch_packing,
         batch_size=options.batch_size,
         max_batches=options.max_batches,
         supplement_insufficient=options.supplement_insufficient,

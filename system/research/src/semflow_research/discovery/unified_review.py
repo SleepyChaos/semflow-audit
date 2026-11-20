@@ -99,6 +99,13 @@ class UnifiedReview:
             )
         )
         ranked = [entry for batch in schedule for entry in batch]
+        packing = _kernel.spec.inputs.policy.batch_packing
+        if evidence_mode and packing == "shared_source":
+            from semflow_research.discovery.review_scheduling import (
+                shared_source_batches,
+            )
+
+            schedule = shared_source_batches(ranked, self.inputs.batch_size)
         schedule = fit_batches(
             self,
             schedule,
@@ -176,6 +183,7 @@ class UnifiedReview:
                     ],
                     "batch_limit": self.inputs.max_batches,
                     "scheduled_batches": len(schedule),
+                    **({"batch_packing": packing} if evidence_mode and packing else {}),
                     **(
                         {"scheduler": scheduler, "decisions": decisions}
                         if source_balanced

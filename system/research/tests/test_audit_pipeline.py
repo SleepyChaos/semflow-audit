@@ -108,6 +108,35 @@ def test_review_frontier_rotates_across_origins_modules_and_risk_families():
     assert frontier.previous_ranks["bad"] > 0
 
 
+def test_shared_source_batches_keep_distinct_paths_and_preserve_frontier_anchor_order():
+    def located(identifier, module, family, line):
+        row = static_entry(identifier, module, family)
+        row["location"]["line"] = line
+        return row
+
+    anchor = located("anchor", "a", "risk-a", 15)
+    nearby = located("nearby", "a", "risk-a", 31)
+    different_rule = located("different", "a", "risk-b", 18)
+    other_file = located("other", "b", "risk-a", 27)
+    far = located("far", "a", "risk-a", 67)
+    ranked = [anchor, different_rule, other_file, far, nearby]
+    groups = review_scheduling.shared_source_batches(ranked, 6)
+    assert [[r["candidate_id"] for r in group] for group in groups] == [
+        ["anchor", "nearby"],
+        ["different"],
+        ["other"],
+        ["far"],
+    ]
+    assert [r["candidate_id"] for r in ranked] == [
+        "anchor",
+        "different",
+        "other",
+        "far",
+        "nearby",
+    ]
+    assert review_scheduling.shared_source_batches(ranked, 1) == [[r] for r in ranked]
+
+
 def test_scout_budget_leaves_review_capacity_without_increasing_parent_budget():
     from semflow_research.runtime.calls import _scout_limits
 
