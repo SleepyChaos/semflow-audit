@@ -61,6 +61,62 @@ def test_cross_execution_artifacts_require_exact_explicit_upstream(research_case
         authorized.read(ref.model_copy(update={"artifact_id": uuid4()}))
 
 
+def test_callers_file_scope_and_invalid_arguments_do_not_abort_review(tmp_path):
+    import json
+    from types import SimpleNamespace
+
+    from semflow_research.discovery.review_tools import gather_review_tool
+    from semflow_research.evidence.evidence import EvidenceService
+
+    root = tmp_path.resolve()
+    src = root / "src"
+    src.mkdir()
+    for name in ("src/handler.py", "src/second.py", "unselected.py"):
+        (root / name).write_text("observe()\n", encoding="utf-8")
+    ev = object.__new__(EvidenceService)
+    ev.root = root
+    ev.paths = ["src"]
+    ev._kernel = SimpleNamespace(spec=SimpleNamespace(inputs=SimpleNamespace()))
+    ev.source_context = SimpleNamespace(language="python")
+    ev.record = lambda kind, content, reference: {
+        "id": str(uuid4()),
+        "kind": kind,
+        "content": content,
+        "reference": reference,
+    }
+    service = SimpleNamespace(
+        evidence=ev,
+        _kernel=ev._kernel,
+        execution_id="test",
+        repository=SimpleNamespace(
+            active=lambda _: None,
+            get=lambda _: SimpleNamespace(result={}),
+            update=lambda *args, **kwargs: None,
+        ),
+        inputs=SimpleNamespace(max_context_chars=35000),
+    )
+    context = {"evidence": [], "tool_trace": [], "anchors": []}
+
+    def call(arguments):
+        return gather_review_tool(
+            service,
+            context,
+            {"name": "callers", "arguments": arguments},
+            _kernel=ev._kernel,
+        )
+
+    valid = call({"symbol": "observe", "file": "src/handler.py"})
+    assert [row["file"] for row in json.loads(valid["evidence"][0]["content"])] == [
+        "src/handler.py"
+    ]
+    denied = call({"symbol": "observe", "file": "unselected.py"})
+    assert denied["latest_tool_observation"]["reason"] == "scope_error"
+    assert not denied["evidence"]
+    malformed = call({"symbol": "observe", "unexpected": True})
+    assert malformed["latest_tool_observation"]["status"] == "invalid_arguments"
+    assert not malformed["evidence"]
+
+
 def test_artifact_tampering_is_detected_and_never_overwritten(research_case):
     case = research_case
     ref = case.artifacts.commit(b"original", kind="patch", schema_version="test/1")

@@ -2,9 +2,9 @@
 
 Runtime dependencies are passed explicitly; no platform ORM or configuration.
 Changes to JSON require checking the corresponding semflow_contracts/wire peer.
-"""
 
-"""Scope-checked paged source reads and recoverable tool observations."""
+Scope-checked paged source reads and recoverable tool observations."""
+
 import json
 
 from semflow_research.adapters.source_text import read_source_text
@@ -22,6 +22,11 @@ SOURCE_TOOL_CONTRACT = {
         "max_lines": 151,
         "start_line_min": 1,
         "pagination": "Large requests return the first page and next_start_line; request remaining pages explicitly",
+    },
+    "callers": {
+        "arguments": ["symbol", "file (optional)"],
+        "file_scope": "If supplied, search only this authorized source file. Omit for all authorized sources.",
+        "meaning": "Call sites are syntax clues, not verified call graph edges.",
     },
     "security": "Scope/path violations are rejected; parameter errors never imply safe source",
 }
@@ -93,6 +98,42 @@ def gather_review_tool(service, context, call, *, _kernel):
                     "instruction": "Use search_source with text and optional file_pattern.",
                 },
             }
+    if call["name"] == "callers":
+        args = call["arguments"]
+        symbol, file = args.get("symbol"), args.get("file")
+        if (
+            not isinstance(symbol, str)
+            or not symbol.strip()
+            or len(symbol) > 200
+            or (
+                file is not None
+                and (not isinstance(file, str) or not file or len(file) > 1024)
+            )
+            or set(args) - {"symbol", "file"}
+        ):
+            return {
+                **context,
+                "latest_tool_observation": {
+                    "status": "invalid_arguments",
+                    "requested": requested,
+                    "instruction": "Use callers with a symbol and an optional checked relative file.",
+                },
+            }
+        if file is not None:
+            try:
+                path = service.evidence.allowed(file)
+                if not path.is_file():
+                    raise AuditError(
+                        "Caller search requires a source file",
+                        code="source_unavailable",
+                    )
+            except (AuditError, OSError) as error:
+                if getattr(error, "code", None) in {
+                    "identity_error",
+                    "integrity_error",
+                }:
+                    raise
+                return _unavailable_source(service, context, requested, file, error)
     if call["name"] == "read_source":
         args = dict(call["arguments"])
         try:

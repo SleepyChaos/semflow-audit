@@ -238,36 +238,60 @@ class EvidenceService:
             },
         )
 
-    def callers(self, symbol: str) -> dict:
-        if self.source_context.language != "python":
+    def callers(self, symbol: str, *, file: str | None = None) -> dict:
+        python = self.source_context.language == "python"
+        if not python and file is None:
             result = self.search(symbol + "(")
             result["semantic_limit"] = "Lexical matches only, not resolved call edges"
             return result
+        paths = (self.allowed(file),) if file is not None else self.files()
         matches = []
-        for path in self.files():
+        for candidate in paths:
             try:
-                tree = ast.parse(read_source_text(path))
-            except (SyntaxError, UnicodeError):
-                continue
-            for node in ast.walk(tree):
-                if isinstance(node, ast.Call):
-                    name = ast.unparse(node.func)
+                path = self.allowed(candidate.relative_to(self.root).as_posix())
+                if not path.is_file() or path.stat().st_size > 1024 * 1024:
+                    continue
+                source = read_source_text(path)
+                if python:
+                    sites = (
+                        (n.lineno, ast.unparse(n.func))
+                        for n in ast.walk(ast.parse(source))
+                        if isinstance(n, ast.Call)
+                    )
+                else:
+                    sites = (
+                        (n, symbol)
+                        for n, line in enumerate(source.splitlines(), 1)
+                        if symbol + "(" in line
+                    )
+                for line, name in sites:
                     if name == symbol or name.endswith("." + symbol):
                         matches.append(
                             {
                                 "file": path.relative_to(self.root).as_posix(),
-                                "line": node.lineno,
+                                "line": line,
                                 "callee": name,
                             }
                         )
+                        if len(matches) == 40:
+                            break
+            except (OSError, SyntaxError, UnicodeError, ValueError, RecursionError):
+                continue
+            if len(matches) == 40:
+                break
         import json
 
         return self.record(
             "callers",
-            json.dumps(matches[:40]),
+            json.dumps(matches),
             {
                 "symbol": symbol,
-                "semantic_limit": "Syntactic Python call sites, not resolved dispatch",
+                **({"file": file} if file is not None else {}),
+                "semantic_limit": (
+                    "Syntactic Python call sites, not resolved dispatch"
+                    if python
+                    else "Lexical matches only, not resolved call edges"
+                ),
             },
         )
 
