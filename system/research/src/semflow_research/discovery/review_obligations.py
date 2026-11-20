@@ -220,6 +220,7 @@ def verify_obligations(
         and assessment.assessment == "excluded"
         and not any(o["status"] == "refuted" for o in obligations)
     )
+    shell_mode = witness.shell_selection
     if unsupported or unrefuted:
         assessment.assessment = "insufficient"
         assessment.reason = (
@@ -227,6 +228,8 @@ def verify_obligations(
             if unrefuted
             else "宿主确认被调用函数的已核验实现没有所称效果，其他必要条件仍待验证。"
             if any(o["status"] == "refuted" for o in obligations)
+            else "源码核对显示调用采用关闭 shell 的参数设置。现有证据未证明所称的 shell 解释行为，其他参数解释风险仍待验证。"
+            if shell_mode in {"default_off", "explicit_off"}
             else "源码引用已核对，当前证据仍无法独立证明报告中的关键程序行为。"
         )
         assessment.missing_premises = list(
@@ -256,6 +259,26 @@ def verify_obligations(
             for obligation in obligations
             if obligation["status"] == "supported"
         ][:12]
+    if shell_mode is not None:
+        wording = {
+            "explicit_on": "The cited subprocess.run call explicitly selects shell=True.",
+            "explicit_off": "The cited subprocess.run call explicitly selects shell=False.",
+            "default_off": "The cited call supplies no shell keyword or keyword expansion. Under the standard subprocess.run binding its default is shell=False.",
+        }
+        obligations.append(
+            {
+                "role": "process_shell_mode",
+                "security_property": assessment.security_property,
+                "required_fact": "Establish the shell option selected at the observed call site.",
+                "status": "supported",
+                "evidence_ids": list(witness.refs),
+                "counterevidence_ids": [],
+                "verifier": "python_subprocess_call_option",
+                "detail": wording[shell_mode]
+                + " This does not prove argument interpretation, reachability, or the candidate verdict.",
+                "next_action": None,
+            }
+        )
     return obligations
 
 

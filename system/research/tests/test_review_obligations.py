@@ -125,6 +125,93 @@ def test_runtime_label_does_not_hide_local_configuration(tmp_path):
     assert any(g.gap_type == "runtime" for g in plan.gaps)
 
 
+def test_process_shell_selection_is_cited_without_confirming_a_flow(tmp_path):
+    for argument, expected in (
+        ("", "default_off"),
+        (", shell=False", "explicit_off"),
+        (", shell=True", "explicit_on"),
+        (", **options", None),
+    ):
+        call = 'subprocess.run(["example"]' + argument + ")"
+        source = "import subprocess\n\ndef invoke(options):\n    " + call + "\n"
+        ev = workspace(tmp_path, {"proc.py": source})
+        cited = page("proc.py", source)
+        target = {"file": "proc.py", "line": 4}
+        result = inspect_behavior(
+            ev, target, [cited], call, "input_injection", "CWE-78"
+        )
+        assert result.shell_selection == expected
+        assert not result.direct_flow and result.effect == "unverified"
+        if expected:
+            assert result.refs == (cited["id"],)
+        no_import_page = {
+            **cited,
+            "reference": {"file": "proc.py", "start_line": 4, "end_line": 4},
+            "content": "    " + call,
+        }
+        assert (
+            inspect_behavior(
+                ev, target, [no_import_page], call, "input_injection", "CWE-78"
+            ).shell_selection
+            is None
+        )
+
+    shadow = "import subprocess\n\ndef invoke(subprocess):\n    subprocess.run(['example'])\n"
+    ev = workspace(tmp_path, {"proc.py": shadow})
+    assert (
+        inspect_behavior(
+            ev,
+            {"file": "proc.py", "line": 4},
+            [page("proc.py", shadow)],
+            "subprocess.run(['example'])",
+            "input_injection",
+            "CWE-78",
+        ).shell_selection
+        is None
+    )
+
+
+def test_shell_option_observation_does_not_turn_a_candidate_into_a_verdict(tmp_path):
+    from semflow_research.discovery.review_obligations import verify_obligations
+
+    source = (
+        "import subprocess\n\ndef invoke(parameters):\n    subprocess.run(parameters)\n"
+    )
+    ev = workspace(tmp_path, {"proc.py": source})
+    cited = page("proc.py", source)
+    assessment = SimpleNamespace(
+        weakness="CWE-78",
+        security_property="input_injection",
+        premises=[
+            SimpleNamespace(
+                premise="operation",
+                quote="subprocess.run(parameters)",
+                reason="A real source call is cited.",
+                evidence_ids=[cited["id"]],
+            )
+        ],
+        assessment="supported",
+        detail=SimpleNamespace(),
+        evidence_gaps=[],
+        missing_premises=[],
+        runtime_unknowns=[],
+    )
+    obligations = verify_obligations(
+        SimpleNamespace(evidence=ev),
+        assessment,
+        {"location": {"file": "proc.py", "line": 4}},
+        [cited],
+        require_refutation=True,
+    )
+    assert assessment.assessment == "insufficient"
+    assert (
+        next(x for x in obligations if x["role"] == "effect")["status"] == "unverified"
+    )
+    observed = next(x for x in obligations if x["role"] == "process_shell_mode")
+    assert observed["status"] == "supported"
+    assert observed["evidence_ids"] == [cited["id"]]
+
+
 def test_imported_stub_requires_cited_body_and_ignores_dynamic_shadow(tmp_path):
     app = "from helper import Writer\n\ndef endpoint(value):\n    Writer.emit(value)\n"
     helper = "class Writer:\n    @staticmethod\n    def emit(value):\n        pass\n"

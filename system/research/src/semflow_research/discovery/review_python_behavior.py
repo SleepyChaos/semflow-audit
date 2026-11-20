@@ -7,6 +7,7 @@ from pathlib import PurePosixPath
 from semflow_research.adapters.source_text import read_source_text
 
 from semflow_research.adapters.operation_evidence import normalize
+from semflow_research.discovery.review_process_observation import selection
 from semflow_research.domain.errors import AuditError
 
 
@@ -18,6 +19,7 @@ class BehaviorWitness:
     detail: str = "The observed syntax alone does not establish the claimed effect."
     target_path: str | None = None
     supported_roles: tuple[str, ...] = ()
+    shell_selection: str | None = None
 
 
 def inspect_behavior(
@@ -81,6 +83,14 @@ def inspect_behavior(
     caller_refs = _covering(pages, file, call.lineno, call.end_lineno)
     if not caller_refs:
         return BehaviorWitness()
+    if weakness in {"CWE-77", "CWE-78"} and (mode := selection(tree, call)):
+        name, declaration_line = mode
+        declaration_refs = _covering(pages, file, declaration_line, declaration_line)
+        if declaration_refs:
+            return BehaviorWitness(
+                refs=tuple(dict.fromkeys((*caller_refs, *declaration_refs))),
+                shell_selection=name,
+            )
     resolved = _resolve_local(evidence, file, tree, scope, call)
     if resolved is None:
         return BehaviorWitness()
