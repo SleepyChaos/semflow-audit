@@ -52,6 +52,14 @@ def dotted(node):
     return ""
 
 
+def declaration_span(node):
+    """Keep the declaration and its decorators in the same source range."""
+    return (
+        min((item.lineno for item in node.decorator_list), default=node.lineno),
+        node.end_lineno or node.lineno,
+    )
+
+
 class FunctionIndex(ast.NodeVisitor):
     def __init__(self, tree):
         self.scope = []
@@ -78,13 +86,12 @@ class FunctionIndex(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         self.scope.append(node.name)
         outer = self.current
+        start, end = declaration_span(node)
         row = {
             "name": node.name,
             "qualified_name": ".".join(self.scope),
-            "start_line": min(
-                (p.lineno for p in node.decorator_list), default=node.lineno
-            ),
-            "end_line": node.end_lineno,
+            "start_line": start,
+            "end_line": end,
             "locally_called": [],
             "call_hints": [],
         }

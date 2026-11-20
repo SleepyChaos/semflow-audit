@@ -13,6 +13,15 @@ from semflow_contracts.common import canonical_bytes, digest
 from semflow_contracts.errors import ResearchError
 
 
+def _scout_limits(policy):
+    """Reserve the last quarter for source review under the opt-in planner."""
+    return {
+        key: (total - max(1, total // 4)) if total is not None else None
+        for key, total in policy.items()
+        if key in {"max_calls", "max_tokens", "max_seconds"}
+    }
+
+
 class CallJournal:
     def __init__(self, ledger, owner_id: UUID, execution_id: UUID):
         self.ledger, self.owner_id, self.execution_id = ledger, owner_id, execution_id
@@ -48,6 +57,14 @@ class CallJournal:
 
                 require_binding(ledger, db, owner_id, execution_id)
             self.policy = owner_spec["policy"]
+            review = owner_spec["inputs"].get("review") or {}
+            self.scout_limits = (
+                _scout_limits(self.policy)
+                if owner_id != execution_id
+                and member_spec["operation"] == "scout"
+                and review.get("scheduler") == "evidence_v3"
+                else None
+            )
             self.method_call_limit = (
                 member_spec["inputs"]["method_policy"].get("model_call_limit")
                 if member_spec["module"] == "repair"
@@ -111,7 +128,7 @@ class CallJournal:
                     if all(type(value) is int and value >= 0 for value in actual)
                     else row["reserved_tokens"]
                 )
-            limits = self.policy
+            limits = self.scout_limits or self.policy
             exceeded = (
                 limits["max_calls"] is not None
                 and len(rows) + 1 > limits["max_calls"]
@@ -125,7 +142,9 @@ class CallJournal:
             if exceeded:
                 raise ResearchError(
                     "budget_exhausted",
-                    "Shared execution call/token/time budget exhausted",
+                    "Scout share exhausted; remaining quota reserved for review"
+                    if self.scout_limits
+                    else "Shared execution call/token/time budget exhausted",
                 )
             db.execute(
                 "INSERT INTO model_calls VALUES(?,?,?,?,?,?,?,NULL)",
@@ -141,10 +160,10 @@ class CallJournal:
             )
             remaining = (
                 limits["max_seconds"] - (now - budget["started_at"])
-                if limits["max_seconds"]
+                if limits["max_seconds"] is not None
                 else float("inf")
             )
-            return min(limits["per_call_timeout_seconds"], remaining)
+            return min(self.policy["per_call_timeout_seconds"], remaining)
 
     def finish(self, call_id: UUID, receipt: dict, *, outcome: str):
         if outcome not in {"known", "unknown"}:

@@ -289,7 +289,12 @@ class CompatibleModel:
                     )
 
                     recovered = recover_scout_format(
-                        completion.choices[0].message.content or "", schema, exc
+                        completion.choices[0].message.content or "",
+                        schema,
+                        exc,
+                        isolate_findings=bool(
+                            _kernel.spec.inputs.window_policy.isolate_findings
+                        ),
                     )
                     if recovered is not None:
                         result = recovered.response

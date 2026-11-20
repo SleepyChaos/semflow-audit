@@ -2,9 +2,9 @@
 
 Runtime dependencies are passed explicitly; no platform ORM or configuration.
 Changes to JSON require checking the corresponding semflow_contracts/wire peer.
-"""
 
-"""Bounded independent discovery with explicit source coverage and immutable attempts."""
+Bounded independent discovery with explicit source coverage and immutable attempts."""
+
 import json
 from datetime import UTC
 
@@ -96,6 +96,12 @@ class ScoutService:
                     else "balanced",
                     scheduling_profile=self.inputs.scheduling_profile,
                     index_functions=_kernel.spec.inputs.window_policy.version == "2",
+                    coverage_windows=(
+                        self.inputs.max_units
+                        if _kernel.spec.inputs.window_policy.ordering
+                        == "coverage_aware"
+                        else None
+                    ),
                     risk_aware=(
                         _kernel.spec.inputs.window_policy.ordering == "risk_aware"
                         if _kernel.spec.inputs.window_policy.ordering is not None

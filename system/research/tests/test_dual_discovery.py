@@ -139,10 +139,12 @@ def model(monkeypatch):
             usage={"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150},
         )
 
-    factory = lambda **kwargs: SimpleNamespace(
-        chat=SimpleNamespace(completions=SimpleNamespace(create=create)),
-        base_url="http://scripted.invalid/v1",
-    )
+    def factory(**kwargs):
+        return SimpleNamespace(
+            chat=SimpleNamespace(completions=SimpleNamespace(create=create)),
+            base_url="http://scripted.invalid/v1",
+        )
+
     monkeypatch.setattr("semflow_research.adapters.ai.provider.OpenAI", factory)
     return calls
 
@@ -295,6 +297,80 @@ def test_child_review_cannot_reset_parent_model_budget(
         any("budget" in reason.lower() for reason in result.completeness.reasons)
         or result.result.coverage.unreviewed_candidate_refs
     )
+
+
+def test_evidence_scheduler_uses_reserved_model_call_for_review(
+    research_case, settings, scanner, model
+):
+    original = make_dual(research_case, settings, required=("scan",), max_calls=1)
+    value = original.model_dump(mode="json")
+    value["inputs"]["review"]["scheduler"] = "evidence_v3"
+    spec = validate_spec(value)
+    context = prepare(spec, root=research_case.ledger.root, settings=settings)
+    result = execute(spec, context)
+    assert result.execution_status == "completed"
+    assert result.usage.calls == len(model) == 1
+    assert len(model[0]["targets"]) == 1
+    assert model[0]["targets"][0]["evidence_ids"]
+    review = context.executions.inspect(child_id(spec.execution_id, "review"))
+    assert review is not None and review.execution_status == "completed"
+    view = read_output(context, review)
+    _, assessments = resolve_bundle(view, review.result.assessments, AssessmentBundle)
+    assert [r.conclusion for r in assessments.records] == ["insufficient"]
+
+
+def test_unavailable_alert_does_not_stop_independent_review(
+    research_case, settings, scanner, model, monkeypatch
+):
+    from copy import deepcopy
+
+    from semflow_research.adapters.codeql.scanner import CodeQLScanner
+    from semflow_research.domain.errors import AuditError
+    from semflow_research.evidence.evidence import EvidenceService
+    from semflow_research.runtime.sources import capture
+
+    case = research_case
+    (case.source / "unreadable.py").write_text("value = 1\n", encoding="utf-8")
+    snapshot = capture(case.source, artifacts=case.artifacts, languages=("python",))
+    analyze = CodeQLScanner.analyze
+    original_read = EvidenceService.read
+
+    def two_alerts(self, database, output, log, plan):
+        analyze(self, database, output, log, plan)
+        sarif = json.loads(output.read_bytes())
+        rows = sarif["runs"][0]["results"]
+        unreadable = deepcopy(rows[0])
+        unreadable["locations"][0]["physicalLocation"]["artifactLocation"]["uri"] = (
+            "unreadable.py"
+        )
+        rows.append(unreadable)
+        output.write_text(json.dumps(sarif), encoding="utf-8")
+
+    def selective_read(self, file, *args, **kwargs):
+        if file == "unreadable.py" and self._kernel.spec.operation == "review":
+            raise AuditError("Source encoding unavailable", code="source_unreadable")
+        return original_read(self, file, *args, **kwargs)
+
+    monkeypatch.setattr(CodeQLScanner, "analyze", two_alerts)
+    monkeypatch.setattr(EvidenceService, "read", selective_read)
+    value = make_dual(case, settings).model_dump(mode="json")
+    value["source"] = snapshot.model_dump(mode="json")
+    value["inputs"]["review"]["scheduler"] = "evidence_v3"
+    spec = validate_spec(value)
+    context = prepare(spec, root=case.ledger.root, settings=settings)
+    result = execute(spec, context)
+    assert result.execution_status == "completed"
+    review = context.executions.inspect(child_id(spec.execution_id, "review"))
+    assert review.execution_status == "completed"
+    from semflow_research.public.discovery_results import read_result
+
+    published = read_result(review.execution_id, root=case.ledger.root)
+    records = {row.location.path: row for row in published.review_report.records}
+    assert records["unreadable.py"].execution_state == "not_scheduled"
+    assert records["unreadable.py"].stop_code == "source_unavailable"
+    assert records["unreadable.py"].assessment is None
+    assert records["app.py"].assessment.conclusion == "insufficient"
+    assert len(published.candidates) == 3
 
 
 def test_review_scope_omissions_remain_original_unreviewed_candidates(

@@ -26,8 +26,17 @@ def candidate_handoffs(entries, result, *, directory=None, evidence=None):
         for candidate_id in attempt["candidate_ids"]:
             attempts[candidate_id].append(attempt)
 
-    scheduled = result.get("schedule", {}).get("candidate_ids")
+    schedule = result.get("schedule", {})
+    scheduled = schedule.get("candidate_ids")
     scheduled = None if scheduled is None else set(scheduled)
+    dispositions = (
+        {
+            row["candidate_id"]: row["disposition"]
+            for row in schedule.get("decisions", [])
+        }
+        if schedule.get("scheduler") == "evidence_v3"
+        else {}
+    )
     return [
         _handoff(
             entry,
@@ -35,6 +44,7 @@ def candidate_handoffs(entries, result, *, directory=None, evidence=None):
             attempts[entry["candidate_id"]],
             scheduled,
             result.get("stop_reason"),
+            disposition=dispositions.get(entry["candidate_id"]),
             directory=directory,
             evidence=evidence,
             previous=result.get("review_continuation", {}),
@@ -44,7 +54,16 @@ def candidate_handoffs(entries, result, *, directory=None, evidence=None):
 
 
 def _handoff(
-    entry, batches, attempts, scheduled, stop_reason, *, directory, evidence, previous
+    entry,
+    batches,
+    attempts,
+    scheduled,
+    stop_reason,
+    *,
+    disposition,
+    directory,
+    evidence,
+    previous,
 ):
     candidate_id = entry["candidate_id"]
     assessments = [
@@ -73,6 +92,8 @@ def _handoff(
     state, cause = _disposition(
         conclusion, rejected, batches, scheduled, candidate_id, stop_reason
     )
+    if not batches and disposition in {"source_unavailable", "exact_static_duplicate"}:
+        cause = disposition
     guidance = {}
     if directory is not None and evidence is not None:
         seen = [

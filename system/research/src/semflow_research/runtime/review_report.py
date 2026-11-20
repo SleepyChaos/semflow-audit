@@ -23,7 +23,7 @@ def _execution_state(row, assessment, batches):
     cause = row["reason_code"]
     if assessment is not None:
         return "partial" if any(b.get("code") for b in batches) else "completed"
-    if cause == "outside_batch_limit":
+    if cause in {"outside_batch_limit", "source_unavailable", "exact_static_duplicate"}:
         return "not_scheduled"
     if cause in _INTERRUPTED:
         return "interrupted"

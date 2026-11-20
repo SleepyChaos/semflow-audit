@@ -241,10 +241,12 @@ def verify_obligations(
                 ]
             )
         )[:12]
-        assessment.detail.exploitation.status = "missing_preconditions"
-        assessment.detail.exploitation.example = ""
-        assessment.detail.exploitation.steps = []
-        assessment.detail.exploitation.expected_result = assessment.reason
+        example = getattr(assessment.detail, "exploitation", None)
+        if example is not None:
+            example.status = "missing_preconditions"
+            example.example = ""
+            example.steps = []
+            example.expected_result = assessment.reason
         assessment.detail.title = "待核验的安全候选"
         assessment.detail.description = assessment.reason
         assessment.detail.impact = "所报告的安全影响取决于尚未核验的成立条件。"

@@ -2,9 +2,9 @@
 
 Runtime dependencies are passed explicitly; no platform ORM or configuration.
 Changes to JSON require checking the corresponding semflow_contracts/wire peer.
-"""
 
-"""Bounded review/tool execution and supplementation for one durable candidate batch."""
+Bounded review/tool execution and supplementation for one durable candidate batch."""
+
 import json
 from copy import deepcopy
 
@@ -34,7 +34,14 @@ SEMANTIC_VERSIONS = frozenset({"8", "9", "10", "11", "12"})
 MODERN_VERSIONS = SEMANTIC_VERSIONS | {"5", "6", "7"}
 
 
-def response_schema(version, final_only, navigation=False):
+def response_schema(version, final_only, navigation=False, source_review=False):
+    if source_review and version == "12":
+        from semflow_contracts.modelio.review_presentation import (
+            FinalSourceReviewResponse,
+            SourceReviewResponse,
+        )
+
+        return FinalSourceReviewResponse if final_only else SourceReviewResponse
     if navigation:
         from semflow_contracts.modelio.review_presentation import (
             FinalNavigatedReviewResponse,
@@ -104,7 +111,13 @@ def call_context(service, context, step, steps):
 
     return (
         context,
-        response_schema(version, final_only, navigation_enabled(service._kernel)),
+        response_schema(
+            version,
+            final_only,
+            navigation_enabled(service._kernel),
+            source_review=getattr(service._kernel.spec.inputs.policy, "scheduler", None)
+            == "evidence_v3",
+        ),
     )
 
 

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
 
+from semflow_research.adapters.source_functions import declaration_span
 from semflow_research.adapters.source_text import read_source_text
 from time import monotonic
 
@@ -262,12 +263,13 @@ def _python_definitions(query: str, source: str):
         return
     for node in ast.walk(tree):
         if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+            start, end = declaration_span(node)
             if node.name == query:
-                yield node.lineno, node.end_lineno or node.lineno, "syntax_definition"
+                yield start, end, "syntax_definition"
             elif node.name.endswith("_" + query):
                 # A route may name a decorated handler differently. A suffix
                 # match is a navigation candidate, never proof of dispatch.
-                yield node.lineno, node.end_lineno or node.lineno, "related_definition"
+                yield start, end, "related_definition"
     for node in tree.body:
         names = (
             node.targets

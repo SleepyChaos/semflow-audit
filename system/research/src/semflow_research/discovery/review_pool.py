@@ -2,9 +2,9 @@
 
 Runtime dependencies are passed explicitly; no platform ORM or configuration.
 Changes to JSON require checking the corresponding semflow_contracts/wire peer.
-"""
 
-"""Persistent candidate inputs and small cohorts; no trust in scout conclusions."""
+Persistent candidate inputs and small cohorts; no trust in scout conclusions."""
+
 import json
 from uuid import UUID
 
@@ -16,7 +16,33 @@ from semflow_research.evidence.context_materials import (
     save_json,
 )
 from semflow_research.evidence.read_tools import project_documents, window_observations
-from semflow_research.state.models import Candidate, ExecutionRecord
+from semflow_research.state.models import Candidate, Evidence, ExecutionRecord
+
+
+def original_source_page(db, service, source_ref, location):
+    # The native import verified the prior snapshot, exact ranges and producer
+    # identity. Keep that source reference in the report without treating it
+    # as a successful new read or allowing the blocked target into the model.
+    original = db.get(Candidate, source_ref.entity_id) if source_ref else None
+    snapshot = service.evidence.source_context.snapshot_hash
+    for identifier in original.evidence_ids if original else ():
+        page = db.get(Evidence, UUID(identifier))
+        if (
+            page is not None
+            and page.kind == "code"
+            and page.snapshot_id == original.snapshot_id
+            and page.snapshot_hash == snapshot
+            and page.reference["file"] == location["file"]
+            and page.reference["start_line"]
+            <= location["line"]
+            <= page.reference["end_line"]
+        ):
+            from hashlib import sha256
+
+            if sha256(page.content.encode()).hexdigest() != page.digest:
+                raise AuditError("原始引用内容摘要不匹配", code="integrity_error")
+            return service.evidence.record(page.kind, page.content, page.reference)
+    raise AuditError("缺少已验证的原始告警源码引用", code="integrity_error")
 
 
 def prepare_pool(service, *, _kernel):
@@ -36,8 +62,11 @@ def prepare_pool(service, *, _kernel):
             if not set(inputs.finding_ids).issubset({r["id"] for r in findings}):
                 raise AuditError("复核告警不属于当前审计")
             findings = [r for r in findings if r["id"] in inputs.finding_ids]
+        isolate_source = _kernel.spec.inputs.policy.scheduler == "evidence_v3"
         for finding in findings:
             location = finding["locations"][0]
+            source_error = None
+            source_ref = audit.finding_candidate_refs.get(finding["id"])
             try:
                 source = (
                     continuation["anchor"]
@@ -48,15 +77,30 @@ def prepare_pool(service, *, _kernel):
                         location["line"] + 12,
                     )
                 )
-            except AuditError:
-                if inputs.paths and (not inputs.finding_ids):
+            except (AuditError, OSError, UnicodeError) as exc:
+                if isinstance(exc, AuditError) and exc.code in {
+                    "integrity_error",
+                    "identity_error",
+                }:
+                    raise
+                if (
+                    inputs.paths
+                    and not inputs.finding_ids
+                    and (
+                        not isolate_source
+                        or getattr(exc, "code", None) == "scope_error"
+                    )
+                ):
                     continue
-                raise
+                if not isolate_source:
+                    raise
+                source = original_source_page(db, service, source_ref, location)
+                source_error = "source_unavailable"
             row = Candidate(
                 snapshot_id=audit.id,
                 execution_id=service.execution.id,
                 origin="static",
-                source_ref=audit.finding_candidate_refs.get(finding["id"]),
+                source_ref=source_ref,
                 static_finding_id=finding["id"],
                 identity_key="static:" + finding["id"],
                 novelty="baseline",
@@ -73,7 +117,8 @@ def prepare_pool(service, *, _kernel):
                     "static_alert": finding,
                     "location": location,
                     "hypothesis": finding["message"],
-                    "evidence_ids": [source["id"]],
+                    "evidence_ids": row.evidence_ids,
+                    **({"source_unavailable": source_error} if source_error else {}),
                 }
             )
         scouts = (
@@ -259,9 +304,11 @@ def fit_batches(service, schedule, *, _kernel, limit=0):
 def evidence_intake(policy):
     if policy.evidence_intake is not None:
         return policy.evidence_intake
-    return {"clustered_v2": "linked", "source_balanced_v1": "bounded"}.get(
-        policy.scheduler, "legacy"
-    )
+    return {
+        "clustered_v2": "linked",
+        "source_balanced_v1": "bounded",
+        "evidence_v3": "linked",
+    }.get(policy.scheduler, "legacy")
 
 
 def batch_context(service, entries, *, _kernel):
@@ -356,6 +403,22 @@ def batch_context(service, entries, *, _kernel):
                 ],
             }
             for r in entries
+        ]
+    if _kernel.spec.inputs.policy.scheduler == "evidence_v3":
+        # The immutable pool holds the full SARIF. Model context retains the
+        # alert's identity and source pages without retransmitting raw paths.
+        entries = [
+            {
+                **entry,
+                "static_alert": {
+                    key: alert[key]
+                    for key in ("id", "rule", "message", "security_severity", "tags")
+                    if key in alert
+                },
+            }
+            if (alert := entry.get("static_alert")) and linked
+            else entry
+            for entry in entries
         ]
     files = [
         p.relative_to(service.evidence.root).as_posix()

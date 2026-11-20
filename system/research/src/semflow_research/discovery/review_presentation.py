@@ -2,15 +2,22 @@
 
 Runtime dependencies are passed explicitly; no platform ORM or configuration.
 Changes to JSON require checking the corresponding semflow_contracts/wire peer.
-"""
 
-"""Narratives cannot claim deployed exploitation or cite unrelated/unread source."""
+Narratives cannot claim deployed exploitation or cite unrelated/unread source."""
+
 from semflow_research.domain.errors import AuditError
 
 
 def validate_detail(assessment, evidence, require_chinese=False):
     detail = assessment.detail
-    example = detail.exploitation
+    example = getattr(detail, "exploitation", None)
+    if example is None:
+        cited = list(dict.fromkeys([*assessment.evidence_ids, *detail.evidence_ids]))
+        evidence(cited)
+        if len(cited) > 30:
+            raise AuditError("候选证据过多，请聚焦本漏洞的实际证明路径")
+        assessment.evidence_ids = cited
+        return
     if require_chinese:
         import re
 

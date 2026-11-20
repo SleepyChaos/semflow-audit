@@ -2,9 +2,9 @@
 
 Runtime dependencies are passed explicitly; no platform ORM or configuration.
 Changes to JSON require checking the corresponding semflow_contracts/wire peer.
-"""
 
-"""Deterministic source inventory and balanced windows, without security anchors."""
+Deterministic source inventory and balanced windows, without security anchors."""
+
 import ast
 import hashlib
 from collections import defaultdict, deque
@@ -69,8 +69,9 @@ def build_project_map(
     scheduling_profile="full",
     risk_aware=False,
     index_functions=False,
+    coverage_windows=None,
 ) -> dict:
-    index_functions = index_functions or risk_aware
+    index_functions = index_functions or risk_aware or coverage_windows is not None
     rows, queues, skipped = ([], defaultdict(deque), [])
     operations = {}
     for path in evidence.files():
@@ -134,6 +135,10 @@ def build_project_map(
                     category(file), semantic=strategy == "business_semantic"
                 ),
             }
+            if coverage_windows is not None:
+                unit["source_characters"] = sum(
+                    len(line) + 1 for line in lines[start:end]
+                )
             if scheduling_profile == "runtime_first":
                 from semflow_research.adapters.scout_scheduling import focused_tasks
 
@@ -169,8 +174,12 @@ def build_project_map(
             depth[unit["id"]] = counts[unit["file"]]
             counts[unit["file"]] += 1
         units.sort(key=lambda u: (priority(u["file"]), depth[u["id"]], u["file"]))
-    if risk_aware:
+    if risk_aware or coverage_windows is not None:
         units = prioritize_windows(units, operations)
+    if coverage_windows is not None:
+        from semflow_research.adapters.scout_scheduling import coverage_order
+
+        units = coverage_order(units, rows, coverage_windows)
     documents = []
     for name in ("README.md", "pyproject.toml", "package.json", "requirements.txt"):
         path = evidence.root / name

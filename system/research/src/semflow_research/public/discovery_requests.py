@@ -53,8 +53,12 @@ class DiscoveryOptions(Contract):
     max_steps_per_window: int = Field(default=1, ge=1)
     max_branch_calls: int | None = Field(default=1, ge=1)
     risk_window_selection: bool = True
-    scout_window_ordering: Literal["legacy", "risk_aware"] | None = None
+    scout_window_ordering: Literal["legacy", "risk_aware", "coverage_aware"] | None = (
+        None
+    )
+    isolate_scout_findings: bool | None = None
     source_balanced_review: bool = True
+    review_scheduler: Literal["evidence_v3"] | None = None
     review_evidence_intake: Literal["legacy", "linked"] | None = None
     batch_size: int = Field(default=2, ge=1)
     max_batches: int = Field(default=1, ge=0)
@@ -150,9 +154,12 @@ def _scout_inputs(options):
         window_lines=options.window_lines,
         window_policy=WindowPolicy(
             version="2"
-            if options.risk_window_selection or options.scout_window_ordering
+            if options.risk_window_selection
+            or options.scout_window_ordering
+            or options.isolate_scout_findings
             else "1",
             ordering=options.scout_window_ordering,
+            isolate_findings=options.isolate_scout_findings,
             max_windows=options.max_windows,
             max_steps_per_window=options.max_steps_per_window,
             max_calls=options.max_branch_calls,
@@ -169,7 +176,8 @@ def _review_policy(options):
         )
     return ReviewPolicy(
         version=("4" if options.strict_refutations else "3") if navigated else "1",
-        scheduler="clustered_v2" if options.source_balanced_review else None,
+        scheduler=options.review_scheduler
+        or ("clustered_v2" if options.source_balanced_review else None),
         evidence_intake=options.review_evidence_intake,
         batch_size=options.batch_size,
         max_batches=options.max_batches,
@@ -215,7 +223,15 @@ def assemble_discovery(
         options.operation == "discover" and options.run_review
     ):
         prompts.append(
-            _prompt(root, execution_id, "review", options.review_prompt_version)
+            _prompt(
+                root,
+                execution_id,
+                "review",
+                13
+                if options.review_scheduler == "evidence_v3"
+                and options.review_method_version == "12"
+                else options.review_prompt_version,
+            )
         )
     model = options.model if options.operation != "scan" else None
     if options.operation == "scan":

@@ -2,9 +2,9 @@
 
 Runtime dependencies are passed explicitly; no platform ORM or configuration.
 Changes to JSON require checking the corresponding semflow_contracts/wire peer.
-"""
 
-"""Batched source verification of CodeQL alerts and independent scout hypotheses."""
+Batched source verification of CodeQL alerts and independent scout hypotheses."""
+
 from semflow_research.adapters.artifacts import ArtifactStore
 from semflow_research.discovery.review_pool import batches, fit_batches, pool_for_resume
 from semflow_research.domain.errors import (
@@ -49,22 +49,43 @@ class UnifiedReview:
             self, batch_id, entries, call_limit, feedback, _kernel=_kernel
         )
 
+    def record_progress(self, batch_id, entries, state, code=None):
+        current = self.repository.get(self.execution_id).result
+        events = current.get("review_progress", [])
+        event = {
+            "batch_id": batch_id,
+            "candidate_ids": [entry["candidate_id"] for entry in entries],
+            "state": state,
+            **({"code": code} if code else {}),
+        }
+        if event not in events:
+            self.repository.update(
+                self.execution_id,
+                result={**current, "review_progress": [*events, event]},
+            )
+
     def verify(self, state):
         _kernel = self._kernel
         pool = pool_for_resume(self, _kernel=_kernel)
         if digest(pool) != state["pool_hash"]:
             raise AuditError("复核候选池身份已变化")
         scheduler = _kernel.spec.inputs.policy.scheduler
-        source_balanced = scheduler in {"source_balanced_v1", "clustered_v2"}
+        evidence_mode = scheduler == "evidence_v3"
+        source_balanced = scheduler is not None
         frontier = None
-        if scheduler == "clustered_v2":
-            from semflow_research.discovery.review_scheduling import cluster_frontier
+        if scheduler in {"clustered_v2", "evidence_v3"}:
+            from semflow_research.discovery.review_scheduling import (
+                cluster_frontier,
+                evidence_frontier,
+            )
 
-            frontier = cluster_frontier(pool["entries"])
+            planner = evidence_frontier if evidence_mode else cluster_frontier
+            frontier = planner(pool["entries"])
+        size = 1 if evidence_mode else self.inputs.batch_size
         schedule = (
             [
-                list(frontier.ranked[i : i + self.inputs.batch_size])
-                for i in range(0, len(frontier.ranked), self.inputs.batch_size)
+                list(frontier.ranked[i : i + size])
+                for i in range(0, len(frontier.ranked), size)
             ]
             if frontier
             else batches(
@@ -120,6 +141,17 @@ class UnifiedReview:
                         else "outside_batch_limit",
                     }
                 )
+        if evidence_mode:
+            decisions.extend(
+                {
+                    "candidate_id": entry["candidate_id"],
+                    "original_rank": frontier.previous_ranks[entry["candidate_id"]],
+                    "rank": None,
+                    "disposition": entry["source_unavailable"],
+                }
+                for entry in pool["entries"]
+                if entry.get("source_unavailable")
+            )
         if frontier:
             for representative, members in frontier.clusters.items():
                 for identifier in members[1:]:
@@ -159,6 +191,8 @@ class UnifiedReview:
             current = self.repository.get(self.execution_id).result
             if batch_id in {r["batch_id"] for r in current.get("batches", [])}:
                 continue
+            if evidence_mode:
+                self.record_progress(batch_id, entries, "reviewing")
             try:
                 maximum = getattr(self.provider, "policy", {}).get("max_calls", 24)
                 available = maximum - self.provider.usage.get("calls", 0)
@@ -177,6 +211,13 @@ class UnifiedReview:
                 )
                 result = self.inspect_batch(batch_id, entries, call_limit)
                 save_json(self.directory / "batches" / batch_id / "result.json", result)
+                if evidence_mode:
+                    self.record_progress(
+                        batch_id,
+                        entries,
+                        result["status"],
+                        result.get("feedback_stop_code"),
+                    )
                 if result.get("feedback_stop_code") in {
                     "budget_exhausted",
                     "timeout",
@@ -207,6 +248,8 @@ class UnifiedReview:
                         "batches": [*current.get("batches", []), failed],
                     },
                 )
+                if evidence_mode:
+                    self.record_progress(batch_id, entries, "execution_failed", code)
                 if code in {
                     "budget_exhausted",
                     "timeout",
@@ -233,7 +276,7 @@ class UnifiedReview:
         if self.execution.method_version in {"8", "9", "10", "11", "12"}:
             from semflow_research.discovery.review_recovery import recover_unreviewed
 
-            if not stop_reason:
+            if not stop_reason and not evidence_mode:
                 recover_unreviewed(self, schedule)
         return {}
 
@@ -292,6 +335,11 @@ class UnifiedReview:
             "coverage_status": "partial" if uncovered else "completed",
             "snapshot_hash": self.evidence.source_context.snapshot_hash,
         }
+        if _kernel.spec.inputs.policy.scheduler == "evidence_v3":
+            final["schedule"] = {
+                **final.get("schedule", {}),
+                "events": result.get("review_progress", []),
+            }
         from semflow_research.discovery.review_handoff import candidate_handoffs
 
         # Peer: discovery_outputs exports this diagnostic field through DiscoveryTrace.

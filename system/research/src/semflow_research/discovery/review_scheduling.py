@@ -5,6 +5,7 @@ import re
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from math import isfinite
+from pathlib import PurePosixPath
 
 
 def cross_source_peers(entries):
@@ -156,6 +157,56 @@ class ReviewFrontier:
 def _risk_family(entry):
     alert = entry.get("static_alert") or {}
     return alert.get("rule") or entry.get("weakness") or "unclassified"
+
+
+def evidence_frontier(entries):
+    """Choose auditable representatives, rotating source, family and module."""
+    peers = cross_source_peers(entries)
+    original = [
+        e for batch in source_balanced_batches(entries, 1, peers=peers) for e in batch
+    ]
+    eligible = [entry for entry in original if not entry.get("source_unavailable")]
+    groups = cluster_alerts(eligible)
+    lanes = defaultdict(lambda: defaultdict(deque))
+    for group in groups:
+        entry = group[0]
+        lanes[entry["origin"]][_risk_family(entry)].append(entry)
+    active = deque(lanes.values())
+    visited_modules = set()
+    ranked = []
+    while active:
+        families = active.popleft()
+        family = next(iter(families))
+        queue = families.pop(family)
+        position = next(
+            (
+                i
+                for i, entry in enumerate(queue)
+                if _module(entry) not in visited_modules
+            ),
+            0,
+        )
+        queue.rotate(-position)
+        entry = queue.popleft()
+        queue.rotate(position)
+        visited_modules.add(_module(entry))
+        ranked.append(entry)
+        if queue:
+            families[family] = queue
+        if families:
+            active.append(families)
+    return ReviewFrontier(
+        tuple(ranked),
+        {r["candidate_id"]: i for i, r in enumerate(original, 1)},
+        {
+            group[0]["candidate_id"]: tuple(e["candidate_id"] for e in group)
+            for group in groups
+        },
+    )
+
+
+def _module(entry):
+    return str(PurePosixPath(entry["location"]["file"]).parent)
 
 
 def cluster_frontier(entries):
