@@ -86,6 +86,10 @@ class ReviewPolicy(Contract):
     evidence_intake: Literal["legacy", "linked"] | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    # Peer: UnifiedReview.verify. Compatible targets share reads, never verdicts.
+    batch_packing: Literal["shared_source"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     batch_size: int = Field(ge=1)
     max_batches: int = Field(ge=0)
     supplement_insufficient: bool
