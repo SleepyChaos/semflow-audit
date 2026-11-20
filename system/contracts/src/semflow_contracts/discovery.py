@@ -41,7 +41,11 @@ class WindowPolicy(Contract):
     # Peer: ScoutService.prepare. Explicit ordering can hold the executor
     # and response validation constant in a scheduling comparison.
     version: str = Field(min_length=1)
-    ordering: Literal["legacy", "risk_aware"] | None = Field(
+    ordering: Literal["legacy", "risk_aware", "coverage_aware"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    # Peer: adapters.ai.provider. Preserve valid siblings in a final response.
+    isolate_findings: bool | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
     max_windows: int = Field(
@@ -74,8 +78,8 @@ class ReviewPolicy(Contract):
     version: str = Field(min_length=1)
     # Peer: runtime.discovery_operations / discovery.unified_review. Absence
     # preserves the original planner and the digest of existing review inputs.
-    scheduler: Literal["source_balanced_v1", "clustered_v2"] | None = Field(
-        default=None, exclude_if=lambda value: value is None
+    scheduler: Literal["source_balanced_v1", "clustered_v2", "evidence_v3"] | None = (
+        Field(default=None, exclude_if=lambda value: value is None)
     )
     # Peer: review_pool and review_navigation_feedback. A comparison fixes
     # evidence intake across schedulers. Absent preserves historical defaults.

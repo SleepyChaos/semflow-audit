@@ -2,9 +2,9 @@
 
 Runtime dependencies are passed explicitly; no platform ORM or configuration.
 Changes to JSON require checking the corresponding semflow_contracts/wire peer.
-"""
 
-"""Project-specific review narratives, source citations and unexecuted examples."""
+Project-specific review narratives, source citations and unexecuted examples."""
+
 from typing import Literal
 from uuid import UUID
 
@@ -78,5 +78,33 @@ class NavigatedReviewResponse(PresentedReviewResponse):
 
 
 class FinalNavigatedReviewResponse(NavigatedReviewResponse):
+    action: Literal["final"] = "final"
+    tool: None = None
+
+
+class SourceReviewDetail(StrictModel):
+    title: str = Field(min_length=1, max_length=200)
+    description: str = Field(min_length=10, max_length=1500)
+    impact: str = Field(min_length=10, max_length=1000)
+    evidence_ids: list[UUID] = Field(default_factory=list, max_length=20)
+
+
+class SourceReviewAssessment(SemanticAssessment):
+    detail: SourceReviewDetail
+    evidence_gaps: list[EvidenceGapRequest] = Field(default_factory=list, max_length=5)
+
+    @field_validator("evidence_gaps", mode="before")
+    @classmethod
+    def valid_requests(cls, value):
+        return NavigatedAssessment.valid_requests(value)
+
+
+class SourceReviewResponse(UnifiedReviewResponseV8):
+    candidate_assessments: list[SourceReviewAssessment] = Field(
+        default_factory=list, max_length=50
+    )
+
+
+class FinalSourceReviewResponse(SourceReviewResponse):
     action: Literal["final"] = "final"
     tool: None = None
