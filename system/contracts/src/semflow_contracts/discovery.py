@@ -38,8 +38,12 @@ class ScanInput(Contract):
 
 
 class WindowPolicy(Contract):
-    # Version 2 uses source-local function/risk ordering, with the same caps.
+    # Peer: ScoutService.prepare. Explicit ordering can hold the executor
+    # and response validation constant in a scheduling comparison.
     version: str = Field(min_length=1)
+    ordering: Literal["legacy", "risk_aware"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     max_windows: int = Field(
         ge=0,
         description="0 schedules every eligible window, preserving the native scout method",
@@ -71,6 +75,11 @@ class ReviewPolicy(Contract):
     # Peer: runtime.discovery_operations / discovery.unified_review. Absence
     # preserves the original planner and the digest of existing review inputs.
     scheduler: Literal["source_balanced_v1", "clustered_v2"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    # Peer: review_pool and review_navigation_feedback. A comparison fixes
+    # evidence intake across schedulers. Absent preserves historical defaults.
+    evidence_intake: Literal["legacy", "linked"] | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
     batch_size: int = Field(ge=1)
