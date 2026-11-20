@@ -1,8 +1,87 @@
 """Recover only length overflow in Scout's explanatory display fields."""
 
 import json
+from dataclasses import dataclass
 
 from pydantic import ValidationError
+
+
+@dataclass(frozen=True)
+class ScoutFormatRecovery:
+    response: object
+    edits: tuple[dict, ...]
+
+    @property
+    def classification(self) -> str:
+        kinds = {edit["kind"] for edit in self.edits}
+        if kinds == {"exact_enum_alias"}:
+            return "revalidated_exact_alias"
+        if kinds == {"display_length"}:
+            return "revalidated_display_fields"
+        return "revalidated_mixed_format"
+
+
+# These are exact conclusion literals misplaced in the status slot, never
+# model-specific synonyms. The source/citation validator still has to accept them.
+_CONCLUSION_ALIASES = {
+    "suspicious": "investigated",
+    "no_condition_identified": "investigated",
+}
+
+
+def recover_scout_format(content, schema, error):
+    violations = error.errors(include_input=False, include_url=False)
+    try:
+        value = json.loads(content)
+        edits = []
+        for row in violations:
+            path = row["loc"]
+            if (
+                len(path) != 3
+                or path[0] != "task_checks"
+                or not isinstance(path[1], int)
+            ):
+                return None
+            check = value["task_checks"][path[1]]
+            if path[2] == "status" and row["type"] == "literal_error":
+                alias = check["status"]
+                canonical = _CONCLUSION_ALIASES.get(alias)
+                if canonical is None or check.get("conclusion") != alias:
+                    return None
+                check["status"] = canonical
+                edits.append(
+                    {
+                        "path": list(path),
+                        "kind": "exact_enum_alias",
+                        "before": alias,
+                        "after": canonical,
+                    }
+                )
+            elif path[2] == "reason" and row["type"] == "string_too_long":
+                limit = row.get("ctx", {}).get("max_length")
+                if not isinstance(limit, int) or limit < 10:
+                    return None
+                before = len(check["reason"])
+                check["reason"] = check["reason"][: limit - 1].rstrip() + "…"
+                edits.append(
+                    {
+                        "path": list(path),
+                        "kind": "display_length",
+                        "characters_before": before,
+                        "characters_after": len(check["reason"]),
+                    }
+                )
+            else:
+                # Observation, citations, missing facts and candidate meaning
+                # are left intact; these need a new response rather than edits.
+                return None
+        return (
+            ScoutFormatRecovery(schema.model_validate(value), tuple(edits))
+            if edits
+            else None
+        )
+    except (ValueError, TypeError, AttributeError, KeyError, IndexError):
+        return None
 
 
 def recover_display_fields(content, schema, error):

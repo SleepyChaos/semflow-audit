@@ -7,8 +7,6 @@ Changes to JSON require checking the corresponding semflow_contracts/wire peer.
 """V4 bounded security tasks, actual source pages and coverage-aware call allocation."""
 import json
 
-from semflow_research.adapters.source_text import read_source_text
-
 from semflow_contracts.modelio.discovery_semantics import (
     FinalScoutResponseV6,
     ScoutResponseV6,
@@ -20,6 +18,7 @@ from semflow_contracts.modelio.scouting import (
     ScoutResponseV5,
 )
 
+from semflow_research.adapters.source_text import read_source_text
 from semflow_research.discovery.review_tools import (
     SOURCE_TOOL_CONTRACT,
     gather_review_tool,
@@ -232,14 +231,17 @@ def inspect_unit(service, project, unit, call_limit, *, _kernel):
         except AuditError as exc:
             if (
                 risk_aware
-                and exc.code == "schema_invalid"
+                and exc.code in {"schema_invalid", "length"}
                 and not schema_retry
                 and step + 1 < call_limit
             ):
                 schema_retry = True
                 context["server_feedback"] = {
-                    "code": "schema_invalid",
-                    "instruction": "Repair the structure using the supplied sources and retain unknown premises.",
+                    "code": exc.code,
+                    "instruction": (
+                        "Return one complete shorter JSON response. Keep evidence references and unresolved facts. "
+                        "Use short task reasons and one concise candidate observation."
+                    ),
                     "diagnostics": getattr(exc, "validation_feedback", ()),
                 }
                 continue
@@ -256,6 +258,7 @@ def inspect_unit(service, project, unit, call_limit, *, _kernel):
                     directory / f"call-{step}" / "source-input.json",
                     {
                         "unit_id": unit["id"],
+                        "format_retry": schema_retry and step > 0,
                         "ranges": [
                             {
                                 key: row[key]

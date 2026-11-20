@@ -93,6 +93,23 @@ class CompatibleModel:
                 ),
             },
         ]
+        use_schema = (
+            purpose == "scout"
+            and getattr(_kernel.spec.model, "scout_response_format", None)
+            == "json_schema"
+        )
+        response_format = (
+            {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": schema.__name__,
+                    "strict": True,
+                    "schema": schema.model_json_schema(),
+                },
+            }
+            if use_schema
+            else {"type": "json_object"}
+        )
         output = self.policy["budgets"][purpose]
         for attempt in range(self.context.spec.policy.max_attempts):
             validation_feedback = None
@@ -129,6 +146,7 @@ class CompatibleModel:
                 ).hexdigest(),
                 "request_model": self.model,
                 "output_budget": output,
+                "response_format": response_format["type"],
                 "input_tokens": None,
                 "output_tokens": None,
                 "reasoning_tokens": None,
@@ -155,7 +173,7 @@ class CompatibleModel:
                     extra_body={"thinking": {"type": self.policy["thinking_mode"]}}
                     if self.policy.get("thinking_mode")
                     else None,
-                    response_format={"type": "json_object"},
+                    response_format=response_format,
                     messages=messages,
                     **(
                         {"temperature": self.policy["temperature"]}
@@ -267,15 +285,17 @@ class CompatibleModel:
                     == "2"
                 ):
                     from semflow_research.adapters.ai.scout_response import (
-                        recover_display_fields,
+                        recover_scout_format,
                     )
 
-                    result = recover_display_fields(
+                    recovered = recover_scout_format(
                         completion.choices[0].message.content or "", schema, exc
                     )
-                if result is not None:
-                    record["recovery_class"] = "revalidated_display_fields"
-                else:
+                    if recovered is not None:
+                        result = recovered.response
+                        record["normalization"] = list(recovered.edits)
+                        record["recovery_class"] = recovered.classification
+                if result is None:
                     record["error_code"] = "schema_invalid"
                     record["recovery_class"] = "bounded_schema_retry"
                     error = AuditError("模型输出不符合结构契约；未确认任何漏洞")
