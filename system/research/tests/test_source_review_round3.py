@@ -16,6 +16,52 @@ def recover(body):
     return scout_response.recover_scout_format(raw, FinalScoutResponseV6, error.value)
 
 
+def test_comparison_switches_keep_same_reliability_and_evidence():
+    from semflow_research.public.discovery_requests import (
+        DiscoveryOptions,
+        _review_policy,
+        _scout_inputs,
+    )
+
+    options = DiscoveryOptions(
+        operation="discover",
+        query_pack="codeql/python-queries@1",
+        suite="scan.qls",
+        policy={
+            "mode": "bounded",
+            "max_calls": 4,
+            "max_tokens": 10000,
+            "max_seconds": 60,
+            "per_call_timeout_seconds": 20,
+            "tool_timeout_seconds": 20,
+            "max_attempts": 1,
+            "max_context_chars": 30000,
+            "resource_profile": "test",
+            "decision_policy": "human_only",
+        },
+        scout_window_ordering="legacy",
+        risk_window_selection=False,
+        source_balanced_review=False,
+        review_evidence_intake="legacy",
+    )
+    legacy = _scout_inputs(options)
+    current = _scout_inputs(
+        options.model_copy(update={"scout_window_ordering": "risk_aware"})
+    )
+    assert legacy.window_policy.version == current.window_policy.version == "2"
+    assert legacy.window_policy.ordering == "legacy"
+    assert current.window_policy.ordering == "risk_aware"
+    assert legacy.window_policy.model_dump(
+        exclude={"ordering"}
+    ) == current.window_policy.model_dump(exclude={"ordering"})
+    left = _review_policy(options)
+    right = _review_policy(options.model_copy(update={"source_balanced_review": True}))
+    assert left.scheduler is None and right.scheduler == "clustered_v2"
+    assert left.model_dump(exclude={"scheduler"}) == right.model_dump(
+        exclude={"scheduler"}
+    )
+
+
 def test_recover_exact_status_conclusion_slot_mixup():
     body = {
         "action": "final",

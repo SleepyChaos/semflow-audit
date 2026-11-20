@@ -97,6 +97,7 @@ def prepare_pool(service, *, _kernel):
         key = (
             (lambda row: row.id)
             if _kernel.spec.inputs.policy.scheduler
+            or _kernel.spec.inputs.policy.evidence_intake
             else (lambda row: row.identity_key)
         )
         unique = {key(row): row for row in scouts}
@@ -255,6 +256,14 @@ def fit_batches(service, schedule, *, _kernel, limit=0):
     return fitted[:limit] if limit else fitted
 
 
+def evidence_intake(policy):
+    if policy.evidence_intake is not None:
+        return policy.evidence_intake
+    return {"clustered_v2": "linked", "source_balanced_v1": "bounded"}.get(
+        policy.scheduler, "legacy"
+    )
+
+
 def batch_context(service, entries, *, _kernel):
     ids = [UUID(r["candidate_id"]) for r in entries]
     with _kernel.records.transaction() as db:
@@ -268,7 +277,8 @@ def batch_context(service, entries, *, _kernel):
         materials.extend(project_documents(service.evidence))
     materials = list({r["id"]: r for r in materials}.values())
     path_seeds = []
-    linked = _kernel.spec.inputs.policy.scheduler == "clustered_v2" and any(
+    intake = evidence_intake(_kernel.spec.inputs.policy)
+    linked = intake == "linked" and any(
         (row.get("static_alert") or {}).get("code_flows") for row in entries
     )
     if linked and not continuation:
@@ -306,7 +316,7 @@ def batch_context(service, entries, *, _kernel):
                 in {"7", "8", "9", "10", "11", "12"},
                 max_evidence_chars=(
                     min(23000, service.inputs.max_context_chars // 2)
-                    if _kernel.spec.inputs.policy.scheduler and len(entries) > 1
+                    if intake != "legacy" and len(entries) > 1
                     else 23000
                 ),
             )

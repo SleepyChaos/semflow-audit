@@ -68,7 +68,9 @@ def build_project_map(
     *,
     scheduling_profile="full",
     risk_aware=False,
+    index_functions=False,
 ) -> dict:
+    index_functions = index_functions or risk_aware
     rows, queues, skipped = ([], defaultdict(deque), [])
     operations = {}
     for path in evidence.files():
@@ -93,13 +95,13 @@ def build_project_map(
         module = module_name(file)
         language = evidence.source_context.language
         if (
-            risk_aware
+            index_functions
             and language == "python"
             and path.suffix.lower() not in {".py", ".pyi", ".pyw"}
         ):
             # Retain template/configuration text windows without a Python index.
             language = "text"
-        parsed = symbols(text, language, risk_aware=risk_aware)
+        parsed = symbols(text, language, risk_aware=index_functions)
         operations[file] = parsed.pop("operations", [])
         rows.append(
             {

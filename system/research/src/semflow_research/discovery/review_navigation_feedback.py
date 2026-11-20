@@ -49,8 +49,10 @@ def next_navigation(service, batch_id, result, base, context, remaining, policy)
             else base
         )
         source = _target_context(active, assessment, batch_id, policy)
+        from semflow_research.discovery.review_pool import evidence_intake
+
         if (
-            service._kernel.spec.inputs.policy.scheduler == "clustered_v2"
+            evidence_intake(service._kernel.spec.inputs.policy) == "linked"
             and active is base
         ):
             # Keep target and cited material. Drop other members' unrelated pages

@@ -95,7 +95,12 @@ class ScoutService:
                     if self.execution.method_version in {"4", "5", "6", "7", "8"}
                     else "balanced",
                     scheduling_profile=self.inputs.scheduling_profile,
-                    risk_aware=_kernel.spec.inputs.window_policy.version == "2",
+                    index_functions=_kernel.spec.inputs.window_policy.version == "2",
+                    risk_aware=(
+                        _kernel.spec.inputs.window_policy.ordering == "risk_aware"
+                        if _kernel.spec.inputs.window_policy.ordering is not None
+                        else _kernel.spec.inputs.window_policy.version == "2"
+                    ),
                 )
             save_json(path, project)
         identity = digest({"project": project, "inputs": self.execution.inputs})
