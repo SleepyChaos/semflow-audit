@@ -67,6 +67,11 @@ class ModelProfile(Contract):
     temperature: float | None = None
     thinking_mode: str | None = None
     output_schema_version: str = Field(min_length=1)
+    # Peer: CompatibleModel.generate. Freeze endpoint capability per run;
+    # absence keeps the historical JSON-object request format.
+    scout_response_format: Literal["json_object", "json_schema"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     output_tokens: int = Field(
         default=6000,
         ge=1,
